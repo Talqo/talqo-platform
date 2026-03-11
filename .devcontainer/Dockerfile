@@ -19,12 +19,7 @@ RUN apt-get update \
  && chmod +x /usr/local/bin/kubectl \
  # Install helm
  && curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash \
- # Install encore
- && export ENCORE_INSTALL=/usr/local/encore \
- && curl -sL https://encore.dev/install.sh | bash \
- && ln -sf /usr/local/encore/bin/encore /usr/local/bin/encore
-
-
-WORKDIR /workspaces/app
+ # Install Claude Code
+ && curl -fsSL https://claude.ai/install.sh | sudo -u vscode bash
 
 USER vscode

@@ -1,0 +1,23 @@
+{
+	"name": "api",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "bun --watch run src/index.ts",
+		"build": "tsc",
+		"lint": "biome lint .",
+		"check": "biome check .",
+		"fix": "biome check --write .",
+		"type-check": "tsc --noEmit",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"hono": "^4.10.8",
+		"shared": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"typescript": "~5.9.3"
+	}
+}

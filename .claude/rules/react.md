@@ -1,7 +1,9 @@
 ---
-paths: 
-  - "frontend/**/*.tsx"
-  - "frontend/**/*.ts"
+paths:
+  - "apps/web/**/*.tsx"
+  - "apps/web/**/*.ts"
+  - "packages/widget/**/*.tsx"
+  - "packages/widget/**/*.ts"
 ---
 <context>
 Guidelines for building scalable React applications using functional components, hooks, and component composition.

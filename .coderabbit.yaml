@@ -71,7 +71,7 @@ reviews:
         - Avoid unnecessary complexity, dead code, and duplicated logic.
 
     # Frontend-specific guidance for React + shadcn/ui + TanStack
-    - path: "frontend/**/*.{ts,tsx,mts,cts,css,scss}"
+    - path: "apps/web/**/*.{ts,tsx,mts,cts,css,scss}"
       instructions: |
         - Assume React + shadcn/ui + TanStack unless PR states otherwise.
         - Prefer functional components/hooks; ensure effect cleanup and complete deps.
@@ -80,12 +80,12 @@ reviews:
         - Keep styling aligned with design tokens; avoid one-off hardcoded styles.
         - Avoid exposing secrets or relying on client-only validation.
 
-    # Backend-specific guidance for Encore.ts services
-    - path: "backend/**/*.{ts,mts,cts}"
+    # Backend-specific guidance for Hono API
+    - path: "apps/api/**/*.{ts,mts,cts}"
       instructions: |
-        - Assume Encore.ts conventions and primitives unless PR states otherwise.
-        - Keep service/API boundaries explicit and avoid leaking internal implementation details.
-        - Validate API contracts at runtime and keep error/status formats consistent.
+        - Assume Hono framework conventions unless PR states otherwise.
+        - Keep route handlers focused and middleware composable.
+        - Validate API contracts and keep error/status formats consistent.
         - Enforce authorization and sanitize/validate inputs/outputs.
         - Keep background jobs/async workflows idempotent and retry-safe.
         - Flag obvious N+1 data access patterns and sensitive data leakage in logs.

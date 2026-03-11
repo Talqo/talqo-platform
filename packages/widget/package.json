@@ -1,0 +1,39 @@
+{
+	"name": "widget",
+	"version": "0.0.0",
+	"private": false,
+	"type": "module",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "vite build && tsc --emitDeclarationOnly",
+		"lint": "biome lint .",
+		"check": "biome check .",
+		"fix": "biome check --write .",
+		"type-check": "tsc --noEmit",
+		"test": "bun -e \"console.log('No tests in widget')\""
+	},
+	"peerDependencies": {
+		"react": "^18 || ^19",
+		"react-dom": "^18 || ^19"
+	},
+	"devDependencies": {
+		"@types/react": "^19.2.7",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^5.1.1",
+		"typescript": "~5.9.3",
+		"vite": "^8.0.0-beta.13"
+	},
+	"overrides": {
+		"vite": "^8.0.0-beta.13"
+	}
+}

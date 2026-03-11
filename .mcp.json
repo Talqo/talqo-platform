@@ -1,36 +1,24 @@
 {
-  "mcpServers": {
-    "searxng": {
-      "command": "bunx",
-      "args": [
-        "-y",
-        "mcp-searxng"
-      ],
-      "env": {
-        "SEARXNG_URL": "https://searx.salonek.org/"
-      },
-      "disabled": false,
-      "autoApprove": [],
-      "alwaysAllow": [
-        "searxng_web_search",
-        "web_url_read"
-      ],
-      "disabledTools": []
-    },
-    "context7": {
-      "command": "bunx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp"
-      ],
-      "env": {
-        "DEFAULT_MINIMUM_TOKENS": ""
-      },
-      "alwaysAllow": [
-        "resolve-library-id",
-        "query-docs"
-      ],
-      "disabled": false
-    }
-  }
+	"mcpServers": {
+		"searxng": {
+			"command": "bunx",
+			"args": ["-y", "mcp-searxng"],
+			"env": {
+				"SEARXNG_URL": "https://searx.salonek.org/"
+			},
+			"disabled": false,
+			"autoApprove": [],
+			"alwaysAllow": ["searxng_web_search", "web_url_read"],
+			"disabledTools": []
+		},
+		"context7": {
+			"command": "bunx",
+			"args": ["-y", "@upstash/context7-mcp"],
+			"env": {
+				"DEFAULT_MINIMUM_TOKENS": ""
+			},
+			"alwaysAllow": ["resolve-library-id", "query-docs"],
+			"disabled": false
+		}
+	}
 }

@@ -1,0 +1,25 @@
+{
+	"name": "shared",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"lint": "biome lint .",
+		"check": "biome check .",
+		"test": "bun -e \"console.log('No tests in shared')\"",
+		"type-check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"typescript": "~5.9.3"
+	}
+}
