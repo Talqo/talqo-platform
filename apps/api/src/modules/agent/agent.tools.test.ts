@@ -3,40 +3,12 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { ModelMessage } from "ai";
-import { checkBlacklist } from "./agent.blacklist";
 import { createContextTools } from "./agent.tools";
 
 const toolCallOptions = {
 	toolCallId: "test",
 	messages: [] as ModelMessage[],
 };
-
-describe("checkBlacklist", () => {
-	it("returns false for empty blacklist", () => {
-		expect(checkBlacklist("hello world", [])).toBe(false);
-	});
-
-	it("detects case-insensitive match", () => {
-		expect(checkBlacklist("Hello World", ["hello"])).toBe(true);
-		expect(checkBlacklist("hello world", ["HELLO"])).toBe(true);
-	});
-
-	it("detects substring match", () => {
-		expect(checkBlacklist("I cannot help with that", ["cannot"])).toBe(true);
-	});
-
-	it("returns false when no words match", () => {
-		expect(checkBlacklist("hello world", ["foo", "bar"])).toBe(false);
-	});
-
-	it("matches any word in the list", () => {
-		expect(checkBlacklist("this is bad", ["good", "bad"])).toBe(true);
-	});
-
-	it("returns false for empty text", () => {
-		expect(checkBlacklist("", ["word"])).toBe(false);
-	});
-});
 
 describe("createContextTools", () => {
 	let tempDir: string;
@@ -97,7 +69,40 @@ describe("createContextTools", () => {
 				{ path: "readme.txt" },
 				toolCallOptions,
 			);
-			expect(result).toEqual({ content: "hello from readme" });
+			expect(result).toEqual({ content: "hello from readme", totalLines: 1 });
+		});
+
+		it("defaults to first 500 lines when no range is given", async () => {
+			const lines = Array.from({ length: 600 }, (_, i) => `line ${i + 1}`);
+			await writeFile(join(tempDir, "big.txt"), lines.join("\n"));
+			const { readFile } = createContextTools(tempDir);
+			if (!readFile.execute) throw new Error("execute not defined");
+			const result = await readFile.execute(
+				{ path: "big.txt" },
+				toolCallOptions,
+			);
+			expect("content" in result).toBe(true);
+			const { content, totalLines } = result as {
+				content: string;
+				totalLines: number;
+			};
+			expect(totalLines).toBe(600);
+			expect(content.split("\n")).toHaveLength(500);
+			expect(content.split("\n")[0]).toBe("line 1");
+		});
+
+		it("respects startLine and endLine", async () => {
+			const lines = Array.from({ length: 10 }, (_, i) => `line ${i + 1}`);
+			await writeFile(join(tempDir, "numbered.txt"), lines.join("\n"));
+			const { readFile } = createContextTools(tempDir);
+			if (!readFile.execute) throw new Error("execute not defined");
+			const result = await readFile.execute(
+				{ path: "numbered.txt", startLine: 3, endLine: 5 },
+				toolCallOptions,
+			);
+			expect("content" in result).toBe(true);
+			const { content } = result as { content: string };
+			expect(content).toBe("line 3\nline 4\nline 5");
 		});
 
 		it("returns error for nonexistent file", async () => {

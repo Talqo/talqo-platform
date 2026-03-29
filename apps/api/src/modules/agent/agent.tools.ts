@@ -47,17 +47,34 @@ export function createContextTools(contextDirectory: string) {
 
 		readFile: tool({
 			description:
-				"Read the contents of a text file in the user's context directory. Use a relative path from the root.",
+				"Read the contents of a text file in the user's context directory. Use a relative path from the root. If no line range is provided, returns the first 500 lines.",
 			inputSchema: z.object({
 				path: z
 					.string()
 					.describe("Relative path to the file within the context directory"),
+				startLine: z
+					.number()
+					.int()
+					.positive()
+					.optional()
+					.describe("1-based line number to start reading from (inclusive)"),
+				endLine: z
+					.number()
+					.int()
+					.positive()
+					.optional()
+					.describe("1-based line number to stop reading at (inclusive)"),
 			}),
-			execute: async ({ path }) => {
+			execute: async ({ path, startLine, endLine }) => {
 				try {
 					const filePath = safePath(path);
-					const content = await readFile(filePath, "utf-8");
-					return { content };
+					const raw = await readFile(filePath, "utf-8");
+					const lines = raw.split("\n");
+					const total = lines.length;
+					const from = (startLine ?? 1) - 1;
+					const to = endLine ?? Math.min(from + 500, total);
+					const content = lines.slice(from, to).join("\n");
+					return { content, totalLines: total };
 				} catch (error) {
 					return {
 						error: `Failed to read file: ${error instanceof Error ? error.message : String(error)}`,
