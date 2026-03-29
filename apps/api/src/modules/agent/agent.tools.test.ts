@@ -59,6 +59,26 @@ describe("createContextTools", () => {
 				expect(result.error).toContain("Path traversal detected");
 			}
 		});
+
+		it("blocks sibling-directory traversal via shared prefix", async () => {
+			// /tmp/agent-test-XYZ and /tmp/agent-test-XYZevil share a prefix —
+			// a naive startsWith check would allow escaping into the sibling.
+			const siblingDir = `${tempDir}evil`;
+			const { listFiles } = createContextTools(tempDir);
+			if (!listFiles.execute) throw new Error("execute not defined");
+			// Construct a path that resolves to the sibling: ../basename + "evil"
+			const basename = tempDir.split("/").at(-1) ?? "";
+			const result = await listFiles.execute(
+				{ path: `../${basename}evil` },
+				toolCallOptions,
+			);
+			expect(result).toHaveProperty("error");
+			if ("error" in result) {
+				expect(result.error).toContain("Path traversal detected");
+			}
+			// Suppress unused variable warning — siblingDir is referenced to document intent
+			void siblingDir;
+		});
 	});
 
 	describe("readFile", () => {
@@ -103,6 +123,16 @@ describe("createContextTools", () => {
 			expect("content" in result).toBe(true);
 			const { content } = result as { content: string };
 			expect(content).toBe("line 3\nline 4\nline 5");
+		});
+
+		it("returns error when endLine is less than startLine", async () => {
+			const { readFile } = createContextTools(tempDir);
+			if (!readFile.execute) throw new Error("execute not defined");
+			const result = await readFile.execute(
+				{ path: "readme.txt", startLine: 10, endLine: 5 },
+				toolCallOptions,
+			);
+			expect(result).toHaveProperty("error");
 		});
 
 		it("returns error for nonexistent file", async () => {

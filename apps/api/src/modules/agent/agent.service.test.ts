@@ -52,7 +52,7 @@ describe("generateResponse", () => {
 	it("returns message and token usage on success", async () => {
 		const result = await generateResponse(baseInput);
 		expect(result.message).toBe("Hello from AI");
-		expect(result.tokensUsed).toEqual({ input: 10, output: 20, total: 30 });
+		expect(result.tokensUsed).toEqual({ input: 10, output: 20 });
 	});
 
 	it("returns blocked=false when no blacklisted words match", async () => {
@@ -77,12 +77,12 @@ describe("generateResponse", () => {
 
 	it("closes the MCP connection even when generateText throws", async () => {
 		mockGenerateText.mockRejectedValueOnce(new Error("model error"));
-		await expect(
-			generateResponse({
-				...baseInput,
-				mcpServers: [{ type: "sse", url: "http://example.com" }],
-			}),
-		).rejects.toThrow("model error");
+		const error = await generateResponse({
+			...baseInput,
+			mcpServers: [{ type: "sse", url: "http://example.com" }],
+		}).catch((e: unknown) => e);
+		expect(error).toBeInstanceOf(Error);
+		expect((error as Error).message).toBe("model error");
 		expect(mockClose).toHaveBeenCalledTimes(1);
 	});
 

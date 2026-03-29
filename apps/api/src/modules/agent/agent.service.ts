@@ -31,8 +31,6 @@ export async function generateResponse(
 			tokensUsed: {
 				input: result.usage.inputTokens ?? 0,
 				output: result.usage.outputTokens ?? 0,
-				total:
-					(result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0),
 			},
 			blocked,
 		};

@@ -11,8 +11,20 @@ describe("checkBlacklist", () => {
 		expect(checkBlacklist("hello world", ["HELLO"])).toBe(true);
 	});
 
-	it("detects substring match", () => {
+	it("detects whole-word match", () => {
 		expect(checkBlacklist("I cannot help with that", ["cannot"])).toBe(true);
+	});
+
+	it("detects enclosed words", () => {
+		expect(checkBlacklist("Send (nudes)", ["nudes"])).toBe(true);
+		expect(checkBlacklist("Send [nudes]", ["nudes"])).toBe(true);
+		expect(checkBlacklist("Send {nudes}", ["nudes"])).toBe(true);
+		expect(checkBlacklist("Send ~nudes.", ["nudes"])).toBe(true);
+		expect(checkBlacklist('Send "nudes"', ["nudes"])).toBe(true);
+	});
+
+	it("does not match partial words", () => {
+		expect(checkBlacklist("class assignment", ["ass"])).toBe(false);
 	});
 
 	it("returns false when no words match", () => {

@@ -7,7 +7,8 @@ function createSafePath(rootDir: string) {
 	const resolved = resolve(rootDir);
 	return (relative: string): string => {
 		const target = resolve(resolved, normalize(relative));
-		if (!target.startsWith(resolved)) {
+		// Use trailing slash to prevent sibling-directory bypass (e.g. /ctx matching /ctx-evil)
+		if (target !== resolved && !target.startsWith(`${resolved}/`)) {
 			throw new Error("Path traversal detected");
 		}
 		return target;
@@ -66,6 +67,15 @@ export function createContextTools(contextDirectory: string) {
 					.describe("1-based line number to stop reading at (inclusive)"),
 			}),
 			execute: async ({ path, startLine, endLine }) => {
+				if (
+					endLine !== undefined &&
+					startLine !== undefined &&
+					endLine < startLine
+				) {
+					return {
+						error: "endLine must be greater than or equal to startLine",
+					};
+				}
 				try {
 					const filePath = safePath(path);
 					const raw = await readFile(filePath, "utf-8");

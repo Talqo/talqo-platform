@@ -41,6 +41,13 @@ export async function connectMcpServers(
 			});
 			clients.push(client);
 			const tools = await client.tools();
+			for (const name of Object.keys(tools)) {
+				if (name in mergedTools) {
+					console.warn(
+						`MCP tool name collision: "${name}" will be overwritten by ${config.type} server`,
+					);
+				}
+			}
 			mergedTools = { ...mergedTools, ...tools };
 		} catch (error) {
 			console.error(`Failed to connect to MCP server (${config.type}):`, error);

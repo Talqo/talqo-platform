@@ -13,7 +13,6 @@ export type AiServiceInput = {
 export type TokenUsage = {
 	input: number;
 	output: number;
-	total: number;
 };
 
 export type AiServiceOutput = {
