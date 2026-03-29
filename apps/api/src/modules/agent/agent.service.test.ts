@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import type { AiServiceInput } from "./agent.types";
 
-// --- stable mocks (defined before mock.module so they can be referenced in factory fns) ---
-
-const mockMcpClose = mock(async () => {});
-
 const mockGenerateText = mock(async (_opts: unknown) => ({
 	text: "Hello from AI",
 	usage: { inputTokens: 10, outputTokens: 20 },
@@ -15,24 +11,21 @@ const mockStepCountIs = mock((_n: number) => ({ type: "stepCount" as const }));
 mock.module("ai", () => ({
 	generateText: mockGenerateText,
 	stepCountIs: mockStepCountIs,
+	// passthrough: tools are never invoked because generateText is mocked
+	tool: (config: unknown) => config,
 }));
 
-mock.module("./agent.provider", () => ({
-	createLanguageModel: mock(() => ({ type: "mock-model" })),
+// Mock at the external package level so the real connectMcpServers and createContextTools modules are not poisoned for other test files.
+const mockClose = mock(async () => {});
+const mockCreateMCPClient = mock(async () => ({
+	tools: mock(async () => ({})),
+	close: mockClose,
 }));
 
-mock.module("./agent.mcp", () => ({
-	connectMcpServers: mock(async (_configs: unknown) => ({
-		tools: {},
-		close: mockMcpClose,
-	})),
+mock.module("@ai-sdk/mcp", () => ({
+	createMCPClient: mockCreateMCPClient,
 }));
 
-mock.module("./agent.tools", () => ({
-	createContextTools: mock(() => ({})),
-}));
-
-// imported after mock.module calls so the mocked dependencies are in place
 import { generateResponse } from "./agent.service";
 
 const baseInput: AiServiceInput = {
@@ -52,7 +45,8 @@ describe("generateResponse", () => {
 	beforeEach(() => {
 		mockGenerateText.mockClear();
 		mockStepCountIs.mockClear();
-		mockMcpClose.mockClear();
+		mockClose.mockClear();
+		mockCreateMCPClient.mockClear();
 	});
 
 	it("returns message and token usage on success", async () => {
@@ -83,8 +77,13 @@ describe("generateResponse", () => {
 
 	it("closes the MCP connection even when generateText throws", async () => {
 		mockGenerateText.mockRejectedValueOnce(new Error("model error"));
-		await expect(generateResponse(baseInput)).rejects.toThrow("model error");
-		expect(mockMcpClose).toHaveBeenCalledTimes(1);
+		await expect(
+			generateResponse({
+				...baseInput,
+				mcpServers: [{ type: "sse", url: "http://example.com" }],
+			}),
+		).rejects.toThrow("model error");
+		expect(mockClose).toHaveBeenCalledTimes(1);
 	});
 
 	it("uses maxSteps=10 by default", async () => {
