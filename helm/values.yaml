@@ -1,0 +1,63 @@
+# Production defaults — deploy prod with no -f flag.
+# Dev overrides are in values.dev.yaml.
+
+api:
+  replicaCount: 2
+  image:
+    repository: "ghcr.io/fidasek009/pagepal-api"
+    tag: ""
+    pullPolicy: "IfNotPresent"
+  port: 3000
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+web:
+  replicaCount: 2
+  image:
+    repository: "ghcr.io/fidasek009/pagepal-web"
+    tag: ""
+    pullPolicy: "IfNotPresent"
+  port: 80
+  resources:
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "pagepal.dyn.cloud.e-infra.cz"
+  tls: true
+  tlsSecretName: "pagepal-tls"
+  clusterIssuer: "letsencrypt-prod"
+
+postgresql:
+  auth:
+    username: "pagepal"
+    database: "pagepal"
+    existingSecret: ""
+  primary:
+    persistence:
+      size: "10Gi"
+
+migration:
+  # Disabled until packages/db implements Drizzle migrations.
+  enabled: false
+  image:
+    repository: "ghcr.io/fidasek009/pagepal-api"
+    tag: ""
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"

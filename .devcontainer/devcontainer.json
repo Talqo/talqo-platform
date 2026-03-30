@@ -11,7 +11,8 @@
 			"moby": false,
 			"dockerDashComposeVersion": "none",
 			"installDockerComposeSwitch": false
-		}
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 
 	// Use 'postCreateCommand' to run commands after the container is built.

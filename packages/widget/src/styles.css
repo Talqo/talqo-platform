@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+	--color-primary: #16a34a;
+	--color-primary-foreground: #ffffff;
+}
+
+/* Custom scrollbar styles for Widget */
+.widget-scrollbar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.widget-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.widget-scrollbar::-webkit-scrollbar-thumb {
+	background-color: rgba(100, 100, 100, 0.3);
+	border-radius: 20px;
+}
+
+.widget-scrollbar:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(100, 100, 100, 0.5);
+}
+
+.widget-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(100, 100, 100, 0.3) transparent;
+}
+
+.dark .widget-scrollbar::-webkit-scrollbar-thumb {
+	background-color: rgba(150, 150, 150, 0.25);
+}
+
+.dark .widget-scrollbar:hover::-webkit-scrollbar-thumb {
+	background-color: rgba(150, 150, 150, 0.45);
+}
+
+.dark .widget-scrollbar {
+	scrollbar-color: rgba(150, 150, 150, 0.25) transparent;
+}

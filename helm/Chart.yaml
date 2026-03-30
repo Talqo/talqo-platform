@@ -1,0 +1,11 @@
+apiVersion: v2
+name: pagepal
+description: PagePal monorepo - API and Web application
+type: application
+version: 0.1.0
+appVersion: "0.0.0"
+
+dependencies:
+  - name: postgresql
+    version: "18.5.11"
+    repository: oci://registry-1.docker.io/bitnamicharts

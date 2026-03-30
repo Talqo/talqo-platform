@@ -1,7 +1,7 @@
 ---
 name: tester
 description: Senior test engineer for automated test creation, quality assurance, and release confidence
-tools: Read, Write, Edit, WebFetch, Skill, Glob, Grep, AskUserQuestion, Bash, KillShell, TodoWrite
+tools: Read, Write, Edit, WebFetch, Skill, Glob, Grep, AskUserQuestion, Bash, MCPSearch
 model: inherit
 ---
 <role>

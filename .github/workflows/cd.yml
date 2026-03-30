@@ -1,0 +1,59 @@
+name: CD
+
+on:
+  push:
+    branches: [dev]
+    tags: ["v[0-9]*.[0-9]*.[0-9]*"]
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    name: Deploy (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_type == 'tag' && 'prod' || 'dev' }}
+      url: ${{ github.ref_type == 'tag' && 'https://pagepal.dyn.cloud.e-infra.cz' || 'https://dev.pagepal.dyn.cloud.e-infra.cz' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history required so git tag --points-at HEAD resolves the
+          # semver tag for prod image tagging (IMAGE_TAG in Makefile).
+          fetch-depth: 0
+
+      # Actions checkout leaves HEAD detached, which causes the Makefile to
+      # fall back to ENV=prod. For branch pushes we need ENV=dev, so attach.
+      - name: Attach to branch
+        if: github.ref_type == 'branch'
+        run: git checkout "${{ github.ref_name }}"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - uses: azure/setup-helm@v4
+
+      - name: Build and push images
+        run: make push
+        env:
+          VITE_API_URL: ${{ github.ref_type == 'tag' && 'https://pagepal.dyn.cloud.e-infra.cz' || 'https://dev.pagepal.dyn.cloud.e-infra.cz' }}
+
+      - name: Deploy
+        run: make deploy

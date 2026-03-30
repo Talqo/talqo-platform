@@ -1,0 +1,12 @@
+.git
+.turbo
+.vscode
+.devcontainer
+.github
+private
+**/node_modules
+**/dist
+**/coverage
+.env
+.env.*
+.env.example

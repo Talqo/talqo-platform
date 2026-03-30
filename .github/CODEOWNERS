@@ -1,2 +1,23 @@
-# Global rule — default owner for everything
-*                   @Fidasek009
+# Backend — API and database layer
+apps/api/                   @matousekm @adamkruba
+packages/db/                @matousekm @adamkruba
+
+# Frontend — web app and widget library
+apps/web/                   @Fildass1 @Fidasek009
+packages/widget/            @Fildass1 @Fidasek009
+
+# Shared — reviewed by both teams since all apps depend on it
+packages/shared/            @matousekm @adamkruba @Fildass1 @Fidasek009
+
+# DevOps / AIops — CI, Helm charts, container config, AI tooling
+.claude/                    @Fidasek009
+.devcontainer/              @Fidasek009
+.github/                    @Fidasek009
+.husky/                     @Fidasek009
+helm/                       @Fidasek009
+.coderabbit.yaml            @Fidasek009
+
+# QA and testing — test suites, test data, testing tools
+biome.json                  @Fildass1
+tsconfig.json               @Fildass1
+tests/                      @Fildass1

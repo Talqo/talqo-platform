@@ -1,20 +1,16 @@
 {
+	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"lib": ["ESNext"],
 		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "bundler",
 		"types": ["@types/bun"],
-		"strict": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"verbatimModuleSyntax": true,
 		"declaration": true,
 		"outDir": "./dist",
-		"noEmit": false
+		"noEmit": false,
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist"]

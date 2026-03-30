@@ -1,0 +1,52 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "pagepal.fullname" . }}-migrate
+  labels:
+    {{- include "pagepal.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "pagepal.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      volumes:
+        # drizzle-kit writes temp files to /tmp; required with readOnlyRootFilesystem: true
+        - name: tmp
+          emptyDir: {}
+      containers:
+        - name: migrate
+          image: "{{ .Values.migration.image.repository }}:{{ required "migration.image.tag is required — pass --set migration.image.tag=<version>" .Values.migration.image.tag }}"
+          command: ["bun", "run", "drizzle-kit", "migrate"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.dbSecretName" . }}
+                  key: password
+            - name: DATABASE_URL
+              value: {{ include "pagepal.databaseUrl" . | quote }}
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+{{- end }}

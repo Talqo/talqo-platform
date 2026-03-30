@@ -1,0 +1,19 @@
+PagePal has been deployed!
+
+{{- if .Values.ingress.enabled }}
+
+Application URL:
+  {{- if .Values.ingress.tls }}
+  https://{{ .Values.ingress.host }}
+  {{- else }}
+  http://{{ .Values.ingress.host }}
+  {{- end }}
+
+  API: {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}/api/
+  Web: {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}/
+{{- else }}
+
+To access the application, run:
+  kubectl port-forward svc/{{ include "pagepal.fullname" . }}-web {{ .Values.web.port }}:{{ .Values.web.port }} -n {{ .Release.Namespace }}
+  kubectl port-forward svc/{{ include "pagepal.fullname" . }}-api {{ .Values.api.port }}:{{ .Values.api.port }} -n {{ .Release.Namespace }}
+{{- end }}
