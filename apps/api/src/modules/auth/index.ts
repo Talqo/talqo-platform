@@ -1,8 +1,9 @@
-import { db } from "../../db";
-import { AuthRepository } from "./auth.repository";
+// TODO: swap InMemoryAuthRepository for DrizzleAuthRepository once packages/db is ready
+import { InMemoryAuthRepository } from "./auth.repository";
+import { createAuthRouter } from "./auth.routes";
 import { AuthService } from "./auth.service";
 
-const authRepository = new AuthRepository(db);
-export const authService = new AuthService(authRepository);
+const repo = new InMemoryAuthRepository(); // TODO: new DrizzleAuthRepository(db)
+const service = new AuthService(repo);
 
-export { default as authRoutes } from "./auth.routes";
+export const authRoutes = createAuthRouter(service);

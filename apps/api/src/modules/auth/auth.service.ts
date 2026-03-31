@@ -1,65 +1,78 @@
-import { ConflictError, UnauthorizedError } from "../../common/errors";
-import { signToken } from "../../common/jwt";
-import type { AuthRepository } from "./auth.repository";
+import { sign } from "hono/jwt";
+import { sendVerificationEmail } from "../../common/email/email.service";
+import type { IAuthRepository } from "./auth.repository";
+
+const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const JWT_EXPIRY_SECONDS = 24 * 60 * 60; // 24 hours
+
+type EmailSender = (to: string, token: string) => Promise<void>;
 
 export class AuthService {
-	constructor(private readonly repo: AuthRepository) {}
+	constructor(
+		private readonly repo: IAuthRepository,
+		private readonly sendEmail: EmailSender = sendVerificationEmail,
+	) {}
 
-	async register(data: { name: string; email: string; password: string }) {
-		const existing = await this.repo.findClientByEmail(data.email);
-		if (existing) {
-			throw new ConflictError("Email already registered");
-		}
+	async register(name: string, email: string, password: string): Promise<void> {
+		const canonical = email.trim().toLowerCase();
+		const existing = await this.repo.findClientByEmail(canonical);
+		if (existing) throw new Error("EMAIL_TAKEN");
 
-		const passwordHash = await Bun.password.hash(data.password, {
-			algorithm: "argon2id",
-		});
+		const passwordHash = await Bun.password.hash(password);
+		const token = crypto.randomUUID();
 
-		const client = await this.repo.createClient({
-			name: data.name,
-			email: data.email,
-			passwordHash,
-		});
-
-		const token = await signToken({ sub: client.id, role: "client" });
-
-		return {
+		// Store registration data until the email is verified;
+		// the CLIENT record is created only after successful verification
+		await this.repo.savePendingRegistration({
 			token,
-			client: {
-				id: client.id,
-				name: client.name,
-				email: client.email,
-				createdAt: client.createdAt,
-			},
-		};
+			name,
+			email: canonical,
+			passwordHash,
+			expiresAt: new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS),
+		});
+
+		await this.sendEmail(canonical, token);
 	}
 
-	async login(data: { email: string; password: string }) {
-		const client = await this.repo.findClientByEmail(data.email);
-		if (!client) {
-			throw new UnauthorizedError("Invalid email or password");
+	async verifyEmail(token: string): Promise<void> {
+		try {
+			// consumePendingRegistration atomically validates the token, creates the
+			// Client, and removes the pending registration in one repo transaction.
+			await this.repo.consumePendingRegistration(token);
+		} catch (err) {
+			// EMAIL_TAKEN means a client with this email was already created
+			// (e.g., a concurrent verify succeeded first).
+			if (err instanceof Error && err.message === "EMAIL_TAKEN") {
+				throw new Error("EMAIL_ALREADY_VERIFIED");
+			}
+			throw err;
+		}
+	}
+
+	async login(email: string, password: string): Promise<string> {
+		const client = await this.repo.findClientByEmail(
+			email.trim().toLowerCase(),
+		);
+		// Return same error for missing client and wrong password to avoid user enumeration
+		if (
+			!client ||
+			!(await Bun.password.verify(password, client.passwordHash))
+		) {
+			throw new Error("INVALID_CREDENTIALS");
 		}
 
-		const valid = await Bun.password.verify(data.password, client.passwordHash);
-		if (!valid) {
-			throw new UnauthorizedError("Invalid email or password");
-		}
-
-		if (client.status === "suspended") {
-			throw new UnauthorizedError("Account suspended");
-		}
+		const secret = process.env.JWT_SECRET;
+		if (!secret) throw new Error("JWT_SECRET environment variable is not set");
 
 		await this.repo.updateLastActive(client.id);
 
-		const token = await signToken({ sub: client.id, role: "client" });
-
-		return {
-			token,
-			client: {
-				id: client.id,
-				name: client.name,
+		return sign(
+			{
+				sub: client.id,
 				email: client.email,
+				exp: Math.floor(Date.now() / 1000) + JWT_EXPIRY_SECONDS,
 			},
-		};
+			secret,
+		);
 	}
 }

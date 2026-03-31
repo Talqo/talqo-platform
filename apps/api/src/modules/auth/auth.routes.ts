@@ -1,113 +1,84 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas";
-import { authService } from "./index";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { LoginSchema, RegisterSchema, VerifyEmailSchema } from "shared";
+import type { AuthService } from "./auth.service";
 
-const router = new OpenAPIHono();
+export function createAuthRouter(service: AuthService): Hono {
+	const router = new Hono();
 
-const registerBodySchema = z.object({
-	name: z.string().min(1).max(255),
-	email: z.string().email(),
-	password: z.string().min(8),
-});
+	router.post("/register", zValidator("json", RegisterSchema), async (c) => {
+		const { name, email, password } = c.req.valid("json");
+		try {
+			await service.register(name, email, password);
+			return c.json({ success: true, message: "Verification email sent" }, 201);
+		} catch (err) {
+			if (err instanceof Error && err.message === "EMAIL_TAKEN") {
+				// Return same response as success to prevent account enumeration
+				console.error("Registration attempted with taken email");
+				return c.json(
+					{ success: true, message: "Verification email sent" },
+					201,
+				);
+			}
+			throw err;
+		}
+	});
 
-const loginBodySchema = z.object({
-	email: z.string().email(),
-	password: z.string().min(1),
-});
-
-const clientSchema = z.object({
-	id: z.string().uuid(),
-	name: z.string(),
-	email: z.string().email(),
-});
-
-const authResponseSchema = successResponseSchema(
-	z.object({
-		token: z.string(),
-		client: clientSchema,
-	}),
-);
-
-router.openapi(
-	createRoute({
-		method: "post",
-		path: "/register",
-		tags: ["Auth"],
-		summary: "Register a new client account",
-		request: {
-			body: { content: { "application/json": { schema: registerBodySchema } } },
+	router.get(
+		"/verify-email",
+		zValidator("query", VerifyEmailSchema),
+		async (c) => {
+			const { token } = c.req.valid("query");
+			try {
+				await service.verifyEmail(token);
+				return c.json({
+					success: true,
+					message: "Email verified successfully",
+				});
+			} catch (err) {
+				if (err instanceof Error) {
+					if (
+						err.message === "INVALID_TOKEN" ||
+						err.message === "TOKEN_EXPIRED"
+					) {
+						return c.json(
+							{ success: false, message: "Invalid or expired token" },
+							400,
+						);
+					}
+					if (err.message === "EMAIL_ALREADY_VERIFIED") {
+						return c.json(
+							{ success: false, message: "Email already verified" },
+							409,
+						);
+					}
+				}
+				throw err;
+			}
 		},
-		responses: {
-			201: {
-				description: "Client created",
-				content: { "application/json": { schema: authResponseSchema } },
-			},
-			409: {
-				description: "Email already registered",
-				content: { "application/json": { schema: errorResponseSchema } },
-			},
-		},
-	}),
-	async (c) => {
-		const body = c.req.valid("json");
-		const result = await authService.register(body);
-		return c.json({ success: true as const, data: result }, 201);
-	},
-);
+	);
 
-router.openapi(
-	createRoute({
-		method: "post",
-		path: "/login",
-		tags: ["Auth"],
-		summary: "Client login",
-		request: {
-			body: { content: { "application/json": { schema: loginBodySchema } } },
-		},
-		responses: {
-			200: {
-				description: "Login successful",
-				content: { "application/json": { schema: authResponseSchema } },
-			},
-			401: {
-				description: "Invalid credentials",
-				content: { "application/json": { schema: errorResponseSchema } },
-			},
-		},
-	}),
-	async (c) => {
-		const body = c.req.valid("json");
-		const result = await authService.login(body);
-		return c.json({ success: true as const, data: result }, 200);
-	},
-);
+	router.post("/login", zValidator("json", LoginSchema), async (c) => {
+		const { email, password } = c.req.valid("json");
+		try {
+			const token = await service.login(email, password);
+			return c.json({
+				success: true,
+				message: "Login successful",
+				data: { token },
+			});
+		} catch (err) {
+			if (err instanceof Error) {
+				if (err.message === "INVALID_CREDENTIALS") {
+					return c.json(
+						{ success: false, message: "Invalid credentials" },
+						401,
+					);
+				}
+			}
+			throw err;
+		}
+	});
 
-router.openapi(
-	createRoute({
-		method: "post",
-		path: "/logout",
-		tags: ["Auth"],
-		summary: "Client logout",
-		responses: {
-			200: {
-				description: "Logged out",
-				content: {
-					"application/json": {
-						schema: successResponseSchema(z.object({ message: z.string() })),
-					},
-				},
-			},
-		},
-	}),
-	async (c) => {
-		return c.json(
-			{ success: true as const, data: { message: "Logged out" } },
-			200,
-		);
-	},
-);
-
-export default router;
+	return router;
+}
