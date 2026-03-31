@@ -1,11 +1,13 @@
 import { Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import {
 	Bot,
+	FileText,
 	LayoutDashboard,
 	LogOut,
 	Moon,
 	Settings,
 	Sun,
+	Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/lib/useTheme";
@@ -18,6 +20,9 @@ export function DashboardLayout() {
 
 	const navItems = [
 		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+		{ icon: FileText, label: "Bot Context", href: "/dashboard/bot-context" },
+		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
+		{ icon: Wrench, label: "Tools", href: "/dashboard/tools" },
 		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
 	];
 
@@ -28,7 +33,7 @@ export function DashboardLayout() {
 	return (
 		<div className="flex min-h-screen bg-background">
 			{/* Sidebar */}
-			<aside className="relative flex w-64 flex-col border-border border-r bg-card">
+			<aside className="sticky top-0 flex h-screen w-64 flex-col overflow-y-auto border-border border-r bg-card">
 				<div className="flex h-16 items-center gap-2 border-border border-b px-6">
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
 						<Bot size={20} />

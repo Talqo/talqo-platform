@@ -1,6 +1,9 @@
 export { AdminDashboard } from "./AdminDashboard";
 export { BackOfficePage } from "./BackOfficePage";
+export { BotConfigPage } from "./BotConfigPage";
+export { BotContextPage } from "./BotContextPage";
 export { LandingPage } from "./LandingPage";
 export { LoginPage } from "./LoginPage";
 export { RegisterPage } from "./RegisterPage";
 export { SettingsPage } from "./SettingsPage";
+export { ToolsPage } from "./ToolsPage";
