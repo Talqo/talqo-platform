@@ -1,13 +1,13 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { Widget } from "widget";
 import { ErrorBoundary } from "@/components/error";
+import { StyledWidget } from "@/components/widget";
 
 export const Route = createRootRoute({
 	component: () => (
 		<ErrorBoundary>
 			<Outlet />
-			<Widget />
+			<StyledWidget />
 			{import.meta.env.DEV && <TanStackRouterDevtools />}
 		</ErrorBoundary>
 	),

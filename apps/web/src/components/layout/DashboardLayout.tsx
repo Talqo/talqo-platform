@@ -34,18 +34,21 @@ export function DashboardLayout() {
 		<div className="flex min-h-screen bg-background">
 			{/* Sidebar */}
 			<aside className="sticky top-0 flex h-screen w-64 flex-col overflow-y-auto border-border border-r bg-card">
-				<div className="flex h-16 items-center gap-2 border-border border-b px-6">
+				<Link
+					to="/"
+					className="flex h-16 items-center gap-2 border-border border-b px-6 transition-colors hover:bg-muted/50"
+				>
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
 						<Bot size={20} />
 					</div>
 					<span className="font-semibold text-card-foreground">PagePal</span>
-				</div>
+				</Link>
 				<div className="flex flex-col gap-1 p-4">
 					<div className="mb-2 px-2 font-semibold text-muted-foreground text-xs uppercase">
 						Client Dashboard
 					</div>
 					{navItems.map((item) => {
-						const isActive = location.pathname === item.href;
+						const isActive = location.pathname.startsWith(item.href);
 						return (
 							<Link
 								key={item.href}
