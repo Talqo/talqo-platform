@@ -70,6 +70,7 @@ erDiagram
     USAGE_RECORD {
         uuid id PK
         uuid client_id FK
+        uuid message_id FK
         int tokens_used
         decimal cost_usd
         datetime recorded_at
@@ -100,6 +101,7 @@ erDiagram
 
     END_USER_SESSION ||--o{ CONVERSATION : contains
     CONVERSATION ||--o{ MESSAGE : includes
+    MESSAGE ||--o{ USAGE_RECORD : tracks
 
     ADMIN_USER ||--o{ ADMIN_ACCESS_LOG : performs
     CLIENT ||--o{ ADMIN_ACCESS_LOG : target

@@ -135,9 +135,14 @@ export class WidgetRepository {
 		return message;
 	}
 
-	async recordUsage(clientId: string, tokensUsed: number, costUsd: string) {
+	async recordUsage(
+		clientId: string,
+		messageId: string,
+		tokensUsed: number,
+		costUsd: string,
+	) {
 		await this.db
 			.insert(usageRecords)
-			.values({ clientId, tokensUsed, costUsd });
+			.values({ clientId, messageId, tokensUsed, costUsd });
 	}
 }

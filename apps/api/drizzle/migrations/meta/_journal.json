@@ -22,6 +22,13 @@
 			"when": 1774985871718,
 			"tag": "0002_breezy_silver_sable",
 			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1774986477147,
+			"tag": "0003_overjoyed_quicksilver",
+			"breakpoints": true
 		}
 	]
 }
