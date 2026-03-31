@@ -19,6 +19,9 @@
 		"test": "bun -e \"console.log('No tests in shared')\"",
 		"type-check": "tsc --noEmit"
 	},
+	"dependencies": {
+		"zod": "^3.25.0"
+	},
 	"devDependencies": {
 		"typescript": "~5.9.3"
 	}
