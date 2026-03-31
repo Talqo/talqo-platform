@@ -22,7 +22,7 @@ export function DashboardLayout() {
 		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
 		{ icon: FileText, label: "Bot Context", href: "/dashboard/bot-context" },
 		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
-		{ icon: Wrench, label: "Tools", href: "/dashboard/tools" },
+		{ icon: Wrench, label: "Tools MCP", href: "/dashboard/tools" },
 		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
 	];
 
