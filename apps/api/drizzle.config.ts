@@ -1,13 +1,20 @@
 /// <reference types="bun-types" />
 import { defineConfig } from "drizzle-kit";
 
+const {
+	POSTGRES_USER,
+	POSTGRES_PASSWORD,
+	POSTGRES_HOST = "localhost",
+	POSTGRES_PORT = "5432",
+	POSTGRES_DB,
+} = process.env;
+
 export default defineConfig({
 	dialect: "postgresql",
 	schema: "./src/db/schema/index.ts",
 	out: "./drizzle/migrations",
 	dbCredentials: {
-		// biome-ignore lint/style/noNonNullAssertion: drizzle-kit requires a string, fail-fast check is in src/db/index.ts
-		url: process.env.DATABASE_URL!,
+		url: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`,
 	},
 	verbose: true,
 	strict: true,
