@@ -26,7 +26,7 @@ const conversationSchema = z.object({
 const messageSchema = z.object({
 	id: z.string().uuid(),
 	conversationId: z.string().uuid(),
-	role: z.string(),
+	role: z.enum(["user", "assistant", "system"]),
 	content: z.string(),
 	tokenCount: z.number(),
 	createdAt: z.string(),

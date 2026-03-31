@@ -1,5 +1,6 @@
 import {
 	integer,
+	pgEnum,
 	pgTable,
 	text,
 	timestamp,
@@ -36,12 +37,18 @@ export const conversations = pgTable("conversations", {
 	satisfactionRating: integer("satisfaction_rating"),
 });
 
+export const messageRoleEnum = pgEnum("message_role", [
+	"user",
+	"assistant",
+	"system",
+]);
+
 export const messages = pgTable("messages", {
 	id: uuid("id").primaryKey().defaultRandom(),
 	conversationId: uuid("conversation_id")
 		.notNull()
 		.references(() => conversations.id, { onDelete: "cascade" }),
-	role: varchar("role", { length: 50 }).notNull(),
+	role: messageRoleEnum("role").notNull(),
 	content: text("content").notNull(),
 	tokenCount: integer("token_count").notNull().default(0),
 	createdAt: timestamp("created_at", { withTimezone: true })

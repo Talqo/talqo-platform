@@ -3,6 +3,7 @@ import type { DB } from "../../db";
 import {
 	conversations,
 	endUserSessions,
+	type messageRoleEnum,
 	messages,
 	usageRecords,
 } from "../../db/schema";
@@ -123,7 +124,7 @@ export class WidgetRepository {
 
 	async createMessage(
 		conversationId: string,
-		role: string,
+		role: (typeof messageRoleEnum.enumValues)[number],
 		content: string,
 		tokenCount = 0,
 	) {
