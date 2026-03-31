@@ -20,7 +20,7 @@ const conversationSchema = z.object({
 	sessionId: z.string().uuid(),
 	clientId: z.string().uuid(),
 	startedAt: z.string(),
-	satisfactionRating: z.number().nullable(),
+	satisfactionRating: z.number().int().min(1).max(5).nullable(),
 });
 
 const messageSchema = z.object({

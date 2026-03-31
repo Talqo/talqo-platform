@@ -15,6 +15,13 @@
 			"when": 1774383683580,
 			"tag": "0001_burly_talisman",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1774985871718,
+			"tag": "0002_breezy_silver_sable",
+			"breakpoints": true
 		}
 	]
 }

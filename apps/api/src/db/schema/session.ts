@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import {
+	check,
 	integer,
 	pgEnum,
 	pgTable,
@@ -23,19 +25,28 @@ export const endUserSessions = pgTable("end_user_sessions", {
 		.notNull(),
 });
 
-export const conversations = pgTable("conversations", {
-	id: uuid("id").primaryKey().defaultRandom(),
-	sessionId: uuid("session_id")
-		.notNull()
-		.references(() => endUserSessions.id, { onDelete: "cascade" }),
-	clientId: uuid("client_id")
-		.notNull()
-		.references(() => clients.id, { onDelete: "cascade" }),
-	startedAt: timestamp("started_at", { withTimezone: true })
-		.defaultNow()
-		.notNull(),
-	satisfactionRating: integer("satisfaction_rating"),
-});
+export const conversations = pgTable(
+	"conversations",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		sessionId: uuid("session_id")
+			.notNull()
+			.references(() => endUserSessions.id, { onDelete: "cascade" }),
+		clientId: uuid("client_id")
+			.notNull()
+			.references(() => clients.id, { onDelete: "cascade" }),
+		startedAt: timestamp("started_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+		satisfactionRating: integer("satisfaction_rating"),
+	},
+	(table) => [
+		check(
+			"conversations_satisfaction_rating_range",
+			sql`${table.satisfactionRating} >= 1 AND ${table.satisfactionRating} <= 5`,
+		),
+	],
+);
 
 export const messageRoleEnum = pgEnum("message_role", [
 	"user",
