@@ -1,0 +1,15 @@
+meta {
+  name: Get Messages
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/widget/{{clientId}}/sessions/{{sessionId}}/conversations/{{conversationId}}/messages
+  body: none
+  auth: none
+}
+
+headers {
+  X-Widget-Token: {{widgetToken}}
+}

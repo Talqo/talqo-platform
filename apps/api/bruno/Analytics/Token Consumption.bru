@@ -1,0 +1,21 @@
+meta {
+  name: Token Consumption
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/client/me/analytics/tokens
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+params:query {
+  ~from: 2024-01-01
+  ~to: 2024-12-31
+  ~granularity: day
+}

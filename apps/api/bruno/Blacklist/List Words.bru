@@ -1,0 +1,15 @@
+meta {
+  name: List Words
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/client/me/blacklist
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}

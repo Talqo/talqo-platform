@@ -1,0 +1,15 @@
+meta {
+  name: Remove Word
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/client/me/blacklist/{{wordId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Set Usage Alert
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/client/me/usage-alert
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "thresholdUsd": 40.00
+  }
+}
