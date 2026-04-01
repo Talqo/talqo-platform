@@ -1,0 +1,15 @@
+meta {
+  name: Enable Server
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/client/me/mcp/pre-made/{{serverId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}

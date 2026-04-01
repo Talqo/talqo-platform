@@ -6,4 +6,4 @@ import { AuthService } from "./auth.service";
 const repo = new InMemoryAuthRepository(); // TODO: new DrizzleAuthRepository(db)
 const service = new AuthService(repo);
 
-export const authRouter = createAuthRouter(service);
+export const authRoutes = createAuthRouter(service);

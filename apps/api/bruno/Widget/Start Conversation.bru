@@ -1,0 +1,15 @@
+meta {
+  name: Start Conversation
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/widget/{{clientId}}/sessions/{{sessionId}}/conversations
+  body: none
+  auth: none
+}
+
+headers {
+  X-Widget-Token: {{widgetToken}}
+}

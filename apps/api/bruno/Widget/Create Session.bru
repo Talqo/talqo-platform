@@ -1,0 +1,21 @@
+meta {
+  name: Create Session
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/widget/{{clientId}}/sessions
+  body: json
+  auth: none
+}
+
+headers {
+  X-Widget-Token: {{widgetToken}}
+}
+
+body:json {
+  {
+    "browserSessionId": "browser-session-abc123"
+  }
+}

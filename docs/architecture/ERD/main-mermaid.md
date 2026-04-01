@@ -7,6 +7,9 @@ erDiagram
         string password_hash
         decimal balance_usd
         decimal monthly_usage_limit
+        decimal usage_alert_threshold_usd
+        uuid widget_token
+        string status
         datetime last_active
         datetime created_at
     }
@@ -67,6 +70,7 @@ erDiagram
     USAGE_RECORD {
         uuid id PK
         uuid client_id FK
+        uuid message_id FK
         int tokens_used
         decimal cost_usd
         datetime recorded_at
@@ -77,6 +81,8 @@ erDiagram
         string email
         string password_hash
         datetime created_at
+        boolean is_deleted
+        datetime deleted_at
     }
 
     ADMIN_ACCESS_LOG {
@@ -87,15 +93,17 @@ erDiagram
         datetime created_at
     }
 
-    CLIENT ||--|| WIDGET_CONFIG : has
+    %% TODO: WIDGET_CONFIG entity is not yet defined — columns TBD
     CLIENT ||--|| BOT_CONFIG : has
     CLIENT ||--o{ BLACKLIST_WORD : defines
-    CLIENT ||--o{ MCP_SERVER : configures
+    CLIENT ||--o{ CUSTOM_MCP_SERVER : configures
+    CLIENT }o--o{ PRE_MADE_MCP_SERVER : uses
     CLIENT ||--o{ END_USER_SESSION : receives
     CLIENT ||--o{ USAGE_RECORD : generates
 
     END_USER_SESSION ||--o{ CONVERSATION : contains
     CONVERSATION ||--o{ MESSAGE : includes
+    MESSAGE ||--o{ USAGE_RECORD : tracks
 
     ADMIN_USER ||--o{ ADMIN_ACCESS_LOG : performs
     CLIENT ||--o{ ADMIN_ACCESS_LOG : target
