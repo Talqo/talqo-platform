@@ -81,6 +81,8 @@ erDiagram
         string email
         string password_hash
         datetime created_at
+        boolean is_deleted
+        datetime deleted_at
     }
 
     ADMIN_ACCESS_LOG {
