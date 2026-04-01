@@ -62,6 +62,9 @@
 			],
 			"outputs": ["coverage/**"],
 			"env": ["NODE_ENV", "CI"]
+		},
+		"generate-api": {
+			"cache": false
 		}
 	},
 	"globalDependencies": [
