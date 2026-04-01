@@ -18,9 +18,12 @@
 		"db:seed": "bun --env-file=../../.env run src/db/seed.ts"
 	},
 	"dependencies": {
+		"@ai-sdk/mcp": "^1.0.30",
+		"@ai-sdk/openai-compatible": "^2.0.37",
 		"@hono/zod-openapi": "^1.2.4",
 		"@hono/zod-validator": "^0.7.6",
 		"@scalar/hono-api-reference": "^0.10.5",
+		"ai": "^6.0.141",
 		"drizzle-orm": "^0.45.1",
 		"hono": "^4.10.8",
 		"jose": "^6.2.2",
