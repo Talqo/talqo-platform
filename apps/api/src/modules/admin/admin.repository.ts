@@ -15,7 +15,7 @@ export class AdminRepository {
 			.select()
 			.from(activeAdminUsers)
 			.where(eq(activeAdminUsers.email, email))
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows.at(0) ?? null);
 	}
 
 	async findAdminById(id: string) {
@@ -23,7 +23,7 @@ export class AdminRepository {
 			.select()
 			.from(activeAdminUsers)
 			.where(eq(activeAdminUsers.id, id))
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows.at(0) ?? null);
 	}
 
 	async listClients(limit: number, offset: number) {
@@ -45,10 +45,20 @@ export class AdminRepository {
 
 	async getClientDetail(clientId: string) {
 		const client = await this.db
-			.select()
+			.select({
+				id: clients.id,
+				name: clients.name,
+				email: clients.email,
+				balanceUsd: clients.balanceUsd,
+				monthlyUsageLimit: clients.monthlyUsageLimit,
+				usageAlertThresholdUsd: clients.usageAlertThresholdUsd,
+				status: clients.status,
+				lastActive: clients.lastActive,
+				createdAt: clients.createdAt,
+			})
 			.from(clients)
 			.where(eq(clients.id, clientId))
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows.at(0) ?? null);
 
 		if (!client) return null;
 
@@ -74,11 +84,11 @@ export class AdminRepository {
 	}
 
 	async updateClientStatus(clientId: string, status: string) {
-		const [updated] = await this.db
+		const rows = await this.db
 			.update(clients)
 			.set({ status })
 			.where(eq(clients.id, clientId))
 			.returning({ id: clients.id, status: clients.status });
-		return updated ?? null;
+		return rows.at(0) ?? null;
 	}
 }

@@ -13,7 +13,9 @@ export class AdminService {
 	constructor(private readonly repo: AdminRepository) {}
 
 	async login(data: { email: string; password: string }) {
-		const admin = await this.repo.findAdminByEmail(data.email);
+		const admin = await this.repo.findAdminByEmail(
+			data.email.trim().toLowerCase(),
+		);
 		if (!admin) {
 			throw new UnauthorizedError("Invalid email or password");
 		}

@@ -2,6 +2,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import type { ApiResponse } from "shared";
+import type { AppVariables } from "./common/jwt";
 import { adminAuth } from "./common/middleware/admin-auth";
 import { clientAuth } from "./common/middleware/client-auth";
 import { errorHandler } from "./common/middleware/error-handler";
@@ -22,7 +23,7 @@ import {
 	widgetSessionRoutes,
 } from "./modules/widget";
 
-const app = new OpenAPIHono();
+const app = new OpenAPIHono<{ Variables: AppVariables }>();
 
 app.use("/*", cors());
 app.onError(errorHandler);

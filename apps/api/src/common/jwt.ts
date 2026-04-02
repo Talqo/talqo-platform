@@ -4,6 +4,11 @@ import { UnauthorizedError } from "./errors";
 
 export type TokenRole = "client" | "admin";
 
+export type AppVariables = {
+	adminId: string;
+	clientId: string;
+};
+
 export interface TokenPayload {
 	sub: string;
 	role: TokenRole;

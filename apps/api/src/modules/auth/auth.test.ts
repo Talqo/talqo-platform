@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
 
 const mockSendVerificationEmail = mock(
 	async (_to: string, _token: string) => {},
@@ -16,7 +16,7 @@ const { AuthService } = await import("./auth.service");
 function buildApp() {
 	const repo = new InMemoryAuthRepository();
 	const service = new AuthService(repo);
-	return new Hono().route("/auth", createAuthRouter(service));
+	return new OpenAPIHono().route("/auth", createAuthRouter(service));
 }
 
 const validRegistration = {
@@ -26,7 +26,7 @@ const validRegistration = {
 };
 
 describe("POST /auth/register", () => {
-	let app: Hono;
+	let app: OpenAPIHono;
 
 	beforeEach(() => {
 		app = buildApp();
@@ -125,7 +125,7 @@ describe("POST /auth/register", () => {
 });
 
 describe("GET /auth/verify-email", () => {
-	let app: Hono;
+	let app: OpenAPIHono;
 
 	beforeEach(() => {
 		app = buildApp();
@@ -194,7 +194,7 @@ describe("GET /auth/verify-email", () => {
 });
 
 describe("POST /auth/login", () => {
-	let app: Hono;
+	let app: OpenAPIHono;
 
 	beforeEach(async () => {
 		app = buildApp();

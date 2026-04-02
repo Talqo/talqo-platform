@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import type { MiddlewareHandler } from "hono";
 import { db } from "../../db";
 import { activeAdminUsers, adminAccessLogs } from "../../db/schema";
-import { UnauthorizedError } from "../errors";
+import { ForbiddenError, UnauthorizedError } from "../errors";
 import { verifyToken } from "../jwt";
 
 // Validates Admin JWT from Authorization: Bearer <token>
@@ -17,7 +17,7 @@ export const adminAuth: MiddlewareHandler = async (c, next) => {
 	const payload = await verifyToken(token);
 
 	if (payload.role !== "admin") {
-		throw new UnauthorizedError("Invalid token role");
+		throw new ForbiddenError("Invalid token role");
 	}
 
 	const admin = await db
