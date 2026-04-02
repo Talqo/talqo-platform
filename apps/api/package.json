@@ -10,7 +10,7 @@
 		"check": "biome check .",
 		"fix": "biome check --write .",
 		"type-check": "tsc --noEmit",
-		"test": "bun test",
+		"test": "bun test --env-file=../../.env",
 		"db:generate": "bun --env-file=../../.env run drizzle-kit generate",
 		"db:migrate": "bun --env-file=../../.env run drizzle-kit migrate",
 		"db:push": "bun --env-file=../../.env run drizzle-kit push",
