@@ -1,13 +1,12 @@
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { DragOverlay } from "./DragOverlay";
 import { FileListEmpty } from "./FileListEmpty";
 import { FileListItem } from "./FileListItem";
 import type { ContextFile } from "./types";
 import { type UploadError, UploadErrorAlert } from "./UploadErrorAlert";
+import { useDragAndDrop } from "./useDragAndDrop";
 import { useFileValidation } from "./useFileValidation";
 
 interface FileListProps {
@@ -17,7 +16,7 @@ interface FileListProps {
 		newName: string,
 	) => { success: boolean; error?: "duplicate" };
 	onDelete: (id: string) => void;
-	onFilesUploaded: (files: FileList | null) => Promise<ContextFile[]>;
+	onFilesUploaded: (files: File[]) => Promise<ContextFile[]>;
 }
 
 interface EditingState {
@@ -31,7 +30,6 @@ export function FileList({
 	onDelete,
 	onFilesUploaded,
 }: FileListProps) {
-	const [isDragging, setIsDragging] = useState(false);
 	const [editing, setEditing] = useState<EditingState | null>(null);
 	const [renameError, setRenameError] = useState<string | null>(null);
 	const [uploadErrors, setUploadErrors] = useState<UploadError[]>([]);
@@ -39,13 +37,13 @@ export function FileList({
 	const { isTextFile } = useFileValidation();
 
 	const validateAndUpload = useCallback(
-		async (fileList: FileList | null) => {
-			if (!fileList) return;
+		async (fileList: File[]) => {
+			if (!fileList.length) return;
 
 			const existingNames = new Set(files.map((f) => f.name.toLowerCase()));
 			const errors: UploadError[] = [];
 
-			const validFiles = Array.from(fileList).filter((file) => {
+			const validFiles = fileList.filter((file) => {
 				if (!isTextFile(file)) {
 					errors.push({ fileName: file.name, reason: "invalid" });
 					return false;
@@ -62,38 +60,22 @@ export function FileList({
 			}
 
 			if (validFiles.length > 0) {
-				const dataTransfer = new DataTransfer();
-				for (const file of validFiles) {
-					dataTransfer.items.add(file);
-				}
-				await onFilesUploaded(dataTransfer.files);
+				await onFilesUploaded(validFiles);
 			}
 		},
 		[files, isTextFile, onFilesUploaded],
 	);
 
-	const handleDragOver = useCallback((event: React.DragEvent) => {
-		event.preventDefault();
-		setIsDragging(true);
-	}, []);
-
-	const handleDragLeave = useCallback((event: React.DragEvent) => {
-		event.preventDefault();
-		setIsDragging(false);
-	}, []);
-
-	const handleDrop = useCallback(
-		(event: React.DragEvent) => {
-			event.preventDefault();
-			setIsDragging(false);
-			validateAndUpload(event.dataTransfer.files);
-		},
-		[validateAndUpload],
-	);
+	const { isDragging, bindDragEvents } = useDragAndDrop({
+		onDrop: validateAndUpload,
+	});
 
 	const handleFileInputChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
-			validateAndUpload(event.target.files);
+			const filesArray = event.target.files
+				? Array.from(event.target.files)
+				: [];
+			validateAndUpload(filesArray);
 			if (fileInputRef.current) {
 				fileInputRef.current.value = "";
 			}
@@ -151,14 +133,17 @@ export function FileList({
 
 	return (
 		<Card
-			className={cn(
-				"transition-colors",
-				isDragging && "border-primary bg-primary/5",
-			)}
-			onDragOver={handleDragOver}
-			onDragLeave={handleDragLeave}
-			onDrop={handleDrop}
+			className={isDragging ? "border-primary bg-primary/5" : undefined}
+			{...bindDragEvents}
 		>
+			{isDragging && (
+				<div className="border-primary/20 border-b bg-primary/5 py-4 text-center">
+					<div className="flex items-center justify-center gap-2 font-medium text-primary text-sm">
+						<Upload size={16} />
+						Drop files here
+					</div>
+				</div>
+			)}
 			<CardHeader>
 				<CardTitle className="flex items-center justify-between text-base">
 					<span className="flex items-center gap-2">
@@ -186,7 +171,6 @@ export function FileList({
 			</CardHeader>
 			<CardContent>
 				<UploadErrorAlert errors={uploadErrors} onDismiss={dismissErrors} />
-				<DragOverlay isVisible={isDragging} />
 
 				{files.length === 0 ? (
 					<FileListEmpty />

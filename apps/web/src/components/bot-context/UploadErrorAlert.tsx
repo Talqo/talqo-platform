@@ -15,9 +15,12 @@ export function UploadErrorAlert({ errors, onDismiss }: UploadErrorAlertProps) {
 	if (errors.length === 0) return null;
 
 	return (
-		<Alert variant="destructive" className="mb-4">
-			<AlertCircle size={18} className="shrink-0" />
-			<div className="flex-1">
+		<Alert
+			variant="destructive"
+			className="mb-4 flex flex-row items-start gap-3"
+		>
+			<AlertCircle size={18} className="mt-0.5 shrink-0" />
+			<div className="flex-1 min-w-0">
 				<AlertTitle>
 					Failed to upload {errors.length} file{errors.length > 1 ? "s" : ""}
 				</AlertTitle>

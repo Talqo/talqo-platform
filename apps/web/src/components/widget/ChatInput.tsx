@@ -6,14 +6,9 @@ interface ChatInputProps {
 	isRightPosition: boolean;
 }
 
-export function ChatInput({ isDark, isRightPosition }: ChatInputProps) {
+export function ChatInput({ isDark }: ChatInputProps) {
 	return (
-		<div
-			className={cn(
-				"flex items-center gap-2",
-				isRightPosition ? "flex-row-reverse" : "",
-			)}
-		>
+		<div className="flex items-center gap-2">
 			<WidgetInput
 				placeholder="Type your message..."
 				className={cn(

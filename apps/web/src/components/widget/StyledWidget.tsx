@@ -85,7 +85,7 @@ function StyledWidgetContent(props: StyledWidgetContentProps) {
 		>
 			<WidgetPanel
 				className={cn(
-					"mb-3 flex max-h-[80vh] w-[90vw] flex-col overflow-hidden rounded-2xl shadow-2xl ring-1 transition-all duration-300 sm:w-[400px] md:w-[450px] lg:w-[500px]",
+					"mb-3 flex max-h-[80vh] w-[90vw] flex-col overflow-hidden rounded-2xl shadow-2xl ring-1 transition-all duration-300 sm:w-[350px] md:w-[380px] lg:w-[400px]",
 					isDark ? "bg-zinc-950 ring-zinc-800" : "bg-white ring-zinc-200",
 				)}
 				style={{
@@ -238,12 +238,7 @@ function StyledWidgetContent(props: StyledWidgetContentProps) {
 						isDark ? "border-zinc-800 bg-zinc-950" : "border-zinc-100 bg-white",
 					)}
 				>
-					<div
-						className={cn(
-							"flex items-center gap-2",
-							isRightPosition ? "flex-row-reverse" : "",
-						)}
-					>
+					<div className="flex items-center gap-2">
 						<WidgetInput
 							placeholder="Type your message..."
 							className={cn(
