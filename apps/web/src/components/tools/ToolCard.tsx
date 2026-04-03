@@ -10,7 +10,7 @@ interface ToolCardProps {
 
 export function ToolCard({ tool, isAdded, onAdd }: ToolCardProps) {
 	return (
-		<div className="rounded-lg border border-border p-4 transition-colors hover:border-zinc-300 dark:hover:border-zinc-700">
+		<div className="rounded-lg border border-border p-4 transition-colors hover:border-muted-foreground/50">
 			<div className="mb-2 flex items-center justify-between">
 				<ToolIcon color={tool.color} icon={tool.icon} size="md" />
 				<Button

@@ -6,9 +6,9 @@ export function SettingsPage() {
 	return (
 		<PageContainer>
 			<div>
-				<h2 className="font-bold text-2xl text-foreground tracking-tight">
+				<h1 className="font-bold text-2xl text-foreground tracking-tight">
 					Settings
-				</h2>
+				</h1>
 				<p className="text-muted-foreground">
 					Manage your account settings and billing information.
 				</p>

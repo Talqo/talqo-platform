@@ -48,7 +48,7 @@ export function DashboardLayout() {
 						Client Dashboard
 					</div>
 					{navItems.map((item) => {
-						const isActive = location.pathname.startsWith(item.href);
+						const isActive = location.pathname === item.href;
 						return (
 							<Link
 								key={item.href}

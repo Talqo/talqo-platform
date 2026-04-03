@@ -47,12 +47,14 @@ export function AuthFormField({
 				autoComplete={autoComplete}
 				aria-invalid={hasError}
 				aria-describedby={hasError ? errorId : undefined}
-				className={hasError ? "border-red-500 focus-visible:ring-red-500" : ""}
+				className={
+					hasError ? "border-destructive focus-visible:ring-destructive" : ""
+				}
 			/>
 			{hasError && (
 				<div
 					id={errorId}
-					className="flex items-center gap-1.5 text-red-600 text-sm dark:text-red-500"
+					className="flex items-center gap-1.5 text-destructive text-sm"
 					aria-live="polite"
 				>
 					<AlertCircle size={14} />
