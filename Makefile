@@ -50,9 +50,11 @@ help: ## Show this help
 
 # ── Local Development ──────────────────────────────
 .PHONY: setup
-setup: ## Install deps and start database
+setup: ## Install deps, start database, run migrations and seed
 	bun install
 	$(COMPOSE) up -d db --wait
+	cd apps/api && bun run db:migrate
+	cd apps/api && bun run db:seed
 	@echo "Setup complete. Run 'make dev' to start development."
 
 .PHONY: dev
@@ -76,22 +78,23 @@ db-down: ## Stop database services
 	$(COMPOSE) down
 
 .PHONY: db-reset
-db-reset: ## Reset database (destroy volume and recreate)
+db-reset: ## Reset database (destroy volume, recreate, migrate and seed)
 	$(COMPOSE) down -v
 	$(COMPOSE) up -d db --wait
+	cd apps/api && bun run db:migrate
+	cd apps/api && bun run db:seed
 
-# TODO: enable once packages/db implements Drizzle (package.json + schema + migrations)
 .PHONY: db-migrate
 db-migrate: ## Run Drizzle migrations
-	cd packages/db && bun run drizzle-kit migrate
+	cd apps/api && bun run db:migrate
 
 .PHONY: db-seed
 db-seed: ## Seed the database
-	cd packages/db && bun run seed
+	cd apps/api && bun run db:seed
 
 .PHONY: db-studio
 db-studio: ## Open Drizzle Studio
-	cd packages/db && bun run drizzle-kit studio
+	cd apps/api && bun run db:studio
 
 # ── Build ──────────────────────────────────────────
 .PHONY: build-workspaces

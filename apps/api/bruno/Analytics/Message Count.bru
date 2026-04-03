@@ -1,0 +1,21 @@
+meta {
+  name: Message Count
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/client/me/analytics/messages
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+params:query {
+  ~from: 2024-01-01
+  ~to: 2024-12-31
+  ~granularity: day
+}

@@ -1,0 +1,3 @@
+CREATE TYPE "public"."message_role" AS ENUM('user', 'assistant', 'system');--> statement-breakpoint
+ALTER TABLE "messages" ALTER COLUMN "role" SET DATA TYPE "public"."message_role" USING "role"::"public"."message_role";--> statement-breakpoint
+ALTER TABLE "conversations" ADD CONSTRAINT "conversations_satisfaction_rating_range" CHECK ("conversations"."satisfaction_rating" >= 1 AND "conversations"."satisfaction_rating" <= 5);

@@ -1,24 +1,7 @@
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import type { ApiResponse } from "shared";
-
-const app = new Hono();
-
-app.use("/*", cors());
-
-app.get("/", (c) => {
-	return c.text("pb138 API");
-});
-
-app.get("/health", (c) => {
-	const response: ApiResponse = {
-		message: "OK",
-		success: true,
-	};
-	return c.json(response, 200);
-});
+import app from "./app";
+import { config } from "./common/config";
 
 export default {
-	port: Number.parseInt(process.env.API_PORT ?? "3000", 10),
+	port: config.API_PORT,
 	fetch: app.fetch,
 };

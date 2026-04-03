@@ -1,0 +1,24 @@
+meta {
+  name: Create Custom Server
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/client/me/mcp/custom
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "mcpConfig": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything"]
+    }
+  }
+}

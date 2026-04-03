@@ -1,0 +1,15 @@
+meta {
+  name: Delete Custom Server
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/client/me/mcp/custom/{{serverId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
