@@ -23,8 +23,51 @@ services:
     networks:
       - pagepal-network
 
+  minio:
+    image: minio/minio:RELEASE.2025-04-03T14-56-28Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:?missing S3_ACCESS_KEY_ID env var}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:?missing S3_SECRET_ACCESS_KEY env var}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+    networks:
+      - pagepal-network
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+      mc alias set local http://minio:9000 $${S3_ACCESS_KEY_ID} $${S3_SECRET_ACCESS_KEY} &&
+      mc mb --ignore-existing local/$${S3_BUCKET}
+      "
+    environment:
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?missing S3_ACCESS_KEY_ID env var}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?missing S3_SECRET_ACCESS_KEY env var}
+      S3_BUCKET: ${S3_BUCKET:?missing S3_BUCKET env var}
+    networks:
+      - pagepal-network
+
 volumes:
   db_data:
+  minio_data:
 
 networks:
   pagepal-network:

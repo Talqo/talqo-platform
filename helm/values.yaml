@@ -48,6 +48,22 @@ postgresql:
     persistence:
       size: "10Gi"
 
+minio:
+  auth:
+    rootUser: "pagepal"
+    rootPassword: ""
+    existingSecret: ""
+  defaultBuckets: "pagepal-files"
+  persistence:
+    size: "10Gi"
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
 migration:
   # Disabled until packages/db implements Drizzle migrations.
   enabled: false

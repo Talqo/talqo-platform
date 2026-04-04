@@ -35,6 +35,10 @@ postgresql:
     persistence:
       size: "1Gi"
 
+minio:
+  persistence:
+    size: "1Gi"
+
 migration:
   enabled: false
   image:

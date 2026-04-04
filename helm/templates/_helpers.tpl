@@ -68,6 +68,17 @@ DB secret name — uses existingSecret when provided, otherwise the generated on
 {{- end }}
 
 {{/*
+MinIO secret name — uses existingSecret when provided, otherwise the Bitnami subchart default.
+*/}}
+{{- define "pagepal.minioSecretName" -}}
+{{- if .Values.minio.auth.existingSecret }}
+{{- .Values.minio.auth.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-minio
+{{- end }}
+{{- end }}
+
+{{/*
 Database URL constructed from postgresql subchart values.
 */}}
 {{- define "pagepal.databaseUrl" -}}
