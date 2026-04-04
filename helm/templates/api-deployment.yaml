@@ -37,16 +37,16 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "pagepal.minioSecretName" . }}
-                  key: root-user
+                  key: rootUser
             - name: S3_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "pagepal.minioSecretName" . }}
-                  key: root-password
+                  key: rootPassword
             - name: S3_ENDPOINT
               value: "http://{{ include "pagepal.fullname" . }}-minio:9000"
             - name: S3_BUCKET
-              value: {{ .Values.minio.defaultBuckets | quote }}
+              value: {{ (index .Values.minio.buckets 0).name | quote }}
           livenessProbe:
             httpGet:
               path: /health

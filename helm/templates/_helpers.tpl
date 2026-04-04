@@ -68,11 +68,11 @@ DB secret name — uses existingSecret when provided, otherwise the generated on
 {{- end }}
 
 {{/*
-MinIO secret name — uses existingSecret when provided, otherwise the Bitnami subchart default.
+MinIO secret name — uses existingSecret when provided, otherwise the official MinIO subchart default.
 */}}
 {{- define "pagepal.minioSecretName" -}}
-{{- if .Values.minio.auth.existingSecret }}
-{{- .Values.minio.auth.existingSecret }}
+{{- if .Values.minio.existingSecret }}
+{{- .Values.minio.existingSecret }}
 {{- else }}
 {{- include "pagepal.fullname" . }}-minio
 {{- end }}

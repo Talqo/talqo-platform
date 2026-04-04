@@ -36,7 +36,8 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/minio/health/live"]
+      # minio/minio image has no wget/curl; use bash's built-in TCP device instead
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/9000'"]
       interval: 10s
       timeout: 5s
       retries: 5

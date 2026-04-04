@@ -38,6 +38,13 @@ postgresql:
 minio:
   persistence:
     size: "1Gi"
+  resources:
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
 
 migration:
   enabled: false

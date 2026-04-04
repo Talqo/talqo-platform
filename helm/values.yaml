@@ -49,11 +49,14 @@ postgresql:
       size: "10Gi"
 
 minio:
-  auth:
-    rootUser: "pagepal"
-    rootPassword: ""
-    existingSecret: ""
-  defaultBuckets: "pagepal-files"
+  mode: "standalone"
+  rootUser: "pagepal"
+  rootPassword: ""
+  existingSecret: ""
+  buckets:
+    - name: "pagepal-files"
+      policy: none
+      purge: false
   persistence:
     size: "10Gi"
   resources:
@@ -63,6 +66,80 @@ minio:
     requests:
       cpu: "100m"
       memory: "128Mi"
+  # Security contexts required by the cluster's restricted PodSecurity policy.
+  securityContext:
+    enabled: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: "OnRootMismatch"
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  # Job that creates buckets/users after install — needs matching security context.
+  postJob:
+    securityContext:
+      enabled: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+  # Disable default console user — root user has full access.
+  users: []
+  # All job types need identical security contexts (cluster enforces rootless containers).
+  makeBucketJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  makeUserJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  makePolicyJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  customCommandJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  makeServiceAccountJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
 
 migration:
   # Disabled until packages/db implements Drizzle migrations.
