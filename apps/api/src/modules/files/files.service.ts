@@ -36,7 +36,7 @@ export class FilesService {
 	}
 
 	async list(prefix?: string): Promise<FileEntry[]> {
-		const result = await this.s3.list(prefix ? { prefix } : null);
+		const result = await this.s3.list(prefix ? { prefix } : undefined);
 		return (result.contents ?? [])
 			.filter(
 				(
