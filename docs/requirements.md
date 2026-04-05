@@ -22,8 +22,8 @@
 | FR-1.2 | Conversation history is persisted in the end user's browser so the context survives page reloads | High | Approved |
 | FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved |
 | FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved |
-| FR-1.5 | End user can clear / reset the current conversation | Low | Draft |
-| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Draft |
+| FR-1.5 | End user can clear / reset the current conversation | Low | Approved |
+| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved |
 
 ### FR-2: Client Dashboard
 
@@ -35,9 +35,9 @@
 |----|-------------|----------|--------|
 | FR-2.1 | Client can register a new account | High | Approved |
 | FR-2.2 | Client can log in and log out of the dashboard | High | Approved |
-| FR-2.3 | Client can use an npm-published React component to place the widget on their website | High | Draft |
-| FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Draft |
-| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Draft |
+| FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved |
+| FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved |
+| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved |
 
 #### FR-2b: API configuration
 
@@ -78,6 +78,7 @@
 | FR-2.18 | Dashboard displays graphs of token consumption over time | Medium | Approved |
 | FR-2.19 | Dashboard displays the total number of end-user questions over time | Medium | Approved |
 | FR-2.20 | Dashboard supports light and dark mode | High | Approved |
+| FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved |
 
 ### FR-3: Back-office
 
@@ -99,7 +100,7 @@
 
 | ID | Requirement | Notes | Priority |
 |----|-------------|-------|----------|
-| NFR-1.1 | The widget must be implemented as a self-contained React component publishable as an npm package | Enables easy integration into existing React projects using standard package managers (npm/yarn/pnpm) | High |
+| NFR-1.1 | The widget must be deployable via a script tag or iframe so it can be embedded on any website, including static pages, without requiring a specific framework | Enables integration into any website regardless of tech stack | High |
 | NFR-1.2 | The widget component allows for visual customization (accent colour, bot avatar, widget position) | | Medium |
 | NFR-1.3 | Client documentation (integration guide, configuration reference) must be provided | Markdown or hosted docs | High |
 
@@ -110,6 +111,7 @@
 | NFR-2.1 | The bot must refuse requests that could cause real-world harm (e.g. harmful advice, PII extraction) | Enforced via system prompt guardrails | Low |
 | NFR-2.2 | The bot must not recommend or promote competing products or services | Enforced via system prompt + blacklist | High |
 | NFR-2.3 | Client-defined word blacklist violations must be filtered before the response is sent to the end user | | High |
+| NFR-2.4 | The bot must stay on-topic for the client's domain and refuse to help with unrelated tasks (e.g. homework, general trivia) | Enforced via system prompt guardrails | High |
 
 ### NFR-3: Security
 
