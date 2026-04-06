@@ -37,18 +37,17 @@ export class FilesService {
 
 	async list(prefix?: string): Promise<FileEntry[]> {
 		const result = await this.s3.list(prefix ? { prefix } : undefined);
-		return (result.contents ?? [])
-			.filter(
-				(
-					entry,
-				): entry is typeof entry & { size: number; lastModified: string } =>
-					entry.size !== undefined && entry.lastModified !== undefined,
-			)
-			.map(({ key, size, lastModified }) => ({
-				key,
-				size,
-				lastModified: new Date(lastModified),
-			}));
+		return (
+			(result.contents ?? []) as {
+				key: string;
+				size: number;
+				lastModified: string;
+			}[]
+		).map(({ key, size, lastModified }) => ({
+			key,
+			size,
+			lastModified: new Date(lastModified),
+		}));
 	}
 
 	// S3 PUT is idempotent — uploading to the same key replaces the object
