@@ -79,6 +79,9 @@
 | FR-2.19 | Dashboard displays the total number of end-user questions over time | Medium | Approved |
 | FR-2.20 | Dashboard supports light and dark mode | High | Approved |
 | FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved |
+| FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved |
+| FR-2.23 | Dashboard displays conversion metrics | Low | Approved |
+| FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved |
 
 ### FR-3: Back-office
 
