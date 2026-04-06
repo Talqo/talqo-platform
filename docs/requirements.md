@@ -82,6 +82,7 @@
 | FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved |
 | FR-2.23 | Dashboard displays conversion metrics | Low | Approved |
 | FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved |
+| FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved |
 
 ### FR-3: Back-office
 
