@@ -162,7 +162,7 @@ export function FileList({
 					<input
 						ref={fileInputRef}
 						type="file"
-						accept="text/*"
+						accept="*/*"
 						multiple
 						className="hidden"
 						onChange={handleFileInputChange}
