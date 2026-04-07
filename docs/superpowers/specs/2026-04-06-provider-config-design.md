@@ -21,11 +21,24 @@ New table `ai_provider_configs` — 1:1 with `clients`. No row means the client 
 |---|---|---|---|
 | `id` | uuid | PK | |
 | `client_id` | uuid | FK → clients, unique, cascade delete | |
-| `provider_type` | varchar | not null | `openai \| openai_compatible \| google \| anthropic` |
+| `provider_type` | provider_type_enum | not null | `openai \| openai_compatible \| google \| anthropic` |
 | `api_key_encrypted` | text | not null | AES-256-GCM, application-level |
 | `model` | varchar | not null | Free text, e.g. `gpt-4o`, `claude-sonnet-4-6` |
 | `base_url` | text | nullable | Required only for `openai_compatible` |
 | `updated_at` | timestamp | not null | |
+
+The `provider_type` column uses a Postgres enum defined as:
+
+```ts
+export const providerTypeEnum = pgEnum('provider_type', [
+  'openai',
+  'openai_compatible',
+  'google',
+  'anthropic',
+]);
+```
+
+> **Note:** Adding a new provider type requires an `ALTER TYPE ... ADD VALUE` migration, which cannot run inside a transaction in Postgres.
 
 The table follows the same convention as `bot_configs`.
 
