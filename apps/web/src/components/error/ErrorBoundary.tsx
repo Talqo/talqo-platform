@@ -45,7 +45,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 					<Card className="max-w-md">
 						<CardHeader>
 							<div className="flex items-center gap-2">
-								<AlertCircle className="h-5 w-5 text-red-500" />
+								<AlertCircle className="h-5 w-5 text-destructive" />
 								<CardTitle>Something went wrong</CardTitle>
 							</div>
 							<CardDescription>
