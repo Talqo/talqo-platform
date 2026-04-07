@@ -1,36 +1,19 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
+	conversationResponseSchema,
+	messageResponseSchema,
+	sessionResponseSchema,
+} from "db/dto";
+import {
+	createSessionBodySchema,
+	rateConversationBodySchema,
+	sendMessageBodySchema,
+} from "shared";
+import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas";
 import { widgetService } from "./index";
-
-// ─── Shared schemas ────────────────────────────────────────────────────────────
-
-const sessionSchema = z.object({
-	id: z.string().uuid(),
-	clientId: z.string().uuid(),
-	browserSessionId: z.string(),
-	createdAt: z.string(),
-	lastActiveAt: z.string(),
-});
-
-const conversationSchema = z.object({
-	id: z.string().uuid(),
-	sessionId: z.string().uuid(),
-	clientId: z.string().uuid(),
-	startedAt: z.string(),
-	satisfactionRating: z.number().int().min(1).max(5).nullable(),
-});
-
-const messageSchema = z.object({
-	id: z.string().uuid(),
-	conversationId: z.string().uuid(),
-	role: z.enum(["user", "assistant", "system"]),
-	content: z.string(),
-	tokenCount: z.number(),
-	createdAt: z.string(),
-});
 
 // ─── Session routes ────────────────────────────────────────────────────────────
 
@@ -47,7 +30,7 @@ widgetSessionRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ browserSessionId: z.string().min(1) }),
+						schema: createSessionBodySchema,
 					},
 				},
 			},
@@ -56,7 +39,9 @@ widgetSessionRoutes.openapi(
 			200: {
 				description: "Session created or resumed",
 				content: {
-					"application/json": { schema: successResponseSchema(sessionSchema) },
+					"application/json": {
+						schema: successResponseSchema(sessionResponseSchema),
+					},
 				},
 			},
 		},
@@ -88,7 +73,7 @@ widgetConversationRoutes.openapi(
 				description: "Conversation started",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(conversationSchema),
+						schema: successResponseSchema(conversationResponseSchema),
 					},
 				},
 			},
@@ -158,7 +143,7 @@ widgetConversationRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ rating: z.number().int().min(1).max(5) }),
+						schema: rateConversationBodySchema,
 					},
 				},
 			},
@@ -168,7 +153,7 @@ widgetConversationRoutes.openapi(
 				description: "Rating submitted",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(conversationSchema),
+						schema: successResponseSchema(conversationResponseSchema),
 					},
 				},
 			},
@@ -207,7 +192,7 @@ widgetMessageRoutes.openapi(
 				description: "Message history",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.array(messageSchema)),
+						schema: successResponseSchema(z.array(messageResponseSchema)),
 					},
 				},
 			},
@@ -240,7 +225,7 @@ widgetMessageRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ content: z.string().min(1) }),
+						schema: sendMessageBodySchema,
 					},
 				},
 			},
@@ -252,8 +237,8 @@ widgetMessageRoutes.openapi(
 					"application/json": {
 						schema: successResponseSchema(
 							z.object({
-								userMessage: messageSchema,
-								assistantMessage: messageSchema,
+								userMessage: messageResponseSchema,
+								assistantMessage: messageResponseSchema,
 							}),
 						),
 					},

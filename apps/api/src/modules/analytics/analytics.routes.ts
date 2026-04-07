@@ -1,12 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { analyticsQuerySchema } from "shared";
 import { successResponseSchema } from "../../common/schemas";
 import { analyticsService } from "./index";
-
-const analyticsQuerySchema = z.object({
-	from: z.string().optional(),
-	to: z.string().optional(),
-	granularity: z.enum(["day", "week", "month"]).optional(),
-});
 
 // ─── Client analytics ──────────────────────────────────────────────────────────
 

@@ -1,8 +1,12 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { LoginSchema } from "shared";
+import { clientSummarySchema } from "db/dto";
+import {
+	clientStatusUpdateSchema,
+	LoginSchema,
+	paginationQuerySchema,
+} from "shared";
 import {
 	errorResponseSchema,
-	paginationQuerySchema,
 	successResponseSchema,
 } from "../../common/schemas";
 import type { AdminService } from "./admin.service";
@@ -84,16 +88,6 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 
 // ─── Admin client management (protected) ──────────────────────────────────────
 
-const clientSummarySchema = z.object({
-	id: z.string().uuid(),
-	name: z.string(),
-	email: z.string().email(),
-	balanceUsd: z.string(),
-	status: z.string(),
-	lastActive: z.string().nullable(),
-	createdAt: z.string(),
-});
-
 export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 	const router = new OpenAPIHono();
 
@@ -173,9 +167,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 				body: {
 					content: {
 						"application/json": {
-							schema: z.object({
-								status: z.enum(["active", "suspended"]),
-							}),
+							schema: clientStatusUpdateSchema,
 						},
 					},
 				},

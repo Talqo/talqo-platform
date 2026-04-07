@@ -1,4 +1,3 @@
-/// <reference types="bun-types" />
 import { defineConfig } from "drizzle-kit";
 
 const {
@@ -11,8 +10,8 @@ const {
 
 export default defineConfig({
 	dialect: "postgresql",
-	schema: "./src/db/schema/index.ts",
-	out: "./drizzle/migrations",
+	schema: "./src/schema/index.ts",
+	out: "./drizzle",
 	dbCredentials: {
 		url: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`,
 	},
