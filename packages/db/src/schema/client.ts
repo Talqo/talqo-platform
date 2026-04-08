@@ -8,6 +8,14 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 
+export const pendingRegistrations = pgTable("pending_registrations", {
+	token: uuid("token").primaryKey().defaultRandom(),
+	name: varchar("name", { length: 255 }).notNull(),
+	email: varchar("email", { length: 255 }).notNull().unique(),
+	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
 export const clients = pgTable("clients", {
 	id: uuid("id").primaryKey().defaultRandom(),
 	name: varchar("name", { length: 255 }).notNull(),

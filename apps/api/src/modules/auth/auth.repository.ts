@@ -1,3 +1,7 @@
+import { eq } from "drizzle-orm";
+import type { DB } from "../../db";
+import { clients, pendingRegistrations } from "../../db/schema";
+
 // Matches the CLIENT entity in the ERD
 export type Client = {
 	id: string;
@@ -23,8 +27,6 @@ export type PendingRegistration = {
 export interface IAuthRepository {
 	findClientByEmail(email: string): Promise<Client | null>;
 	findClientById(id: string): Promise<Client | null>;
-	// TODO: enforce a unique index on clients.email in the DB migration
-	// so the DB itself rejects duplicates and throws EMAIL_TAKEN on conflict.
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>;
@@ -42,8 +44,6 @@ export interface IAuthRepository {
 	consumePendingRegistration(token: string): Promise<Client>;
 }
 
-// TODO: replace InMemoryAuthRepository with a DrizzleAuthRepository that reads/writes
-// the CLIENT and a pending_registrations table (or equivalent) from packages/db.
 export class InMemoryAuthRepository implements IAuthRepository {
 	private clients = new Map<string, Client>();
 	private pendingRegistrations = new Map<string, PendingRegistration>();
@@ -111,4 +111,114 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		this.pendingRegistrations.delete(token);
 		return client;
 	}
+}
+
+function mapClient(row: typeof clients.$inferSelect): Client {
+	return {
+		id: row.id,
+		name: row.name,
+		email: row.email,
+		passwordHash: row.passwordHash,
+		balanceUsd: Number(row.balanceUsd),
+		monthlyUsageLimit: Number(row.monthlyUsageLimit ?? 0),
+		lastActive: row.lastActive,
+		createdAt: row.createdAt,
+	};
+}
+
+export class DrizzleAuthRepository implements IAuthRepository {
+	constructor(private readonly db: DB) {}
+
+	async findClientByEmail(email: string): Promise<Client | null> {
+		const rows = await this.db
+			.select()
+			.from(clients)
+			.where(eq(clients.email, email));
+		return rows[0] ? mapClient(rows[0]) : null;
+	}
+
+	async findClientById(id: string): Promise<Client | null> {
+		const rows = await this.db.select().from(clients).where(eq(clients.id, id));
+		return rows[0] ? mapClient(rows[0]) : null;
+	}
+
+	async createClient(
+		data: Pick<Client, "name" | "email" | "passwordHash">,
+	): Promise<Client> {
+		try {
+			const rows = await this.db.insert(clients).values(data).returning();
+			// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
+			return mapClient(rows[0]!);
+		} catch (err) {
+			// postgres unique_violation code
+			if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN");
+			throw err;
+		}
+	}
+
+	async updateLastActive(clientId: string): Promise<void> {
+		await this.db
+			.update(clients)
+			.set({ lastActive: new Date() })
+			.where(eq(clients.id, clientId));
+	}
+
+	async savePendingRegistration(record: PendingRegistration): Promise<void> {
+		await this.db
+			.insert(pendingRegistrations)
+			.values(record)
+			.onConflictDoUpdate({
+				target: pendingRegistrations.email,
+				set: {
+					token: record.token,
+					name: record.name,
+					passwordHash: record.passwordHash,
+					expiresAt: record.expiresAt,
+				},
+			});
+	}
+
+	async consumePendingRegistration(token: string): Promise<Client> {
+		return this.db.transaction(async (tx: DB) => {
+			const [pending] = await tx
+				.select()
+				.from(pendingRegistrations)
+				.where(eq(pendingRegistrations.token, token));
+
+			if (!pending) throw new Error("INVALID_TOKEN");
+			if (pending.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED");
+
+			let client: Client;
+			try {
+				const rows = await tx
+					.insert(clients)
+					.values({
+						name: pending.name,
+						email: pending.email,
+						passwordHash: pending.passwordHash,
+					})
+					.returning();
+				// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
+				client = mapClient(rows[0]!);
+			} catch (err) {
+				if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN");
+				throw err;
+			}
+
+			await tx
+				.delete(pendingRegistrations)
+				.where(eq(pendingRegistrations.token, token));
+
+			return client;
+		});
+	}
+}
+
+function isUniqueViolation(err: unknown): boolean {
+	return (
+		typeof err === "object" &&
+		err !== null &&
+		"code" in err &&
+		(err as { code: string }).code === "23505"
+	);
 }

@@ -68,6 +68,20 @@ DB secret name — uses existingSecret when provided, otherwise the generated on
 {{- end }}
 
 {{/*
+MinIO secret name — uses existingSecret when provided, otherwise the official MinIO subchart default.
+*/}}
+{{- define "pagepal.minioSecretName" -}}
+{{- if .Values.minio.existingSecret }}
+{{- .Values.minio.existingSecret }}
+{{- else }}
+{{- if not .Values.minio.rootPassword }}
+{{- fail "minio.rootPassword must be set when existingSecret is not provided — pass --set minio.rootPassword=<password>" }}
+{{- end }}
+{{- include "pagepal.fullname" . }}-minio
+{{- end }}
+{{- end }}
+
+{{/*
 Database URL constructed from postgresql subchart values.
 */}}
 {{- define "pagepal.databaseUrl" -}}

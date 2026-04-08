@@ -9,6 +9,10 @@ const envSchema = z.object({
 	JWT_SECRET: z.string().min(32),
 	JWT_EXPIRES_IN: z.string().default("24h"),
 	API_PORT: z.coerce.number().default(3000),
+	S3_ACCESS_KEY_ID: z.string().min(1),
+	S3_SECRET_ACCESS_KEY: z.string().min(1),
+	S3_ENDPOINT: z.string().url(),
+	S3_BUCKET: z.string().min(1),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -9,3 +9,6 @@ dependencies:
   - name: postgresql
     version: "18.5.11"
     repository: oci://registry-1.docker.io/bitnamicharts
+  - name: minio
+    version: "5.4.0"
+    repository: https://charts.min.io/

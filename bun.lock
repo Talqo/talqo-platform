@@ -111,11 +111,9 @@
       "name": "widget",
       "version": "0.0.0",
       "devDependencies": {
-        "@tailwindcss/vite": "^4.2.0",
         "@types/react": "^19.2.7",
         "@types/react-dom": "^19.2.3",
         "@vitejs/plugin-react": "^5.1.1",
-        "tailwindcss": "^4.2.0",
         "typescript": "~5.9.3",
         "vite": "^8.0.0-beta.13",
         "vite-plugin-svgr": "^4.5.0",

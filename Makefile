@@ -186,12 +186,16 @@ helm-lint: ## Lint Helm chart
 .PHONY: deploy
 deploy: ns-create helm-deps _require-tag ## Deploy to cluster (env based on git branch)
 	@echo "Deploying $(IMAGE_TAG) to $(NAMESPACE) (branch: $(BRANCH), env: $(ENV))"
+	@MINIO_PASS=$$(kubectl get secret "$(HELM_RELEASE)-minio" -n "$(NAMESPACE)" \
+		-o jsonpath='{.data.rootPassword}' 2>/dev/null | base64 -d); \
+	[ -n "$$MINIO_PASS" ] || MINIO_PASS=$$(openssl rand -base64 24 | tr -d '/+='); \
 	helm upgrade --install "$(HELM_RELEASE)" "$(HELM_CHART)" \
 		-n "$(NAMESPACE)" \
 		$(HELM_VALUES) \
 		--set api.image.tag="$(IMAGE_TAG)" \
 		--set web.image.tag="$(IMAGE_TAG)" \
-		--set migration.image.tag="$(IMAGE_TAG)"
+		--set migration.image.tag="$(IMAGE_TAG)" \
+		--set minio.rootPassword="$$MINIO_PASS"
 
 .PHONY: undeploy
 undeploy: ## Uninstall from cluster (env based on git branch)

@@ -1,12 +1,12 @@
-import BotIconSvg from "../assets/bot-icon.svg?react";
-import ClearIconSvg from "../assets/clear-icon.svg?react";
-import CloseIconSvg from "../assets/close-icon.svg?react";
-import ExpandIconSvg from "../assets/expand-icon.svg?react";
-import MinimizeIconSvg from "../assets/minimize-icon.svg?react";
-import MoonIconSvg from "../assets/moon-icon.svg?react";
-import SendIconSvg from "../assets/send-icon.svg?react";
-import SunIconSvg from "../assets/sun-icon.svg?react";
-import XLargeIconSvg from "../assets/x-large-icon.svg?react";
+import BotIconSvg from "../../assets/bot-icon.svg?react";
+import ClearIconSvg from "../../assets/clear-icon.svg?react";
+import CloseIconSvg from "../../assets/close-icon.svg?react";
+import ExpandIconSvg from "../../assets/expand-icon.svg?react";
+import MinimizeIconSvg from "../../assets/minimize-icon.svg?react";
+import MoonIconSvg from "../../assets/moon-icon.svg?react";
+import SendIconSvg from "../../assets/send-icon.svg?react";
+import SunIconSvg from "../../assets/sun-icon.svg?react";
+import XLargeIconSvg from "../../assets/x-large-icon.svg?react";
 
 interface IconProps {
 	size?: number;

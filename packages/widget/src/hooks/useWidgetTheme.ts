@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 export type WidgetTheme = "light" | "dark";
 
 interface UseWidgetThemeReturn {
+	/** Current theme */
 	theme: WidgetTheme;
+	/** Whether current theme is dark */
 	isDark: boolean;
 }
 
