@@ -1,12 +1,14 @@
 import { jwtVerify, SignJWT } from "jose";
 import { config } from "./config";
 import { UnauthorizedError } from "./errors";
+import type { Logger } from "./logger";
 
 export type TokenRole = "client" | "admin";
 
 export type AppVariables = {
 	adminId: string;
 	clientId: string;
+	logger: Logger;
 };
 
 export interface TokenPayload {

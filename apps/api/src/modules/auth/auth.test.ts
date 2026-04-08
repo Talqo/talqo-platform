@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import type { AppVariables } from "../../common/jwt";
+import { logger } from "../../common/logger";
 
 const mockSendVerificationEmail = mock(
 	async (_to: string, _token: string) => {},
@@ -16,7 +18,12 @@ const { AuthService } = await import("./auth.service");
 function buildApp() {
 	const repo = new InMemoryAuthRepository();
 	const service = new AuthService(repo);
-	return new OpenAPIHono().route("/auth", createAuthRouter(service));
+	const app = new OpenAPIHono<{ Variables: AppVariables }>();
+	app.use("/*", async (c, next) => {
+		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }));
+		await next();
+	});
+	return app.route("/auth", createAuthRouter(service));
 }
 
 const validRegistration = {

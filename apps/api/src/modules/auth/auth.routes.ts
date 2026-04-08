@@ -1,13 +1,16 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { LoginSchema, RegisterSchema, VerifyEmailSchema } from "shared";
+import type { AppVariables } from "../../common/jwt";
 import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas";
 import type { AuthService } from "./auth.service";
 
-export function createAuthRouter(service: AuthService): OpenAPIHono {
-	const router = new OpenAPIHono();
+export function createAuthRouter(
+	service: AuthService,
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = new OpenAPIHono<{ Variables: AppVariables }>();
 
 	router.openapi(
 		createRoute({
@@ -42,7 +45,7 @@ export function createAuthRouter(service: AuthService): OpenAPIHono {
 			} catch (err) {
 				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
 					// Return same response as success to prevent account enumeration
-					console.error("Registration attempted with taken email");
+					c.get("logger").warn("Registration attempted with taken email");
 				} else {
 					throw err;
 				}
@@ -102,6 +105,9 @@ export function createAuthRouter(service: AuthService): OpenAPIHono {
 						err.message === "INVALID_TOKEN" ||
 						err.message === "TOKEN_EXPIRED"
 					) {
+						c.get("logger").warn("Email verification failed", {
+							reason: err.message,
+						});
 						return c.json(
 							{
 								success: false as const,
@@ -114,6 +120,9 @@ export function createAuthRouter(service: AuthService): OpenAPIHono {
 						);
 					}
 					if (err.message === "EMAIL_ALREADY_VERIFIED") {
+						c.get("logger").warn("Email verification failed", {
+							reason: err.message,
+						});
 						return c.json(
 							{
 								success: false as const,
@@ -168,6 +177,7 @@ export function createAuthRouter(service: AuthService): OpenAPIHono {
 				return c.json({ success: true as const, data: { token } }, 200);
 			} catch (err) {
 				if (err instanceof Error && err.message === "INVALID_CREDENTIALS") {
+					c.get("logger").warn("Login failed", { reason: err.message });
 					return c.json(
 						{
 							success: false as const,

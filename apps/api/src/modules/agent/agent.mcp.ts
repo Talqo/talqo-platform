@@ -3,6 +3,7 @@ import { createMCPClient } from "@ai-sdk/mcp";
 import { Experimental_StdioMCPTransport } from "@ai-sdk/mcp/mcp-stdio";
 import type { ToolSet } from "ai";
 import type { McpServerConfig } from "shared";
+import { logger } from "../../common/logger";
 
 export type McpConnection = {
 	tools: ToolSet;
@@ -43,14 +44,18 @@ export async function connectMcpServers(
 			const tools = await client.tools();
 			for (const name of Object.keys(tools)) {
 				if (name in mergedTools) {
-					console.warn(
-						`MCP tool name collision: "${name}" will be overwritten by ${config.type} server`,
-					);
+					logger.warn("MCP tool name collision", {
+						name,
+						overwrittenBy: config.type,
+					});
 				}
 			}
 			mergedTools = { ...mergedTools, ...tools };
 		} catch (error) {
-			console.error(`Failed to connect to MCP server (${config.type}):`, error);
+			logger.error("Failed to connect to MCP server", {
+				type: config.type,
+				message: error instanceof Error ? error.message : String(error),
+			});
 		}
 	}
 
