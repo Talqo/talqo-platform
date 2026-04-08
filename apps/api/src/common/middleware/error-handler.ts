@@ -1,5 +1,6 @@
 import type { ErrorHandler } from "hono";
 import { AppError } from "../errors";
+import { logger } from "../logger";
 
 export const errorHandler: ErrorHandler = (err, c) => {
 	if (err instanceof AppError) {
@@ -12,7 +13,10 @@ export const errorHandler: ErrorHandler = (err, c) => {
 		);
 	}
 
-	console.error(err);
+	logger.error("Unhandled error", {
+		message: err.message,
+		stack: err.stack,
+	});
 	return c.json(
 		{
 			success: false,

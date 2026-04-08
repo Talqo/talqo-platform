@@ -3,9 +3,11 @@ import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import type { ApiResponse } from "shared";
 import type { AppVariables } from "./common/jwt";
+import { logger } from "./common/logger";
 import { adminAuth } from "./common/middleware/admin-auth";
 import { clientAuth } from "./common/middleware/client-auth";
 import { errorHandler } from "./common/middleware/error-handler";
+import { requestLogger } from "./common/middleware/request-logger";
 import { widgetAuth } from "./common/middleware/widget-auth";
 import { adminAuthRoutes, adminClientRoutes } from "./modules/admin";
 import {
@@ -26,6 +28,11 @@ import {
 const app = new OpenAPIHono<{ Variables: AppVariables }>();
 
 app.use("/*", cors());
+app.use("/*", async (c, next) => {
+	c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }));
+	await next();
+});
+app.use("/*", requestLogger);
 app.onError(errorHandler);
 
 app.get("/", (c) => c.text("PagePal API"));
