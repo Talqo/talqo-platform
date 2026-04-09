@@ -29,8 +29,8 @@ async function createSafePath(rootDir: string) {
 	};
 }
 
-export function createContextTools(contextDirectory: string) {
-	const safePath = createSafePath(contextDirectory);
+export async function createContextTools(contextDirectory: string) {
+	const safePath = await createSafePath(contextDirectory);
 
 	return {
 		listFiles: tool({
@@ -44,7 +44,7 @@ export function createContextTools(contextDirectory: string) {
 			}),
 			execute: async ({ path }) => {
 				try {
-					const dirPath = safePath(path);
+					const dirPath = await safePath(path);
 					const entries = await readdir(dirPath, { withFileTypes: true });
 					return {
 						entries: entries.map((e) => ({
@@ -91,7 +91,7 @@ export function createContextTools(contextDirectory: string) {
 					};
 				}
 				try {
-					const filePath = safePath(path);
+					const filePath = await safePath(path);
 					const raw = await readFile(filePath, "utf-8");
 					const lines = raw.split("\n");
 					const total = lines.length;
