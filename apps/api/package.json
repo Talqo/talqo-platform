@@ -10,7 +10,7 @@
 		"check": "biome check .",
 		"fix": "biome check --write .",
 		"type-check": "tsgo --noEmit",
-		"test": "bun test --env-file=../../.env",
+		"test": "bun test --env-file ../../.env.example",
 		"db:seed": "bun --env-file=../../.env run src/db/seed.ts"
 	},
 	"dependencies": {
