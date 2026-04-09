@@ -1,12 +1,12 @@
-import { and, eq } from "drizzle-orm";
-import type { DB } from "../../db";
+import { and, eq } from "drizzle-orm"
+import type { DB } from "../../db"
 import {
 	conversations,
 	endUserSessions,
 	type messageRoleEnum,
 	messages,
 	usageRecords,
-} from "../../db/schema";
+} from "../../db/schema"
 
 export class WidgetRepository {
 	constructor(private readonly db: DB) {}
@@ -23,22 +23,22 @@ export class WidgetRepository {
 					eq(endUserSessions.browserSessionId, browserSessionId),
 				),
 			)
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null)
 
 		if (existing) {
 			const [updated] = await this.db
 				.update(endUserSessions)
 				.set({ lastActiveAt: new Date() })
 				.where(eq(endUserSessions.id, existing.id))
-				.returning();
-			return updated;
+				.returning()
+			return updated
 		}
 
 		const [session] = await this.db
 			.insert(endUserSessions)
 			.values({ clientId, browserSessionId })
-			.returning();
-		return session;
+			.returning()
+		return session
 	}
 
 	async getSession(sessionId: string, clientId: string) {
@@ -51,7 +51,7 @@ export class WidgetRepository {
 					eq(endUserSessions.clientId, clientId),
 				),
 			)
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null)
 	}
 
 	// ─── Conversations ───────────────────────────────────────────────────────────
@@ -60,8 +60,8 @@ export class WidgetRepository {
 		const [conversation] = await this.db
 			.insert(conversations)
 			.values({ sessionId, clientId })
-			.returning();
-		return conversation;
+			.returning()
+		return conversation
 	}
 
 	async getConversation(conversationId: string, clientId: string) {
@@ -74,7 +74,7 @@ export class WidgetRepository {
 					eq(conversations.clientId, clientId),
 				),
 			)
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null)
 	}
 
 	async deleteConversation(conversationId: string, clientId: string) {
@@ -86,8 +86,8 @@ export class WidgetRepository {
 					eq(conversations.clientId, clientId),
 				),
 			)
-			.returning();
-		return result.length > 0;
+			.returning()
+		return result.length > 0
 	}
 
 	async rateConversation(
@@ -104,22 +104,22 @@ export class WidgetRepository {
 					eq(conversations.clientId, clientId),
 				),
 			)
-			.returning();
-		return updated ?? null;
+			.returning()
+		return updated ?? null
 	}
 
 	// ─── Messages ────────────────────────────────────────────────────────────────
 
 	async getMessages(conversationId: string, clientId: string) {
 		// Verify ownership via conversation lookup
-		const conversation = await this.getConversation(conversationId, clientId);
-		if (!conversation) return null;
+		const conversation = await this.getConversation(conversationId, clientId)
+		if (!conversation) return null
 
 		return this.db
 			.select()
 			.from(messages)
 			.where(eq(messages.conversationId, conversationId))
-			.orderBy(messages.createdAt);
+			.orderBy(messages.createdAt)
 	}
 
 	async createMessage(
@@ -131,8 +131,8 @@ export class WidgetRepository {
 		const [message] = await this.db
 			.insert(messages)
 			.values({ conversationId, role, content, tokenCount })
-			.returning();
-		return message;
+			.returning()
+		return message
 	}
 
 	async recordUsage(
@@ -143,6 +143,6 @@ export class WidgetRepository {
 	) {
 		await this.db
 			.insert(usageRecords)
-			.values({ clientId, messageId, tokensUsed, costUsd });
+			.values({ clientId, messageId, tokensUsed, costUsd })
 	}
 }

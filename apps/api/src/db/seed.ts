@@ -1,6 +1,6 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import * as schema from "./schema";
+import { drizzle } from "drizzle-orm/postgres-js"
+import postgres from "postgres"
+import * as schema from "./schema"
 import {
 	adminAccessLogs,
 	adminUsers,
@@ -14,7 +14,7 @@ import {
 	messages,
 	preMadeMcpServers,
 	usageRecords,
-} from "./schema";
+} from "./schema"
 
 // Connect directly — JWT_SECRET is not needed for seeding
 const {
@@ -23,20 +23,20 @@ const {
 	POSTGRES_HOST = "localhost",
 	POSTGRES_PORT = "5432",
 	POSTGRES_DB,
-} = process.env;
+} = process.env
 
 if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_DB) {
 	console.error(
 		"Missing required env vars: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB",
-	);
-	process.exit(1);
+	)
+	process.exit(1)
 }
 
 const sql = postgres(
 	`postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`,
 	{ max: 1 },
-);
-const db = drizzle(sql, { schema });
+)
+const db = drizzle(sql, { schema })
 
 // Fixed UUIDs make the seed fully idempotent — re-running never creates duplicates
 const ID = {
@@ -86,10 +86,10 @@ const ID = {
 	// Widget tokens
 	widgetToken1: "00000000-0000-0000-0001-000000000010",
 	widgetToken2: "00000000-0000-0000-0001-000000000011",
-} as const;
+} as const
 
 async function seed() {
-	console.log("Seeding database...");
+	console.log("Seeding database...")
 
 	// ── Admin users ────────────────────────────────────────────────────────────
 	await db
@@ -99,8 +99,8 @@ async function seed() {
 			email: "admin@pagepal.dev",
 			passwordHash: await Bun.password.hash("admin123"),
 		})
-		.onConflictDoNothing();
-	console.log("  ✓ admin users");
+		.onConflictDoNothing()
+	console.log("  ✓ admin users")
 
 	// ── Clients ────────────────────────────────────────────────────────────────
 	await db
@@ -127,8 +127,8 @@ async function seed() {
 				status: "active",
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ clients");
+		.onConflictDoNothing()
+	console.log("  ✓ clients")
 
 	// ── Bot configs ────────────────────────────────────────────────────────────
 	await db
@@ -153,8 +153,8 @@ async function seed() {
 				internetSearchEnabled: true,
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ bot configs");
+		.onConflictDoNothing()
+	console.log("  ✓ bot configs")
 
 	// ── Pre-made MCP servers ───────────────────────────────────────────────────
 	await db
@@ -180,8 +180,8 @@ async function seed() {
 				},
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ pre-made MCP servers");
+		.onConflictDoNothing()
+	console.log("  ✓ pre-made MCP servers")
 
 	// ── Client ↔ pre-made MCP associations ────────────────────────────────────
 	await db
@@ -191,8 +191,8 @@ async function seed() {
 			{ clientId: ID.client2, preMadeMcpId: ID.preMadeMcp1 },
 			{ clientId: ID.client2, preMadeMcpId: ID.preMadeMcp2 },
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ client MCP associations");
+		.onConflictDoNothing()
+	console.log("  ✓ client MCP associations")
 
 	// ── Custom MCP servers ─────────────────────────────────────────────────────
 	await db
@@ -210,8 +210,8 @@ async function seed() {
 				},
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ custom MCP servers");
+		.onConflictDoNothing()
+	console.log("  ✓ custom MCP servers")
 
 	// ── Blacklist words ────────────────────────────────────────────────────────
 	await db
@@ -222,8 +222,8 @@ async function seed() {
 			{ id: ID.blacklist3, clientId: ID.client2, word: "lawsuit" },
 			{ id: ID.blacklist4, clientId: ID.client2, word: "outage" },
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ blacklist words");
+		.onConflictDoNothing()
+	console.log("  ✓ blacklist words")
 
 	// ── Admin access logs ──────────────────────────────────────────────────────
 	await db
@@ -248,8 +248,8 @@ async function seed() {
 				actionType: "view_client",
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ admin access logs");
+		.onConflictDoNothing()
+	console.log("  ✓ admin access logs")
 
 	// ── End user sessions ──────────────────────────────────────────────────────
 	await db
@@ -271,8 +271,8 @@ async function seed() {
 				browserSessionId: "browser-sess-tech-001",
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ end user sessions");
+		.onConflictDoNothing()
+	console.log("  ✓ end user sessions")
 
 	// ── Conversations ──────────────────────────────────────────────────────────
 	await db
@@ -297,8 +297,8 @@ async function seed() {
 				// no rating yet — user did not submit feedback
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ conversations");
+		.onConflictDoNothing()
+	console.log("  ✓ conversations")
 
 	// ── Messages ───────────────────────────────────────────────────────────────
 	await db
@@ -368,8 +368,8 @@ async function seed() {
 				tokenCount: 52,
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ messages");
+		.onConflictDoNothing()
+	console.log("  ✓ messages")
 
 	// ── Usage records (one per assistant message) ──────────────────────────────
 	// Cost approximation: $0.000003 per token (roughly Haiku-tier pricing)
@@ -405,14 +405,14 @@ async function seed() {
 				costUsd: "0.000156",
 			},
 		])
-		.onConflictDoNothing();
-	console.log("  ✓ usage records");
+		.onConflictDoNothing()
+	console.log("  ✓ usage records")
 
-	console.log("Done.");
-	await sql.end();
+	console.log("Done.")
+	await sql.end()
 }
 
 seed().catch((err) => {
-	console.error("Seed failed:", err);
-	process.exit(1);
-});
+	console.error("Seed failed:", err)
+	process.exit(1)
+})

@@ -1,8 +1,8 @@
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
-import { botConfigs, clients } from "../schema/client";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
+import { botConfigs, clients } from "../schema/client"
 
-export const clientSelectSchema = createSelectSchema(clients);
+export const clientSelectSchema = createSelectSchema(clients)
 
 // Response schema: omit sensitive fields, all string columns explicitly typed for Zod v4 compatibility
 export const clientResponseSchema = createSelectSchema(clients, {
@@ -15,28 +15,28 @@ export const clientResponseSchema = createSelectSchema(clients, {
 	status: z.string(),
 	lastActive: z.string().nullable(),
 	createdAt: z.string(),
-}).omit({ passwordHash: true, widgetToken: true });
+}).omit({ passwordHash: true, widgetToken: true })
 
 export const clientInsertSchema = createInsertSchema(clients).omit({
 	id: true,
 	widgetToken: true,
 	createdAt: true,
-});
+})
 
-export const botConfigSelectSchema = createSelectSchema(botConfigs);
+export const botConfigSelectSchema = createSelectSchema(botConfigs)
 
 export const botConfigResponseSchema = createSelectSchema(botConfigs, {
 	systemPrompt: z.string().nullable(),
 	defaultRole: z.string().nullable(),
 	toneStyle: z.string().nullable(),
 	updatedAt: z.string(),
-});
+})
 
 // All fields optional for PATCH
 export const botConfigUpdateSchema = createInsertSchema(botConfigs)
 	.omit({ id: true, clientId: true, updatedAt: true })
-	.partial();
+	.partial()
 
-export type ClientResponse = z.infer<typeof clientResponseSchema>;
-export type BotConfigResponse = z.infer<typeof botConfigResponseSchema>;
-export type BotConfigUpdate = z.infer<typeof botConfigUpdateSchema>;
+export type ClientResponse = z.infer<typeof clientResponseSchema>
+export type BotConfigResponse = z.infer<typeof botConfigResponseSchema>
+export type BotConfigUpdate = z.infer<typeof botConfigUpdateSchema>

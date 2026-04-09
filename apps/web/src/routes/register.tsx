@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2, Mail } from "lucide-react"
 import { useState } from "react"
+import type { RegisterInput } from "shared"
 import { useRegister } from "@/api/hooks/useAuth"
 import { AuthFormField, AuthHeader } from "@/components/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -20,10 +21,7 @@ export const Route = createFileRoute("/register")({
 	component: RegisterPage,
 })
 
-interface RegisterFormData extends Record<string, string> {
-	name: string
-	email: string
-	password: string
+interface RegisterFormData extends Record<string, string>, RegisterInput {
 	confirmPassword: string
 }
 

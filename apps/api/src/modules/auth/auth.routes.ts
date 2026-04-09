@@ -1,16 +1,16 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { LoginSchema, RegisterSchema, VerifyEmailSchema } from "shared";
-import type { AppVariables } from "../../common/jwt";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { LoginSchema, RegisterSchema, VerifyEmailSchema } from "shared"
+import type { AppVariables } from "../../common/jwt"
 import {
 	errorResponseSchema,
 	successResponseSchema,
-} from "../../common/schemas";
-import type { AuthService } from "./auth.service";
+} from "../../common/schemas"
+import type { AuthService } from "./auth.service"
 
 export function createAuthRouter(
 	service: AuthService,
 ): OpenAPIHono<{ Variables: AppVariables }> {
-	const router = new OpenAPIHono<{ Variables: AppVariables }>();
+	const router = new OpenAPIHono<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({
@@ -39,15 +39,15 @@ export function createAuthRouter(
 			},
 		}),
 		async (c) => {
-			const { name, email, password } = c.req.valid("json");
+			const { name, email, password } = c.req.valid("json")
 			try {
-				await service.register(name, email, password);
+				await service.register(name, email, password)
 			} catch (err) {
 				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
 					// Return same response as success to prevent account enumeration
-					c.get("logger").warn("Registration attempted with taken email");
+					c.get("logger").warn("Registration attempted with taken email")
 				} else {
-					throw err;
+					throw err
 				}
 			}
 			return c.json(
@@ -56,9 +56,9 @@ export function createAuthRouter(
 					data: { message: "Verification email sent" },
 				},
 				201,
-			);
+			)
 		},
-	);
+	)
 
 	router.openapi(
 		createRoute({
@@ -89,16 +89,16 @@ export function createAuthRouter(
 			},
 		}),
 		async (c) => {
-			const { token } = c.req.valid("query");
+			const { token } = c.req.valid("query")
 			try {
-				await service.verifyEmail(token);
+				await service.verifyEmail(token)
 				return c.json(
 					{
 						success: true as const,
 						data: { message: "Email verified successfully" },
 					},
 					200,
-				);
+				)
 			} catch (err) {
 				if (err instanceof Error) {
 					if (
@@ -107,7 +107,7 @@ export function createAuthRouter(
 					) {
 						c.get("logger").warn("Email verification failed", {
 							reason: err.message,
-						});
+						})
 						return c.json(
 							{
 								success: false as const,
@@ -117,12 +117,12 @@ export function createAuthRouter(
 								},
 							},
 							400,
-						);
+						)
 					}
 					if (err.message === "EMAIL_ALREADY_VERIFIED") {
 						c.get("logger").warn("Email verification failed", {
 							reason: err.message,
-						});
+						})
 						return c.json(
 							{
 								success: false as const,
@@ -132,13 +132,13 @@ export function createAuthRouter(
 								},
 							},
 							409,
-						);
+						)
 					}
 				}
-				throw err;
+				throw err
 			}
 		},
-	);
+	)
 
 	router.openapi(
 		createRoute({
@@ -171,13 +171,13 @@ export function createAuthRouter(
 			},
 		}),
 		async (c) => {
-			const { email, password } = c.req.valid("json");
+			const { email, password } = c.req.valid("json")
 			try {
-				const token = await service.login(email, password);
-				return c.json({ success: true as const, data: { token } }, 200);
+				const token = await service.login(email, password)
+				return c.json({ success: true as const, data: { token } }, 200)
 			} catch (err) {
 				if (err instanceof Error && err.message === "INVALID_CREDENTIALS") {
-					c.get("logger").warn("Login failed", { reason: err.message });
+					c.get("logger").warn("Login failed", { reason: err.message })
 					return c.json(
 						{
 							success: false as const,
@@ -187,12 +187,12 @@ export function createAuthRouter(
 							},
 						},
 						401,
-					);
+					)
 				}
-				throw err;
+				throw err
 			}
 		},
-	);
+	)
 
-	return router;
+	return router
 }

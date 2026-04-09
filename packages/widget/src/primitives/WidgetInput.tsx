@@ -1,9 +1,9 @@
-import type { InputHTMLAttributes, RefObject } from "react";
-import { useWidgetContext } from "./WidgetRoot";
+import type { InputHTMLAttributes, RefObject } from "react"
+import { useWidgetContext } from "./WidgetRoot"
 
 interface WidgetInputProps extends InputHTMLAttributes<HTMLInputElement> {
 	/** Ref to the input element */
-	inputRef?: RefObject<HTMLInputElement | null>;
+	inputRef?: RefObject<HTMLInputElement | null>
 }
 
 /**
@@ -11,18 +11,18 @@ interface WidgetInputProps extends InputHTMLAttributes<HTMLInputElement> {
  * Unstyled - consumers provide all styling
  */
 export function WidgetInput(props: WidgetInputProps) {
-	const { inputRef, onKeyDown, ...inputProps } = props;
-	const { inputValue, setInputValue, sendMessage } = useWidgetContext();
+	const { inputRef, onKeyDown, ...inputProps } = props
+	const { inputValue, setInputValue, sendMessage } = useWidgetContext()
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
-			e.preventDefault();
+			e.preventDefault()
 			if (inputValue.trim()) {
-				sendMessage();
+				sendMessage()
 			}
 		}
-		onKeyDown?.(e);
-	};
+		onKeyDown?.(e)
+	}
 
 	return (
 		<input
@@ -34,5 +34,5 @@ export function WidgetInput(props: WidgetInputProps) {
 			aria-label="Type your message"
 			{...inputProps}
 		/>
-	);
+	)
 }

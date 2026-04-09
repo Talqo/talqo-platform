@@ -1,13 +1,13 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { blacklistWordResponseSchema } from "db/dto";
-import { addWordBodySchema } from "shared";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { blacklistWordResponseSchema } from "db/dto"
+import { addWordBodySchema } from "shared"
 import {
 	errorResponseSchema,
 	successResponseSchema,
-} from "../../common/schemas";
-import { blacklistService } from "./index";
+} from "../../common/schemas"
+import { blacklistService } from "./index"
 
-const router = new OpenAPIHono();
+const router = new OpenAPIHono()
 
 router.openapi(
 	createRoute({
@@ -28,11 +28,11 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string;
-		const words = await blacklistService.listWords(clientId);
-		return c.json({ success: true as const, data: words }, 200);
+		const clientId = c.get("clientId" as never) as string
+		const words = await blacklistService.listWords(clientId)
+		return c.json({ success: true as const, data: words }, 200)
 	},
-);
+)
 
 router.openapi(
 	createRoute({
@@ -66,12 +66,12 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string;
-		const { word } = c.req.valid("json");
-		const result = await blacklistService.addWord(clientId, word);
-		return c.json({ success: true as const, data: result }, 201);
+		const clientId = c.get("clientId" as never) as string
+		const { word } = c.req.valid("json")
+		const result = await blacklistService.addWord(clientId, word)
+		return c.json({ success: true as const, data: result }, 201)
 	},
-);
+)
 
 router.openapi(
 	createRoute({
@@ -99,14 +99,14 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string;
-		const { wordId } = c.req.valid("param");
-		await blacklistService.removeWord(clientId, wordId);
+		const clientId = c.get("clientId" as never) as string
+		const { wordId } = c.req.valid("param")
+		await blacklistService.removeWord(clientId, wordId)
 		return c.json(
 			{ success: true as const, data: { message: "Word removed" } },
 			200,
-		);
+		)
 	},
-);
+)
 
-export default router;
+export default router

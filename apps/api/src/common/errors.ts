@@ -4,37 +4,37 @@ export class AppError extends Error {
 		public readonly code: string,
 		message: string,
 	) {
-		super(message);
-		this.name = this.constructor.name;
+		super(message)
+		this.name = this.constructor.name
 	}
 }
 
 export class UnauthorizedError extends AppError {
 	constructor(message = "Unauthorized") {
-		super(401, "UNAUTHORIZED", message);
+		super(401, "UNAUTHORIZED", message)
 	}
 }
 
 export class ForbiddenError extends AppError {
 	constructor(message = "Forbidden") {
-		super(403, "FORBIDDEN", message);
+		super(403, "FORBIDDEN", message)
 	}
 }
 
 export class NotFoundError extends AppError {
 	constructor(message = "Not found") {
-		super(404, "NOT_FOUND", message);
+		super(404, "NOT_FOUND", message)
 	}
 }
 
 export class ConflictError extends AppError {
 	constructor(message = "Conflict") {
-		super(409, "CONFLICT", message);
+		super(409, "CONFLICT", message)
 	}
 }
 
 export class ValidationError extends AppError {
 	constructor(message = "Validation error") {
-		super(422, "VALIDATION_ERROR", message);
+		super(422, "VALIDATION_ERROR", message)
 	}
 }

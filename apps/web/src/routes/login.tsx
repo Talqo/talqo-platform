@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
+import type { LoginInput } from "shared"
 import { useLogin } from "@/api/hooks/useAuth"
 import { AuthFormField, AuthHeader } from "@/components/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -20,10 +21,7 @@ export const Route = createFileRoute("/login")({
 	component: LoginPage,
 })
 
-interface LoginFormData extends Record<string, string> {
-	email: string
-	password: string
-}
+interface LoginFormData extends Record<string, string>, LoginInput {}
 
 const validateLoginForm = (values: LoginFormData) => {
 	const result = loginSchema.safeParse(values)

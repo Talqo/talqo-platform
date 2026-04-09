@@ -6,7 +6,7 @@ import {
 	timestamp,
 	uuid,
 	varchar,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/pg-core"
 
 export const pendingRegistrations = pgTable("pending_registrations", {
 	token: uuid("token").primaryKey().defaultRandom(),
@@ -14,7 +14,7 @@ export const pendingRegistrations = pgTable("pending_registrations", {
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
 	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-});
+})
 
 export const clients = pgTable("clients", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -39,7 +39,7 @@ export const clients = pgTable("clients", {
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-});
+})
 
 export const botConfigs = pgTable("bot_configs", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -56,4 +56,4 @@ export const botConfigs = pgTable("bot_configs", {
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-});
+})

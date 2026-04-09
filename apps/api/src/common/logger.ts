@@ -1,14 +1,14 @@
-type LogLevel = "info" | "warn" | "error";
+type LogLevel = "info" | "warn" | "error"
 
 export type Logger = {
-	info: (message: string, meta?: Record<string, unknown>) => void;
-	warn: (message: string, meta?: Record<string, unknown>) => void;
-	error: (message: string, meta?: Record<string, unknown>) => void;
-	withContext: (context: Record<string, unknown>) => Logger;
-};
+	info: (message: string, meta?: Record<string, unknown>) => void
+	warn: (message: string, meta?: Record<string, unknown>) => void
+	error: (message: string, meta?: Record<string, unknown>) => void
+	withContext: (context: Record<string, unknown>) => Logger
+}
 
 // AppVariables is used to type Hono context across the app — keeps Variables in sync with logger
-export type AppVariables = { logger: Logger };
+export type AppVariables = { logger: Logger }
 
 function makeLogger(boundContext: Record<string, unknown> = {}): Logger {
 	function log(
@@ -22,14 +22,14 @@ function makeLogger(boundContext: Record<string, unknown> = {}): Logger {
 			message,
 			...boundContext,
 			...meta,
-		};
+		}
 
-		const line = `${JSON.stringify(entry)}\n`;
+		const line = `${JSON.stringify(entry)}\n`
 
 		if (level === "error") {
-			process.stderr.write(line);
+			process.stderr.write(line)
 		} else {
-			process.stdout.write(line);
+			process.stdout.write(line)
 		}
 	}
 
@@ -38,7 +38,7 @@ function makeLogger(boundContext: Record<string, unknown> = {}): Logger {
 		warn: (message, meta) => log("warn", message, meta),
 		error: (message, meta) => log("error", message, meta),
 		withContext: (context) => makeLogger({ ...boundContext, ...context }),
-	};
+	}
 }
 
-export const logger = makeLogger();
+export const logger = makeLogger()
