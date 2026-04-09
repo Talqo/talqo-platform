@@ -1,5 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
-import { normalize, resolve } from "node:path";
+import { normalize, resolve, sep } from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
 
@@ -8,7 +8,16 @@ function createSafePath(rootDir: string) {
 	return (relative: string): string => {
 		const target = resolve(resolved, normalize(relative));
 		// Use trailing slash to prevent sibling-directory bypass (e.g. /ctx matching /ctx-evil)
-		if (target !== resolved && !target.startsWith(`${resolved}/`)) {
+		// Always use system separator for cross-platform compatibility
+		const normalizedResolved = resolved.endsWith(sep)
+			? resolved
+			: resolved + sep;
+		const normalizedTarget = target.endsWith(sep) ? target : target + sep;
+		// Allow exact match on root dir, or ensure target is within root dir
+		if (
+			target !== resolved &&
+			!normalizedTarget.startsWith(normalizedResolved)
+		) {
 			throw new Error("Path traversal detected");
 		}
 		return target;
