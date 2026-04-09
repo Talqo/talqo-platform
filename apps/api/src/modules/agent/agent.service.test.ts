@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { AiServiceInput } from "./agent.types";
 
 const mockGenerateText = mock(async (_opts: unknown) => ({
@@ -28,25 +31,39 @@ mock.module("@ai-sdk/mcp", () => ({
 
 import { generateResponse } from "./agent.service";
 
-const baseInput: AiServiceInput = {
-	userMessage: "Hello",
-	context: "You are a helpful assistant",
-	wordBlacklist: [],
-	mcpServers: [],
-	contextDirectory: "/tmp/context",
-	provider: {
-		baseUrl: "https://api.example.com",
-		apiKey: "test-key",
-		model: "gpt-4",
-	},
-};
+let tempDir: string;
+let baseInput: AiServiceInput;
 
 describe("generateResponse", () => {
-	beforeEach(() => {
+	beforeEach(async () => {
+		// Create a real temp directory for context (required by realpath in createContextTools)
+		tempDir = await mkdtemp(join(tmpdir(), "agent-service-test-"));
+		// Create a subdirectory for tests that expect a context directory
+		const contextDir = join(tempDir, "context");
+		await mkdir(contextDir);
+
+		baseInput = {
+			userMessage: "Hello",
+			context: "You are a helpful assistant",
+			wordBlacklist: [],
+			mcpServers: [],
+			contextDirectory: contextDir,
+			provider: {
+				baseUrl: "https://api.example.com",
+				apiKey: "test-key",
+				model: "gpt-4",
+			},
+		};
+
 		mockGenerateText.mockClear();
 		mockStepCountIs.mockClear();
 		mockClose.mockClear();
 		mockCreateMCPClient.mockClear();
+	});
+
+	afterEach(async () => {
+		// Clean up temp directory
+		await rm(tempDir, { recursive: true, force: true });
 	});
 
 	it("returns message and token usage on success", async () => {
