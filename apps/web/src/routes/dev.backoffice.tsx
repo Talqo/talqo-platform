@@ -1,16 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Moon, Shield, Sun } from "lucide-react";
-import { BackOfficeStatCard, TenantsTable } from "@/components/backoffice";
-import { Button } from "@/components/ui/button";
-import { STATS, TENANTS } from "@/data/backoffice";
-import { useTheme } from "@/lib/useTheme";
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ArrowLeft, Moon, Shield, Sun } from "lucide-react"
+import { BackOfficeStatCard, TenantsTable } from "@/components/backoffice"
+import { Button } from "@/components/ui/button"
+import { STATS, TENANTS } from "@/data/backoffice"
+import { useTheme } from "@/lib/useTheme"
 
 export const Route = createFileRoute("/dev/backoffice")({
 	component: BackOfficePage,
-});
+})
 
 function BackOfficePage() {
-	const { theme, toggleTheme } = useTheme();
+	const { theme, toggleTheme } = useTheme()
 
 	return (
 		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -62,5 +62,5 @@ function BackOfficePage() {
 				</div>
 			</main>
 		</div>
-	);
+	)
 }

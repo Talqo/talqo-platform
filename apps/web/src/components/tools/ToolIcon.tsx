@@ -1,7 +1,7 @@
 interface ToolIconProps {
-	color: "blue" | "green" | "purple" | "red" | "yellow";
-	icon: string;
-	size?: "sm" | "md";
+	color: "blue" | "green" | "purple" | "red" | "yellow"
+	icon: string
+	size?: "sm" | "md"
 }
 
 const colorClasses: Record<
@@ -28,15 +28,15 @@ const colorClasses: Record<
 		bg: "bg-yellow-100 dark:bg-yellow-900/30",
 		text: "text-yellow-600 dark:text-yellow-400",
 	},
-};
+}
 
 const sizeClasses = {
 	sm: "h-8 w-8 rounded-md",
 	md: "h-10 w-10 rounded-lg",
-};
+}
 
 export function ToolIcon({ color, icon, size = "sm" }: ToolIconProps) {
-	const { bg, text } = colorClasses[color] ?? colorClasses.blue;
+	const { bg, text } = colorClasses[color] ?? colorClasses.blue
 
 	return (
 		<div
@@ -44,5 +44,5 @@ export function ToolIcon({ color, icon, size = "sm" }: ToolIconProps) {
 		>
 			<span className={`font-medium text-sm ${text}`}>{icon}</span>
 		</div>
-	);
+	)
 }

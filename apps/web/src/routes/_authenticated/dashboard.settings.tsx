@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PageContainer } from "@/components/layout";
-import { AccountSettingsTab, BillingSettingsTab } from "@/components/settings";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createFileRoute } from "@tanstack/react-router"
+import { PageContainer } from "@/components/layout"
+import { AccountSettingsTab, BillingSettingsTab } from "@/components/settings"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export const Route = createFileRoute("/dashboard/settings")({
+export const Route = createFileRoute("/_authenticated/dashboard/settings")({
 	component: SettingsPage,
-});
+})
 
 function SettingsPage() {
 	return (
@@ -34,5 +34,5 @@ function SettingsPage() {
 				</TabsContent>
 			</Tabs>
 		</PageContainer>
-	);
+	)
 }

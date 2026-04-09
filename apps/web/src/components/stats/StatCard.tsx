@@ -1,5 +1,5 @@
-import { Bot, CreditCard, DollarSign, MessageSquare, Zap } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Bot, CreditCard, DollarSign, MessageSquare, Zap } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const iconMap = {
 	dollar: DollarSign,
@@ -7,17 +7,17 @@ const iconMap = {
 	message: MessageSquare,
 	bot: Bot,
 	card: CreditCard,
-};
+}
 
 interface StatCardProps {
-	title: string;
-	value: string;
-	subtitle: string;
-	icon: keyof typeof iconMap;
+	title: string
+	value: string
+	subtitle: string
+	icon: keyof typeof iconMap
 }
 
 export function StatCard({ title, value, subtitle, icon }: StatCardProps) {
-	const Icon = iconMap[icon];
+	const Icon = iconMap[icon]
 
 	return (
 		<Card>
@@ -30,5 +30,5 @@ export function StatCard({ title, value, subtitle, icon }: StatCardProps) {
 				<p className="text-muted-foreground text-xs">{subtitle}</p>
 			</CardContent>
 		</Card>
-	);
+	)
 }

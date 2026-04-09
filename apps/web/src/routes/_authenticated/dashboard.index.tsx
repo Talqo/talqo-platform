@@ -1,15 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	QuestionsAskedChart,
-	TokenConsumptionChart,
-} from "@/components/charts";
-import { PageHeader } from "@/components/layout";
-import { StatsGrid } from "@/components/stats";
-import { ADMIN_STATS, WEEKLY_STATS_DATA } from "@/data/charts";
+import { createFileRoute } from "@tanstack/react-router"
+import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
+import { PageHeader } from "@/components/layout"
+import { StatsGrid } from "@/components/stats"
+import { ADMIN_STATS, WEEKLY_STATS_DATA } from "@/data/charts"
 
-export const Route = createFileRoute("/dashboard/")({
+export const Route = createFileRoute("/_authenticated/dashboard/")({
 	component: AdminDashboard,
-});
+})
 
 function AdminDashboard() {
 	return (
@@ -26,5 +23,5 @@ function AdminDashboard() {
 				<QuestionsAskedChart data={WEEKLY_STATS_DATA} />
 			</div>
 		</div>
-	);
+	)
 }

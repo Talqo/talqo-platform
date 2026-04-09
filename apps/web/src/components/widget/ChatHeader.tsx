@@ -1,18 +1,12 @@
-import {
-	BotIcon,
-	ClearIcon,
-	CloseIcon,
-	ExpandIcon,
-	MinimizeIcon,
-} from "widget";
-import { cn } from "@/lib/utils";
+import { BotIcon, ClearIcon, CloseIcon, ExpandIcon, MinimizeIcon } from "widget"
+import { cn } from "@/lib/utils"
 
 interface ChatHeaderProps {
-	isDark: boolean;
-	onClearMessages: () => void;
-	onToggleExpanded: () => void;
-	onToggleOpen: () => void;
-	isExpanded: boolean;
+	isDark: boolean
+	onClearMessages: () => void
+	onToggleExpanded: () => void
+	onToggleOpen: () => void
+	isExpanded: boolean
 }
 
 export function ChatHeader({
@@ -96,5 +90,5 @@ export function ChatHeader({
 				</button>
 			</div>
 		</div>
-	);
+	)
 }

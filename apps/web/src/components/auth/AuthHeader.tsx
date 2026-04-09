@@ -1,9 +1,9 @@
-import { Link } from "@tanstack/react-router";
-import { Bot, Moon, Sun } from "lucide-react";
-import { useTheme } from "@/lib/useTheme";
+import { Link } from "@tanstack/react-router"
+import { Bot, Moon, Sun } from "lucide-react"
+import { useTheme } from "@/lib/useTheme"
 
 export function AuthHeader() {
-	const { theme, toggleTheme } = useTheme();
+	const { theme, toggleTheme } = useTheme()
 
 	return (
 		<div className="mb-8 flex flex-col items-center">
@@ -28,5 +28,5 @@ export function AuthHeader() {
 				</button>
 			</div>
 		</div>
-	);
+	)
 }

@@ -1,2 +1,2 @@
-export { BackOfficeStatCard } from "./BackOfficeStatCard";
-export { TenantsTable } from "./TenantsTable";
+export { BackOfficeStatCard } from "./BackOfficeStatCard"
+export { TenantsTable } from "./TenantsTable"

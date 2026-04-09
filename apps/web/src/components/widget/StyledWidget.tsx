@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react"
 import {
 	BotIcon,
 	ClearIcon,
@@ -18,24 +18,24 @@ import {
 	WidgetTrigger,
 	WidgetTypingIndicator,
 	XLargeIcon,
-} from "widget";
-import { cn } from "@/lib/utils";
+} from "widget"
+import { cn } from "@/lib/utils"
 
 interface StyledWidgetProps {
 	/** Optional className for positioning overrides */
-	className?: string;
+	className?: string
 	/** Position of the widget */
-	position?: "left" | "right";
+	position?: "left" | "right"
 }
 
 export function StyledWidget(props: StyledWidgetProps) {
-	const { className, position = "right" } = props;
-	const isRightPosition = position === "right";
-	const { theme, isDark } = useWidgetTheme();
+	const { className, position = "right" } = props
+	const isRightPosition = position === "right"
+	const { theme, isDark } = useWidgetTheme()
 
 	const positionClasses = isRightPosition
 		? "right-6 bottom-6"
-		: "left-6 bottom-6";
+		: "left-6 bottom-6"
 
 	return (
 		<WidgetRoot position={position}>
@@ -47,27 +47,27 @@ export function StyledWidget(props: StyledWidgetProps) {
 				isRightPosition={isRightPosition}
 			/>
 		</WidgetRoot>
-	);
+	)
 }
 
 interface StyledWidgetContentProps {
-	className?: string;
-	positionClasses: string;
-	theme: string;
-	isDark: boolean;
-	isRightPosition: boolean;
+	className?: string
+	positionClasses: string
+	theme: string
+	isDark: boolean
+	isRightPosition: boolean
 }
 
 function StyledWidgetContent(props: StyledWidgetContentProps) {
-	const { className, positionClasses, theme, isDark, isRightPosition } = props;
-	const widget = useWidgetContext();
-	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const { className, positionClasses, theme, isDark, isRightPosition } = props
+	const widget = useWidgetContext()
+	const messagesEndRef = useRef<HTMLDivElement>(null)
 
 	// Auto-scroll to bottom when messages change or when reopening
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally scroll on messages and open state changes
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [widget.messages, widget.isOpen]);
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+	}, [widget.messages, widget.isOpen])
 
 	return (
 		<div
@@ -275,5 +275,5 @@ function StyledWidgetContent(props: StyledWidgetContentProps) {
 				)}
 			/>
 		</div>
-	);
+	)
 }

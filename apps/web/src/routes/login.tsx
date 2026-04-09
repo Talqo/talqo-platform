@@ -1,6 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { AuthFormField, AuthHeader } from "@/components/auth";
-import { Button } from "@/components/ui/button";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { Loader2 } from "lucide-react"
+import { useLogin } from "@/api/hooks/useAuth"
+import { AuthFormField, AuthHeader } from "@/components/auth"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
 	Card,
 	CardContent,
@@ -8,43 +11,64 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { useForm } from "@/lib/useForm";
-import { loginSchema } from "@/schemas";
+} from "@/components/ui/card"
+import { AUTH } from "@/lib/constants"
+import { useForm } from "@/lib/useForm"
+import { loginSchema } from "@/schemas"
 
 export const Route = createFileRoute("/login")({
 	component: LoginPage,
-});
+})
 
 interface LoginFormData extends Record<string, string> {
-	email: string;
-	password: string;
+	email: string
+	password: string
 }
 
 const validateLoginForm = (values: LoginFormData) => {
-	const result = loginSchema.safeParse(values);
-	if (result.success) return {};
+	const result = loginSchema.safeParse(values)
+	if (result.success) return {}
 
-	const errors: Partial<Record<keyof LoginFormData, string>> = {};
+	const errors: Partial<Record<keyof LoginFormData, string>> = {}
 	for (const issue of result.error.issues) {
-		const path = issue.path[0] as keyof LoginFormData;
-		errors[path] = issue.message;
+		const path = issue.path[0] as keyof LoginFormData
+		errors[path] = issue.message
 	}
-	return errors;
-};
+	return errors
+}
 
 function LoginPage() {
-	const navigate = useNavigate();
+	const navigate = useNavigate()
+	const login = useLogin()
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<LoginFormData>({
 			initialValues: { email: "", password: "" },
 			validate: validateLoginForm,
 			onSubmit: async () => {
-				// Simulated login - replace with actual API call
-				navigate({ to: "/dashboard" });
+				login.mutate(
+					{ email: values.email, password: values.password },
+					{
+						onSuccess: () => {
+							// Token is stored by the mutation's onSuccess
+							navigate({ to: AUTH.DEFAULT_REDIRECT })
+						},
+						// Error handling via login.error
+					},
+				)
 			},
-		});
+		})
+
+	// Determine error message
+	let errorMessage: string | null = null
+	if (login.error) {
+		if (login.error.error?.code === "INVALID_CREDENTIALS") {
+			errorMessage = "Invalid email or password. Please try again."
+		} else {
+			errorMessage =
+				login.error.error?.message || "Login failed. Please try again."
+		}
+	}
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -60,6 +84,11 @@ function LoginPage() {
 					</CardHeader>
 					<form onSubmit={handleSubmit} noValidate>
 						<CardContent className="space-y-4">
+							{errorMessage && (
+								<Alert variant="destructive">
+									<AlertDescription>{errorMessage}</AlertDescription>
+								</Alert>
+							)}
 							<AuthFormField
 								id="email"
 								name="email"
@@ -105,8 +134,19 @@ function LoginPage() {
 							</div>
 						</CardContent>
 						<CardFooter className="flex flex-col">
-							<Button className="w-full" type="submit">
-								Log in
+							<Button
+								className="w-full"
+								type="submit"
+								disabled={login.isPending}
+							>
+								{login.isPending ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Logging in...
+									</>
+								) : (
+									"Log in"
+								)}
 							</Button>
 							<div className="mt-4 text-center text-muted-foreground text-sm">
 								Don&apos;t have an account?{" "}
@@ -122,5 +162,5 @@ function LoginPage() {
 				</Card>
 			</div>
 		</div>
-	);
+	)
 }

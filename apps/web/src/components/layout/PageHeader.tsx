@@ -1,6 +1,6 @@
 interface PageHeaderProps {
-	title: string;
-	subtitle?: string;
+	title: string
+	subtitle?: string
 }
 
 export function PageHeader({ title, subtitle }: PageHeaderProps) {
@@ -11,5 +11,5 @@ export function PageHeader({ title, subtitle }: PageHeaderProps) {
 			</h1>
 			{subtitle && <p className="text-muted-foreground">{subtitle}</p>}
 		</div>
-	);
+	)
 }

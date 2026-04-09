@@ -1,10 +1,10 @@
-import { motion } from "motion/react";
+import { motion } from "motion/react"
 
 interface ToolAnimationProps {
-	icon: string;
-	startX: number;
-	startY: number;
-	onComplete?: () => void;
+	icon: string
+	startX: number
+	startY: number
+	onComplete?: () => void
 }
 
 export function ToolAnimation({
@@ -51,5 +51,5 @@ export function ToolAnimation({
 				<span className="font-bold text-white text-xs">{icon}</span>
 			</motion.div>
 		</motion.div>
-	);
+	)
 }

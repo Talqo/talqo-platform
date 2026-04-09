@@ -1,8 +1,8 @@
-import type { StatCardData, StatIcon } from "@/data/charts";
-import { StatCard } from "./StatCard";
+import type { StatCardData, StatIcon } from "@/data/charts"
+import { StatCard } from "./StatCard"
 
 interface StatsGridProps {
-	stats: StatCardData[];
+	stats: StatCardData[]
 }
 
 export function StatsGrid({ stats }: StatsGridProps) {
@@ -18,5 +18,5 @@ export function StatsGrid({ stats }: StatsGridProps) {
 				/>
 			))}
 		</div>
-	);
+	)
 }

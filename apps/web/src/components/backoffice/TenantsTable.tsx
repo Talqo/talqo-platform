@@ -1,10 +1,10 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import type { Tenant } from "@/data/backoffice";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import type { Tenant } from "@/data/backoffice"
 
 interface TenantsTableProps {
-	tenants: Tenant[];
+	tenants: Tenant[]
 }
 
 export function TenantsTable({ tenants }: TenantsTableProps) {
@@ -97,5 +97,5 @@ export function TenantsTable({ tenants }: TenantsTableProps) {
 				</table>
 			</div>
 		</Card>
-	);
+	)
 }

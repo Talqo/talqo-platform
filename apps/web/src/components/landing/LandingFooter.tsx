@@ -1,4 +1,4 @@
-import { Bot } from "lucide-react";
+import { Bot } from "lucide-react"
 
 export function LandingFooter() {
 	return (
@@ -13,5 +13,5 @@ export function LandingFooter() {
 				</p>
 			</div>
 		</footer>
-	);
+	)
 }
