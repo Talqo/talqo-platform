@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
 import type { LoginInput } from "shared"
-import { useLogin } from "@/api/hooks/useAuth"
+import { useUnifiedLogin } from "@/api/hooks/useAuth"
 import { AuthFormField, AuthHeader } from "@/components/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -37,34 +37,36 @@ const validateLoginForm = (values: LoginFormData) => {
 
 function LoginPage() {
 	const navigate = useNavigate()
-	const login = useLogin()
+	const { mutate: login, isPending, error } = useUnifiedLogin()
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<LoginFormData>({
 			initialValues: { email: "", password: "" },
 			validate: validateLoginForm,
 			onSubmit: async () => {
-				login.mutate(
+				login(
 					{ email: values.email, password: values.password },
 					{
-						onSuccess: () => {
-							// Token is stored by the mutation's onSuccess
-							navigate({ to: AUTH.DEFAULT_REDIRECT })
+						onSuccess: (role) => {
+							// Redirect based on role
+							if (role === "admin") {
+								navigate({ to: AUTH.ADMIN_DEFAULT_REDIRECT })
+							} else {
+								navigate({ to: AUTH.DEFAULT_REDIRECT })
+							}
 						},
-						// Error handling via login.error
 					},
 				)
 			},
 		})
 
-	// Determine error message
+	// Determine error message - unified hook only shows error after both attempts fail
 	let errorMessage: string | null = null
-	if (login.error) {
-		if (login.error.error?.code === "INVALID_CREDENTIALS") {
+	if (error) {
+		if (error.error?.code === "INVALID_CREDENTIALS") {
 			errorMessage = "Invalid email or password. Please try again."
 		} else {
-			errorMessage =
-				login.error.error?.message || "Login failed. Please try again."
+			errorMessage = error.error?.message || "Login failed. Please try again."
 		}
 	}
 
@@ -132,12 +134,8 @@ function LoginPage() {
 							</div>
 						</CardContent>
 						<CardFooter className="flex flex-col">
-							<Button
-								className="w-full"
-								type="submit"
-								disabled={login.isPending}
-							>
-								{login.isPending ? (
+							<Button className="w-full" type="submit" disabled={isPending}>
+								{isPending ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 										Logging in...

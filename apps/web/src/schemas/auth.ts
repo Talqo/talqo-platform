@@ -1,5 +1,5 @@
-import { z } from "zod"
 import { LoginSchema, RegisterSchema } from "shared"
+import { z } from "zod"
 
 /**
  * Authentication form validation schemas
@@ -10,7 +10,7 @@ import { LoginSchema, RegisterSchema } from "shared"
 export const loginSchema = LoginSchema
 export type LoginFormType = z.infer<typeof loginSchema>
 
-// Extend shared register schema with confirmPassword
+// Import and extend shared register schema
 export const registerSchema = RegisterSchema.extend({
 	confirmPassword: z.string().min(1, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {

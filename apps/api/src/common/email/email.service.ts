@@ -5,7 +5,7 @@ import {
 	verificationEmailTemplate,
 } from "./templates"
 
-const FROM = "onboarding@resend.dev"
+const FROM = "PagePal <noreply@salonek.org>"
 
 // RFC 5322-ish email check — not exhaustive, but catches obvious garbage
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router"
 import { ArrowLeft, Moon, Shield, Sun } from "lucide-react"
 import { BackOfficeStatCard, TenantsTable } from "@/components/backoffice"
 import { Button } from "@/components/ui/button"
 import { STATS, TENANTS } from "@/data/backoffice"
+import { AUTH } from "@/lib/constants"
 import { useTheme } from "@/lib/useTheme"
 
 export const Route = createFileRoute("/dev/backoffice")({
@@ -11,6 +12,17 @@ export const Route = createFileRoute("/dev/backoffice")({
 
 function BackOfficePage() {
 	const { theme, toggleTheme } = useTheme()
+
+	// Check for admin token
+	const adminToken =
+		typeof window !== "undefined"
+			? localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
+			: null
+
+	// Redirect to login if not authenticated as admin
+	if (!adminToken) {
+		return <Navigate to={AUTH.LOGIN_ROUTE} />
+	}
 
 	return (
 		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
