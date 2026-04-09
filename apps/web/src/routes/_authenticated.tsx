@@ -8,7 +8,10 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 // Validate token by making a lightweight request
-async function validateToken(token: string): Promise<boolean> {
+// Returns whether token is valid and whether it should be cleared from storage
+async function validateToken(
+	token: string,
+): Promise<{ valid: boolean; shouldClear: boolean }> {
 	try {
 		// Use the /client/me endpoint which requires auth
 		const response = await fetch(
@@ -19,9 +22,18 @@ async function validateToken(token: string): Promise<boolean> {
 				},
 			},
 		);
-		return response.ok;
+
+		if (response.ok) {
+			return { valid: true, shouldClear: false };
+		}
+
+		// Only clear token on auth errors (401/403)
+		// Network errors, 5xx, and other transport issues should keep the token
+		const shouldClear = response.status === 401 || response.status === 403;
+		return { valid: false, shouldClear };
 	} catch {
-		return false;
+		// Network or other transport errors - don't clear token, treat as retryable
+		return { valid: false, shouldClear: false };
 	}
 }
 
@@ -39,8 +51,8 @@ function AuthenticatedLayout() {
 				return;
 			}
 
-			const valid = await validateToken(token);
-			if (!valid) {
+			const { valid, shouldClear } = await validateToken(token);
+			if (shouldClear) {
 				// Token is invalid, clear it
 				localStorage.removeItem(STORAGE_KEYS.TOKEN);
 			}

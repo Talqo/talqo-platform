@@ -27,6 +27,7 @@ export type PendingRegistration = {
 export interface IAuthRepository {
 	findClientByEmail(email: string): Promise<Client | null>;
 	findClientById(id: string): Promise<Client | null>;
+	findClientByName(name: string): Promise<Client | null>;
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>;
@@ -57,6 +58,13 @@ export class InMemoryAuthRepository implements IAuthRepository {
 
 	async findClientById(id: string): Promise<Client | null> {
 		return this.clients.get(id) ?? null;
+	}
+
+	async findClientByName(name: string): Promise<Client | null> {
+		for (const client of this.clients.values()) {
+			if (client.name === name) return client;
+		}
+		return null;
 	}
 
 	async createClient(
@@ -139,6 +147,14 @@ export class DrizzleAuthRepository implements IAuthRepository {
 
 	async findClientById(id: string): Promise<Client | null> {
 		const rows = await this.db.select().from(clients).where(eq(clients.id, id));
+		return rows[0] ? mapClient(rows[0]) : null;
+	}
+
+	async findClientByName(name: string): Promise<Client | null> {
+		const rows = await this.db
+			.select()
+			.from(clients)
+			.where(eq(clients.name, name));
 		return rows[0] ? mapClient(rows[0]) : null;
 	}
 

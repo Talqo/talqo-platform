@@ -10,6 +10,10 @@ export class AuthService {
 		const existing = await this.repo.findClientByEmail(canonical);
 		if (existing) throw new Error("EMAIL_TAKEN");
 
+		const canonicalName = name.trim();
+		const existingName = await this.repo.findClientByName(canonicalName);
+		if (existingName) throw new Error("NAME_TAKEN");
+
 		const passwordHash = await Bun.password.hash(password);
 
 		// Create pending registration and send verification email
@@ -18,7 +22,7 @@ export class AuthService {
 
 		await this.repo.savePendingRegistration({
 			token,
-			name,
+			name: canonicalName,
 			email: canonical,
 			passwordHash,
 			expiresAt,
