@@ -1,14 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import {
 	FeaturesSection,
 	HeroSection,
 	LandingFooter,
 	LandingHeader,
-} from "@/components/landing"
+} from "@/components/landing";
 
 export const Route = createFileRoute("/")({
 	component: LandingPage,
-})
+});
 
 function LandingPage() {
 	return (
@@ -22,5 +22,5 @@ function LandingPage() {
 
 			<LandingFooter />
 		</div>
-	)
+	);
 }

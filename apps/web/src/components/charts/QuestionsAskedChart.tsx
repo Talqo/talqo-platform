@@ -1,4 +1,4 @@
-import { MessageSquare } from "lucide-react"
+import { MessageSquare } from "lucide-react";
 import {
 	CartesianGrid,
 	Line,
@@ -7,22 +7,22 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-} from "recharts"
+} from "recharts";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"
-import type { ChartDataPoint } from "@/data/charts"
+} from "@/components/ui/card";
+import type { ChartDataPoint } from "@/data/charts";
 
 interface QuestionsAskedChartProps {
-	data: ChartDataPoint[]
+	data: ChartDataPoint[];
 }
 
 export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
-	const hasData = data.length > 0
+	const hasData = data.length > 0;
 
 	return (
 		<Card>
@@ -86,5 +86,5 @@ export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
 				)}
 			</CardContent>
 		</Card>
-	)
+	);
 }

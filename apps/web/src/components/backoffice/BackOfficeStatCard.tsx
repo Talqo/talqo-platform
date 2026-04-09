@@ -1,12 +1,12 @@
-import type { LucideIcon } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { LucideIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface BackOfficeStatCardProps {
-	title: string
-	value: string
-	subtitle: string
-	icon: LucideIcon
-	variant?: "default" | "success"
+	title: string;
+	value: string;
+	subtitle: string;
+	icon: LucideIcon;
+	variant?: "default" | "success";
 }
 
 export function BackOfficeStatCard({
@@ -37,5 +37,5 @@ export function BackOfficeStatCard({
 				<p className="text-xs text-zinc-500 dark:text-zinc-400">{subtitle}</p>
 			</CardContent>
 		</Card>
-	)
+	);
 }

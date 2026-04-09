@@ -1,9 +1,9 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react"
-import { useWidgetContext } from "./WidgetRoot"
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useWidgetContext } from "./WidgetRoot";
 
 interface WidgetSendButtonProps
 	extends ButtonHTMLAttributes<HTMLButtonElement> {
-	children?: ReactNode
+	children?: ReactNode;
 }
 
 /**
@@ -11,9 +11,9 @@ interface WidgetSendButtonProps
  * Unstyled - consumers provide all styling
  */
 export function WidgetSendButton(props: WidgetSendButtonProps) {
-	const { children, ...buttonProps } = props
-	const { inputValue, sendMessage } = useWidgetContext()
-	const isDisabled = !inputValue.trim()
+	const { children, ...buttonProps } = props;
+	const { inputValue, sendMessage } = useWidgetContext();
+	const isDisabled = !inputValue.trim();
 
 	return (
 		<button
@@ -25,5 +25,5 @@ export function WidgetSendButton(props: WidgetSendButtonProps) {
 		>
 			{children}
 		</button>
-	)
+	);
 }

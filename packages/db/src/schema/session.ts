@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm"
+import { sql } from "drizzle-orm";
 import {
 	check,
 	integer,
@@ -8,8 +8,8 @@ import {
 	timestamp,
 	uuid,
 	varchar,
-} from "drizzle-orm/pg-core"
-import { clients } from "./client"
+} from "drizzle-orm/pg-core";
+import { clients } from "./client";
 
 export const endUserSessions = pgTable("end_user_sessions", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -23,7 +23,7 @@ export const endUserSessions = pgTable("end_user_sessions", {
 	lastActiveAt: timestamp("last_active_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-})
+});
 
 export const conversations = pgTable(
 	"conversations",
@@ -46,13 +46,13 @@ export const conversations = pgTable(
 			sql`${table.satisfactionRating} >= 1 AND ${table.satisfactionRating} <= 5`,
 		),
 	],
-)
+);
 
 export const messageRoleEnum = pgEnum("message_role", [
 	"user",
 	"assistant",
 	"system",
-])
+]);
 
 export const messages = pgTable("messages", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -65,4 +65,4 @@ export const messages = pgTable("messages", {
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-})
+});

@@ -1,6 +1,12 @@
-import { integer, numeric, pgTable, timestamp, uuid } from "drizzle-orm/pg-core"
-import { clients } from "./client"
-import { messages } from "./session"
+import {
+	integer,
+	numeric,
+	pgTable,
+	timestamp,
+	uuid,
+} from "drizzle-orm/pg-core";
+import { clients } from "./client";
+import { messages } from "./session";
 
 export const usageRecords = pgTable("usage_records", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -15,4 +21,4 @@ export const usageRecords = pgTable("usage_records", {
 	recordedAt: timestamp("recorded_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-})
+});

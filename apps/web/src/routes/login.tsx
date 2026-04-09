@@ -1,10 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { Loader2 } from "lucide-react"
-import type { LoginInput } from "shared"
-import { useUnifiedLogin } from "@/api/hooks/useAuth"
-import { AuthFormField, AuthHeader } from "@/components/auth"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import type { LoginInput } from "shared";
+import { useUnifiedLogin } from "@/api/hooks/useAuth";
+import { AuthFormField, AuthHeader } from "@/components/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -12,32 +12,32 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"
-import { AUTH } from "@/lib/constants"
-import { useForm } from "@/lib/useForm"
-import { loginSchema } from "@/schemas"
+} from "@/components/ui/card";
+import { AUTH } from "@/lib/constants";
+import { useForm } from "@/lib/useForm";
+import { loginSchema } from "@/schemas";
 
 export const Route = createFileRoute("/login")({
 	component: LoginPage,
-})
+});
 
 interface LoginFormData extends Record<string, string>, LoginInput {}
 
 const validateLoginForm = (values: LoginFormData) => {
-	const result = loginSchema.safeParse(values)
-	if (result.success) return {}
+	const result = loginSchema.safeParse(values);
+	if (result.success) return {};
 
-	const errors: Partial<Record<keyof LoginFormData, string>> = {}
+	const errors: Partial<Record<keyof LoginFormData, string>> = {};
 	for (const issue of result.error.issues) {
-		const path = issue.path[0] as keyof LoginFormData
-		errors[path] = issue.message
+		const path = issue.path[0] as keyof LoginFormData;
+		errors[path] = issue.message;
 	}
-	return errors
-}
+	return errors;
+};
 
 function LoginPage() {
-	const navigate = useNavigate()
-	const { mutate: login, isPending, error } = useUnifiedLogin()
+	const navigate = useNavigate();
+	const { mutate: login, isPending, error } = useUnifiedLogin();
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<LoginFormData>({
@@ -50,23 +50,23 @@ function LoginPage() {
 						onSuccess: (role) => {
 							// Redirect based on role
 							if (role === "admin") {
-								navigate({ to: AUTH.ADMIN_DEFAULT_REDIRECT })
+								navigate({ to: AUTH.ADMIN_DEFAULT_REDIRECT });
 							} else {
-								navigate({ to: AUTH.DEFAULT_REDIRECT })
+								navigate({ to: AUTH.DEFAULT_REDIRECT });
 							}
 						},
 					},
-				)
+				);
 			},
-		})
+		});
 
 	// Determine error message - unified hook only shows error after both attempts fail
-	let errorMessage: string | null = null
+	let errorMessage: string | null = null;
 	if (error) {
 		if (error.error?.code === "INVALID_CREDENTIALS") {
-			errorMessage = "Invalid email or password. Please try again."
+			errorMessage = "Invalid email or password. Please try again.";
 		} else {
-			errorMessage = error.error?.message || "Login failed. Please try again."
+			errorMessage = error.error?.message || "Login failed. Please try again.";
 		}
 	}
 
@@ -158,5 +158,5 @@ function LoginPage() {
 				</Card>
 			</div>
 		</div>
-	)
+	);
 }

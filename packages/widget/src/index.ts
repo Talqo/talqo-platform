@@ -6,10 +6,10 @@ export {
 	type UseWidgetReturn,
 	useWidget,
 	useWidgetTheme,
-} from "./hooks"
+} from "./hooks";
 // Types
-export type { Message } from "./hooks/useWidget"
-export type { WidgetTheme } from "./hooks/useWidgetTheme"
+export type { Message } from "./hooks/useWidget";
+export type { WidgetTheme } from "./hooks/useWidgetTheme";
 // Primitives - unstyled, compose your own UI
 export {
 	useWidgetContext,
@@ -22,7 +22,7 @@ export {
 	WidgetSendButton,
 	WidgetTrigger,
 	WidgetTypingIndicator,
-} from "./primitives"
+} from "./primitives";
 // Icons - useful for building custom UIs
 export {
 	BotIcon,
@@ -34,7 +34,7 @@ export {
 	SendIcon,
 	SunIcon,
 	XLargeIcon,
-} from "./primitives/icons"
+} from "./primitives/icons";
 
 /**
  * Quick Start:

@@ -1,11 +1,11 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react"
-import { useWidgetContext } from "./WidgetRoot"
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useWidgetContext } from "./WidgetRoot";
 
 interface WidgetTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	/** Content to render when chat is closed */
-	closedContent?: ReactNode
+	closedContent?: ReactNode;
 	/** Content to render when chat is open */
-	openContent?: ReactNode
+	openContent?: ReactNode;
 }
 
 /**
@@ -13,8 +13,8 @@ interface WidgetTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement> {
  * Renders as an unstyled button - consumers provide all styling
  */
 export function WidgetTrigger(props: WidgetTriggerProps) {
-	const { closedContent, openContent, ...buttonProps } = props
-	const { isOpen, toggleOpen } = useWidgetContext()
+	const { closedContent, openContent, ...buttonProps } = props;
+	const { isOpen, toggleOpen } = useWidgetContext();
 
 	return (
 		<button
@@ -26,5 +26,5 @@ export function WidgetTrigger(props: WidgetTriggerProps) {
 		>
 			{isOpen ? openContent : closedContent}
 		</button>
-	)
+	);
 }

@@ -1,9 +1,9 @@
-import { SendIcon, WidgetInput, WidgetSendButton } from "widget"
-import { cn } from "@/lib/utils"
+import { SendIcon, WidgetInput, WidgetSendButton } from "widget";
+import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
-	isDark: boolean
-	isRightPosition: boolean
+	isDark: boolean;
+	isRightPosition: boolean;
 }
 
 export function ChatInput({ isDark }: ChatInputProps) {
@@ -25,5 +25,5 @@ export function ChatInput({ isDark }: ChatInputProps) {
 				<SendIcon size={18} />
 			</WidgetSendButton>
 		</div>
-	)
+	);
 }

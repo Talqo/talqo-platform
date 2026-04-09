@@ -1,5 +1,5 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core"
-import { clients } from "./client"
+import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { clients } from "./client";
 
 export const blacklistWords = pgTable("blacklist_words", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -10,4 +10,4 @@ export const blacklistWords = pgTable("blacklist_words", {
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-})
+});

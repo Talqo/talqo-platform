@@ -1,11 +1,11 @@
-import { count, eq, sum } from "drizzle-orm"
-import type { DB } from "../../db"
+import { count, eq, sum } from "drizzle-orm";
+import type { DB } from "../../db";
 import {
 	activeAdminUsers,
 	clients,
 	conversations,
 	usageRecords,
-} from "../../db/schema"
+} from "../../db/schema";
 
 export class AdminRepository {
 	constructor(private readonly db: DB) {}
@@ -15,7 +15,7 @@ export class AdminRepository {
 			.select()
 			.from(activeAdminUsers)
 			.where(eq(activeAdminUsers.email, email))
-			.then((rows) => rows.at(0) ?? null)
+			.then((rows) => rows.at(0) ?? null);
 	}
 
 	async findAdminById(id: string) {
@@ -23,7 +23,7 @@ export class AdminRepository {
 			.select()
 			.from(activeAdminUsers)
 			.where(eq(activeAdminUsers.id, id))
-			.then((rows) => rows.at(0) ?? null)
+			.then((rows) => rows.at(0) ?? null);
 	}
 
 	async listClients(limit: number, offset: number) {
@@ -40,7 +40,7 @@ export class AdminRepository {
 			.from(clients)
 			.limit(limit)
 			.offset(offset)
-			.orderBy(clients.createdAt)
+			.orderBy(clients.createdAt);
 	}
 
 	async getClientDetail(clientId: string) {
@@ -58,9 +58,9 @@ export class AdminRepository {
 			})
 			.from(clients)
 			.where(eq(clients.id, clientId))
-			.then((rows) => rows.at(0) ?? null)
+			.then((rows) => rows.at(0) ?? null);
 
-		if (!client) return null
+		if (!client) return null;
 
 		const [usage] = await this.db
 			.select({
@@ -68,19 +68,19 @@ export class AdminRepository {
 				totalCostUsd: sum(usageRecords.costUsd),
 			})
 			.from(usageRecords)
-			.where(eq(usageRecords.clientId, clientId))
+			.where(eq(usageRecords.clientId, clientId));
 
 		const [convStats] = await this.db
 			.select({ totalConversations: count(conversations.id) })
 			.from(conversations)
-			.where(eq(conversations.clientId, clientId))
+			.where(eq(conversations.clientId, clientId));
 
 		return {
 			...client,
 			totalTokens: usage?.totalTokens ?? 0,
 			totalCostUsd: usage?.totalCostUsd ?? "0",
 			totalConversations: convStats?.totalConversations ?? 0,
-		}
+		};
 	}
 
 	async updateClientStatus(clientId: string, status: string) {
@@ -88,7 +88,7 @@ export class AdminRepository {
 			.update(clients)
 			.set({ status })
 			.where(eq(clients.id, clientId))
-			.returning({ id: clients.id, status: clients.status })
-		return rows.at(0) ?? null
+			.returning({ id: clients.id, status: clients.status });
+		return rows.at(0) ?? null;
 	}
 }

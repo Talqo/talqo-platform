@@ -1,8 +1,13 @@
-import { and, count, countDistinct, eq, gte, lte, sql, sum } from "drizzle-orm"
-import type { DB } from "../../db"
-import { clients, conversations, messages, usageRecords } from "../../db/schema"
+import { and, count, countDistinct, eq, gte, lte, sql, sum } from "drizzle-orm";
+import type { DB } from "../../db";
+import {
+	clients,
+	conversations,
+	messages,
+	usageRecords,
+} from "../../db/schema";
 
-type Granularity = "day" | "week" | "month"
+type Granularity = "day" | "week" | "month";
 
 export class AnalyticsRepository {
 	constructor(private readonly db: DB) {}
@@ -13,7 +18,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${usageRecords.recordedAt})`
+		const bucket = sql<string>`date_trunc(${granularity}, ${usageRecords.recordedAt})`;
 		return this.db
 			.select({
 				period: bucket,
@@ -29,7 +34,7 @@ export class AnalyticsRepository {
 				),
 			)
 			.groupBy(bucket)
-			.orderBy(bucket)
+			.orderBy(bucket);
 	}
 
 	async getMessageCounts(
@@ -38,7 +43,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${messages.createdAt})`
+		const bucket = sql<string>`date_trunc(${granularity}, ${messages.createdAt})`;
 		return this.db
 			.select({
 				period: bucket,
@@ -54,7 +59,7 @@ export class AnalyticsRepository {
 				),
 			)
 			.groupBy(bucket)
-			.orderBy(bucket)
+			.orderBy(bucket);
 	}
 
 	async getPlatformStats() {
@@ -63,24 +68,24 @@ export class AnalyticsRepository {
 				totalTokens: sum(usageRecords.tokensUsed).mapWith(Number),
 				totalCostUsd: sum(usageRecords.costUsd),
 			})
-			.from(usageRecords)
+			.from(usageRecords);
 
 		const [clientStats] = await this.db
 			.select({
 				activeClients: countDistinct(clients.id),
 			})
 			.from(clients)
-			.where(eq(clients.status, "active"))
+			.where(eq(clients.status, "active"));
 
 		const [convStats] = await this.db
 			.select({ totalConversations: count(conversations.id) })
-			.from(conversations)
+			.from(conversations);
 
 		return {
 			totalTokens: tokenStats?.totalTokens ?? 0,
 			totalCostUsd: tokenStats?.totalCostUsd ?? "0",
 			activeClients: clientStats?.activeClients ?? 0,
 			totalConversations: convStats?.totalConversations ?? 0,
-		}
+		};
 	}
 }

@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm"
-import type { DB } from "../../db"
-import { blacklistWords } from "../../db/schema"
+import { and, eq } from "drizzle-orm";
+import type { DB } from "../../db";
+import { blacklistWords } from "../../db/schema";
 
 export class BlacklistRepository {
 	constructor(private readonly db: DB) {}
@@ -10,7 +10,7 @@ export class BlacklistRepository {
 			.select()
 			.from(blacklistWords)
 			.where(eq(blacklistWords.clientId, clientId))
-			.orderBy(blacklistWords.createdAt)
+			.orderBy(blacklistWords.createdAt);
 	}
 
 	async findWord(wordId: string, clientId: string) {
@@ -23,7 +23,7 @@ export class BlacklistRepository {
 					eq(blacklistWords.clientId, clientId),
 				),
 			)
-			.then((rows) => rows[0] ?? null)
+			.then((rows) => rows[0] ?? null);
 	}
 
 	async findByWord(clientId: string, word: string) {
@@ -36,15 +36,15 @@ export class BlacklistRepository {
 					eq(blacklistWords.word, word),
 				),
 			)
-			.then((rows) => rows[0] ?? null)
+			.then((rows) => rows[0] ?? null);
 	}
 
 	async addWord(clientId: string, word: string) {
 		const [row] = await this.db
 			.insert(blacklistWords)
 			.values({ clientId, word })
-			.returning()
-		return row
+			.returning();
+		return row;
 	}
 
 	async deleteWord(wordId: string, clientId: string) {
@@ -56,7 +56,7 @@ export class BlacklistRepository {
 					eq(blacklistWords.clientId, clientId),
 				),
 			)
-			.returning()
-		return result.length > 0
+			.returning();
+		return result.length > 0;
 	}
 }

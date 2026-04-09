@@ -1,19 +1,19 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { clientResponseSchema } from "db/dto"
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { clientResponseSchema } from "db/dto";
 import {
 	addFundsBodySchema,
 	changePasswordBodySchema,
 	updateProfileBodySchema,
 	usageAlertBodySchema,
 	usageLimitBodySchema,
-} from "shared"
+} from "shared";
 import {
 	errorResponseSchema,
 	successResponseSchema,
-} from "../../common/schemas"
-import { clientAccountService } from "./index"
+} from "../../common/schemas";
+import { clientAccountService } from "./index";
 
-const router = new OpenAPIHono()
+const router = new OpenAPIHono();
 
 router.openapi(
 	createRoute({
@@ -34,11 +34,11 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const profile = await clientAccountService.getProfile(clientId)
-		return c.json({ success: true as const, data: profile }, 200)
+		const clientId = c.get("clientId" as never) as string;
+		const profile = await clientAccountService.getProfile(clientId);
+		return c.json({ success: true as const, data: profile }, 200);
 	},
-)
+);
 
 router.openapi(
 	createRoute({
@@ -74,12 +74,12 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const body = c.req.valid("json")
-		const result = await clientAccountService.updateProfile(clientId, body)
-		return c.json({ success: true as const, data: result }, 200)
+		const clientId = c.get("clientId" as never) as string;
+		const body = c.req.valid("json");
+		const result = await clientAccountService.updateProfile(clientId, body);
+		return c.json({ success: true as const, data: result }, 200);
 	},
-)
+);
 
 router.openapi(
 	createRoute({
@@ -113,15 +113,15 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const body = c.req.valid("json")
-		await clientAccountService.changePassword(clientId, body)
+		const clientId = c.get("clientId" as never) as string;
+		const body = c.req.valid("json");
+		await clientAccountService.changePassword(clientId, body);
 		return c.json(
 			{ success: true as const, data: { message: "Password changed" } },
 			200,
-		)
+		);
 	},
-)
+);
 
 router.openapi(
 	createRoute({
@@ -151,12 +151,12 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { amount } = c.req.valid("json")
-		const result = await clientAccountService.addFunds(clientId, amount)
-		return c.json({ success: true as const, data: result }, 200)
+		const clientId = c.get("clientId" as never) as string;
+		const { amount } = c.req.valid("json");
+		const result = await clientAccountService.addFunds(clientId, amount);
+		return c.json({ success: true as const, data: result }, 200);
 	},
-)
+);
 
 router.openapi(
 	createRoute({
@@ -186,15 +186,15 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { limit } = c.req.valid("json")
-		await clientAccountService.setUsageLimit(clientId, limit)
+		const clientId = c.get("clientId" as never) as string;
+		const { limit } = c.req.valid("json");
+		await clientAccountService.setUsageLimit(clientId, limit);
 		return c.json(
 			{ success: true as const, data: { message: "Usage limit updated" } },
 			200,
-		)
+		);
 	},
-)
+);
 
 router.openapi(
 	createRoute({
@@ -224,14 +224,14 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { thresholdUsd } = c.req.valid("json")
-		await clientAccountService.setUsageAlert(clientId, thresholdUsd)
+		const clientId = c.get("clientId" as never) as string;
+		const { thresholdUsd } = c.req.valid("json");
+		await clientAccountService.setUsageAlert(clientId, thresholdUsd);
 		return c.json(
 			{ success: true as const, data: { message: "Usage alert updated" } },
 			200,
-		)
+		);
 	},
-)
+);
 
-export default router
+export default router;

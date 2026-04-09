@@ -1,21 +1,21 @@
-import { Check, FileText, Pencil, Trash2, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { formatBytes } from "@/lib/formatBytes"
-import { cn } from "@/lib/utils"
-import type { ContextFile } from "./types"
+import { Check, FileText, Pencil, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { formatBytes } from "@/lib/formatBytes";
+import { cn } from "@/lib/utils";
+import type { ContextFile } from "./types";
 
 interface FileListItemProps {
-	file: ContextFile
-	isEditing: boolean
-	editValue: string
-	error: string | null
-	onStartEditing: (file: ContextFile) => void
-	onConfirmEditing: () => void
-	onCancelEditing: () => void
-	onDelete: (id: string) => void
-	onEditChange: (value: string) => void
-	onEditKeyDown: (event: React.KeyboardEvent) => void
+	file: ContextFile;
+	isEditing: boolean;
+	editValue: string;
+	error: string | null;
+	onStartEditing: (file: ContextFile) => void;
+	onConfirmEditing: () => void;
+	onCancelEditing: () => void;
+	onDelete: (id: string) => void;
+	onEditChange: (value: string) => void;
+	onEditKeyDown: (event: React.KeyboardEvent) => void;
 }
 
 export function FileListItem({
@@ -100,5 +100,5 @@ export function FileListItem({
 				</div>
 			)}
 		</div>
-	)
+	);
 }

@@ -1,20 +1,20 @@
-import { AlertCircle } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface AuthFormFieldProps {
-	id: string
-	name: string
-	label: string
-	type?: string
-	placeholder?: string
-	value: string
-	onChange: (value: string) => void
-	onBlur: () => void
-	error?: string
-	showError?: boolean
-	errorId?: string
-	autoComplete?: string
+	id: string;
+	name: string;
+	label: string;
+	type?: string;
+	placeholder?: string;
+	value: string;
+	onChange: (value: string) => void;
+	onBlur: () => void;
+	error?: string;
+	showError?: boolean;
+	errorId?: string;
+	autoComplete?: string;
 }
 
 export function AuthFormField({
@@ -31,7 +31,7 @@ export function AuthFormField({
 	errorId,
 	autoComplete,
 }: AuthFormFieldProps) {
-	const hasError = Boolean(showError && error)
+	const hasError = Boolean(showError && error);
 
 	return (
 		<div className="space-y-2">
@@ -62,5 +62,5 @@ export function AuthFormField({
 				</div>
 			)}
 		</div>
-	)
+	);
 }

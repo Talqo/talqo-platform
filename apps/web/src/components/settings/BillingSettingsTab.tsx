@@ -1,14 +1,14 @@
-import upgradeImage from "@/assets/Gemini_Generated_Image_7dq4tr7dq4tr7dq4.png"
+import upgradeImage from "@/assets/Gemini_Generated_Image_7dq4tr7dq4tr7dq4.png";
 import {
 	Card,
 	CardContent,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export function BillingSettingsTab() {
 	return (
@@ -50,5 +50,5 @@ export function BillingSettingsTab() {
 				</button>
 			</CardFooter>
 		</Card>
-	)
+	);
 }

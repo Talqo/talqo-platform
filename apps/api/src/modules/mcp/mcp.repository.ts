@@ -1,10 +1,10 @@
-import { and, eq } from "drizzle-orm"
-import type { DB } from "../../db"
+import { and, eq } from "drizzle-orm";
+import type { DB } from "../../db";
 import {
 	clientPreMadeMcp,
 	customMcpServers,
 	preMadeMcpServers,
-} from "../../db/schema"
+} from "../../db/schema";
 
 export class McpRepository {
 	constructor(private readonly db: DB) {}
@@ -12,7 +12,7 @@ export class McpRepository {
 	// ─── Pre-made servers ───────────────────────────────────────────────────────
 
 	async listPreMadeServers() {
-		return this.db.select().from(preMadeMcpServers)
+		return this.db.select().from(preMadeMcpServers);
 	}
 
 	async getPreMadeServer(id: string) {
@@ -20,15 +20,15 @@ export class McpRepository {
 			.select()
 			.from(preMadeMcpServers)
 			.where(eq(preMadeMcpServers.id, id))
-			.then((rows) => rows[0] ?? null)
+			.then((rows) => rows[0] ?? null);
 	}
 
 	async createPreMadeServer(mcpConfig: unknown) {
 		const [row] = await this.db
 			.insert(preMadeMcpServers)
 			.values({ mcpConfig })
-			.returning()
-		return row
+			.returning();
+		return row;
 	}
 
 	async updatePreMadeServer(id: string, mcpConfig: unknown) {
@@ -36,16 +36,16 @@ export class McpRepository {
 			.update(preMadeMcpServers)
 			.set({ mcpConfig })
 			.where(eq(preMadeMcpServers.id, id))
-			.returning()
-		return row ?? null
+			.returning();
+		return row ?? null;
 	}
 
 	async deletePreMadeServer(id: string) {
 		const result = await this.db
 			.delete(preMadeMcpServers)
 			.where(eq(preMadeMcpServers.id, id))
-			.returning()
-		return result.length > 0
+			.returning();
+		return result.length > 0;
 	}
 
 	// ─── Client ↔ pre-made servers ──────────────────────────────────────────────
@@ -59,14 +59,14 @@ export class McpRepository {
 				eq(clientPreMadeMcp.preMadeMcpId, preMadeMcpServers.id),
 			)
 			.where(eq(clientPreMadeMcp.clientId, clientId))
-			.then((rows) => rows.map((r) => r.server))
+			.then((rows) => rows.map((r) => r.server));
 	}
 
 	async enablePreMade(clientId: string, serverId: string) {
 		await this.db
 			.insert(clientPreMadeMcp)
 			.values({ clientId, preMadeMcpId: serverId })
-			.onConflictDoNothing()
+			.onConflictDoNothing();
 	}
 
 	async disablePreMade(clientId: string, serverId: string) {
@@ -78,8 +78,8 @@ export class McpRepository {
 					eq(clientPreMadeMcp.preMadeMcpId, serverId),
 				),
 			)
-			.returning()
-		return result.length > 0
+			.returning();
+		return result.length > 0;
 	}
 
 	// ─── Custom MCP servers ─────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ export class McpRepository {
 		return this.db
 			.select()
 			.from(customMcpServers)
-			.where(eq(customMcpServers.clientId, clientId))
+			.where(eq(customMcpServers.clientId, clientId));
 	}
 
 	async getCustomServer(id: string, clientId: string) {
@@ -101,15 +101,15 @@ export class McpRepository {
 					eq(customMcpServers.clientId, clientId),
 				),
 			)
-			.then((rows) => rows[0] ?? null)
+			.then((rows) => rows[0] ?? null);
 	}
 
 	async createCustomServer(clientId: string, mcpConfig: unknown) {
 		const [row] = await this.db
 			.insert(customMcpServers)
 			.values({ clientId, mcpConfig })
-			.returning()
-		return row
+			.returning();
+		return row;
 	}
 
 	async updateCustomServer(id: string, clientId: string, mcpConfig: unknown) {
@@ -122,8 +122,8 @@ export class McpRepository {
 					eq(customMcpServers.clientId, clientId),
 				),
 			)
-			.returning()
-		return row ?? null
+			.returning();
+		return row ?? null;
 	}
 
 	async deleteCustomServer(id: string, clientId: string) {
@@ -135,7 +135,7 @@ export class McpRepository {
 					eq(customMcpServers.clientId, clientId),
 				),
 			)
-			.returning()
-		return result.length > 0
+			.returning();
+		return result.length > 0;
 	}
 }

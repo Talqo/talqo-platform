@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
-export type WidgetTheme = "light" | "dark"
+export type WidgetTheme = "light" | "dark";
 
 interface UseWidgetThemeReturn {
 	/** Current theme */
-	theme: WidgetTheme
+	theme: WidgetTheme;
 	/** Whether current theme is dark */
-	isDark: boolean
+	isDark: boolean;
 }
 
 /**
@@ -15,34 +15,34 @@ interface UseWidgetThemeReturn {
  */
 export function useWidgetTheme(): UseWidgetThemeReturn {
 	const [theme, setTheme] = useState<WidgetTheme>(() => {
-		if (typeof document === "undefined") return "light"
-		const root = document.documentElement
-		const isDark = root.classList.contains("dark")
-		return isDark ? "dark" : "light"
-	})
+		if (typeof document === "undefined") return "light";
+		const root = document.documentElement;
+		const isDark = root.classList.contains("dark");
+		return isDark ? "dark" : "light";
+	});
 
 	useEffect(() => {
 		const detectTheme = () => {
-			const root = document.documentElement
-			const isDark = root.classList.contains("dark")
-			setTheme(isDark ? "dark" : "light")
-		}
+			const root = document.documentElement;
+			const isDark = root.classList.contains("dark");
+			setTheme(isDark ? "dark" : "light");
+		};
 
-		detectTheme()
+		detectTheme();
 
-		const observer = new MutationObserver(detectTheme)
+		const observer = new MutationObserver(detectTheme);
 		observer.observe(document.documentElement, {
 			attributes: true,
 			attributeFilter: ["class"],
-		})
+		});
 
 		return () => {
-			observer.disconnect()
-		}
-	}, [])
+			observer.disconnect();
+		};
+	}, []);
 
 	return {
 		theme,
 		isDark: theme === "dark",
-	}
+	};
 }

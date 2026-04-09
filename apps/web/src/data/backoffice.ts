@@ -1,21 +1,21 @@
-import type { LucideIcon } from "lucide-react"
-import { AlertCircle, BarChart3, CheckCircle2, Users } from "lucide-react"
+import type { LucideIcon } from "lucide-react";
+import { AlertCircle, BarChart3, CheckCircle2, Users } from "lucide-react";
 
 export interface Stat {
-	id: string
-	title: string
-	value: string
-	subtitle: string
-	icon: LucideIcon
-	variant?: "default" | "success"
+	id: string;
+	title: string;
+	value: string;
+	subtitle: string;
+	icon: LucideIcon;
+	variant?: "default" | "success";
 }
 
 export interface Tenant {
-	id: string
-	name: string
-	status: "active" | "suspended"
-	apiType: string
-	tokenUsage: string
+	id: string;
+	name: string;
+	status: "active" | "suspended";
+	apiType: string;
+	tokenUsage: string;
 }
 
 export const STATS: Stat[] = [
@@ -48,7 +48,7 @@ export const STATS: Stat[] = [
 		subtitle: "Within normal limits",
 		icon: AlertCircle,
 	},
-]
+];
 
 export const TENANTS: Tenant[] = [
 	{
@@ -65,4 +65,4 @@ export const TENANTS: Tenant[] = [
 		apiType: "Custom API Key",
 		tokenUsage: "0 / 0",
 	},
-]
+];

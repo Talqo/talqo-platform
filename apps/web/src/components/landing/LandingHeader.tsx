@@ -1,10 +1,10 @@
-import { Link } from "@tanstack/react-router"
-import { Bot, Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useTheme } from "@/lib/useTheme"
+import { Link } from "@tanstack/react-router";
+import { Bot, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/lib/useTheme";
 
 export function LandingHeader() {
-	const { theme, toggleTheme } = useTheme()
+	const { theme, toggleTheme } = useTheme();
 
 	return (
 		<header className="sticky top-0 z-50 flex h-16 items-center border-border border-b bg-background px-6">
@@ -36,5 +36,5 @@ export function LandingHeader() {
 				</Button>
 			</nav>
 		</header>
-	)
+	);
 }

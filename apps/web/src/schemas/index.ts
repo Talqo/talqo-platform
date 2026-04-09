@@ -5,11 +5,11 @@ export {
 	passwordChangeSchema,
 	type RegisterFormType,
 	registerSchema,
-} from "./auth"
+} from "./auth";
 
 export {
 	type BillingSettingsSchema,
 	type BotConfigSchema,
 	billingSettingsSchema,
 	botConfigSchema,
-} from "./bot"
+} from "./bot";

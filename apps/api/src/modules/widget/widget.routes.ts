@@ -1,23 +1,23 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
 	conversationResponseSchema,
 	messageResponseSchema,
 	sessionResponseSchema,
-} from "db/dto"
+} from "db/dto";
 import {
 	createSessionBodySchema,
 	rateConversationBodySchema,
 	sendMessageBodySchema,
-} from "shared"
+} from "shared";
 import {
 	errorResponseSchema,
 	successResponseSchema,
-} from "../../common/schemas"
-import { widgetService } from "./index"
+} from "../../common/schemas";
+import { widgetService } from "./index";
 
 // ─── Session routes ────────────────────────────────────────────────────────────
 
-export const widgetSessionRoutes = new OpenAPIHono()
+export const widgetSessionRoutes = new OpenAPIHono();
 
 widgetSessionRoutes.openapi(
 	createRoute({
@@ -47,19 +47,19 @@ widgetSessionRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { browserSessionId } = c.req.valid("json")
+		const clientId = c.get("clientId" as never) as string;
+		const { browserSessionId } = c.req.valid("json");
 		const session = await widgetService.createOrResumeSession(
 			clientId,
 			browserSessionId,
-		)
-		return c.json({ success: true as const, data: session }, 200)
+		);
+		return c.json({ success: true as const, data: session }, 200);
 	},
-)
+);
 
 // ─── Conversation routes ───────────────────────────────────────────────────────
 
-export const widgetConversationRoutes = new OpenAPIHono()
+export const widgetConversationRoutes = new OpenAPIHono();
 
 widgetConversationRoutes.openapi(
 	createRoute({
@@ -84,16 +84,16 @@ widgetConversationRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId" as never) as string;
 		// sessionId is always defined when mounted at /widget/:clientId/sessions/:sessionId/conversations
-		const sessionId = c.req.param("sessionId") as string
+		const sessionId = c.req.param("sessionId") as string;
 		const conversation = await widgetService.startConversation(
 			clientId,
 			sessionId,
-		)
-		return c.json({ success: true as const, data: conversation }, 201)
+		);
+		return c.json({ success: true as const, data: conversation }, 201);
 	},
-)
+);
 
 widgetConversationRoutes.openapi(
 	createRoute({
@@ -121,15 +121,15 @@ widgetConversationRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { conversationId } = c.req.valid("param")
-		await widgetService.resetConversation(clientId, conversationId)
+		const clientId = c.get("clientId" as never) as string;
+		const { conversationId } = c.req.valid("param");
+		await widgetService.resetConversation(clientId, conversationId);
 		return c.json(
 			{ success: true as const, data: { message: "Conversation reset" } },
 			200,
-		)
+		);
 	},
-)
+);
 
 widgetConversationRoutes.openapi(
 	createRoute({
@@ -164,21 +164,21 @@ widgetConversationRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { conversationId } = c.req.valid("param")
-		const { rating } = c.req.valid("json")
+		const clientId = c.get("clientId" as never) as string;
+		const { conversationId } = c.req.valid("param");
+		const { rating } = c.req.valid("json");
 		const updated = await widgetService.rateConversation(
 			clientId,
 			conversationId,
 			rating,
-		)
-		return c.json({ success: true as const, data: updated }, 200)
+		);
+		return c.json({ success: true as const, data: updated }, 200);
 	},
-)
+);
 
 // ─── Message routes ────────────────────────────────────────────────────────────
 
-export const widgetMessageRoutes = new OpenAPIHono()
+export const widgetMessageRoutes = new OpenAPIHono();
 
 widgetMessageRoutes.openapi(
 	createRoute({
@@ -203,13 +203,16 @@ widgetMessageRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId" as never) as string;
 		// conversationId is always defined when mounted at /.../conversations/:conversationId/messages
-		const conversationId = c.req.param("conversationId") as string
-		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
-		return c.json({ success: true as const, data: msgs }, 200)
+		const conversationId = c.req.param("conversationId") as string;
+		const msgs = await widgetService.getMessageHistory(
+			clientId,
+			conversationId,
+		);
+		return c.json({ success: true as const, data: msgs }, 200);
 	},
-)
+);
 
 widgetMessageRoutes.openapi(
 	createRoute({
@@ -248,14 +251,14 @@ widgetMessageRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const conversationId = c.req.param("conversationId") as string
-		const { content } = c.req.valid("json")
+		const clientId = c.get("clientId" as never) as string;
+		const conversationId = c.req.param("conversationId") as string;
+		const { content } = c.req.valid("json");
 		const result = await widgetService.sendMessage(
 			clientId,
 			conversationId,
 			content,
-		)
-		return c.json({ success: true as const, data: result }, 200)
+		);
+		return c.json({ success: true as const, data: result }, 200);
 	},
-)
+);

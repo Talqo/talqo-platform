@@ -1,5 +1,5 @@
-import { Suspense } from "react"
-import { LoadingOverlay } from "./ui/spinner"
+import { Suspense } from "react";
+import { LoadingOverlay } from "./ui/spinner";
 
 /**
  * Suspense boundary wrapper with consistent loading state
@@ -7,8 +7,8 @@ import { LoadingOverlay } from "./ui/spinner"
  */
 
 interface SuspenseBoundaryProps {
-	children: React.ReactNode
-	fallback?: React.ReactNode
+	children: React.ReactNode;
+	fallback?: React.ReactNode;
 }
 
 export function SuspenseBoundary({
@@ -21,7 +21,7 @@ export function SuspenseBoundary({
 		>
 			{children}
 		</Suspense>
-	)
+	);
 }
 
 /**
@@ -33,5 +33,5 @@ export function RouteSuspense({ children }: { children: React.ReactNode }) {
 		<Suspense fallback={<LoadingOverlay>Loading page...</LoadingOverlay>}>
 			{children}
 		</Suspense>
-	)
+	);
 }

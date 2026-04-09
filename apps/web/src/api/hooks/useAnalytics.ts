@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query"
-import { client } from "../client"
+import { useQuery } from "@tanstack/react-query";
+import { client } from "../client";
 
 type AnalyticsQuery = {
-	from?: string
-	to?: string
-	granularity?: "day" | "week" | "month"
-}
+	from?: string;
+	to?: string;
+	granularity?: "day" | "week" | "month";
+};
 
 export function useTokenAnalytics(query: AnalyticsQuery = {}) {
 	return useQuery({
@@ -13,11 +13,11 @@ export function useTokenAnalytics(query: AnalyticsQuery = {}) {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/analytics/tokens", {
 				params: { query },
-			})
-			if (error) throw error
-			return data.data
+			});
+			if (error) throw error;
+			return data.data;
 		},
-	})
+	});
 }
 
 export function useMessageAnalytics(query: AnalyticsQuery = {}) {
@@ -29,9 +29,9 @@ export function useMessageAnalytics(query: AnalyticsQuery = {}) {
 				{
 					params: { query },
 				},
-			)
-			if (error) throw error
-			return data.data
+			);
+			if (error) throw error;
+			return data.data;
 		},
-	})
+	});
 }

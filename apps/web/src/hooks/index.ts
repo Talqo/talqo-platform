@@ -1,1 +1,1 @@
-export { useAnimationTimeout } from "./useAnimationTimeout"
+export { useAnimationTimeout } from "./useAnimationTimeout";

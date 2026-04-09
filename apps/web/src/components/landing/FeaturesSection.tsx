@@ -1,5 +1,5 @@
-import { FEATURES } from "@/data/landing"
-import { FeatureCard } from "./FeatureCard"
+import { FEATURES } from "@/data/landing";
+import { FeatureCard } from "./FeatureCard";
 
 export function FeaturesSection() {
 	return (
@@ -12,5 +12,5 @@ export function FeaturesSection() {
 				</div>
 			</div>
 		</section>
-	)
+	);
 }

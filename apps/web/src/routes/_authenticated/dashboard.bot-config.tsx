@@ -1,19 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { PageContainer } from "@/components/layout"
-import { Button } from "@/components/ui/button"
+import { createFileRoute } from "@tanstack/react-router";
+import { PageContainer } from "@/components/layout";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/dashboard/bot-config")({
 	component: BotConfigPage,
-})
+});
 
 function BotConfigPage() {
 	return (
@@ -62,5 +62,5 @@ function BotConfigPage() {
 				</CardFooter>
 			</Card>
 		</PageContainer>
-	)
+	);
 }

@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from "@tanstack/react-router"
+import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import {
 	Bot,
 	FileText,
@@ -8,16 +8,16 @@ import {
 	Settings,
 	Sun,
 	Wrench,
-} from "lucide-react"
-import { useLogout } from "@/api/hooks/useAuth"
-import { Button } from "@/components/ui/button"
-import { useTheme } from "@/lib/useTheme"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { useLogout } from "@/api/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/lib/useTheme";
+import { cn } from "@/lib/utils";
 
 export function DashboardLayout() {
-	const location = useLocation()
-	const logout = useLogout()
-	const { theme, toggleTheme } = useTheme()
+	const location = useLocation();
+	const logout = useLogout();
+	const { theme, toggleTheme } = useTheme();
 
 	const navItems = [
 		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
@@ -25,11 +25,11 @@ export function DashboardLayout() {
 		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
 		{ icon: Wrench, label: "Tools MCP", href: "/dashboard/tools" },
 		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
-	]
+	];
 
 	const handleLogout = () => {
-		logout()
-	}
+		logout();
+	};
 
 	return (
 		<div className="flex min-h-screen bg-background">
@@ -49,7 +49,7 @@ export function DashboardLayout() {
 						Client Dashboard
 					</div>
 					{navItems.map((item) => {
-						const isActive = location.pathname === item.href
+						const isActive = location.pathname === item.href;
 						return (
 							<Link
 								key={item.href}
@@ -64,7 +64,7 @@ export function DashboardLayout() {
 								<item.icon size={18} />
 								{item.label}
 							</Link>
-						)
+						);
 					})}
 				</div>
 
@@ -97,5 +97,5 @@ export function DashboardLayout() {
 				<Outlet />
 			</main>
 		</div>
-	)
+	);
 }

@@ -1,24 +1,24 @@
-import { jwtVerify, SignJWT } from "jose"
-import { config } from "./config"
-import { UnauthorizedError } from "./errors"
-import type { Logger } from "./logger"
+import { jwtVerify, SignJWT } from "jose";
+import { config } from "./config";
+import { UnauthorizedError } from "./errors";
+import type { Logger } from "./logger";
 
-export type TokenRole = "client" | "admin"
+export type TokenRole = "client" | "admin";
 
 export type AppVariables = {
-	adminId: string
-	clientId: string
-	logger: Logger
-}
+	adminId: string;
+	clientId: string;
+	logger: Logger;
+};
 
 export interface TokenPayload {
-	sub: string
-	role: TokenRole
+	sub: string;
+	role: TokenRole;
 	/** Marks an impersonation token issued by admin */
-	imp?: boolean
+	imp?: boolean;
 }
 
-const secret = new TextEncoder().encode(config.JWT_SECRET)
+const secret = new TextEncoder().encode(config.JWT_SECRET);
 
 export async function signToken(
 	payload: TokenPayload,
@@ -29,18 +29,18 @@ export async function signToken(
 		.setSubject(payload.sub)
 		.setIssuedAt()
 		.setExpirationTime(expiresIn)
-		.sign(secret)
+		.sign(secret);
 }
 
 export async function verifyToken(token: string): Promise<TokenPayload> {
 	try {
-		const { payload } = await jwtVerify(token, secret)
+		const { payload } = await jwtVerify(token, secret);
 		return {
 			sub: payload.sub as string,
 			role: payload.role as TokenRole,
 			imp: payload.imp as boolean | undefined,
-		}
+		};
 	} catch {
-		throw new UnauthorizedError("Invalid or expired token")
+		throw new UnauthorizedError("Invalid or expired token");
 	}
 }

@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react"
+import { FileText } from "lucide-react";
 
 export function FileListEmpty() {
 	return (
@@ -9,5 +9,5 @@ export function FileListEmpty() {
 				Drag and drop text files here or use the + button to add them
 			</p>
 		</div>
-	)
+	);
 }

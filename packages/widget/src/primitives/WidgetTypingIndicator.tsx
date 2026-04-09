@@ -1,8 +1,8 @@
-import type { HTMLAttributes } from "react"
+import type { HTMLAttributes } from "react";
 
 interface WidgetTypingIndicatorProps extends HTMLAttributes<HTMLDivElement> {
 	/** Number of bouncing dots to show */
-	dotCount?: number
+	dotCount?: number;
 }
 
 /**
@@ -10,7 +10,7 @@ interface WidgetTypingIndicatorProps extends HTMLAttributes<HTMLDivElement> {
  * Unstyled - consumers provide all styling
  */
 export function WidgetTypingIndicator(props: WidgetTypingIndicatorProps) {
-	const { dotCount = 3, ...divProps } = props
+	const { dotCount = 3, ...divProps } = props;
 
 	return (
 		<div aria-live="polite" aria-atomic="true" {...divProps}>
@@ -24,5 +24,5 @@ export function WidgetTypingIndicator(props: WidgetTypingIndicatorProps) {
 				/>
 			))}
 		</div>
-	)
+	);
 }

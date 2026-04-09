@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm"
+import { eq } from "drizzle-orm";
 import {
 	boolean,
 	pgTable,
@@ -6,8 +6,8 @@ import {
 	timestamp,
 	uuid,
 	varchar,
-} from "drizzle-orm/pg-core"
-import { clients } from "./client"
+} from "drizzle-orm/pg-core";
+import { clients } from "./client";
 
 export const adminUsers = pgTable("admin_users", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -18,7 +18,7 @@ export const adminUsers = pgTable("admin_users", {
 		.notNull(),
 	isDeleted: boolean("is_deleted").default(false).notNull(),
 	deletedAt: timestamp("deleted_at", { withTimezone: true }),
-})
+});
 
 export const activeAdminUsers = pgView("active_admin_users").as((qb) =>
 	qb
@@ -30,7 +30,7 @@ export const activeAdminUsers = pgView("active_admin_users").as((qb) =>
 		})
 		.from(adminUsers)
 		.where(eq(adminUsers.isDeleted, false)),
-)
+);
 
 export const adminAccessLogs = pgTable("admin_access_logs", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -44,4 +44,4 @@ export const adminAccessLogs = pgTable("admin_access_logs", {
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
-})
+});

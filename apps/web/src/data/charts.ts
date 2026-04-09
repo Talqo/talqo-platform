@@ -1,7 +1,7 @@
 export interface ChartDataPoint {
-	name: string
-	tokens: number
-	questions: number
+	name: string;
+	tokens: number;
+	questions: number;
 }
 
 export const WEEKLY_STATS_DATA: ChartDataPoint[] = [
@@ -12,15 +12,15 @@ export const WEEKLY_STATS_DATA: ChartDataPoint[] = [
 	{ name: "Fri", tokens: 1890, questions: 480 },
 	{ name: "Sat", tokens: 2390, questions: 380 },
 	{ name: "Sun", tokens: 3490, questions: 430 },
-]
+];
 
-export type StatIcon = "dollar" | "zap" | "message" | "bot" | "card"
+export type StatIcon = "dollar" | "zap" | "message" | "bot" | "card";
 
 export interface StatCardData {
-	title: string
-	value: string
-	subtitle: string
-	icon: StatIcon
+	title: string;
+	value: string;
+	subtitle: string;
+	icon: StatIcon;
 }
 
 /**
@@ -58,4 +58,4 @@ export const ADMIN_STATS: StatCardData[] = [
 		subtitle: "Limit: $50.00 / month",
 		icon: "card",
 	},
-]
+];

@@ -1,83 +1,83 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { AnimatePresence } from "motion/react"
-import { useCallback, useState } from "react"
-import { PageContainer } from "@/components/layout"
-import { ToolAnimation, ToolCard, UsedToolItem } from "@/components/tools"
-import { Button } from "@/components/ui/button"
+import { createFileRoute } from "@tanstack/react-router";
+import { AnimatePresence } from "motion/react";
+import { useCallback, useState } from "react";
+import { PageContainer } from "@/components/layout";
+import { ToolAnimation, ToolCard, UsedToolItem } from "@/components/tools";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
 	DEFAULT_USED_TOOLS,
 	generateToolId,
 	PRECONFIGURED_TOOLS,
 	type Tool,
-} from "@/data/tools"
-import { useAnimationTimeout } from "@/hooks"
+} from "@/data/tools";
+import { useAnimationTimeout } from "@/hooks";
 
 export const Route = createFileRoute("/_authenticated/dashboard/tools")({
 	component: ToolsPage,
-})
+});
 
 function ToolsPage() {
 	const [movingTool, setMovingTool] = useState<{
-		id: string
-		icon: string
-		startX: number
-		startY: number
-	} | null>(null)
-	const [usedTools, setUsedTools] = useState<Tool[]>(DEFAULT_USED_TOOLS)
+		id: string;
+		icon: string;
+		startX: number;
+		startY: number;
+	} | null>(null);
+	const [usedTools, setUsedTools] = useState<Tool[]>(DEFAULT_USED_TOOLS);
 	const [pendingToolNames, setPendingToolNames] = useState<Set<string>>(
 		new Set(),
-	)
+	);
 
-	const { setAnimationTimeout, clearAnimationTimeout } = useAnimationTimeout()
+	const { setAnimationTimeout, clearAnimationTimeout } = useAnimationTimeout();
 
 	const isToolAdded = useCallback(
 		(toolName: string) =>
 			usedTools.some((t) => t.name === toolName) ||
 			pendingToolNames.has(toolName),
 		[usedTools, pendingToolNames],
-	)
+	);
 
 	const handleAddTool = useCallback(
 		(tool: Tool, event: React.MouseEvent) => {
 			if (isToolAdded(tool.name)) {
-				return
+				return;
 			}
 
 			// Track pending addition to prevent duplicates during animation
-			setPendingToolNames((prev) => new Set(prev).add(tool.name))
+			setPendingToolNames((prev) => new Set(prev).add(tool.name));
 
-			clearAnimationTimeout()
+			clearAnimationTimeout();
 
-			const rect = event.currentTarget.getBoundingClientRect()
-			const startX = rect.left + rect.width / 2
-			const startY = rect.top + rect.height / 2
+			const rect = event.currentTarget.getBoundingClientRect();
+			const startX = rect.left + rect.width / 2;
+			const startY = rect.top + rect.height / 2;
 
 			setMovingTool({
 				id: tool.id,
 				icon: tool.icon,
 				startX,
 				startY,
-			})
+			});
 
 			setAnimationTimeout(() => {
-				setUsedTools((prev) => [...prev, { ...tool, id: generateToolId() }])
-				setMovingTool(null)
+				setUsedTools((prev) => [...prev, { ...tool, id: generateToolId() }]);
+				setMovingTool(null);
 				setPendingToolNames((prev) => {
-					const next = new Set(prev)
-					next.delete(tool.name)
-					return next
-				})
-			}, 1000)
+					const next = new Set(prev);
+					next.delete(tool.name);
+					return next;
+				});
+			}, 1000);
 		},
 		[clearAnimationTimeout, setAnimationTimeout, isToolAdded],
-	)
+	);
 
 	return (
 		<PageContainer>
@@ -158,5 +158,5 @@ function ToolsPage() {
 				</CardFooter>
 			</Card>
 		</PageContainer>
-	)
+	);
 }

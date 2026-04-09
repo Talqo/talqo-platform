@@ -1,10 +1,10 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
-import { botConfigResponseSchema } from "db/dto"
-import { updateBotConfigBodySchema } from "shared"
-import { successResponseSchema } from "../../common/schemas"
-import { botConfigService } from "./index"
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { botConfigResponseSchema } from "db/dto";
+import { updateBotConfigBodySchema } from "shared";
+import { successResponseSchema } from "../../common/schemas";
+import { botConfigService } from "./index";
 
-const router = new OpenAPIHono()
+const router = new OpenAPIHono();
 
 router.openapi(
 	createRoute({
@@ -25,11 +25,11 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const config = await botConfigService.getConfig(clientId)
-		return c.json({ success: true as const, data: config }, 200)
+		const clientId = c.get("clientId" as never) as string;
+		const config = await botConfigService.getConfig(clientId);
+		return c.json({ success: true as const, data: config }, 200);
 	},
-)
+);
 
 router.openapi(
 	createRoute({
@@ -55,11 +55,11 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const body = c.req.valid("json")
-		const config = await botConfigService.updateConfig(clientId, body)
-		return c.json({ success: true as const, data: config }, 200)
+		const clientId = c.get("clientId" as never) as string;
+		const body = c.req.valid("json");
+		const config = await botConfigService.updateConfig(clientId, body);
+		return c.json({ success: true as const, data: config }, 200);
 	},
-)
+);
 
-export default router
+export default router;

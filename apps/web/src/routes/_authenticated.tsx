@@ -1,11 +1,11 @@
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
-import { Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
-import { AUTH, STORAGE_KEYS } from "@/lib/constants"
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AUTH, STORAGE_KEYS } from "@/lib/constants";
 
 export const Route = createFileRoute("/_authenticated")({
 	component: AuthenticatedLayout,
-})
+});
 
 // Validate token by making a lightweight request
 async function validateToken(token: string): Promise<boolean> {
@@ -18,50 +18,50 @@ async function validateToken(token: string): Promise<boolean> {
 					Authorization: `Bearer ${token}`,
 				},
 			},
-		)
-		return response.ok
+		);
+		return response.ok;
 	} catch {
-		return false
+		return false;
 	}
 }
 
 function AuthenticatedLayout() {
-	const [isLoading, setIsLoading] = useState(true)
-	const [isValid, setIsValid] = useState(false)
+	const [isLoading, setIsLoading] = useState(true);
+	const [isValid, setIsValid] = useState(false);
 
 	useEffect(() => {
 		const checkAuth = async () => {
-			const token = localStorage.getItem(STORAGE_KEYS.TOKEN)
+			const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
 
 			if (!token) {
-				setIsValid(false)
-				setIsLoading(false)
-				return
+				setIsValid(false);
+				setIsLoading(false);
+				return;
 			}
 
-			const valid = await validateToken(token)
+			const valid = await validateToken(token);
 			if (!valid) {
 				// Token is invalid, clear it
-				localStorage.removeItem(STORAGE_KEYS.TOKEN)
+				localStorage.removeItem(STORAGE_KEYS.TOKEN);
 			}
-			setIsValid(valid)
-			setIsLoading(false)
-		}
+			setIsValid(valid);
+			setIsLoading(false);
+		};
 
-		checkAuth()
-	}, [])
+		checkAuth();
+	}, []);
 
 	if (isLoading) {
 		return (
 			<div className="flex h-screen items-center justify-center">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
 			</div>
-		)
+		);
 	}
 
 	if (!isValid) {
-		return <Navigate to={AUTH.LOGIN_ROUTE} replace />
+		return <Navigate to={AUTH.LOGIN_ROUTE} replace />;
 	}
 
-	return <Outlet />
+	return <Outlet />;
 }

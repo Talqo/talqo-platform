@@ -1,9 +1,9 @@
 export interface Tool {
-	id: string
-	name: string
-	description?: string
-	color: "blue" | "green" | "purple" | "red" | "yellow"
-	icon: string
+	id: string;
+	name: string;
+	description?: string;
+	color: "blue" | "green" | "purple" | "red" | "yellow";
+	icon: string;
 }
 
 export const DEFAULT_USED_TOOLS: Tool[] = [
@@ -25,7 +25,7 @@ export const DEFAULT_USED_TOOLS: Tool[] = [
 		color: "purple",
 		icon: "WEB",
 	},
-]
+];
 
 export const PRECONFIGURED_TOOLS: Tool[] = [
 	{
@@ -56,19 +56,19 @@ export const PRECONFIGURED_TOOLS: Tool[] = [
 		color: "blue",
 		icon: "API",
 	},
-]
+];
 
 export function getToolDescription(name: string): string {
-	if (name.includes("Database")) return "Read-only connector"
-	if (name.includes("Knowledge")) return "Static fallback info"
-	if (name.includes("Search")) return "Web search capabilities"
-	return "Tool connector"
+	if (name.includes("Database")) return "Read-only connector";
+	if (name.includes("Knowledge")) return "Static fallback info";
+	if (name.includes("Search")) return "Web search capabilities";
+	return "Tool connector";
 }
 
 export function generateToolId(): string {
 	// Fallback for browsers without crypto.randomUUID
 	if (typeof crypto !== "undefined" && crypto.randomUUID) {
-		return crypto.randomUUID()
+		return crypto.randomUUID();
 	}
-	return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+	return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }

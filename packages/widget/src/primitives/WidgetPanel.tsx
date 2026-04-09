@@ -1,8 +1,8 @@
-import type { HTMLAttributes, ReactNode } from "react"
-import { useWidgetContext } from "./WidgetRoot"
+import type { HTMLAttributes, ReactNode } from "react";
+import { useWidgetContext } from "./WidgetRoot";
 
 interface WidgetPanelProps extends HTMLAttributes<HTMLDivElement> {
-	children: ReactNode
+	children: ReactNode;
 }
 
 /**
@@ -10,14 +10,14 @@ interface WidgetPanelProps extends HTMLAttributes<HTMLDivElement> {
  * Only renders when widget is open
  */
 export function WidgetPanel(props: WidgetPanelProps) {
-	const { children, ...divProps } = props
-	const { isOpen } = useWidgetContext()
+	const { children, ...divProps } = props;
+	const { isOpen } = useWidgetContext();
 
-	if (!isOpen) return null
+	if (!isOpen) return null;
 
 	return (
 		<div role="dialog" aria-modal="true" {...divProps}>
 			{children}
 		</div>
-	)
+	);
 }

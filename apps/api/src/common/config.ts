@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 const envSchema = z.object({
 	POSTGRES_USER: z.string().min(1),
@@ -13,21 +13,21 @@ const envSchema = z.object({
 	S3_SECRET_ACCESS_KEY: z.string().min(1),
 	S3_ENDPOINT: z.string().url(),
 	S3_BUCKET: z.string().min(1),
-})
+});
 
-const parsed = envSchema.safeParse(process.env)
+const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
 	console.error(
 		"Invalid environment variables:",
 		parsed.error.flatten().fieldErrors,
-	)
-	process.exit(1)
+	);
+	process.exit(1);
 }
 
-const env = parsed.data
+const env = parsed.data;
 
 export const config = {
 	...env,
 	DATABASE_URL: `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DB}`,
-}
+};

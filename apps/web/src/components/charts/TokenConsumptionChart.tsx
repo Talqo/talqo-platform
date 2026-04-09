@@ -1,4 +1,4 @@
-import { BarChart3 } from "lucide-react"
+import { BarChart3 } from "lucide-react";
 import {
 	Bar,
 	BarChart,
@@ -7,22 +7,22 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-} from "recharts"
+} from "recharts";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"
-import type { ChartDataPoint } from "@/data/charts"
+} from "@/components/ui/card";
+import type { ChartDataPoint } from "@/data/charts";
 
 interface TokenConsumptionChartProps {
-	data: ChartDataPoint[]
+	data: ChartDataPoint[];
 }
 
 export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
-	const hasData = data.length > 0
+	const hasData = data.length > 0;
 
 	return (
 		<Card>
@@ -81,5 +81,5 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 				)}
 			</CardContent>
 		</Card>
-	)
+	);
 }
