@@ -5,11 +5,11 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc -b && vite build",
+		"build": "tsr generate && tsgo --build && vite build",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
-		"type-check": "tsc --noEmit",
+		"type-check": "tsgo --noEmit",
 		"test": "bun -e \"console.log('No tests in web')\"",
 		"preview": "vite preview",
 		"generate-routes": "tsr generate",
@@ -49,7 +49,7 @@
 		"openapi-typescript": "^7.13.0",
 		"shadcn": "^3.8.5",
 		"tailwindcss": "^4.2.0",
-		"typescript": "~5.9.3",
+		"typescript": "^6.0.0",
 		"vite": "^8.0.0-beta.13"
 	},
 	"overrides": {

@@ -12,17 +12,17 @@
 		}
 	},
 	"scripts": {
-		"build": "tsc",
+		"build": "tsgo",
 		"dev": "tsc --watch",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"test": "bun -e \"console.log('No tests in shared')\"",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"typescript": "~5.9.3"
+		"typescript": "^6.0.0"
 	}
 }

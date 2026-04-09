@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { Hono } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { type AppVariables, logger } from "../logger";
 import { requestLogger } from "./request-logger";
 
-function buildApp(status = 200) {
+function buildApp(status: ContentfulStatusCode = 200) {
 	const app = new Hono<{ Variables: AppVariables }>();
 	app.use("/*", async (c, next) => {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }));

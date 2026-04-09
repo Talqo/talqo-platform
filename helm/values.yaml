@@ -4,7 +4,7 @@
 api:
   replicaCount: 2
   image:
-    repository: "ghcr.io/fidasek009/pagepal-api"
+    repository: "ghcr.io/pagepal-agent/pagepal-api"
     tag: ""
     pullPolicy: "IfNotPresent"
   port: 3000
@@ -19,7 +19,7 @@ api:
 web:
   replicaCount: 2
   image:
-    repository: "ghcr.io/fidasek009/pagepal-web"
+    repository: "ghcr.io/pagepal-agent/pagepal-web"
     tag: ""
     pullPolicy: "IfNotPresent"
   port: 80
@@ -141,11 +141,14 @@ minio:
           - ALL
       readOnlyRootFilesystem: false
 
+jwt:
+  existingSecret: ""
+
 migration:
   # Disabled until packages/db implements Drizzle migrations.
   enabled: false
   image:
-    repository: "ghcr.io/fidasek009/pagepal-api"
+    repository: "ghcr.io/pagepal-agent/pagepal-api"
     tag: ""
   resources:
     limits:

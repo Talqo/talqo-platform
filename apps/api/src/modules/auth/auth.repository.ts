@@ -39,7 +39,7 @@ export interface IAuthRepository {
 	// Also removes any existing pending registration with the same name
 	savePendingRegistration(record: PendingRegistration): Promise<void>;
 	// Atomically verifies the token, creates the Client record, and deletes the pending
-	// registration in a single transaction (e.g., SELECT … FOR UPDATE in a DB impl).
+	// registration in a single transaction (e.g. SELECT … FOR UPDATE in a DB impl).
 	// The deletion happens only after successful creation, so a failed creation leaves
 	// the token intact and the operation is retry-safe.
 	// Callers must NOT call createClient separately for this flow.
@@ -231,7 +231,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async consumePendingRegistration(token: string): Promise<Client> {
-		return this.db.transaction(async (tx: DB) => {
+		return this.db.transaction(async (tx) => {
 			const [pending] = await tx
 				.select()
 				.from(pendingRegistrations)

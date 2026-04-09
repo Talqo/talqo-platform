@@ -82,11 +82,12 @@ MinIO secret name — uses existingSecret when provided, otherwise the official 
 {{- end }}
 
 {{/*
-Database URL constructed from postgresql subchart values.
+JWT secret name — uses existingSecret when provided, otherwise the generated one.
 */}}
-{{- define "pagepal.databaseUrl" -}}
-{{- $host := printf "%s-postgresql" (include "pagepal.fullname" .) }}
-{{- $user := .Values.postgresql.auth.username }}
-{{- $db := .Values.postgresql.auth.database }}
-{{- printf "postgresql://%s:$(DATABASE_PASSWORD)@%s:5432/%s" $user $host $db }}
+{{- define "pagepal.jwtSecretName" -}}
+{{- if .Values.jwt.existingSecret }}
+{{- .Values.jwt.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-jwt-secret
+{{- end }}
 {{- end }}

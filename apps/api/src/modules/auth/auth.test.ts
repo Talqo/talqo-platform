@@ -33,7 +33,7 @@ const validRegistration = {
 };
 
 describe("POST /auth/register", () => {
-	let app: OpenAPIHono;
+	let app: ReturnType<typeof buildApp>;
 
 	beforeEach(() => {
 		app = buildApp();
@@ -132,7 +132,7 @@ describe("POST /auth/register", () => {
 });
 
 describe("GET /auth/verify-email", () => {
-	let app: OpenAPIHono;
+	let app: ReturnType<typeof buildApp>;
 
 	beforeEach(() => {
 		app = buildApp();
@@ -201,7 +201,7 @@ describe("GET /auth/verify-email", () => {
 });
 
 describe("POST /auth/login", () => {
-	let app: OpenAPIHono;
+	let app: ReturnType<typeof buildApp>;
 
 	beforeEach(async () => {
 		app = buildApp();

@@ -24,7 +24,7 @@ jobs:
 
       - uses: biomejs/setup-biome@v2
         with:
-          version: "2.4.4"
+          version: "2.4.7"
 
       - name: Biome check
         run: biome ci .

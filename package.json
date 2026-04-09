@@ -1,5 +1,5 @@
 {
-	"name": "pb138",
+	"name": "pagepal",
 	"private": true,
 	"packageManager": "bun@1.3.9",
 	"workspaces": [
@@ -23,6 +23,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.7",
+		"@typescript/native-preview": "latest",
 		"@commitlint/cli": "^19.8.1",
 		"@commitlint/config-conventional": "^19.8.1",
 		"husky": "^9.1.7",

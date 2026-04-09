@@ -1,9 +1,9 @@
 <overview>
-Bun + Turborepo monorepo (PB138). Each workspace has its own `CLAUDE.md` with workspace-specific structure and conventions.
+Bun + Turborepo monorepo (PagePal). Each workspace has its own `CLAUDE.md` with workspace-specific structure and conventions.
 </overview>
 <structure>
 ```
-pb138/
+pagepal/
 ├── apps/
 │   ├── api/              # Hono REST API (Bun runtime, Drizzle, Zod)
 │   └── web/              # React SPA (Vite + shadcn/ui + Tailwind CSS)
