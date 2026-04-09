@@ -114,19 +114,23 @@ describe("connectMcpServers", () => {
 			.mockRejectedValueOnce(new Error("connection refused"))
 			.mockResolvedValueOnce(makeMockClient({ toolB: {} as never }));
 
-		const consoleSpy = spyOn(console, "error").mockImplementation(() => {});
+		const stderrSpy = spyOn(process.stderr, "write").mockImplementation(
+			() => true,
+		);
 
-		const configs: McpServerConfig[] = [
-			{ type: "sse", url: "https://broken.com" },
-			{ type: "sse", url: "https://working.com" },
-		];
-		const conn = await connectMcpServers(configs);
+		try {
+			const configs: McpServerConfig[] = [
+				{ type: "sse", url: "https://broken.com" },
+				{ type: "sse", url: "https://working.com" },
+			];
+			const conn = await connectMcpServers(configs);
 
-		expect(consoleSpy).toHaveBeenCalledTimes(1);
-		expect(conn.tools).not.toHaveProperty("toolA");
-		expect(conn.tools).toHaveProperty("toolB");
-
-		consoleSpy.mockRestore();
+			expect(stderrSpy).toHaveBeenCalledTimes(1);
+			expect(conn.tools).not.toHaveProperty("toolA");
+			expect(conn.tools).toHaveProperty("toolB");
+		} finally {
+			stderrSpy.mockRestore();
+		}
 	});
 
 	it("calls close on all connected clients", async () => {

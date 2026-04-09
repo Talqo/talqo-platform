@@ -19,7 +19,7 @@ import {
 } from "@/data/tools";
 import { useAnimationTimeout } from "@/hooks";
 
-export const Route = createFileRoute("/dashboard/tools")({
+export const Route = createFileRoute("/_authenticated/dashboard/tools")({
 	component: ToolsPage,
 });
 

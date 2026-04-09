@@ -1,44 +1,44 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
-import { OpenAPIHono } from "@hono/zod-openapi"
-import type { AppVariables } from "../../common/jwt"
-import { logger } from "../../common/logger"
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import type { AppVariables } from "../../common/jwt";
+import { logger } from "../../common/logger";
 
 const mockSendVerificationEmail = mock(
 	async (_to: string, _token: string) => {},
-)
+);
 
 mock.module("../../common/email/email.service", () => ({
 	sendVerificationEmail: mockSendVerificationEmail,
-}))
+}));
 
-const { createAuthRouter } = await import("./auth.routes")
-const { InMemoryAuthRepository } = await import("./auth.repository")
-const { AuthService } = await import("./auth.service")
+const { createAuthRouter } = await import("./auth.routes");
+const { InMemoryAuthRepository } = await import("./auth.repository");
+const { AuthService } = await import("./auth.service");
 
 function buildApp() {
-	const repo = new InMemoryAuthRepository()
-	const service = new AuthService(repo)
-	const app = new OpenAPIHono<{ Variables: AppVariables }>()
+	const repo = new InMemoryAuthRepository();
+	const service = new AuthService(repo);
+	const app = new OpenAPIHono<{ Variables: AppVariables }>();
 	app.use("/*", async (c, next) => {
-		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
-		await next()
-	})
-	return app.route("/auth", createAuthRouter(service))
+		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }));
+		await next();
+	});
+	return app.route("/auth", createAuthRouter(service));
 }
 
 const validRegistration = {
 	name: "Alice",
 	email: "alice@example.com",
 	password: "password123",
-}
+};
 
 describe("POST /auth/register", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>;
 
 	beforeEach(() => {
-		app = buildApp()
-		mockSendVerificationEmail.mockClear()
-	})
+		app = buildApp();
+		mockSendVerificationEmail.mockClear();
+	});
 
 	it("returns 201 and sends verification email on success", async () => {
 		const res = await app.fetch(
@@ -47,32 +47,32 @@ describe("POST /auth/register", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(validRegistration),
 			}),
-		)
-		expect(res.status).toBe(201)
-		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
-		expect(mockSendVerificationEmail).toHaveBeenCalledTimes(1)
+		);
+		expect(res.status).toBe(201);
+		const body = (await res.json()) as Record<string, unknown>;
+		expect(body.success).toBe(true);
+		expect(mockSendVerificationEmail).toHaveBeenCalledTimes(1);
 		expect(
 			(mockSendVerificationEmail.mock.calls[0] as [string, string])[0],
-		).toBe(validRegistration.email)
-	})
+		).toBe(validRegistration.email);
+	});
 
 	it("returns 201 when a verified account already exists for the email (prevents enumeration)", async () => {
 		// Complete the full flow to create a CLIENT record
-		let capturedToken = ""
+		let capturedToken = "";
 		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
+			capturedToken = token;
+		});
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(validRegistration),
 			}),
-		)
+		);
 		await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
-		)
+		);
 
 		// Second registration with same email
 		const res = await app.fetch(
@@ -81,10 +81,10 @@ describe("POST /auth/register", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(validRegistration),
 			}),
-		)
-		expect(res.status).toBe(201)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
-	})
+		);
+		expect(res.status).toBe(201);
+		expect(((await res.json()) as Record<string, unknown>).success).toBe(true);
+	});
 
 	it("returns 400 for invalid email", async () => {
 		const res = await app.fetch(
@@ -97,9 +97,9 @@ describe("POST /auth/register", () => {
 					password: "password123",
 				}),
 			}),
-		)
-		expect(res.status).toBe(400)
-	})
+		);
+		expect(res.status).toBe(400);
+	});
 
 	it("returns 400 when password is too short", async () => {
 		const res = await app.fetch(
@@ -112,9 +112,9 @@ describe("POST /auth/register", () => {
 					password: "short",
 				}),
 			}),
-		)
-		expect(res.status).toBe(400)
-	})
+		);
+		expect(res.status).toBe(400);
+	});
 
 	it("returns 400 when name is missing", async () => {
 		const res = await app.fetch(
@@ -126,24 +126,24 @@ describe("POST /auth/register", () => {
 					password: "password123",
 				}),
 			}),
-		)
-		expect(res.status).toBe(400)
-	})
-})
+		);
+		expect(res.status).toBe(400);
+	});
+});
 
 describe("GET /auth/verify-email", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>;
 
 	beforeEach(() => {
-		app = buildApp()
-		mockSendVerificationEmail.mockClear()
-	})
+		app = buildApp();
+		mockSendVerificationEmail.mockClear();
+	});
 
 	it("returns 200 and creates the CLIENT account", async () => {
-		let capturedToken = ""
+		let capturedToken = "";
 		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
+			capturedToken = token;
+		});
 
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
@@ -151,36 +151,36 @@ describe("GET /auth/verify-email", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(validRegistration),
 			}),
-		)
+		);
 
 		const res = await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
-		)
-		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
-	})
+		);
+		expect(res.status).toBe(200);
+		expect(((await res.json()) as Record<string, unknown>).success).toBe(true);
+	});
 
 	it("returns 400 for an unknown token", async () => {
 		const res = await app.fetch(
 			new Request(
 				`http://localhost/auth/verify-email?token=${crypto.randomUUID()}`,
 			),
-		)
-		expect(res.status).toBe(400)
-	})
+		);
+		expect(res.status).toBe(400);
+	});
 
 	it("returns 400 when token is not a valid UUID", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/auth/verify-email?token=not-a-uuid"),
-		)
-		expect(res.status).toBe(400)
-	})
+		);
+		expect(res.status).toBe(400);
+	});
 
 	it("returns 400 when the same token is used twice", async () => {
-		let capturedToken = ""
+		let capturedToken = "";
 		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
+			capturedToken = token;
+		});
 
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
@@ -188,30 +188,30 @@ describe("GET /auth/verify-email", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(validRegistration),
 			}),
-		)
+		);
 
 		await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
-		)
+		);
 		const res = await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
-		)
-		expect(res.status).toBe(400)
-	})
-})
+		);
+		expect(res.status).toBe(400);
+	});
+});
 
 describe("POST /auth/login", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>;
 
 	beforeEach(async () => {
-		app = buildApp()
-		process.env.JWT_SECRET = "test-secret"
+		app = buildApp();
+		process.env.JWT_SECRET = "test-secret";
 
 		// Register and verify a client
-		let capturedToken = ""
+		let capturedToken = "";
 		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
+			capturedToken = token;
+		});
 
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
@@ -219,16 +219,16 @@ describe("POST /auth/login", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(validRegistration),
 			}),
-		)
+		);
 		await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
-		)
-		mockSendVerificationEmail.mockClear()
-	})
+		);
+		mockSendVerificationEmail.mockClear();
+	});
 
 	afterEach(() => {
-		delete process.env.JWT_SECRET
-	})
+		delete process.env.JWT_SECRET;
+	});
 
 	it("returns 200 with a JWT token on valid credentials", async () => {
 		const res = await app.fetch(
@@ -240,15 +240,15 @@ describe("POST /auth/login", () => {
 					password: validRegistration.password,
 				}),
 			}),
-		)
-		expect(res.status).toBe(200)
+		);
+		expect(res.status).toBe(200);
 		const body = (await res.json()) as {
-			success: boolean
-			data: { token: string }
-		}
-		expect(body.success).toBe(true)
-		expect(typeof body.data.token).toBe("string")
-	})
+			success: boolean;
+			data: { token: string };
+		};
+		expect(body.success).toBe(true);
+		expect(typeof body.data.token).toBe("string");
+	});
 
 	it("returns 401 for wrong password", async () => {
 		const res = await app.fetch(
@@ -260,9 +260,9 @@ describe("POST /auth/login", () => {
 					password: "wrongpassword",
 				}),
 			}),
-		)
-		expect(res.status).toBe(401)
-	})
+		);
+		expect(res.status).toBe(401);
+	});
 
 	it("returns 401 for unknown email", async () => {
 		const res = await app.fetch(
@@ -274,13 +274,13 @@ describe("POST /auth/login", () => {
 					password: "password123",
 				}),
 			}),
-		)
-		expect(res.status).toBe(401)
-	})
+		);
+		expect(res.status).toBe(401);
+	});
 
 	it("returns 401 when email is registered but not yet verified", async () => {
 		// Register but do NOT verify
-		mockSendVerificationEmail.mockImplementationOnce(async () => {})
+		mockSendVerificationEmail.mockImplementationOnce(async () => {});
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -291,7 +291,7 @@ describe("POST /auth/login", () => {
 					password: "password123",
 				}),
 			}),
-		)
+		);
 
 		// No CLIENT record exists yet — login should return 401 (invalid credentials)
 		const res = await app.fetch(
@@ -303,9 +303,9 @@ describe("POST /auth/login", () => {
 					password: "password123",
 				}),
 			}),
-		)
-		expect(res.status).toBe(401)
-	})
+		);
+		expect(res.status).toBe(401);
+	});
 
 	it("returns 400 for invalid request body", async () => {
 		const res = await app.fetch(
@@ -314,7 +314,7 @@ describe("POST /auth/login", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ email: "not-an-email" }),
 			}),
-		)
-		expect(res.status).toBe(400)
-	})
-})
+		);
+		expect(res.status).toBe(400);
+	});
+});

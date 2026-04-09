@@ -1,22 +1,36 @@
-import { readdir, readFile } from "node:fs/promises";
-import { normalize, resolve } from "node:path";
+import { readdir, readFile, realpath } from "node:fs/promises";
+import { normalize, resolve, sep } from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
 
-function createSafePath(rootDir: string) {
-	const resolved = resolve(rootDir);
-	return (relative: string): string => {
-		const target = resolve(resolved, normalize(relative));
+async function createSafePath(rootDir: string) {
+	// Resolve the real path of rootDir to handle symlinks
+	const resolvedRoot = await realpath(resolve(rootDir));
+	return async (relative: string): Promise<string> => {
+		// Resolve the path and get its real path to follow symlinks
+		const targetPath = resolve(resolvedRoot, normalize(relative));
+		const realTarget = await realpath(targetPath).catch(() => targetPath);
 		// Use trailing slash to prevent sibling-directory bypass (e.g. /ctx matching /ctx-evil)
-		if (target !== resolved && !target.startsWith(`${resolved}/`)) {
+		// Always use system separator for cross-platform compatibility
+		const normalizedResolved = resolvedRoot.endsWith(sep)
+			? resolvedRoot
+			: resolvedRoot + sep;
+		const normalizedTarget = realTarget.endsWith(sep)
+			? realTarget
+			: realTarget + sep;
+		// Allow exact match on root dir, or ensure target is within root dir
+		if (
+			realTarget !== resolvedRoot &&
+			!normalizedTarget.startsWith(normalizedResolved)
+		) {
 			throw new Error("Path traversal detected");
 		}
-		return target;
+		return targetPath;
 	};
 }
 
-export function createContextTools(contextDirectory: string) {
-	const safePath = createSafePath(contextDirectory);
+export async function createContextTools(contextDirectory: string) {
+	const safePath = await createSafePath(contextDirectory);
 
 	return {
 		listFiles: tool({
@@ -30,7 +44,7 @@ export function createContextTools(contextDirectory: string) {
 			}),
 			execute: async ({ path }) => {
 				try {
-					const dirPath = safePath(path);
+					const dirPath = await safePath(path);
 					const entries = await readdir(dirPath, { withFileTypes: true });
 					return {
 						entries: entries.map((e) => ({
@@ -77,7 +91,7 @@ export function createContextTools(contextDirectory: string) {
 					};
 				}
 				try {
-					const filePath = safePath(path);
+					const filePath = await safePath(path);
 					const raw = await readFile(filePath, "utf-8");
 					const lines = raw.split("\n");
 					const total = lines.length;

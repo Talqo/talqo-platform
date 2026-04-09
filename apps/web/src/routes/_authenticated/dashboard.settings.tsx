@@ -3,7 +3,7 @@ import { PageContainer } from "@/components/layout";
 import { AccountSettingsTab, BillingSettingsTab } from "@/components/settings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/dashboard/settings")({
+export const Route = createFileRoute("/_authenticated/dashboard/settings")({
 	component: SettingsPage,
 });
 

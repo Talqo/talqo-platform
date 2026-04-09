@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { type ContextFile, FileList } from "@/components/bot-context";
 import { PageContainer } from "@/components/layout";
 
-export const Route = createFileRoute("/dashboard/bot-context")({
+export const Route = createFileRoute("/_authenticated/dashboard/bot-context")({
 	component: BotContextPage,
 });
 

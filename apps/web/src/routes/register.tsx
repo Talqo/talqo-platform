@@ -1,5 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Loader2, Mail } from "lucide-react";
+import { useState } from "react";
+import type { RegisterInput } from "shared";
+import { useRegister } from "@/api/hooks/useAuth";
 import { AuthFormField, AuthHeader } from "@/components/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -16,9 +21,7 @@ export const Route = createFileRoute("/register")({
 	component: RegisterPage,
 });
 
-interface RegisterFormData extends Record<string, string> {
-	email: string;
-	password: string;
+interface RegisterFormData extends Record<string, string>, RegisterInput {
 	confirmPassword: string;
 }
 
@@ -37,17 +40,67 @@ function validateRegisterForm(values: RegisterFormData) {
 }
 
 function RegisterPage() {
-	const navigate = useNavigate();
+	const register = useRegister();
+	const [showSuccess, setShowSuccess] = useState(false);
+	const [registeredEmail, setRegisteredEmail] = useState("");
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<RegisterFormData>({
-			initialValues: { email: "", password: "", confirmPassword: "" },
+			initialValues: { name: "", email: "", password: "", confirmPassword: "" },
 			validate: validateRegisterForm,
 			onSubmit: async () => {
-				// Simulated registration - replace with actual API call
-				navigate({ to: "/dashboard" });
+				// Guard against concurrent submissions
+				if (register.isPending) return;
+				register.mutate(
+					{
+						name: values.name,
+						email: values.email,
+						password: values.password,
+					},
+					{
+						onSuccess: () => {
+							setRegisteredEmail(values.email);
+							setShowSuccess(true);
+						},
+						// Error handling is done via register.error
+					},
+				);
 			},
 		});
+
+	// Success state - show confirmation
+	if (showSuccess) {
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+				<div className="w-full max-w-sm">
+					<AuthHeader />
+					<Card>
+						<CardHeader className="space-y-1 text-center">
+							<div className="mb-4 flex justify-center">
+								<Mail className="h-12 w-12 text-primary" />
+							</div>
+							<CardTitle className="text-2xl">Check your email!</CardTitle>
+							<CardDescription>
+								We've sent a verification link to{" "}
+								<span className="font-medium text-foreground">
+									{registeredEmail}
+								</span>
+								. Click it to activate your account.
+							</CardDescription>
+						</CardHeader>
+						<CardFooter className="flex flex-col gap-2">
+							<Button asChild className="w-full">
+								<Link to="/login">Go to login</Link>
+							</Button>
+							<Button asChild variant="ghost" className="w-full">
+								<Link to="/">Back to home</Link>
+							</Button>
+						</CardFooter>
+					</Card>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -60,11 +113,33 @@ function RegisterPage() {
 							Create an account
 						</CardTitle>
 						<CardDescription className="text-center">
-							Enter your email below to create your account
+							Enter your details below to create your account
 						</CardDescription>
 					</CardHeader>
 					<form onSubmit={handleSubmit} noValidate>
 						<CardContent className="space-y-4">
+							{register.error && (
+								<Alert variant="destructive">
+									<AlertDescription>
+										{register.error.error?.message ||
+											"Registration failed. Please try again."}
+									</AlertDescription>
+								</Alert>
+							)}
+							<AuthFormField
+								id="name"
+								name="name"
+								label="Name"
+								type="text"
+								placeholder="John Doe"
+								value={values.name}
+								onChange={handleChange("name")}
+								onBlur={handleBlur("name")}
+								error={errors.name}
+								showError={touched.name && !!errors.name}
+								errorId="name-error"
+								autoComplete="name"
+							/>
 							<AuthFormField
 								id="email"
 								name="email"
@@ -107,8 +182,19 @@ function RegisterPage() {
 							/>
 						</CardContent>
 						<CardFooter className="flex flex-col">
-							<Button className="w-full" type="submit">
-								Create account
+							<Button
+								className="w-full"
+								type="submit"
+								disabled={register.isPending}
+							>
+								{register.isPending ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Creating account...
+									</>
+								) : (
+									"Create account"
+								)}
 							</Button>
 							<div className="mt-4 text-center text-muted-foreground text-sm">
 								Already have an account?{" "}

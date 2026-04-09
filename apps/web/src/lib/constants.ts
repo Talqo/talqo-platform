@@ -12,6 +12,9 @@ export const STORAGE_KEYS = {
 	CHAT_MESSAGES: "chatbot_messages",
 	CHAT_RATING_SHOWN: "chatbot_rating_shown",
 	CHAT_RATING_VALUE: "chatbot_rating_value",
+
+	// Auth
+	TOKEN: "token",
 } as const;
 
 // Default values
@@ -32,4 +35,13 @@ export const UI = {
 	CHAT_MAX_MESSAGES_BEFORE_RATING: 3,
 	CHAT_DEFAULT_EXPANDED_HEIGHT: "h-[500px] w-[350px]",
 	CHAT_EXPANDED_HEIGHT: "h-[80vh] w-[90vw] md:w-[600px]",
+} as const;
+
+// Auth constants
+export const AUTH = {
+	TOKEN_KEY: "token",
+	ADMIN_TOKEN_KEY: "admin_token",
+	DEFAULT_REDIRECT: "/dashboard",
+	ADMIN_DEFAULT_REDIRECT: "/dashboard",
+	LOGIN_ROUTE: "/login",
 } as const;

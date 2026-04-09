@@ -15,7 +15,24 @@ const envSchema = z.object({
 	S3_BUCKET: z.string().min(1),
 });
 
-const parsed = envSchema.safeParse(process.env);
+// For tests, provide default values so config validation doesn't fail
+// These defaults are only used in test environment
+const isTest = process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1";
+
+const testDefaults = isTest
+	? {
+			POSTGRES_USER: "test",
+			POSTGRES_PASSWORD: "test",
+			POSTGRES_DB: "test",
+			JWT_SECRET: "test-secret-that-is-at-least-32-characters-long",
+			S3_ACCESS_KEY_ID: "test",
+			S3_SECRET_ACCESS_KEY: "test",
+			S3_ENDPOINT: "http://localhost:9000",
+			S3_BUCKET: "test",
+		}
+	: {};
+
+const parsed = envSchema.safeParse({ ...testDefaults, ...process.env });
 
 if (!parsed.success) {
 	console.error(

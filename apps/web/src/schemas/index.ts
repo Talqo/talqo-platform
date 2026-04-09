@@ -1,9 +1,9 @@
 export {
-	type LoginSchema,
+	type LoginFormType,
 	loginSchema,
 	type PasswordChangeSchema,
 	passwordChangeSchema,
-	type RegisterSchema,
+	type RegisterFormType,
 	registerSchema,
 } from "./auth";
 

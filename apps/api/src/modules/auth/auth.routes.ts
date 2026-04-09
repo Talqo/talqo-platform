@@ -46,6 +46,13 @@ export function createAuthRouter(
 				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
 					// Return same response as success to prevent account enumeration
 					c.get("logger").warn("Registration attempted with taken email");
+				} else if (err instanceof Error) {
+					// Log email errors but still return success (don't expose email issues)
+					c.get("logger").error("Registration error (email send failed)", {
+						error: err.message,
+						email,
+					});
+					throw err;
 				} else {
 					throw err;
 				}

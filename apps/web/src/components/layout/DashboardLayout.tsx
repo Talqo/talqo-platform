@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import {
 	Bot,
 	FileText,
@@ -9,13 +9,14 @@ import {
 	Sun,
 	Wrench,
 } from "lucide-react";
+import { useLogout } from "@/api/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/lib/useTheme";
 import { cn } from "@/lib/utils";
 
 export function DashboardLayout() {
 	const location = useLocation();
-	const navigate = useNavigate();
+	const logout = useLogout();
 	const { theme, toggleTheme } = useTheme();
 
 	const navItems = [
@@ -27,7 +28,7 @@ export function DashboardLayout() {
 	];
 
 	const handleLogout = () => {
-		navigate({ to: "/" });
+		logout();
 	};
 
 	return (

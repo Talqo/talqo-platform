@@ -9,7 +9,7 @@ export async function generateResponse(
 	input: AiServiceInput,
 ): Promise<AiServiceOutput> {
 	const model = createLanguageModel(input.provider);
-	const fileTools = createContextTools(input.contextDirectory);
+	const fileTools = await createContextTools(input.contextDirectory);
 	const mcpConnection = await connectMcpServers(input.mcpServers);
 
 	try {

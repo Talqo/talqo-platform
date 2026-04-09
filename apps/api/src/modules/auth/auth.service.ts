@@ -1,37 +1,38 @@
-import { sign } from "hono/jwt";
 import { sendVerificationEmail } from "../../common/email/email.service";
+import { signToken } from "../../common/jwt";
 import type { IAuthRepository } from "./auth.repository";
 
-const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
-const JWT_EXPIRY_SECONDS = 24 * 60 * 60; // 24 hours
-
-type EmailSender = (to: string, token: string) => Promise<void>;
-
 export class AuthService {
-	constructor(
-		private readonly repo: IAuthRepository,
-		private readonly sendEmail: EmailSender = sendVerificationEmail,
-	) {}
+	constructor(private readonly repo: IAuthRepository) {}
 
 	async register(name: string, email: string, password: string): Promise<void> {
 		const canonical = email.trim().toLowerCase();
 		const existing = await this.repo.findClientByEmail(canonical);
 		if (existing) throw new Error("EMAIL_TAKEN");
 
-		const passwordHash = await Bun.password.hash(password);
-		const token = crypto.randomUUID();
+		const canonicalName = name.trim().toLowerCase();
+		const existingName = await this.repo.findClientByName(canonicalName);
+		if (existingName) throw new Error("NAME_TAKEN");
 
-		// Store registration data until the email is verified;
-		// the CLIENT record is created only after successful verification
+		// Also check pending registrations for name conflicts
+		const pendingName = await this.repo.findPendingByName(canonicalName);
+		if (pendingName) throw new Error("NAME_TAKEN");
+
+		const passwordHash = await Bun.password.hash(password);
+
+		// Create pending registration and send verification email
+		const token = crypto.randomUUID();
+		const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
 		await this.repo.savePendingRegistration({
 			token,
-			name,
+			name: canonicalName,
 			email: canonical,
 			passwordHash,
-			expiresAt: new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS),
+			expiresAt,
 		});
 
-		await this.sendEmail(canonical, token);
+		await sendVerificationEmail(canonical, token);
 	}
 
 	async verifyEmail(token: string): Promise<void> {
@@ -61,18 +62,12 @@ export class AuthService {
 			throw new Error("INVALID_CREDENTIALS");
 		}
 
-		const secret = process.env.JWT_SECRET;
-		if (!secret) throw new Error("JWT_SECRET environment variable is not set");
-
 		await this.repo.updateLastActive(client.id);
 
-		return sign(
-			{
-				sub: client.id,
-				email: client.email,
-				exp: Math.floor(Date.now() / 1000) + JWT_EXPIRY_SECONDS,
-			},
-			secret,
-		);
+		// Use centralized signToken that includes role claim
+		return signToken({
+			sub: client.id,
+			role: "client",
+		});
 	}
 }
