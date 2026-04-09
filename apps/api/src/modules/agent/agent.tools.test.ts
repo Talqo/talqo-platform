@@ -25,7 +25,7 @@ describe("createContextTools", () => {
 
 	describe("listFiles", () => {
 		it("lists files in the root directory", async () => {
-			const { listFiles } = createContextTools(tempDir);
+			const { listFiles } = await createContextTools(tempDir);
 			if (!listFiles.execute) throw new Error("execute not defined");
 			const result = await listFiles.execute({ path: "." }, toolCallOptions);
 			expect("entries" in result).toBe(true);
@@ -38,7 +38,7 @@ describe("createContextTools", () => {
 		});
 
 		it("returns error for nonexistent directory", async () => {
-			const { listFiles } = createContextTools(tempDir);
+			const { listFiles } = await createContextTools(tempDir);
 			if (!listFiles.execute) throw new Error("execute not defined");
 			const result = await listFiles.execute(
 				{ path: "nonexistent" },
@@ -48,7 +48,7 @@ describe("createContextTools", () => {
 		});
 
 		it("blocks path traversal", async () => {
-			const { listFiles } = createContextTools(tempDir);
+			const { listFiles } = await createContextTools(tempDir);
 			if (!listFiles.execute) throw new Error("execute not defined");
 			const result = await listFiles.execute(
 				{ path: "../../etc" },
@@ -64,7 +64,7 @@ describe("createContextTools", () => {
 			// /tmp/agent-test-XYZ and /tmp/agent-test-XYZevil share a prefix —
 			// a naive startsWith check would allow escaping into the sibling.
 			const siblingDir = `${tempDir}evil`;
-			const { listFiles } = createContextTools(tempDir);
+			const { listFiles } = await createContextTools(tempDir);
 			if (!listFiles.execute) throw new Error("execute not defined");
 			// Construct a path that resolves to the sibling: ../basename + "evil"
 			const basename = tempDir.split("/").at(-1) ?? "";
@@ -83,7 +83,7 @@ describe("createContextTools", () => {
 
 	describe("readFile", () => {
 		it("reads file contents", async () => {
-			const { readFile } = createContextTools(tempDir);
+			const { readFile } = await createContextTools(tempDir);
 			if (!readFile.execute) throw new Error("execute not defined");
 			const result = await readFile.execute(
 				{ path: "readme.txt" },
@@ -95,7 +95,7 @@ describe("createContextTools", () => {
 		it("defaults to first 500 lines when no range is given", async () => {
 			const lines = Array.from({ length: 600 }, (_, i) => `line ${i + 1}`);
 			await writeFile(join(tempDir, "big.txt"), lines.join("\n"));
-			const { readFile } = createContextTools(tempDir);
+			const { readFile } = await createContextTools(tempDir);
 			if (!readFile.execute) throw new Error("execute not defined");
 			const result = await readFile.execute(
 				{ path: "big.txt" },
@@ -114,7 +114,7 @@ describe("createContextTools", () => {
 		it("respects startLine and endLine", async () => {
 			const lines = Array.from({ length: 10 }, (_, i) => `line ${i + 1}`);
 			await writeFile(join(tempDir, "numbered.txt"), lines.join("\n"));
-			const { readFile } = createContextTools(tempDir);
+			const { readFile } = await createContextTools(tempDir);
 			if (!readFile.execute) throw new Error("execute not defined");
 			const result = await readFile.execute(
 				{ path: "numbered.txt", startLine: 3, endLine: 5 },
@@ -126,7 +126,7 @@ describe("createContextTools", () => {
 		});
 
 		it("returns error when endLine is less than startLine", async () => {
-			const { readFile } = createContextTools(tempDir);
+			const { readFile } = await createContextTools(tempDir);
 			if (!readFile.execute) throw new Error("execute not defined");
 			const result = await readFile.execute(
 				{ path: "readme.txt", startLine: 10, endLine: 5 },
@@ -136,7 +136,7 @@ describe("createContextTools", () => {
 		});
 
 		it("returns error for nonexistent file", async () => {
-			const { readFile } = createContextTools(tempDir);
+			const { readFile } = await createContextTools(tempDir);
 			if (!readFile.execute) throw new Error("execute not defined");
 			const result = await readFile.execute(
 				{ path: "missing.txt" },
@@ -146,7 +146,7 @@ describe("createContextTools", () => {
 		});
 
 		it("blocks path traversal", async () => {
-			const { readFile } = createContextTools(tempDir);
+			const { readFile } = await createContextTools(tempDir);
 			if (!readFile.execute) throw new Error("execute not defined");
 			const result = await readFile.execute(
 				{ path: "../../../etc/passwd" },
