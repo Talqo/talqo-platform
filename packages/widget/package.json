@@ -16,11 +16,11 @@
 	},
 	"scripts": {
 		"dev": "vite build --watch",
-		"build": "vite build && tsc --emitDeclarationOnly",
+		"build": "vite build && tsgo --emitDeclarationOnly",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
-		"type-check": "tsc --noEmit",
+		"type-check": "tsgo --noEmit",
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
 	"peerDependencies": {
@@ -31,7 +31,7 @@
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.1",
-		"typescript": "~5.9.3",
+		"typescript": "^6.0.0",
 		"vite": "^8.0.0-beta.13",
 		"vite-plugin-svgr": "^4.5.0"
 	},
