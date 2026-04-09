@@ -141,6 +141,9 @@ minio:
           - ALL
       readOnlyRootFilesystem: false
 
+jwt:
+  existingSecret: ""
+
 migration:
   # Disabled until packages/db implements Drizzle migrations.
   enabled: false

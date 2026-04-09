@@ -24,13 +24,24 @@ spec:
               containerPort: {{ .Values.api.port }}
               protocol: TCP
           env:
-            - name: DATABASE_PASSWORD
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "pagepal.dbSecretName" . }}
                   key: password
-            - name: DATABASE_URL
-              value: {{ include "pagepal.databaseUrl" . | quote }}
+            - name: POSTGRES_HOST
+              value: {{ printf "%s-postgresql" (include "pagepal.fullname" .) | quote }}
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.auth.database | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.jwtSecretName" . }}
+                  key: secret
             - name: API_PORT
               value: {{ .Values.api.port | quote }}
             - name: S3_ACCESS_KEY_ID

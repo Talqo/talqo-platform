@@ -2,17 +2,9 @@
 FROM oven/bun:1-alpine AS pruner
 WORKDIR /app
 COPY . .
-RUN bun install --ignore-scripts
-RUN ./node_modules/.bin/turbo prune api --docker
+RUN bunx turbo prune api --docker
 
-# Stage 2: Install production dependencies from the pruned lockfile
-FROM oven/bun:1-alpine AS deps
-WORKDIR /app
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/bun.lock ./bun.lock
-RUN bun install --frozen-lockfile --production --ignore-scripts
-
-# Stage 3: Build shared packages
+# Stage 2: Build packages
 FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 COPY --from=pruner /app/out/json/ .
@@ -21,19 +13,23 @@ RUN bun install --frozen-lockfile --ignore-scripts
 COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/tsconfig.json ./
 RUN cd packages/shared && bun run build
+RUN cd packages/db && bun run build
 
-# Stage 4: Runner
+# Stage 3: Production runner - install prod deps in context of full workspace
 FROM oven/bun:1-alpine AS runner
 LABEL org.opencontainers.image.source=https://github.com/PagePal-Agent/pagepal
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder /app/packages/shared/package.json ./packages/shared/
-COPY --from=builder /app/apps/api/src ./apps/api/src
-COPY --from=builder /app/apps/api/package.json ./apps/api/
+# Copy workspace structure for proper resolution
 COPY --from=builder /app/package.json ./
-# oven/bun:1-alpine ships a 'bun' user at UID/GID 1000 — reuse it instead of creating a conflicting one
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/db/package.json ./packages/db/
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+# Install production dependencies with workspace context
+RUN bun install --frozen-lockfile --production --ignore-scripts
+COPY --from=builder /app/apps/api/src ./apps/api/src
 RUN chown -R bun:bun /app
 USER bun
 EXPOSE 3000

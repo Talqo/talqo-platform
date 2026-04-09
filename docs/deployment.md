@@ -10,6 +10,19 @@
   echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
   ```
 
+## Required GitHub Secrets
+
+The CD pipeline requires one repository secret to be configured in **Settings → Secrets and variables → Actions → Repository Secrets**:
+
+| Secret | Value |
+|--------|-------|
+| `KUBECONFIG` | Base64-encoded kubeconfig with access to both `pagepal-dev` and `pagepal-prod` namespaces |
+
+To encode your kubeconfig:
+```bash
+base64 -w 0 ~/.kube/config
+```
+
 ## Environments
 
 | Environment | Namespace       | Branch       | Image tag            |
