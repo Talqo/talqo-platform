@@ -14,7 +14,7 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/tsconfig.json ./
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
-RUN bunx turbo run build --filter=web...
+RUN bunx turbo run build --filter=web... --log-order=stream
 
 # Stage 3: Serve with nginx
 FROM nginx:1.29-alpine-slim AS runner
