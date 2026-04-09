@@ -42,6 +42,6 @@ export const AUTH = {
 	TOKEN_KEY: "token",
 	ADMIN_TOKEN_KEY: "admin_token",
 	DEFAULT_REDIRECT: "/dashboard",
-	ADMIN_DEFAULT_REDIRECT: "/dev/backoffice",
+	ADMIN_DEFAULT_REDIRECT: "/dashboard",
 	LOGIN_ROUTE: "/login",
 } as const;
