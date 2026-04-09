@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { DB } from "../../db";
 import { clients, pendingRegistrations } from "../../db/schema";
 
@@ -151,10 +151,11 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async findClientByName(name: string): Promise<Client | null> {
+		// Case-insensitive comparison: name is already lowercased by caller
 		const rows = await this.db
 			.select()
 			.from(clients)
-			.where(eq(clients.name, name));
+			.where(sql`LOWER(${clients.name}) = ${name}`);
 		return rows[0] ? mapClient(rows[0]) : null;
 	}
 

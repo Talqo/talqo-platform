@@ -10,7 +10,7 @@ export class AuthService {
 		const existing = await this.repo.findClientByEmail(canonical);
 		if (existing) throw new Error("EMAIL_TAKEN");
 
-		const canonicalName = name.trim();
+		const canonicalName = name.trim().toLowerCase();
 		const existingName = await this.repo.findClientByName(canonicalName);
 		if (existingName) throw new Error("NAME_TAKEN");
 
