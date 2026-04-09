@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsgo --build && vite build",
+		"build": "tsr generate && tsgo --build && vite build",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
