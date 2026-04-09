@@ -36,7 +36,8 @@ export interface IAuthRepository {
 	): Promise<Client>;
 	updateLastActive(clientId: string): Promise<void>;
 	// Overwrites any existing pending registration for the same email
-	// Also removes any existing pending registration with the same name
+	// Does NOT remove conflicting registrations by name; name conflicts should be
+	// rejected before calling this via findPendingByName() and throwing NAME_TAKEN
 	savePendingRegistration(record: PendingRegistration): Promise<void>;
 	// Atomically verifies the token, creates the Client record, and deletes the pending
 	// registration in a single transaction (e.g. SELECT … FOR UPDATE in a DB impl).
@@ -105,12 +106,10 @@ export class InMemoryAuthRepository implements IAuthRepository {
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
-		// Remove any existing pending entry for the same email or name before saving
+		// Remove any existing pending entry for the same email before saving
+		// This supports legitimate re-registration flow
 		for (const [token, pending] of this.pendingRegistrations.entries()) {
-			if (
-				pending.email === record.email ||
-				pending.name.toLowerCase() === record.name.toLowerCase()
-			) {
+			if (pending.email === record.email) {
 				this.pendingRegistrations.delete(token);
 				break;
 			}
@@ -207,27 +206,20 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
-		await this.db.transaction(async (tx) => {
-			// Remove any existing pending registration with the same name (case-insensitive)
-			await tx
-				.delete(pendingRegistrations)
-				.where(
-					sql`LOWER(${pendingRegistrations.name}) = ${record.name.toLowerCase()}`,
-				);
-
-			await tx
-				.insert(pendingRegistrations)
-				.values(record)
-				.onConflictDoUpdate({
-					target: pendingRegistrations.email,
-					set: {
-						token: record.token,
-						name: record.name,
-						passwordHash: record.passwordHash,
-						expiresAt: record.expiresAt,
-					},
-				});
-		});
+		// Insert or update pending registration
+		// onConflictDoUpdate handles same-email re-registration via email unique constraint
+		await this.db
+			.insert(pendingRegistrations)
+			.values(record)
+			.onConflictDoUpdate({
+				target: pendingRegistrations.email,
+				set: {
+					token: record.token,
+					name: record.name,
+					passwordHash: record.passwordHash,
+					expiresAt: record.expiresAt,
+				},
+			});
 	}
 
 	async consumePendingRegistration(token: string): Promise<Client> {
