@@ -14,6 +14,10 @@ export class AuthService {
 		const existingName = await this.repo.findClientByName(canonicalName);
 		if (existingName) throw new Error("NAME_TAKEN");
 
+		// Also check pending registrations for name conflicts
+		const pendingName = await this.repo.findPendingByName(canonicalName);
+		if (pendingName) throw new Error("NAME_TAKEN");
+
 		const passwordHash = await Bun.password.hash(password);
 
 		// Create pending registration and send verification email

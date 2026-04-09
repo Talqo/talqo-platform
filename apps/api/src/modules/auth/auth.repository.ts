@@ -27,12 +27,16 @@ export type PendingRegistration = {
 export interface IAuthRepository {
 	findClientByEmail(email: string): Promise<Client | null>;
 	findClientById(id: string): Promise<Client | null>;
+	// Case-insensitive name lookup; normalizes input internally
 	findClientByName(name: string): Promise<Client | null>;
+	// Check if a company name exists in pending registrations (case-insensitive)
+	findPendingByName(name: string): Promise<PendingRegistration | null>;
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>;
 	updateLastActive(clientId: string): Promise<void>;
 	// Overwrites any existing pending registration for the same email
+	// Also removes any existing pending registration with the same name
 	savePendingRegistration(record: PendingRegistration): Promise<void>;
 	// Atomically verifies the token, creates the Client record, and deletes the pending
 	// registration in a single transaction (e.g., SELECT … FOR UPDATE in a DB impl).
@@ -61,8 +65,17 @@ export class InMemoryAuthRepository implements IAuthRepository {
 	}
 
 	async findClientByName(name: string): Promise<Client | null> {
+		const normalizedName = name.toLowerCase();
 		for (const client of this.clients.values()) {
-			if (client.name === name) return client;
+			if (client.name.toLowerCase() === normalizedName) return client;
+		}
+		return null;
+	}
+
+	async findPendingByName(name: string): Promise<PendingRegistration | null> {
+		const normalizedName = name.toLowerCase();
+		for (const pending of this.pendingRegistrations.values()) {
+			if (pending.name.toLowerCase() === normalizedName) return pending;
 		}
 		return null;
 	}
@@ -92,9 +105,12 @@ export class InMemoryAuthRepository implements IAuthRepository {
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
-		// Remove any existing pending entry for the same email before saving
+		// Remove any existing pending entry for the same email or name before saving
 		for (const [token, pending] of this.pendingRegistrations.entries()) {
-			if (pending.email === record.email) {
+			if (
+				pending.email === record.email ||
+				pending.name.toLowerCase() === record.name.toLowerCase()
+			) {
 				this.pendingRegistrations.delete(token);
 				break;
 			}
@@ -151,12 +167,22 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async findClientByName(name: string): Promise<Client | null> {
-		// Case-insensitive comparison: name is already lowercased by caller
+		// Self-normalizing: lowercase input for case-insensitive comparison
+		const normalizedName = name.toLowerCase();
 		const rows = await this.db
 			.select()
 			.from(clients)
-			.where(sql`LOWER(${clients.name}) = ${name}`);
+			.where(sql`LOWER(${clients.name}) = ${normalizedName}`);
 		return rows[0] ? mapClient(rows[0]) : null;
+	}
+
+	async findPendingByName(name: string): Promise<PendingRegistration | null> {
+		const normalizedName = name.toLowerCase();
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(sql`LOWER(${pendingRegistrations.name}) = ${normalizedName}`);
+		return rows[0] ?? null;
 	}
 
 	async createClient(
@@ -181,18 +207,27 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
-		await this.db
-			.insert(pendingRegistrations)
-			.values(record)
-			.onConflictDoUpdate({
-				target: pendingRegistrations.email,
-				set: {
-					token: record.token,
-					name: record.name,
-					passwordHash: record.passwordHash,
-					expiresAt: record.expiresAt,
-				},
-			});
+		await this.db.transaction(async (tx) => {
+			// Remove any existing pending registration with the same name (case-insensitive)
+			await tx
+				.delete(pendingRegistrations)
+				.where(
+					sql`LOWER(${pendingRegistrations.name}) = ${record.name.toLowerCase()}`,
+				);
+
+			await tx
+				.insert(pendingRegistrations)
+				.values(record)
+				.onConflictDoUpdate({
+					target: pendingRegistrations.email,
+					set: {
+						token: record.token,
+						name: record.name,
+						passwordHash: record.passwordHash,
+						expiresAt: record.expiresAt,
+					},
+				});
+		});
 	}
 
 	async consumePendingRegistration(token: string): Promise<Client> {
