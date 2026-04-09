@@ -1,25 +1,14 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
+	customServerResponseSchema,
+	preMadeServerResponseSchema,
+} from "db/dto";
+import { mcpConfigBodySchema } from "shared";
+import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas";
 import { mcpService } from "./index";
-
-// ─── Shared schemas ────────────────────────────────────────────────────────────
-
-// MCP config is stored as jsonb — use z.any() to avoid JSON serialization type conflicts
-const mcpConfigSchema = z.any();
-
-const preMadeServerSchema = z.object({
-	id: z.string().uuid(),
-	mcpConfig: mcpConfigSchema,
-});
-
-const customServerSchema = z.object({
-	id: z.string().uuid(),
-	clientId: z.string().uuid(),
-	mcpConfig: mcpConfigSchema,
-});
 
 const serverIdParam = z.object({ serverId: z.string().uuid() });
 
@@ -39,7 +28,7 @@ clientMcpRoutes.openapi(
 				description: "Pre-made servers",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.array(preMadeServerSchema)),
+						schema: successResponseSchema(z.array(preMadeServerResponseSchema)),
 					},
 				},
 			},
@@ -63,7 +52,7 @@ clientMcpRoutes.openapi(
 				description: "Enabled pre-made servers",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.array(preMadeServerSchema)),
+						schema: successResponseSchema(z.array(preMadeServerResponseSchema)),
 					},
 				},
 			},
@@ -156,7 +145,7 @@ clientMcpRoutes.openapi(
 				description: "Custom servers",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.array(customServerSchema)),
+						schema: successResponseSchema(z.array(customServerResponseSchema)),
 					},
 				},
 			},
@@ -180,7 +169,7 @@ clientMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ mcpConfig: mcpConfigSchema }),
+						schema: mcpConfigBodySchema,
 					},
 				},
 			},
@@ -190,7 +179,7 @@ clientMcpRoutes.openapi(
 				description: "Custom server created",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(customServerSchema),
+						schema: successResponseSchema(customServerResponseSchema),
 					},
 				},
 			},
@@ -216,7 +205,7 @@ clientMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ mcpConfig: mcpConfigSchema }),
+						schema: mcpConfigBodySchema,
 					},
 				},
 			},
@@ -226,7 +215,7 @@ clientMcpRoutes.openapi(
 				description: "Custom server updated",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(customServerSchema),
+						schema: successResponseSchema(customServerResponseSchema),
 					},
 				},
 			},
@@ -299,7 +288,7 @@ adminMcpRoutes.openapi(
 				description: "Pre-made servers",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.array(preMadeServerSchema)),
+						schema: successResponseSchema(z.array(preMadeServerResponseSchema)),
 					},
 				},
 			},
@@ -322,7 +311,7 @@ adminMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ mcpConfig: mcpConfigSchema }),
+						schema: mcpConfigBodySchema,
 					},
 				},
 			},
@@ -332,7 +321,7 @@ adminMcpRoutes.openapi(
 				description: "Server created",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(preMadeServerSchema),
+						schema: successResponseSchema(preMadeServerResponseSchema),
 					},
 				},
 			},
@@ -357,7 +346,7 @@ adminMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ mcpConfig: mcpConfigSchema }),
+						schema: mcpConfigBodySchema,
 					},
 				},
 			},
@@ -367,7 +356,7 @@ adminMcpRoutes.openapi(
 				description: "Server updated",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(preMadeServerSchema),
+						schema: successResponseSchema(preMadeServerResponseSchema),
 					},
 				},
 			},

@@ -1,4 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { blacklistWordResponseSchema } from "db/dto";
+import { addWordBodySchema } from "shared";
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -6,13 +8,6 @@ import {
 import { blacklistService } from "./index";
 
 const router = new OpenAPIHono();
-
-const wordSchema = z.object({
-	id: z.string().uuid(),
-	clientId: z.string().uuid(),
-	word: z.string(),
-	createdAt: z.string(),
-});
 
 router.openapi(
 	createRoute({
@@ -26,7 +21,7 @@ router.openapi(
 				description: "Blacklist",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.array(wordSchema)),
+						schema: successResponseSchema(z.array(blacklistWordResponseSchema)),
 					},
 				},
 			},
@@ -50,7 +45,7 @@ router.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ word: z.string().min(1).max(255) }),
+						schema: addWordBodySchema,
 					},
 				},
 			},
@@ -59,7 +54,9 @@ router.openapi(
 			201: {
 				description: "Word added",
 				content: {
-					"application/json": { schema: successResponseSchema(wordSchema) },
+					"application/json": {
+						schema: successResponseSchema(blacklistWordResponseSchema),
+					},
 				},
 			},
 			409: {

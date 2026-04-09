@@ -1,0 +1,46 @@
+{
+	"name": "db",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./schema": {
+			"types": "./dist/schema/index.d.ts",
+			"default": "./dist/schema/index.js"
+		},
+		"./dto": {
+			"types": "./dist/dto/index.d.ts",
+			"default": "./dist/dto/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"lint": "biome lint .",
+		"check": "biome check .",
+		"test": "bun -e \"console.log('No tests in db')\"",
+		"type-check": "tsc --noEmit",
+		"db:generate": "bun --env-file=../../.env run drizzle-kit generate",
+		"db:migrate": "bun --env-file=../../.env run drizzle-kit migrate",
+		"db:push": "bun --env-file=../../.env run drizzle-kit push",
+		"db:studio": "bun --env-file=../../.env run drizzle-kit studio"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.45.1",
+		"drizzle-zod": "^0.8.3",
+		"zod": "^4.3.6"
+	},
+	"peerDependencies": {
+		"postgres": "^3.4.8"
+	},
+	"devDependencies": {
+		"drizzle-kit": "^0.31.10",
+		"typescript": "~5.9.3"
+	}
+}

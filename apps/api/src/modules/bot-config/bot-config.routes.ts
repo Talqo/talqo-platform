@@ -1,25 +1,10 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { botConfigResponseSchema } from "db/dto";
+import { updateBotConfigBodySchema } from "shared";
 import { successResponseSchema } from "../../common/schemas";
 import { botConfigService } from "./index";
 
 const router = new OpenAPIHono();
-
-const botConfigSchema = z.object({
-	id: z.string().uuid(),
-	clientId: z.string().uuid(),
-	systemPrompt: z.string().nullable(),
-	defaultRole: z.string().nullable(),
-	toneStyle: z.string().nullable(),
-	internetSearchEnabled: z.boolean(),
-	updatedAt: z.string(),
-});
-
-const updateBotConfigSchema = z.object({
-	systemPrompt: z.string().nullable().optional(),
-	defaultRole: z.string().nullable().optional(),
-	toneStyle: z.string().nullable().optional(),
-	internetSearchEnabled: z.boolean().optional(),
-});
 
 router.openapi(
 	createRoute({
@@ -33,7 +18,7 @@ router.openapi(
 				description: "Bot configuration",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(botConfigSchema),
+						schema: successResponseSchema(botConfigResponseSchema),
 					},
 				},
 			},
@@ -55,7 +40,7 @@ router.openapi(
 		security: [{ bearerAuth: [] }],
 		request: {
 			body: {
-				content: { "application/json": { schema: updateBotConfigSchema } },
+				content: { "application/json": { schema: updateBotConfigBodySchema } },
 			},
 		},
 		responses: {
@@ -63,7 +48,7 @@ router.openapi(
 				description: "Updated bot configuration",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(botConfigSchema),
+						schema: successResponseSchema(botConfigResponseSchema),
 					},
 				},
 			},

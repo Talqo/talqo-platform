@@ -138,10 +138,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async findClientById(id: string): Promise<Client | null> {
-		const rows = await this.db
-			.select()
-			.from(clients)
-			.where(eq(clients.id, id));
+		const rows = await this.db.select().from(clients).where(eq(clients.id, id));
 		return rows[0] ? mapClient(rows[0]) : null;
 	}
 
@@ -149,10 +146,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
 		try {
-			const rows = await this.db
-				.insert(clients)
-				.values(data)
-				.returning();
+			const rows = await this.db.insert(clients).values(data).returning();
 			// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
 			return mapClient(rows[0]!);
 		} catch (err) {
@@ -196,11 +190,14 @@ export class DrizzleAuthRepository implements IAuthRepository {
 
 			let client: Client;
 			try {
-				const rows = await tx.insert(clients).values({
-					name: pending.name,
-					email: pending.email,
-					passwordHash: pending.passwordHash,
-				}).returning();
+				const rows = await tx
+					.insert(clients)
+					.values({
+						name: pending.name,
+						email: pending.email,
+						passwordHash: pending.passwordHash,
+					})
+					.returning();
 				// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
 				client = mapClient(rows[0]!);
 			} catch (err) {

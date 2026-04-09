@@ -4,10 +4,10 @@
 		"lib": ["ESNext"],
 		"target": "ESNext",
 		"types": ["@types/bun"],
+		"rootDir": ".",
 		"declaration": true,
 		"outDir": "./dist",
 		"noEmit": false,
-		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
 		}

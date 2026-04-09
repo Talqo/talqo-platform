@@ -1,4 +1,12 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { clientResponseSchema } from "db/dto";
+import {
+	addFundsBodySchema,
+	changePasswordBodySchema,
+	updateProfileBodySchema,
+	usageAlertBodySchema,
+	usageLimitBodySchema,
+} from "shared";
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -6,18 +14,6 @@ import {
 import { clientAccountService } from "./index";
 
 const router = new OpenAPIHono();
-
-const clientProfileSchema = z.object({
-	id: z.string().uuid(),
-	name: z.string(),
-	email: z.string().email(),
-	balanceUsd: z.string(),
-	monthlyUsageLimit: z.string().nullable(),
-	usageAlertThresholdUsd: z.string().nullable(),
-	status: z.string(),
-	lastActive: z.string().nullable(),
-	createdAt: z.string(),
-});
 
 router.openapi(
 	createRoute({
@@ -31,7 +27,7 @@ router.openapi(
 				description: "Client profile",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(clientProfileSchema),
+						schema: successResponseSchema(clientResponseSchema),
 					},
 				},
 			},
@@ -55,10 +51,7 @@ router.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({
-							name: z.string().min(1).max(255).optional(),
-							email: z.string().email().optional(),
-						}),
+						schema: updateProfileBodySchema,
 					},
 				},
 			},
@@ -99,10 +92,7 @@ router.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({
-							currentPassword: z.string().min(1),
-							newPassword: z.string().min(8),
-						}),
+						schema: changePasswordBodySchema,
 					},
 				},
 			},
@@ -144,7 +134,7 @@ router.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ amount: z.number().positive() }),
+						schema: addFundsBodySchema,
 					},
 				},
 			},
@@ -179,7 +169,7 @@ router.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({ limit: z.number().nonnegative().nullable() }),
+						schema: usageLimitBodySchema,
 					},
 				},
 			},
@@ -217,9 +207,7 @@ router.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: z.object({
-							thresholdUsd: z.number().nonnegative().nullable(),
-						}),
+						schema: usageAlertBodySchema,
 					},
 				},
 			},
