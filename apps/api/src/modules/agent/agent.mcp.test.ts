@@ -118,17 +118,19 @@ describe("connectMcpServers", () => {
 			() => true,
 		);
 
-		const configs: McpServerConfig[] = [
-			{ type: "sse", url: "https://broken.com" },
-			{ type: "sse", url: "https://working.com" },
-		];
-		const conn = await connectMcpServers(configs);
+		try {
+			const configs: McpServerConfig[] = [
+				{ type: "sse", url: "https://broken.com" },
+				{ type: "sse", url: "https://working.com" },
+			];
+			const conn = await connectMcpServers(configs);
 
-		expect(stderrSpy).toHaveBeenCalledTimes(1);
-		expect(conn.tools).not.toHaveProperty("toolA");
-		expect(conn.tools).toHaveProperty("toolB");
-
-		stderrSpy.mockRestore();
+			expect(stderrSpy).toHaveBeenCalledTimes(1);
+			expect(conn.tools).not.toHaveProperty("toolA");
+			expect(conn.tools).toHaveProperty("toolB");
+		} finally {
+			stderrSpy.mockRestore();
+		}
 	});
 
 	it("calls close on all connected clients", async () => {

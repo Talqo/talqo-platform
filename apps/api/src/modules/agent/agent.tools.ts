@@ -1,26 +1,31 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, realpath } from "node:fs/promises";
 import { normalize, resolve, sep } from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
 
-function createSafePath(rootDir: string) {
-	const resolved = resolve(rootDir);
-	return (relative: string): string => {
-		const target = resolve(resolved, normalize(relative));
+async function createSafePath(rootDir: string) {
+	// Resolve the real path of rootDir to handle symlinks
+	const resolvedRoot = await realpath(resolve(rootDir));
+	return async (relative: string): Promise<string> => {
+		// Resolve the path and get its real path to follow symlinks
+		const targetPath = resolve(resolvedRoot, normalize(relative));
+		const realTarget = await realpath(targetPath).catch(() => targetPath);
 		// Use trailing slash to prevent sibling-directory bypass (e.g. /ctx matching /ctx-evil)
 		// Always use system separator for cross-platform compatibility
-		const normalizedResolved = resolved.endsWith(sep)
-			? resolved
-			: resolved + sep;
-		const normalizedTarget = target.endsWith(sep) ? target : target + sep;
+		const normalizedResolved = resolvedRoot.endsWith(sep)
+			? resolvedRoot
+			: resolvedRoot + sep;
+		const normalizedTarget = realTarget.endsWith(sep)
+			? realTarget
+			: realTarget + sep;
 		// Allow exact match on root dir, or ensure target is within root dir
 		if (
-			target !== resolved &&
+			realTarget !== resolvedRoot &&
 			!normalizedTarget.startsWith(normalizedResolved)
 		) {
 			throw new Error("Path traversal detected");
 		}
-		return target;
+		return targetPath;
 	};
 }
 
