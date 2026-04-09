@@ -49,6 +49,8 @@ function RegisterPage() {
 			initialValues: { name: "", email: "", password: "", confirmPassword: "" },
 			validate: validateRegisterForm,
 			onSubmit: async () => {
+				// Guard against concurrent submissions
+				if (register.isPending) return;
 				register.mutate(
 					{
 						name: values.name,
