@@ -14,7 +14,7 @@
 
 | Environment | Namespace       | Branch       | Image tag            |
 |-------------|-----------------|--------------|----------------------|
-| dev         | `pagepal-dev2`  | push to `dev`       | `sha-<short-commit>` |
+| dev         | `pagepal-dev`  | push to `dev`       | `sha-<short-commit>` |
 | prod        | `pagepal-prod`  | semver tag `v*.*.*` | `MAJOR.MINOR.PATCH`  |
 
 The active environment is detected from the current git branch — no flags needed.

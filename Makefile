@@ -5,7 +5,7 @@ SHELL := /bin/sh
 COMPOSE := docker compose
 HELM_RELEASE := pagepal
 HELM_CHART := ./helm
-GHCR_USER := fidasek009
+GHCR_USER := pagepal-agent
 API_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-web
 VITE_API_URL ?= http://localhost:3000
@@ -26,7 +26,7 @@ else ifeq ($(BRANCH),detached)
   HELM_VALUES :=
 else
   ENV := dev
-  NAMESPACE := pagepal-dev2
+  NAMESPACE := pagepal-dev
   HELM_VALUES := -f $(HELM_CHART)/values.dev.yaml
 endif
 

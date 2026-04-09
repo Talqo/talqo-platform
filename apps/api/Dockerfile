@@ -24,7 +24,7 @@ RUN cd packages/shared && bun run build
 
 # Stage 4: Runner
 FROM oven/bun:1-alpine AS runner
-LABEL org.opencontainers.image.source=https://github.com/Fidasek009/pb138
+LABEL org.opencontainers.image.source=https://github.com/PagePal-Agent/pagepal
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
