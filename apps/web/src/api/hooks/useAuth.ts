@@ -95,6 +95,26 @@ export function useVerifyEmail() {
 	})
 }
 
+// Hook that includes callbacks for verify email
+export function useVerifyEmailWithCallbacks(
+	onSuccess?: (data: AuthResponse) => void,
+	onError?: (error: ApiError) => void,
+) {
+	return useMutation<AuthResponse, ApiError, { token: string }>({
+		mutationFn: async ({ token }) => {
+			const { data, error } = await client.GET("/auth/verify-email", {
+				params: {
+					query: { token },
+				},
+			})
+			if (error) throw error
+			return data as AuthResponse
+		},
+		onSuccess,
+		onError,
+	})
+}
+
 // Resend verification email mutation
 export function useResendVerificationEmail() {
 	return useMutation<AuthResponse, ApiError, { email: string }>({

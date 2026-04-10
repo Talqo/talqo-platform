@@ -1,7 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { useResendVerificationEmail, useVerifyEmail } from "@/api/hooks/useAuth"
+import {
+	useResendVerificationEmail,
+	useVerifyEmail,
+	type ApiError,
+} from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -78,57 +82,38 @@ function VerifyEmailPage() {
 			return
 		}
 
-		// Call verify endpoint
+		// Call verify endpoint using mutateAsync for better promise handling
 		console.log("[VerifyEmail] Starting verification with token:", token)
-		console.log(
-			"[VerifyEmail] verifyEmail object keys:",
-			Object.keys(verifyEmail),
-		)
-		console.log(
-			"[VerifyEmail] verifyEmail.mutate function exists:",
-			typeof verifyEmail.mutate === "function",
-		)
-		console.log("[VerifyEmail] About to call mutate...")
-		verifyEmail.mutate(
-			{ token },
-			{
-				onSuccess: (data) => {
-					console.log(
-						"[VerifyEmail] onSuccess callback called with data:",
-						data,
-					)
-					setState({ status: "success" })
-					if (data.data.token) {
-						localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
-					}
-					// Navigate after 2 seconds
-					setTimeout(() => {
-						navigate({ to: "/dashboard" })
-					}, 2000)
-				},
-				onError: (error) => {
-					console.log(
-						"[VerifyEmail] onError callback called with error:",
-						error,
-					)
-					const code = error.error?.code || "UNKNOWN_ERROR"
-					let message = "Verification failed. Please try again."
+		verifyEmail
+			.mutateAsync({ token })
+			.then((data) => {
+				console.log("[VerifyEmail] Success handler with data:", data)
+				setState({ status: "success" })
+				if (data.data.token) {
+					localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
+				}
+				// Navigate after 2 seconds
+				setTimeout(() => {
+					navigate({ to: "/dashboard" })
+				}, 2000)
+			})
+			.catch((err) => {
+				console.log("[VerifyEmail] Error handler with error:", err)
+				const error = err as ApiError
+				const code = error.error?.code || "UNKNOWN_ERROR"
+				let message = "Verification failed. Please try again."
 
-					if (code === "INVALID_TOKEN") {
-						message =
-							"The verification link is invalid. Please request a new one."
-					} else if (code === "TOKEN_EXPIRED") {
-						message =
-							"The verification link has expired. Please register again."
-					} else if (code === "EMAIL_ALREADY_VERIFIED") {
-						message =
-							"This email has already been verified. You can log in now."
-					}
+				if (code === "INVALID_TOKEN") {
+					message =
+						"The verification link is invalid. Please request a new one."
+				} else if (code === "TOKEN_EXPIRED") {
+					message = "The verification link has expired. Please register again."
+				} else if (code === "EMAIL_ALREADY_VERIFIED") {
+					message = "This email has already been verified. You can log in now."
+				}
 
-					setState({ status: "error", code, message })
-				},
-			},
-		)
+				setState({ status: "error", code, message })
+			})
 		// Only run when token changes (on initial load with token from URL)
 		// navigate and verifyEmail are stable references from TanStack Router/Query
 		// eslint-disable-next-line react-hooks/exhaustive-deps
