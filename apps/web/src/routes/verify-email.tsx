@@ -9,9 +9,9 @@ import {
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import {
+	type ApiError,
 	useResendVerificationEmail,
 	useVerifyEmail,
-	type ApiError,
 } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -123,9 +123,9 @@ function VerifyEmailPage() {
 
 				setState({ status: "error", code, message })
 			})
-		// Only run when token changes (on initial load with token from URL)
-		// navigate and verifyEmail are stable references from TanStack Router/Query
 		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// navigate and verifyEmail are stable references from TanStack Router/Query
+		// Only run when token changes (on initial load with token from URL)
 	}, [token])
 
 	if (state.status === "loading") {
