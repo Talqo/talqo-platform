@@ -194,6 +194,15 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		return rows[0] ?? null
 	}
 
+	async findPendingByEmail(email: string): Promise<PendingRegistration | null> {
+		const canonical = email.toLowerCase()
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(sql`LOWER(${pendingRegistrations.email}) = ${canonical}`)
+		return rows[0] ?? null
+	}
+
 	async createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
