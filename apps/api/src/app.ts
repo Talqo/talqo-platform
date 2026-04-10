@@ -70,6 +70,7 @@ app.route("/admin/auth", adminAuthRoutes)
 
 // ─── Admin dashboard (protected) ─────────────────────────────────────────────
 app.use("/admin/*", adminAuth)
+app.route("/admin/me", adminClientRoutes)
 app.route("/admin/clients", adminClientRoutes)
 app.route("/admin/analytics", adminAnalyticsRoutes)
 app.route("/admin/mcp/pre-made", adminMcpRoutes)

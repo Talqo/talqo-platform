@@ -91,6 +91,61 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 	const router = new OpenAPIHono()
 
+	// GET /admin/me - Get current admin profile
+	router.openapi(
+		createRoute({
+			method: "get",
+			path: "/me",
+			tags: ["Admin"],
+			summary: "Get current admin profile",
+			security: [{ bearerAuth: [] }],
+			responses: {
+				200: {
+					description: "Admin profile",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(
+								z.object({
+									id: z.string(),
+									email: z.string(),
+									role: z.literal("admin"),
+								}),
+							),
+						},
+					},
+				},
+				401: {
+					description: "Unauthorized",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				404: {
+					description: "Admin not found",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const adminId = c.get("adminId" as never) as string
+			const admin = await service.getAdminById(adminId)
+			if (!admin) {
+				return c.json(
+					{
+						success: false as const,
+						error: { code: "NOT_FOUND", message: "Admin not found" },
+					},
+					404,
+				)
+			}
+			return c.json(
+				{
+					success: true as const,
+					data: { id: admin.id, email: admin.email, role: "admin" as const },
+				},
+				200,
+			)
+		},
+	)
+
 	router.openapi(
 		createRoute({
 			method: "get",
