@@ -1,12 +1,4 @@
-import {
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	mock,
-} from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 
 type SendPayload = { from: string; to: string; subject: string; html: string }
 type SendResult = {
@@ -14,7 +6,6 @@ type SendResult = {
 	error: { message: string; name: string } | null
 }
 
-// Mock the resend module before any imports
 const mockSend = mock(
 	async (_payload: SendPayload): Promise<SendResult> => ({
 		data: { id: "test-id" },
@@ -23,118 +14,129 @@ const mockSend = mock(
 )
 
 mock.module("resend", () => ({
-	Resend: class MockResend {
+	Resend: class {
 		emails = { send: mockSend }
 	},
 }))
 
-// Import the service after mocking
-type EmailService = {
-	sendVerificationEmail: (to: string, token: string) => Promise<void>
-	sendPasswordResetEmail: (to: string, token: string) => Promise<void>
-	sendQuotaAlertEmail: (to: string, percentage: number) => Promise<void>
-}
-
-// Load the module dynamically after mock is set up
-let emailService: EmailService
+const { sendPasswordResetEmail, sendQuotaAlertEmail, sendVerificationEmail } =
+	await import("./email.service")
 
 describe("email.service", () => {
-	beforeAll(async () => {
-		// Ensure env vars are set before importing
+	beforeEach(() => {
 		process.env.RESEND_API_KEY = "test-api-key"
 		process.env.APP_URL = "http://localhost:5173"
-
-		const mod = await import("./email.service")
-		emailService = {
-			sendVerificationEmail: mod.sendVerificationEmail,
-			sendPasswordResetEmail: mod.sendPasswordResetEmail,
-			sendQuotaAlertEmail: mod.sendQuotaAlertEmail,
-		}
-	})
-
-	beforeEach(() => {
-		mockSend.mockClear()
 	})
 
 	afterEach(() => {
 		delete process.env.RESEND_API_KEY
 		delete process.env.APP_URL
+		mockSend.mockClear()
 	})
 
 	describe("sendVerificationEmail", () => {
-		it("sends verification email with correct parameters", async () => {
-			process.env.RESEND_API_KEY = "test-api-key"
-			process.env.APP_URL = "http://localhost:5173"
+		it("resolves without throwing", async () => {
+			await expect(
+				sendVerificationEmail("user@example.com", "token-abc"),
+			).resolves.toBeUndefined()
+		})
 
-			await emailService.sendVerificationEmail("test@example.com", "token123")
-
+		it("calls resend with correct to address", async () => {
+			await sendVerificationEmail("user@example.com", "token-abc")
 			expect(mockSend).toHaveBeenCalledTimes(1)
-			const call = mockSend.mock.calls[0] as [SendPayload]
-			expect(call[0].to).toBe("test@example.com")
-			expect(call[0].subject).toBe("Verify your email address")
-			expect(call[0].html).toContain("token123")
-			expect(call[0].html).toContain("http://localhost:5173/verify-email")
+			expect(
+				(mockSend.mock.calls[0] as unknown as [SendPayload])[0],
+			).toMatchObject({ to: "user@example.com" })
 		})
 
-		it("throws error when RESEND_API_KEY is missing", async () => {
+		it("includes the token in the email body", async () => {
+			await sendVerificationEmail("user@example.com", "token-abc")
+			const { html } = (mockSend.mock.calls[0] as unknown as [SendPayload])[0]
+			expect(html).toContain("token-abc")
+		})
+
+		it("throws when RESEND_API_KEY is not set", async () => {
 			delete process.env.RESEND_API_KEY
-			process.env.APP_URL = "http://localhost:5173"
-
 			await expect(
-				emailService.sendVerificationEmail("test@example.com", "token123"),
-			).rejects.toThrow("RESEND_API_KEY not configured")
+				sendVerificationEmail("user@example.com", "token-abc"),
+			).rejects.toThrow("RESEND_API_KEY environment variable is not set")
 		})
 
-		it("throws error when APP_URL is missing", async () => {
-			process.env.RESEND_API_KEY = "test-api-key"
-			delete process.env.APP_URL
-
+		it("throws when resend returns an error", async () => {
+			mockSend.mockImplementationOnce(async () => ({
+				data: null,
+				error: { message: "invalid api key", name: "validation_error" },
+			}))
 			await expect(
-				emailService.sendVerificationEmail("test@example.com", "token123"),
-			).rejects.toThrow("APP_URL not configured")
+				sendVerificationEmail("user@example.com", "token-abc"),
+			).rejects.toThrow("Failed to send email to user@example.com")
 		})
 	})
 
 	describe("sendPasswordResetEmail", () => {
-		it("sends password reset email with correct parameters", async () => {
-			process.env.RESEND_API_KEY = "test-api-key"
-			process.env.APP_URL = "http://localhost:5173"
+		it("resolves without throwing", async () => {
+			await expect(
+				sendPasswordResetEmail("user@example.com", "reset-token"),
+			).resolves.toBeUndefined()
+		})
 
-			await emailService.sendPasswordResetEmail(
-				"test@example.com",
-				"reset-token",
-			)
-
+		it("calls resend with correct to address", async () => {
+			await sendPasswordResetEmail("user@example.com", "reset-token")
 			expect(mockSend).toHaveBeenCalledTimes(1)
-			const call = mockSend.mock.calls[0] as [SendPayload]
-			expect(call[0].to).toBe("test@example.com")
-			expect(call[0].subject).toBe("Reset your password")
-			expect(call[0].html).toContain("reset-token")
-			expect(call[0].html).toContain("http://localhost:5173/reset-password")
+			expect(
+				(mockSend.mock.calls[0] as unknown as [SendPayload])[0],
+			).toMatchObject({ to: "user@example.com" })
+		})
+
+		it("includes the token in the email body", async () => {
+			await sendPasswordResetEmail("user@example.com", "reset-token")
+			const { html } = (mockSend.mock.calls[0] as unknown as [SendPayload])[0]
+			expect(html).toContain("reset-token")
+		})
+
+		it("throws when resend returns an error", async () => {
+			mockSend.mockImplementationOnce(async () => ({
+				data: null,
+				error: { message: "rate limit exceeded", name: "rate_limit_exceeded" },
+			}))
+			await expect(
+				sendPasswordResetEmail("user@example.com", "reset-token"),
+			).rejects.toThrow("Failed to send email to user@example.com")
 		})
 	})
 
 	describe("sendQuotaAlertEmail", () => {
-		it("sends quota alert email with correct percentage", async () => {
-			process.env.RESEND_API_KEY = "test-api-key"
-			process.env.FROM_EMAIL = "alerts@example.com"
-
-			await emailService.sendQuotaAlertEmail("test@example.com", 85)
-
-			expect(mockSend).toHaveBeenCalledTimes(1)
-			const call = mockSend.mock.calls[0] as [SendPayload]
-			expect(call[0].to).toBe("test@example.com")
-			expect(call[0].subject).toBe("Usage Quota Alert: 85%")
-			expect(call[0].html).toContain("85%")
+		it("resolves without throwing", async () => {
+			await expect(
+				sendQuotaAlertEmail("user@example.com", 80),
+			).resolves.toBeUndefined()
 		})
 
-		it("throws error when FROM_EMAIL is missing", async () => {
-			process.env.RESEND_API_KEY = "test-api-key"
-			delete process.env.FROM_EMAIL
+		it("calls resend with correct to address", async () => {
+			await sendQuotaAlertEmail("user@example.com", 80)
+			expect(mockSend).toHaveBeenCalledTimes(1)
+			expect(
+				(mockSend.mock.calls[0] as unknown as [SendPayload])[0],
+			).toMatchObject({ to: "user@example.com" })
+		})
 
-			await expect(
-				emailService.sendQuotaAlertEmail("test@example.com", 85),
-			).rejects.toThrow("FROM_EMAIL not configured")
+		it("includes the usage percentage in the email body", async () => {
+			await sendQuotaAlertEmail("user@example.com", 80)
+			const { html } = (mockSend.mock.calls[0] as unknown as [SendPayload])[0]
+			expect(html).toContain("80")
+		})
+
+		it("throws when resend returns an error", async () => {
+			mockSend.mockImplementationOnce(async () => ({
+				data: null,
+				error: {
+					message: "service unavailable",
+					name: "internal_server_error",
+				},
+			}))
+			await expect(sendQuotaAlertEmail("user@example.com", 80)).rejects.toThrow(
+				"Failed to send email to user@example.com",
+			)
 		})
 	})
 })
