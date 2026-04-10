@@ -263,6 +263,15 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			if (!pending) throw new Error("INVALID_TOKEN")
 			if (pending.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
 
+			// If already consumed, return the existing client (idempotent)
+			if (pending.consumedAt && pending.consumedByClientId) {
+				const existingClient = await this.findClientById(
+					pending.consumedByClientId,
+				)
+				if (existingClient) return existingClient
+				// If client somehow missing, continue to create new one
+			}
+
 			let client: Client
 			try {
 				const rows = await tx
@@ -280,8 +289,13 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				throw err
 			}
 
+			// Mark as consumed instead of deleting (preserves token for idempotency)
 			await tx
-				.delete(pendingRegistrations)
+				.update(pendingRegistrations)
+				.set({
+					consumedAt: new Date(),
+					consumedByClientId: client.id,
+				})
 				.where(eq(pendingRegistrations.token, token))
 
 			return client
