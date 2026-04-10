@@ -1,5 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react"
+import {
+	AlertCircle,
+	CheckCircle2,
+	Loader2,
+	Mail,
+	Moon,
+	Sun,
+} from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import {
 	useResendVerificationEmail,
@@ -18,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AUTH } from "@/lib/constants"
+import { useTheme } from "@/lib/useTheme"
 
 export const Route = createFileRoute("/verify-email")({
 	component: VerifyEmailPage,
@@ -42,6 +50,7 @@ function VerifyEmailPage() {
 	const verifyEmail = useVerifyEmail()
 	const resendVerification = useResendVerificationEmail()
 	const processedRef = useRef(false)
+	const { theme, toggleTheme } = useTheme()
 
 	useEffect(() => {
 		if (resendTimeout > 0) {
@@ -121,7 +130,23 @@ function VerifyEmailPage() {
 
 	if (state.status === "loading") {
 		return (
-			<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+			<div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
+				{/* Theme Toggle */}
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={toggleTheme}
+					className="absolute top-4 right-4"
+					aria-label={
+						theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+					}
+				>
+					{theme === "dark" ? (
+						<Sun className="h-5 w-5" />
+					) : (
+						<Moon className="h-5 w-5" />
+					)}
+				</Button>
 				<Card className="w-full max-w-md">
 					<CardHeader className="text-center">
 						<div className="mb-4 flex justify-center">
@@ -139,7 +164,23 @@ function VerifyEmailPage() {
 
 	if (state.status === "success") {
 		return (
-			<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+			<div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
+				{/* Theme Toggle */}
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={toggleTheme}
+					className="absolute top-4 right-4"
+					aria-label={
+						theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+					}
+				>
+					{theme === "dark" ? (
+						<Sun className="h-5 w-5" />
+					) : (
+						<Moon className="h-5 w-5" />
+					)}
+				</Button>
 				<Card className="w-full max-w-md">
 					<CardHeader className="text-center">
 						<div className="mb-4 flex justify-center">
@@ -162,7 +203,23 @@ function VerifyEmailPage() {
 	}
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+		<div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
+			{/* Theme Toggle */}
+			<Button
+				variant="ghost"
+				size="icon"
+				onClick={toggleTheme}
+				className="absolute top-4 right-4"
+				aria-label={
+					theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+				}
+			>
+				{theme === "dark" ? (
+					<Sun className="h-5 w-5" />
+				) : (
+					<Moon className="h-5 w-5" />
+				)}
+			</Button>
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
 					<div className="mb-4 flex justify-center">
