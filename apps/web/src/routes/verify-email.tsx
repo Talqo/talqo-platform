@@ -29,7 +29,7 @@ type VerificationState =
 function VerifyEmailPage() {
 	const { token } = Route.useSearch()
 	const navigate = useNavigate()
-	const hasAttempted = useRef(false)
+	const hasProcessed = useRef(false)
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
 	const [resendEmail, setResendEmail] = useState("")
 	const [resendSuccess, setResendSuccess] = useState(false)
@@ -37,11 +37,11 @@ function VerifyEmailPage() {
 	const resendVerification = useResendVerificationEmail()
 
 	useEffect(() => {
-		// Guard against React StrictMode double-mount
-		if (hasAttempted.current) return
-		hasAttempted.current = true
+		// Prevent re-processing on React StrictMode re-mounts
+		if (hasProcessed.current) return
 
 		if (!token) {
+			hasProcessed.current = true
 			setState({
 				status: "error",
 				code: "MISSING_TOKEN",
@@ -51,6 +51,7 @@ function VerifyEmailPage() {
 		}
 
 		// Call verify endpoint
+		hasProcessed.current = true
 		verifyEmail.mutate(
 			{ token },
 			{
@@ -83,7 +84,7 @@ function VerifyEmailPage() {
 				},
 			},
 		)
-	}, [token, verifyEmail, navigate])
+	}, [token, navigate, verifyEmail.mutate])
 
 	const handleResend = () => {
 		if (!resendEmail) return
