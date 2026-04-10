@@ -31,6 +31,8 @@ export interface IAuthRepository {
 	findClientByName(name: string): Promise<Client | null>
 	// Check if a company name exists in pending registrations (case-insensitive)
 	findPendingByName(name: string): Promise<PendingRegistration | null>
+	// Find pending registration by email (case-insensitive)
+	findPendingByEmail(email: string): Promise<PendingRegistration | null>
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>

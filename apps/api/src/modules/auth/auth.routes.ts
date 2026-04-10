@@ -52,9 +52,7 @@ export function createAuthRouter(
 						error: err.message,
 						email,
 					})
-					throw err
-				} else {
-					throw err
+					// Don't throw - still return success to avoid exposing email issues
 				}
 			}
 			return c.json(

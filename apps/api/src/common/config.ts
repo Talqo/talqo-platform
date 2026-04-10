@@ -13,6 +13,8 @@ const envSchema = z.object({
 	S3_SECRET_ACCESS_KEY: z.string().min(1),
 	S3_ENDPOINT: z.string().url(),
 	S3_BUCKET: z.string().min(1),
+	RESEND_API_KEY: z.string().min(1).optional(),
+	APP_URL: z.string().url().optional(),
 })
 
 // For tests, provide default values so config validation doesn't fail

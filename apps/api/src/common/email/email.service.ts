@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { logger } from "../logger"
 import {
 	passwordResetEmailTemplate,
 	quotaAlertEmailTemplate,
@@ -31,11 +32,18 @@ function createClient(): Resend {
 }
 
 async function send(to: string, subject: string, html: string): Promise<void> {
+	logger.info("Sending email", { to, subject })
 	const resend = createClient()
-	const { error } = await resend.emails.send({ from: FROM, to, subject, html })
-	if (error) {
-		throw new Error(`Failed to send email to ${to}: ${error.message}`)
+	const result = await resend.emails.send({ from: FROM, to, subject, html })
+	if (result.error) {
+		logger.error("Failed to send email", {
+			to,
+			subject,
+			error: result.error.message,
+		})
+		throw new Error(`Failed to send email to ${to}: ${result.error.message}`)
 	}
+	logger.info("Email sent successfully", { to, subject, id: result.data?.id })
 }
 
 export async function sendVerificationEmail(
