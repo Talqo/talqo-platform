@@ -57,7 +57,7 @@ describe("POST /auth/register", () => {
 		).toBe(validRegistration.email)
 	})
 
-	it("returns 201 when a verified account already exists for the email (prevents enumeration)", async () => {
+	it("returns 409 when a verified account already exists for the email", async () => {
 		// Complete the full flow to create a CLIENT record
 		let capturedToken = ""
 		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
@@ -82,8 +82,10 @@ describe("POST /auth/register", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
-		expect(res.status).toBe(201)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(res.status).toBe(409)
+		const body = (await res.json()) as Record<string, unknown>
+		expect(body.success).toBe(false)
+		expect((body.error as { code: string }).code).toBe("EMAIL_TAKEN")
 	})
 
 	it("returns 400 for invalid email", async () => {
