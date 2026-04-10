@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2, Mail } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { RegisterInput } from "shared"
 import { useRegister, useResendVerificationEmail } from "@/api/hooks/useAuth"
 import { AuthFormField, AuthHeader } from "@/components/auth"
@@ -14,7 +14,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { useForm } from "@/lib/useForm"
 import { registerSchema } from "@/schemas"
 
@@ -46,7 +45,19 @@ function RegisterPage() {
 	const [showSuccess, setShowSuccess] = useState(false)
 	const [registeredEmail, setRegisteredEmail] = useState("")
 	const [resendSuccess, setResendSuccess] = useState(false)
-	const [showResendForm, setShowResendForm] = useState(false)
+	const [resendTimeout, setResendTimeout] = useState(0)
+	const [canResend, setCanResend] = useState(true)
+
+	useEffect(() => {
+		if (resendTimeout > 0) {
+			const timer = setTimeout(() => {
+				setResendTimeout((prev) => prev - 1)
+			}, 1000)
+			return () => clearTimeout(timer)
+		} else if (resendTimeout === 0 && !canResend) {
+			setCanResend(true)
+		}
+	}, [resendTimeout, canResend])
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<RegisterFormData>({
@@ -73,7 +84,9 @@ function RegisterPage() {
 		})
 
 	const handleResend = () => {
-		if (!registeredEmail) return
+		if (!registeredEmail || !canResend) return
+		setCanResend(false)
+		setResendTimeout(60) // 60 second cooldown
 		resendVerification.mutate(
 			{ email: registeredEmail },
 			{
@@ -105,46 +118,32 @@ function RegisterPage() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							{resendSuccess ? (
+							{resendSuccess && (
 								<Alert>
 									<AlertDescription>
-										If a pending registration exists, a verification email has
-										been sent.
+										Verification email sent. Please check your inbox.
 									</AlertDescription>
 								</Alert>
-							) : showResendForm ? (
-								<div className="flex gap-2">
-									<Input
-										type="email"
-										placeholder="Confirm your email"
-										value={registeredEmail}
-										readOnly
-										disabled={resendVerification.isPending}
-									/>
-									<Button
-										onClick={handleResend}
-										disabled={resendVerification.isPending}
-										variant="outline"
-									>
-										{resendVerification.isPending ? (
-											<Loader2 className="h-4 w-4 animate-spin" />
-										) : (
-											"Resend"
-										)}
-									</Button>
-								</div>
-							) : null}
+							)}
 						</CardContent>
 						<CardFooter className="flex flex-col gap-2">
-							{!showResendForm && (
-								<Button
-									variant="outline"
-									className="w-full"
-									onClick={() => setShowResendForm(true)}
-								>
-									Resend verification email
-								</Button>
-							)}
+							<Button
+								variant="outline"
+								className="w-full"
+								onClick={handleResend}
+								disabled={!canResend || resendVerification.isPending}
+							>
+								{resendVerification.isPending ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Sending...
+									</>
+								) : !canResend ? (
+									`Resend available in ${resendTimeout}s`
+								) : (
+									"Resend verification email"
+								)}
+							</Button>
 							<Button asChild className="w-full">
 								<Link to="/login">Go to login</Link>
 							</Button>

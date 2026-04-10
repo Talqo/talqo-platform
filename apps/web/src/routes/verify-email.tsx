@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react"
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { useResendVerificationEmail, useVerifyEmail } from "@/api/hooks/useAuth"
+import { useVerifyEmail } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,7 +11,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { AUTH } from "@/lib/constants"
 
 export const Route = createFileRoute("/verify-email")({
@@ -30,10 +29,7 @@ function VerifyEmailPage() {
 	const { token } = Route.useSearch()
 	const navigate = useNavigate()
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
-	const [resendEmail, setResendEmail] = useState("")
-	const [resendSuccess, setResendSuccess] = useState(false)
 	const verifyEmail = useVerifyEmail()
-	const resendVerification = useResendVerificationEmail()
 
 	useEffect(() => {
 		// Guard: only run when in loading state (prevents re-running after error/success)
@@ -48,9 +44,7 @@ function VerifyEmailPage() {
 			return
 		}
 
-		// Call verify endpoint - track that we're processing via state, not ref
-		let timeoutId: ReturnType<typeof setTimeout> | null = null
-
+		// Call verify endpoint
 		verifyEmail.mutate(
 			{ token },
 			{
@@ -59,7 +53,8 @@ function VerifyEmailPage() {
 					if (data.data.token) {
 						localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
 					}
-					timeoutId = setTimeout(() => {
+					// Navigate after 2 seconds
+					setTimeout(() => {
 						navigate({ to: "/dashboard" })
 					}, 2000)
 				},
@@ -82,25 +77,13 @@ function VerifyEmailPage() {
 				},
 			},
 		)
-
-		// Cleanup timeout on unmount
-		return () => {
-			if (timeoutId) clearTimeout(timeoutId)
-		}
-	}, [token, navigate, state.status, verifyEmail.mutate])
-
-	const handleResend = () => {
-		if (!resendEmail) return
-		resendVerification.mutate(
-			{ email: resendEmail },
-			{
-				onSuccess: () => {
-					setResendSuccess(true)
-					setResendEmail("")
-				},
-			},
-		)
-	}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		token,
+		navigate,
+		state.status, // Call verify endpoint
+		verifyEmail.mutate,
+	])
 
 	if (state.status === "loading") {
 		return (
@@ -144,12 +127,6 @@ function VerifyEmailPage() {
 		)
 	}
 
-	// Error state
-	const showResendForm =
-		state.code === "INVALID_TOKEN" ||
-		state.code === "TOKEN_EXPIRED" ||
-		state.code === "MISSING_TOKEN"
-
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
 			<Card className="w-full max-w-md">
@@ -164,43 +141,6 @@ function VerifyEmailPage() {
 					<Alert variant="destructive">
 						<AlertDescription>{state.message}</AlertDescription>
 					</Alert>
-
-					{showResendForm && (
-						<div className="space-y-3 rounded-lg border border-border p-4">
-							<div className="flex items-center gap-2 text-muted-foreground">
-								<Mail className="h-4 w-4" />
-								<span className="text-sm">Resend verification email</span>
-							</div>
-							{resendSuccess ? (
-								<Alert>
-									<AlertDescription>
-										If a pending registration exists, a verification email has
-										been sent.
-									</AlertDescription>
-								</Alert>
-							) : (
-								<div className="flex gap-2">
-									<Input
-										type="email"
-										placeholder="Enter your email"
-										value={resendEmail}
-										onChange={(e) => setResendEmail(e.target.value)}
-										disabled={resendVerification.isPending}
-									/>
-									<Button
-										onClick={handleResend}
-										disabled={!resendEmail || resendVerification.isPending}
-									>
-										{resendVerification.isPending ? (
-											<Loader2 className="h-4 w-4 animate-spin" />
-										) : (
-											"Send"
-										)}
-									</Button>
-								</div>
-							)}
-						</div>
-					)}
 
 					<div className="flex flex-col gap-2">
 						<Button asChild variant="outline" className="w-full">
