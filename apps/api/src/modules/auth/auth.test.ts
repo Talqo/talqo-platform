@@ -176,7 +176,7 @@ describe("GET /auth/verify-email", () => {
 		expect(res.status).toBe(400)
 	})
 
-	it("returns 400 when the same token is used twice", async () => {
+	it("returns 200 when the same token is used twice (idempotent)", async () => {
 		let capturedToken = ""
 		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
 			capturedToken = token
@@ -190,13 +190,30 @@ describe("GET /auth/verify-email", () => {
 			}),
 		)
 
-		await app.fetch(
+		const firstRes = await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
 		)
-		const res = await app.fetch(
+		expect(firstRes.status).toBe(200)
+		const firstBody = (await firstRes.json()) as {
+			success: boolean
+			data: { token: string }
+		}
+
+		// Second verification with same token should also succeed (idempotent)
+		const secondRes = await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
 		)
-		expect(res.status).toBe(400)
+		expect(secondRes.status).toBe(200)
+		const secondBody = (await secondRes.json()) as {
+			success: boolean
+			data: { token: string }
+		}
+
+		// Both should return valid JWT tokens
+		expect(firstBody.success).toBe(true)
+		expect(secondBody.success).toBe(true)
+		expect(typeof firstBody.data.token).toBe("string")
+		expect(typeof secondBody.data.token).toBe("string")
 	})
 })
 

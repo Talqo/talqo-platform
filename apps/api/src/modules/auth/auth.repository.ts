@@ -35,6 +35,8 @@ export interface IAuthRepository {
 	findPendingByName(name: string): Promise<PendingRegistration | null>
 	// Find pending registration by email (case-insensitive)
 	findPendingByEmail(email: string): Promise<PendingRegistration | null>
+	// Find pending registration by token
+	findPendingByToken(token: string): Promise<PendingRegistration | null>
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>
@@ -91,6 +93,10 @@ export class InMemoryAuthRepository implements IAuthRepository {
 			if (pending.email === canonical) return pending
 		}
 		return null
+	}
+
+	async findPendingByToken(token: string): Promise<PendingRegistration | null> {
+		return this.pendingRegistrations.get(token) ?? null
 	}
 
 	async createClient(
@@ -212,6 +218,14 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			.select()
 			.from(pendingRegistrations)
 			.where(sql`LOWER(${pendingRegistrations.email}) = ${canonical}`)
+		return rows[0] ?? null
+	}
+
+	async findPendingByToken(token: string): Promise<PendingRegistration | null> {
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(eq(pendingRegistrations.token, token))
 		return rows[0] ?? null
 	}
 

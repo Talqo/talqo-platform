@@ -1,5 +1,6 @@
 import { sendVerificationEmail } from "../../common/email/email.service"
 import { signToken } from "../../common/jwt"
+import { logger } from "../../common/logger"
 import type { IAuthRepository } from "./auth.repository"
 
 export class AuthService {
@@ -32,13 +33,15 @@ export class AuthService {
 			expiresAt,
 		})
 
+		logger.info("Sending verification email", { email: canonical, token })
 		await sendVerificationEmail(canonical, token)
 	}
 
 	async verifyEmail(token: string): Promise<string> {
 		try {
 			// consumePendingRegistration atomically validates the token, creates the
-			// Client, and removes the pending registration in one repo transaction.
+			// Client, and marks the pending registration as consumed in one repo transaction.
+			// If already consumed, returns the existing client (idempotent - handles StrictMode double-mount).
 			const client = await this.repo.consumePendingRegistration(token)
 
 			// Update last active timestamp
@@ -50,9 +53,28 @@ export class AuthService {
 				role: "client",
 			})
 		} catch (err) {
-			// EMAIL_TAKEN means a client with this email was already created
-			// (e.g., a concurrent verify succeeded first).
+			// EMAIL_TAKEN means a client with this email was already created by a concurrent request.
+			// The token may now be marked as consumed. Retry once to get the client.
 			if (err instanceof Error && err.message === "EMAIL_TAKEN") {
+				// Small delay to let the concurrent transaction complete
+				await new Promise((resolve) => setTimeout(resolve, 50))
+
+				// Try to find the client that was just created by checking the consumed token
+				const pending = await this.repo.findPendingByToken(token)
+				if (pending?.consumedByClientId) {
+					const client = await this.repo.findClientById(
+						pending.consumedByClientId,
+					)
+					if (client) {
+						await this.repo.updateLastActive(client.id)
+						return signToken({
+							sub: client.id,
+							role: "client",
+						})
+					}
+				}
+
+				// If we can't find the client, the email really is taken by someone else
 				throw new Error("EMAIL_ALREADY_VERIFIED")
 			}
 			throw err
@@ -85,6 +107,9 @@ export class AuthService {
 		const existing = await this.repo.findClientByEmail(canonical)
 		if (existing) {
 			// Don't reveal that email is registered - return silently
+			logger.info("Resend skipped - email already registered", {
+				email: canonical,
+			})
 			return
 		}
 
@@ -92,16 +117,24 @@ export class AuthService {
 		const pending = await this.repo.findPendingByEmail(canonical)
 		if (!pending) {
 			// No pending registration found - don't reveal this
+			logger.info("Resend skipped - no pending registration", {
+				email: canonical,
+			})
 			return
 		}
 
 		// Check if expired
 		if (pending.expiresAt < new Date()) {
 			// Token expired - don't reveal this
+			logger.info("Resend skipped - token expired", { email: canonical })
 			return
 		}
 
 		// Resend email with existing token
+		logger.info("Resending verification email", {
+			email: canonical,
+			token: pending.token,
+		})
 		await sendVerificationEmail(canonical, pending.token)
 	}
 }
