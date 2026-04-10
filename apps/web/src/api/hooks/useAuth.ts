@@ -185,6 +185,19 @@ export function useCurrentUser() {
 	})
 }
 
+// Get current admin (for admin dashboard)
+export function useCurrentAdmin() {
+	return useQuery({
+		queryKey: ["admin", "me"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/me")
+			if (error) throw error
+			return data
+		},
+		enabled: !!localStorage.getItem(AUTH.ADMIN_TOKEN_KEY),
+	})
+}
+
 // Unified login hook that tries client first, then admin
 // Only exposes error after both attempts fail
 export function useUnifiedLogin() {

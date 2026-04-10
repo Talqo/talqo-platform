@@ -1,5 +1,5 @@
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
-import { useCurrentUser } from "@/api/hooks/useAuth"
+import { useCurrentAdmin } from "@/api/hooks/useAuth"
 import { DashboardLayout } from "@/components/layout"
 
 export const Route = createFileRoute("/backoffice")({
@@ -7,7 +7,7 @@ export const Route = createFileRoute("/backoffice")({
 })
 
 function BackofficeLayout() {
-	const { data: user, isLoading } = useCurrentUser()
+	const { data: admin, isLoading } = useCurrentAdmin()
 
 	if (isLoading) {
 		return (
@@ -17,12 +17,11 @@ function BackofficeLayout() {
 		)
 	}
 
-	// Redirect to login if not authenticated
-	if (!user) {
+	// Redirect to login if not authenticated as admin
+	if (!admin) {
 		return <Navigate to="/login" />
 	}
 
-	// TODO: Check if user is admin - for now just render
 	return (
 		<DashboardLayout>
 			<Outlet />
