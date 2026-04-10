@@ -47,19 +47,6 @@ export function createAuthRouter(
 			try {
 				await service.register(name, email, password)
 			} catch (err) {
-				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
-					c.get("logger").warn("Registration attempted with taken email")
-					return c.json(
-						{
-							success: false as const,
-							error: {
-								code: "EMAIL_TAKEN",
-								message: "This email is already registered",
-							},
-						},
-						409,
-					)
-				}
 				if (err instanceof Error && err.message === "NAME_TAKEN") {
 					c.get("logger").warn("Registration attempted with taken name")
 					return c.json(

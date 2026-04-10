@@ -126,12 +126,13 @@ function VerifyEmailPage() {
 						</div>
 						<CardTitle className="text-2xl">Email verified!</CardTitle>
 						<CardDescription>
-							Your email has been verified successfully. Redirecting to login...
+							Your email has been verified successfully. Redirecting to
+							dashboard...
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<Button asChild className="w-full">
-							<Link to="/login">Go to login</Link>
+							<Link to="/dashboard">Go to dashboard</Link>
 						</Button>
 					</CardContent>
 				</Card>

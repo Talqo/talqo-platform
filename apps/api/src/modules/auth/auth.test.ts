@@ -318,3 +318,95 @@ describe("POST /auth/login", () => {
 		expect(res.status).toBe(400)
 	})
 })
+
+describe("POST /auth/resend-verification", () => {
+	let app: ReturnType<typeof buildApp>
+
+	beforeEach(() => {
+		app = buildApp()
+		mockSendVerificationEmail.mockClear()
+	})
+
+	it("returns 200 and resends verification email for pending registration", async () => {
+		// Register but don't verify
+		mockSendVerificationEmail.mockImplementationOnce(async () => {})
+		await app.fetch(
+			new Request("http://localhost/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+
+		// Request resend
+		const res = await app.fetch(
+			new Request("http://localhost/auth/resend-verification", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+
+		expect(res.status).toBe(200)
+		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(mockSendVerificationEmail).toHaveBeenCalledTimes(2) // Once for register, once for resend
+	})
+
+	it("returns 200 even if email is already verified (prevents enumeration)", async () => {
+		// Register and verify first
+		let capturedToken = ""
+		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
+			capturedToken = token
+		})
+		await app.fetch(
+			new Request("http://localhost/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+		await app.fetch(
+			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+		)
+		mockSendVerificationEmail.mockClear()
+
+		// Try to resend
+		const res = await app.fetch(
+			new Request("http://localhost/auth/resend-verification", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+
+		expect(res.status).toBe(200)
+		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(mockSendVerificationEmail).not.toHaveBeenCalled() // No email sent for verified accounts
+	})
+
+	it("returns 200 even if email has no pending registration (prevents enumeration)", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/resend-verification", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "nonexistent@example.com" }),
+			}),
+		)
+
+		expect(res.status).toBe(200)
+		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(mockSendVerificationEmail).not.toHaveBeenCalled()
+	})
+
+	it("returns 400 for invalid email format", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/resend-verification", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "not-an-email" }),
+			}),
+		)
+
+		expect(res.status).toBe(400)
+	})
+})
