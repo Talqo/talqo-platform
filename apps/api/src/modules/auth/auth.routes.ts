@@ -246,7 +246,15 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { email } = c.req.valid("json")
-			await service.resendVerificationEmail(email)
+			try {
+				await service.resendVerificationEmail(email)
+			} catch (err) {
+				// Log error but still return success to prevent user enumeration
+				c.get("logger").error("Failed to resend verification email", {
+					email,
+					error: err instanceof Error ? err.message : String(err),
+				})
+			}
 			// Always return success to prevent user enumeration
 			return c.json(
 				{

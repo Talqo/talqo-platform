@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
+import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { useVerifyEmail } from "@/api/hooks/useAuth"
+import { useResendVerificationEmail, useVerifyEmail } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,6 +11,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { AUTH } from "@/lib/constants"
 
 export const Route = createFileRoute("/verify-email")({
@@ -29,8 +31,38 @@ function VerifyEmailPage() {
 	const { token } = Route.useSearch()
 	const navigate = useNavigate()
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
+	const [resendEmail, setResendEmail] = useState("")
+	const [resendSuccess, setResendSuccess] = useState(false)
+	const [resendTimeout, setResendTimeout] = useState(0)
+	const [canResend, setCanResend] = useState(true)
 	const verifyEmail = useVerifyEmail()
+	const resendVerification = useResendVerificationEmail()
 	const processedRef = useRef(false)
+
+	useEffect(() => {
+		if (resendTimeout > 0) {
+			const timer = setTimeout(() => {
+				setResendTimeout((prev) => prev - 1)
+			}, 1000)
+			return () => clearTimeout(timer)
+		} else if (resendTimeout === 0 && !canResend) {
+			setCanResend(true)
+		}
+	}, [resendTimeout, canResend])
+
+	const handleResend = () => {
+		if (!resendEmail || !canResend) return
+		setCanResend(false)
+		setResendTimeout(60)
+		resendVerification.mutate(
+			{ email: resendEmail },
+			{
+				onSuccess: () => {
+					setResendSuccess(true)
+				},
+			},
+		)
+	}
 
 	useEffect(() => {
 		// Guard: only run once (prevents StrictMode double execution)
@@ -138,6 +170,57 @@ function VerifyEmailPage() {
 					<Alert variant="destructive">
 						<AlertDescription>{state.message}</AlertDescription>
 					</Alert>
+
+					{/* Resend verification section */}
+					<div className="rounded-lg border bg-card p-4 space-y-3">
+						<div className="flex items-center gap-2">
+							<Mail className="h-4 w-4 text-muted-foreground" />
+							<h3 className="text-sm font-medium">
+								Need a new verification link?
+							</h3>
+						</div>
+						{resendSuccess ? (
+							<Alert>
+								<AlertDescription>
+									Verification email sent. Please check your inbox.
+								</AlertDescription>
+							</Alert>
+						) : (
+							<>
+								<div className="space-y-2">
+									<Label htmlFor="resend-email" className="text-xs">
+										Email address
+									</Label>
+									<Input
+										id="resend-email"
+										type="email"
+										placeholder="Enter your email"
+										value={resendEmail}
+										onChange={(e) => setResendEmail(e.target.value)}
+									/>
+								</div>
+								<Button
+									variant="outline"
+									className="w-full"
+									onClick={handleResend}
+									disabled={
+										!canResend || resendVerification.isPending || !resendEmail
+									}
+								>
+									{resendVerification.isPending ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Sending...
+										</>
+									) : !canResend ? (
+										`Resend available in ${resendTimeout}s`
+									) : (
+										"Resend verification email"
+									)}
+								</Button>
+							</>
+						)}
+					</div>
 
 					<div className="flex flex-col gap-2">
 						<Button asChild variant="outline" className="w-full">

@@ -14,6 +14,8 @@ export const pendingRegistrations = pgTable("pending_registrations", {
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
 	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+	consumedAt: timestamp("consumed_at", { withTimezone: true }),
+	consumedByClientId: uuid("consumed_by_client_id"),
 })
 
 export const clients = pgTable("clients", {
