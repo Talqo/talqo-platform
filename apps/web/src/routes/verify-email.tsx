@@ -79,10 +79,12 @@ function VerifyEmailPage() {
 		}
 
 		// Call verify endpoint
+		console.log("[VerifyEmail] Starting verification with token:", token)
 		verifyEmail.mutate(
 			{ token },
 			{
 				onSuccess: (data) => {
+					console.log("[VerifyEmail] Verification successful")
 					setState({ status: "success" })
 					if (data.data.token) {
 						localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
@@ -95,6 +97,7 @@ function VerifyEmailPage() {
 				onError: (error) => {
 					const code = error.error?.code || "UNKNOWN_ERROR"
 					let message = "Verification failed. Please try again."
+					console.log("[VerifyEmail] Verification failed:", code, message)
 
 					if (code === "INVALID_TOKEN") {
 						message =
@@ -111,8 +114,10 @@ function VerifyEmailPage() {
 				},
 			},
 		)
+		// Only run when token changes (on initial load with token from URL)
+		// navigate and verifyEmail are stable references from TanStack Router/Query
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [token, navigate, verifyEmail.mutate])
+	}, [token])
 
 	if (state.status === "loading") {
 		return (
@@ -172,10 +177,10 @@ function VerifyEmailPage() {
 					</Alert>
 
 					{/* Resend verification section */}
-					<div className="rounded-lg border bg-card p-4 space-y-3">
+					<div className="space-y-3 rounded-lg border bg-card p-4">
 						<div className="flex items-center gap-2">
 							<Mail className="h-4 w-4 text-muted-foreground" />
-							<h3 className="text-sm font-medium">
+							<h3 className="font-medium text-sm">
 								Need a new verification link?
 							</h3>
 						</div>
