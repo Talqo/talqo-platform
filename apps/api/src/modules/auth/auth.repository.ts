@@ -22,6 +22,8 @@ export type PendingRegistration = {
 	email: string
 	passwordHash: string
 	expiresAt: Date
+	consumedAt?: Date | null
+	consumedByClientId?: string | null
 }
 
 export interface IAuthRepository {
@@ -127,12 +129,18 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		this.pendingRegistrations.set(record.token, record)
 	}
 
-	// Single-threaded: no await points between the get, createClient, and delete,
-	// so the whole sequence is effectively atomic for this in-memory implementation.
 	async consumePendingRegistration(token: string): Promise<Client> {
 		const record = this.pendingRegistrations.get(token)
 		if (!record) throw new Error("INVALID_TOKEN")
 		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+
+		// If already consumed, return the existing client (idempotent)
+		if (record.consumedAt && record.consumedByClientId) {
+			const existingClient = this.clients.get(record.consumedByClientId)
+			if (existingClient) return existingClient
+			// If client somehow missing, continue to recreate
+		}
+
 		// createClient throws EMAIL_TAKEN on duplicate; the token stays intact so
 		// the caller can detect the conflict and retry or surface an error.
 		const client = await this.createClient({
@@ -140,8 +148,12 @@ export class InMemoryAuthRepository implements IAuthRepository {
 			email: record.email,
 			passwordHash: record.passwordHash,
 		})
-		// Delete only after successful creation to preserve retry-safety.
-		this.pendingRegistrations.delete(token)
+
+		// Mark as consumed instead of deleting (preserves token for idempotency)
+		record.consumedAt = new Date()
+		record.consumedByClientId = client.id
+		this.pendingRegistrations.set(token, record)
+
 		return client
 	}
 }
