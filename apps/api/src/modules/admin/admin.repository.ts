@@ -1,7 +1,7 @@
-import { count, eq, sum } from "drizzle-orm"
+import { and, count, eq, sum } from "drizzle-orm"
 import type { DB } from "../../db"
 import {
-	activeAdminUsers,
+	adminUsers,
 	clients,
 	conversations,
 	usageRecords,
@@ -13,16 +13,16 @@ export class AdminRepository {
 	async findAdminByEmail(email: string) {
 		return this.db
 			.select()
-			.from(activeAdminUsers)
-			.where(eq(activeAdminUsers.email, email))
+			.from(adminUsers)
+			.where(and(eq(adminUsers.email, email), eq(adminUsers.isDeleted, false)))
 			.then((rows) => rows.at(0) ?? null)
 	}
 
 	async findAdminById(id: string) {
 		return this.db
 			.select()
-			.from(activeAdminUsers)
-			.where(eq(activeAdminUsers.id, id))
+			.from(adminUsers)
+			.where(and(eq(adminUsers.id, id), eq(adminUsers.isDeleted, false)))
 			.then((rows) => rows.at(0) ?? null)
 	}
 

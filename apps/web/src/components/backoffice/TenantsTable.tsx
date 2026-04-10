@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import type { Tenant } from "@/data/backoffice"
 
 interface TenantsTableProps {
-	tenants: Tenant[]
+	tenants?: Tenant[]
 }
 
 export function TenantsTable({ tenants }: TenantsTableProps) {
@@ -32,7 +32,7 @@ export function TenantsTable({ tenants }: TenantsTableProps) {
 						</tr>
 					</thead>
 					<tbody>
-						{tenants.map((tenant) => (
+						{(tenants ?? []).map((tenant) => (
 							<tr
 								key={tenant.id}
 								className="border-zinc-200 border-b bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"

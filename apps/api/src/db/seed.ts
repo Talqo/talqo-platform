@@ -99,7 +99,10 @@ async function seed() {
 			email: "admin@pagepal.dev",
 			passwordHash: await Bun.password.hash("admin123"),
 		})
-		.onConflictDoNothing()
+		.onConflictDoUpdate({
+			target: adminUsers.id,
+			set: { passwordHash: await Bun.password.hash("admin123") },
+		})
 	console.log("  ✓ admin users")
 
 	// ── Clients ────────────────────────────────────────────────────────────────

@@ -1,12 +1,12 @@
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
 import { useCurrentAdmin } from "@/api/hooks/useAuth"
-import { DashboardLayout } from "@/components/layout"
+import { BackofficeLayout } from "@/components/layout"
 
 export const Route = createFileRoute("/backoffice")({
-	component: BackofficeLayout,
+	component: BackofficeRoute,
 })
 
-function BackofficeLayout() {
+function BackofficeRoute() {
 	const { data: admin, isLoading } = useCurrentAdmin()
 
 	if (isLoading) {
@@ -23,8 +23,8 @@ function BackofficeLayout() {
 	}
 
 	return (
-		<DashboardLayout>
+		<BackofficeLayout>
 			<Outlet />
-		</DashboardLayout>
+		</BackofficeLayout>
 	)
 }

@@ -50,6 +50,13 @@
 			"when": 1775826756973,
 			"tag": "0006_happy_penance",
 			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "7",
+			"when": 1744291200000,
+			"tag": "0007_add_admin_soft_delete",
+			"breakpoints": true
 		}
 	]
 }

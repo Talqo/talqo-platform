@@ -25,6 +25,8 @@ type AdminUser = {
 	email: string
 	passwordHash: string
 	createdAt: Date
+	isDeleted: boolean
+	deletedAt: Date | null
 }
 
 type ClientRecord = {
@@ -94,6 +96,8 @@ class InMemoryAdminRepository
 			email,
 			passwordHash,
 			createdAt: new Date(),
+			isDeleted: false,
+			deletedAt: null,
 		}
 		this.admins.set(admin.id, admin)
 		return admin
