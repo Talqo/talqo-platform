@@ -40,6 +40,10 @@ export function createAuthRouter(
 					description: "Email or name already taken",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
+				500: {
+					description: "Failed to send verification email",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 			},
 		}),
 		async (c) => {
@@ -60,12 +64,37 @@ export function createAuthRouter(
 						409,
 					)
 				}
-				// Log other errors but still return success to avoid exposing email issues
+				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
+					c.get("logger").warn("Registration attempted with taken email", {
+						email,
+					})
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "EMAIL_TAKEN",
+								message: "This email is already registered",
+							},
+						},
+						409,
+					)
+				}
+				// Re-throw email errors so user knows registration failed
 				if (err instanceof Error) {
 					c.get("logger").error("Registration error", {
 						error: err.message,
 						email,
 					})
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "EMAIL_FAILED",
+								message: `Failed to send verification email: ${err.message}`,
+							},
+						},
+						500,
+					)
 				}
 			}
 			return c.json(
