@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useResendVerificationEmail, useVerifyEmail } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -29,7 +29,6 @@ type VerificationState =
 function VerifyEmailPage() {
 	const { token } = Route.useSearch()
 	const navigate = useNavigate()
-	const hasProcessed = useRef(false)
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
 	const [resendEmail, setResendEmail] = useState("")
 	const [resendSuccess, setResendSuccess] = useState(false)
@@ -37,11 +36,10 @@ function VerifyEmailPage() {
 	const resendVerification = useResendVerificationEmail()
 
 	useEffect(() => {
-		// Prevent re-processing on React StrictMode re-mounts
-		if (hasProcessed.current) return
+		// Guard: only run when in loading state (prevents re-running after error/success)
+		if (state.status !== "loading") return
 
 		if (!token) {
-			hasProcessed.current = true
 			setState({
 				status: "error",
 				code: "MISSING_TOKEN",
@@ -50,18 +48,18 @@ function VerifyEmailPage() {
 			return
 		}
 
-		// Call verify endpoint
-		hasProcessed.current = true
+		// Call verify endpoint - track that we're processing via state, not ref
+		let timeoutId: ReturnType<typeof setTimeout> | null = null
+
 		verifyEmail.mutate(
 			{ token },
 			{
 				onSuccess: (data) => {
 					setState({ status: "success" })
-					// Store JWT token and redirect to dashboard after 2 seconds
 					if (data.data.token) {
 						localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
 					}
-					setTimeout(() => {
+					timeoutId = setTimeout(() => {
 						navigate({ to: "/dashboard" })
 					}, 2000)
 				},
@@ -84,7 +82,12 @@ function VerifyEmailPage() {
 				},
 			},
 		)
-	}, [token, navigate, verifyEmail.mutate])
+
+		// Cleanup timeout on unmount
+		return () => {
+			if (timeoutId) clearTimeout(timeoutId)
+		}
+	}, [token, navigate, state.status, verifyEmail.mutate])
 
 	const handleResend = () => {
 		if (!resendEmail) return

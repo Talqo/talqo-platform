@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2, Mail } from "lucide-react"
 import { useState } from "react"
 import type { RegisterInput } from "shared"
-import { useRegister } from "@/api/hooks/useAuth"
+import { useRegister, useResendVerificationEmail } from "@/api/hooks/useAuth"
 import { AuthFormField, AuthHeader } from "@/components/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { useForm } from "@/lib/useForm"
 import { registerSchema } from "@/schemas"
 
@@ -41,8 +42,11 @@ function validateRegisterForm(values: RegisterFormData) {
 
 function RegisterPage() {
 	const register = useRegister()
+	const resendVerification = useResendVerificationEmail()
 	const [showSuccess, setShowSuccess] = useState(false)
 	const [registeredEmail, setRegisteredEmail] = useState("")
+	const [resendSuccess, setResendSuccess] = useState(false)
+	const [showResendForm, setShowResendForm] = useState(false)
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<RegisterFormData>({
@@ -68,6 +72,18 @@ function RegisterPage() {
 			},
 		})
 
+	const handleResend = () => {
+		if (!registeredEmail) return
+		resendVerification.mutate(
+			{ email: registeredEmail },
+			{
+				onSuccess: () => {
+					setResendSuccess(true)
+				},
+			},
+		)
+	}
+
 	// Success state - show confirmation
 	if (showSuccess) {
 		return (
@@ -88,7 +104,47 @@ function RegisterPage() {
 								. Click it to activate your account.
 							</CardDescription>
 						</CardHeader>
+						<CardContent className="space-y-4">
+							{resendSuccess ? (
+								<Alert>
+									<AlertDescription>
+										If a pending registration exists, a verification email has
+										been sent.
+									</AlertDescription>
+								</Alert>
+							) : showResendForm ? (
+								<div className="flex gap-2">
+									<Input
+										type="email"
+										placeholder="Confirm your email"
+										value={registeredEmail}
+										readOnly
+										disabled={resendVerification.isPending}
+									/>
+									<Button
+										onClick={handleResend}
+										disabled={resendVerification.isPending}
+										variant="outline"
+									>
+										{resendVerification.isPending ? (
+											<Loader2 className="h-4 w-4 animate-spin" />
+										) : (
+											"Resend"
+										)}
+									</Button>
+								</div>
+							) : null}
+						</CardContent>
 						<CardFooter className="flex flex-col gap-2">
+							{!showResendForm && (
+								<Button
+									variant="outline"
+									className="w-full"
+									onClick={() => setShowResendForm(true)}
+								>
+									Resend verification email
+								</Button>
+							)}
 							<Button asChild className="w-full">
 								<Link to="/login">Go to login</Link>
 							</Button>
