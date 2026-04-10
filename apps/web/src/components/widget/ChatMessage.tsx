@@ -1,10 +1,10 @@
-import type { Message } from "widget";
-import { WidgetMessage } from "widget";
-import { cn } from "@/lib/utils";
+import type { Message } from "widget"
+import { WidgetMessage } from "widget"
+import { cn } from "@/lib/utils"
 
 interface ChatMessageProps {
-	message: Message;
-	isDark: boolean;
+	message: Message
+	isDark: boolean
 }
 
 export function ChatMessage({ message, isDark }: ChatMessageProps) {
@@ -29,5 +29,5 @@ export function ChatMessage({ message, isDark }: ChatMessageProps) {
 				{message.content}
 			</div>
 		</WidgetMessage>
-	);
+	)
 }

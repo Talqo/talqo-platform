@@ -1,23 +1,23 @@
-import { ForbiddenError, NotFoundError } from "../../common/errors";
-import type { WidgetRepository } from "./widget.repository";
+import { ForbiddenError, NotFoundError } from "../../common/errors"
+import type { WidgetRepository } from "./widget.repository"
 
 export class WidgetService {
 	constructor(private readonly repo: WidgetRepository) {}
 
 	async createOrResumeSession(clientId: string, browserSessionId: string) {
-		return this.repo.findOrCreateSession(clientId, browserSessionId);
+		return this.repo.findOrCreateSession(clientId, browserSessionId)
 	}
 
 	async startConversation(clientId: string, sessionId: string) {
-		const session = await this.repo.getSession(sessionId, clientId);
-		if (!session) throw new NotFoundError("Session not found");
-		return this.repo.createConversation(sessionId, clientId);
+		const session = await this.repo.getSession(sessionId, clientId)
+		if (!session) throw new NotFoundError("Session not found")
+		return this.repo.createConversation(sessionId, clientId)
 	}
 
 	async getMessageHistory(clientId: string, conversationId: string) {
-		const msgs = await this.repo.getMessages(conversationId, clientId);
-		if (msgs === null) throw new NotFoundError("Conversation not found");
-		return msgs;
+		const msgs = await this.repo.getMessages(conversationId, clientId)
+		if (msgs === null) throw new NotFoundError("Conversation not found")
+		return msgs
 	}
 
 	/**
@@ -30,38 +30,35 @@ export class WidgetService {
 		conversationId: string,
 		content: string,
 	): Promise<{
-		userMessage: Awaited<ReturnType<WidgetRepository["createMessage"]>>;
-		assistantMessage: Awaited<ReturnType<WidgetRepository["createMessage"]>>;
+		userMessage: Awaited<ReturnType<WidgetRepository["createMessage"]>>
+		assistantMessage: Awaited<ReturnType<WidgetRepository["createMessage"]>>
 	}> {
 		const conversation = await this.repo.getConversation(
 			conversationId,
 			clientId,
-		);
-		if (!conversation) throw new NotFoundError("Conversation not found");
+		)
+		if (!conversation) throw new NotFoundError("Conversation not found")
 
 		const userMessage = await this.repo.createMessage(
 			conversationId,
 			"user",
 			content,
-		);
+		)
 
 		// Placeholder response — LLM integration will replace this
-		const assistantContent = "[LLM response not yet implemented]";
+		const assistantContent = "[LLM response not yet implemented]"
 		const assistantMessage = await this.repo.createMessage(
 			conversationId,
 			"assistant",
 			assistantContent,
-		);
+		)
 
-		return { userMessage, assistantMessage };
+		return { userMessage, assistantMessage }
 	}
 
 	async resetConversation(clientId: string, conversationId: string) {
-		const deleted = await this.repo.deleteConversation(
-			conversationId,
-			clientId,
-		);
-		if (!deleted) throw new NotFoundError("Conversation not found");
+		const deleted = await this.repo.deleteConversation(conversationId, clientId)
+		if (!deleted) throw new NotFoundError("Conversation not found")
 	}
 
 	async rateConversation(
@@ -70,14 +67,14 @@ export class WidgetService {
 		rating: number,
 	) {
 		if (rating < 1 || rating > 5) {
-			throw new ForbiddenError("Rating must be between 1 and 5");
+			throw new ForbiddenError("Rating must be between 1 and 5")
 		}
 		const updated = await this.repo.rateConversation(
 			conversationId,
 			clientId,
 			rating,
-		);
-		if (!updated) throw new NotFoundError("Conversation not found");
-		return updated;
+		)
+		if (!updated) throw new NotFoundError("Conversation not found")
+		return updated
 	}
 }

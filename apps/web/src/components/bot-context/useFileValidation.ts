@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback } from "react"
 
 // Common text file extensions that browsers might not identify correctly
 const COMMON_TEXT_EXTENSIONS = new Set([
@@ -67,7 +67,7 @@ const COMMON_TEXT_EXTENSIONS = new Set([
 	".fsx",
 	".ml",
 	".mli",
-]);
+])
 
 // Binary file extensions to reject (common non-text files)
 const BINARY_EXTENSIONS = new Set([
@@ -109,42 +109,42 @@ const BINARY_EXTENSIONS = new Set([
 	".eot",
 	".ico",
 	".icns",
-]);
+])
 
 function getExtension(filename: string): string {
-	const lastDot = filename.lastIndexOf(".");
-	return lastDot > 0 ? filename.slice(lastDot).toLowerCase() : "";
+	const lastDot = filename.lastIndexOf(".")
+	return lastDot > 0 ? filename.slice(lastDot).toLowerCase() : ""
 }
 
 export function useFileValidation() {
 	const isTextFile = useCallback((file: File): boolean => {
 		// Trust browser MIME type detection for text files
-		if (file.type.startsWith("text/")) return true;
+		if (file.type.startsWith("text/")) return true
 
 		// Allow specific code/markup types
-		if (file.type.includes("json")) return true;
-		if (file.type.includes("javascript")) return true;
-		if (file.type.includes("typescript")) return true;
-		if (file.type.includes("xml")) return true;
-		if (file.type === "application/graphql") return true;
+		if (file.type.includes("json")) return true
+		if (file.type.includes("javascript")) return true
+		if (file.type.includes("typescript")) return true
+		if (file.type.includes("xml")) return true
+		if (file.type === "application/graphql") return true
 
-		const ext = getExtension(file.name);
+		const ext = getExtension(file.name)
 
 		// Reject known binary extensions
-		if (BINARY_EXTENSIONS.has(ext)) return false;
-		if (ext === "") return false; // Files without extension
+		if (BINARY_EXTENSIONS.has(ext)) return false
+		if (ext === "") return false // Files without extension
 
 		// Accept common text/code extensions
-		if (COMMON_TEXT_EXTENSIONS.has(ext)) return true;
+		if (COMMON_TEXT_EXTENSIONS.has(ext)) return true
 
 		// Accept unknown extensions (let FileReader try)
 		// Most legitimate text files will be caught above
-		return true;
-	}, []);
+		return true
+	}, [])
 
 	const getFileExtension = useCallback((filename: string): string => {
-		return getExtension(filename);
-	}, []);
+		return getExtension(filename)
+	}, [])
 
-	return { isTextFile, getFileExtension };
+	return { isTextFile, getFileExtension }
 }

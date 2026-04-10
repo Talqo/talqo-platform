@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader2, Mail } from "lucide-react";
-import { useState } from "react";
-import type { RegisterInput } from "shared";
-import { useRegister } from "@/api/hooks/useAuth";
-import { AuthFormField, AuthHeader } from "@/components/auth";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { Loader2, Mail } from "lucide-react"
+import { useState } from "react"
+import type { RegisterInput } from "shared"
+import { useRegister } from "@/api/hooks/useAuth"
+import { AuthFormField, AuthHeader } from "@/components/auth"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
 	Card,
 	CardContent,
@@ -13,36 +13,36 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { useForm } from "@/lib/useForm";
-import { registerSchema } from "@/schemas";
+} from "@/components/ui/card"
+import { useForm } from "@/lib/useForm"
+import { registerSchema } from "@/schemas"
 
 export const Route = createFileRoute("/register")({
 	component: RegisterPage,
-});
+})
 
 interface RegisterFormData extends Record<string, string>, RegisterInput {
-	confirmPassword: string;
+	confirmPassword: string
 }
 
 function validateRegisterForm(values: RegisterFormData) {
-	const result = registerSchema.safeParse(values);
-	if (result.success) return {};
+	const result = registerSchema.safeParse(values)
+	if (result.success) return {}
 
-	const errors: Partial<Record<keyof RegisterFormData, string>> = {};
+	const errors: Partial<Record<keyof RegisterFormData, string>> = {}
 	for (const issue of result.error.issues) {
-		const path = issue.path[0] as keyof RegisterFormData;
+		const path = issue.path[0] as keyof RegisterFormData
 		if (!errors[path]) {
-			errors[path] = issue.message;
+			errors[path] = issue.message
 		}
 	}
-	return errors;
+	return errors
 }
 
 function RegisterPage() {
-	const register = useRegister();
-	const [showSuccess, setShowSuccess] = useState(false);
-	const [registeredEmail, setRegisteredEmail] = useState("");
+	const register = useRegister()
+	const [showSuccess, setShowSuccess] = useState(false)
+	const [registeredEmail, setRegisteredEmail] = useState("")
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
 		useForm<RegisterFormData>({
@@ -50,7 +50,7 @@ function RegisterPage() {
 			validate: validateRegisterForm,
 			onSubmit: async () => {
 				// Guard against concurrent submissions
-				if (register.isPending) return;
+				if (register.isPending) return
 				register.mutate(
 					{
 						name: values.name,
@@ -59,14 +59,14 @@ function RegisterPage() {
 					},
 					{
 						onSuccess: () => {
-							setRegisteredEmail(values.email);
-							setShowSuccess(true);
+							setRegisteredEmail(values.email)
+							setShowSuccess(true)
 						},
 						// Error handling is done via register.error
 					},
-				);
+				)
 			},
-		});
+		})
 
 	// Success state - show confirmation
 	if (showSuccess) {
@@ -99,7 +99,7 @@ function RegisterPage() {
 					</Card>
 				</div>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -210,5 +210,5 @@ function RegisterPage() {
 				</Card>
 			</div>
 		</div>
-	);
+	)
 }

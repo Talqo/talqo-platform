@@ -1,18 +1,18 @@
-import { AlertCircle, X } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, X } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export interface UploadError {
-	fileName: string;
-	reason: "duplicate" | "invalid";
+	fileName: string
+	reason: "duplicate" | "invalid"
 }
 
 interface UploadErrorAlertProps {
-	errors: UploadError[];
-	onDismiss: () => void;
+	errors: UploadError[]
+	onDismiss: () => void
 }
 
 export function UploadErrorAlert({ errors, onDismiss }: UploadErrorAlertProps) {
-	if (errors.length === 0) return null;
+	if (errors.length === 0) return null
 
 	return (
 		<Alert
@@ -46,5 +46,5 @@ export function UploadErrorAlert({ errors, onDismiss }: UploadErrorAlertProps) {
 				<X size={16} />
 			</button>
 		</Alert>
-	);
+	)
 }

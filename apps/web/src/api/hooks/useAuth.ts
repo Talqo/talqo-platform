@@ -1,56 +1,56 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useRef, useState } from "react";
-import { AUTH } from "@/lib/constants";
-import { client } from "../client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback, useRef, useState } from "react"
+import { AUTH } from "@/lib/constants"
+import { client } from "../client"
 
 // Types from OpenAPI spec
 interface LoginRequest {
-	email: string;
-	password: string;
+	email: string
+	password: string
 }
 
 interface RegisterRequest {
-	name: string;
-	email: string;
-	password: string;
+	name: string
+	email: string
+	password: string
 }
 
 interface AuthResponse {
-	success: boolean;
+	success: boolean
 	data: {
-		token?: string;
-		message?: string;
-	};
+		token?: string
+		message?: string
+	}
 }
 
 interface ApiError {
-	success: false;
+	success: false
 	error: {
-		code: string;
-		message: string;
-	};
+		code: string
+		message: string
+	}
 }
 
 // Login mutation
 export function useLogin() {
-	const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 
 	return useMutation<AuthResponse, ApiError, LoginRequest>({
 		mutationFn: async (credentials) => {
 			const { data, error } = await client.POST("/auth/login", {
 				body: credentials,
-			});
-			if (error) throw error;
-			return data as AuthResponse;
+			})
+			if (error) throw error
+			return data as AuthResponse
 		},
 		onSuccess: (data) => {
 			if (data.data.token) {
-				localStorage.setItem(AUTH.TOKEN_KEY, data.data.token);
+				localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
 				// Invalidate any existing auth queries
-				queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+				queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
 			}
 		},
-	});
+	})
 }
 
 // Register mutation
@@ -62,11 +62,11 @@ export function useRegister() {
 				{
 					body: data,
 				},
-			);
-			if (error) throw error;
-			return responseData as AuthResponse;
+			)
+			if (error) throw error
+			return responseData as AuthResponse
 		},
-	});
+	})
 }
 
 // Verify email mutation
@@ -77,55 +77,55 @@ export function useVerifyEmail() {
 				params: {
 					query: { token },
 				},
-			});
-			if (error) throw error;
-			return data as AuthResponse;
+			})
+			if (error) throw error
+			return data as AuthResponse
 		},
-	});
+	})
 }
 
 // Admin login mutation
 export function useAdminLogin() {
-	const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 
 	return useMutation<AuthResponse, ApiError, LoginRequest>({
 		mutationFn: async (credentials) => {
 			const { data, error } = await client.POST("/admin/auth/login", {
 				body: credentials,
-			});
-			if (error) throw error;
-			return data as AuthResponse;
+			})
+			if (error) throw error
+			return data as AuthResponse
 		},
 		onSuccess: (data) => {
 			if (data.data.token) {
-				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.data.token);
-				queryClient.invalidateQueries({ queryKey: ["admin", "me"] });
+				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.data.token)
+				queryClient.invalidateQueries({ queryKey: ["admin", "me"] })
 			}
 		},
-	});
+	})
 }
 
 // Admin logout function
 export function useAdminLogout() {
-	const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 
 	return () => {
-		localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY);
-		queryClient.clear();
-		window.location.href = AUTH.LOGIN_ROUTE;
-	};
+		localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY)
+		queryClient.clear()
+		window.location.href = AUTH.LOGIN_ROUTE
+	}
 }
 
 // Unified logout - logs out from whichever session is active
 export function useLogout() {
-	const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 
 	return () => {
-		localStorage.removeItem(AUTH.TOKEN_KEY);
-		localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY);
-		queryClient.clear();
-		window.location.href = AUTH.LOGIN_ROUTE;
-	};
+		localStorage.removeItem(AUTH.TOKEN_KEY)
+		localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY)
+		queryClient.clear()
+		window.location.href = AUTH.LOGIN_ROUTE
+	}
 }
 
 // Get current user (optional - for future use with /client/me)
@@ -133,99 +133,99 @@ export function useCurrentUser() {
 	return useQuery({
 		queryKey: ["auth", "me"],
 		queryFn: async () => {
-			const { data, error } = await client.GET("/client/me");
-			if (error) throw error;
-			return data;
+			const { data, error } = await client.GET("/client/me")
+			if (error) throw error
+			return data
 		},
 		enabled: !!localStorage.getItem(AUTH.TOKEN_KEY),
-	});
+	})
 }
 
 // Unified login hook that tries client first, then admin
 // Only exposes error after both attempts fail
 export function useUnifiedLogin() {
-	const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 	// Use ref for synchronous tracking to avoid race conditions with react-query state
-	const tryingAdminRef = useRef(false);
-	const [isTryingAdmin, setIsTryingAdmin] = useState(false);
+	const tryingAdminRef = useRef(false)
+	const [isTryingAdmin, setIsTryingAdmin] = useState(false)
 
 	const clientLogin = useMutation<AuthResponse, ApiError, LoginRequest>({
 		mutationFn: async (credentials) => {
 			const { data, error } = await client.POST("/auth/login", {
 				body: credentials,
-			});
-			if (error) throw error;
-			return data as AuthResponse;
+			})
+			if (error) throw error
+			return data as AuthResponse
 		},
 		onSuccess: (data) => {
 			if (data.data.token) {
-				localStorage.setItem(AUTH.TOKEN_KEY, data.data.token);
-				queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+				localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
+				queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
 			}
 		},
-	});
+	})
 
 	const adminLogin = useMutation<AuthResponse, ApiError, LoginRequest>({
 		mutationFn: async (credentials) => {
 			const { data, error } = await client.POST("/admin/auth/login", {
 				body: credentials,
-			});
-			if (error) throw error;
-			return data as AuthResponse;
+			})
+			if (error) throw error
+			return data as AuthResponse
 		},
 		onSuccess: (data) => {
 			if (data.data.token) {
-				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.data.token);
-				queryClient.invalidateQueries({ queryKey: ["admin", "me"] });
+				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.data.token)
+				queryClient.invalidateQueries({ queryKey: ["admin", "me"] })
 			}
 		},
-	});
+	})
 
 	const mutate = useCallback(
 		(
 			credentials: LoginRequest,
 			options?: {
-				onSuccess?: (role: "client" | "admin") => void;
-				onError?: (error: ApiError) => void;
+				onSuccess?: (role: "client" | "admin") => void
+				onError?: (error: ApiError) => void
 			},
 		) => {
-			tryingAdminRef.current = false;
-			setIsTryingAdmin(false);
-			clientLogin.reset();
-			adminLogin.reset();
+			tryingAdminRef.current = false
+			setIsTryingAdmin(false)
+			clientLogin.reset()
+			adminLogin.reset()
 
 			clientLogin.mutate(credentials, {
 				onSuccess: () => {
-					options?.onSuccess?.("client");
+					options?.onSuccess?.("client")
 				},
 				onError: (clientError) => {
 					if (clientError?.error?.code === "INVALID_CREDENTIALS") {
 						// Set ref synchronously, then state for re-render
-						tryingAdminRef.current = true;
-						setIsTryingAdmin(true);
+						tryingAdminRef.current = true
+						setIsTryingAdmin(true)
 						adminLogin.mutate(credentials, {
 							onSuccess: () => {
-								tryingAdminRef.current = false;
-								setIsTryingAdmin(false);
-								options?.onSuccess?.("admin");
+								tryingAdminRef.current = false
+								setIsTryingAdmin(false)
+								options?.onSuccess?.("admin")
 							},
 							onError: (adminError) => {
-								tryingAdminRef.current = false;
-								setIsTryingAdmin(false);
-								options?.onError?.(adminError);
+								tryingAdminRef.current = false
+								setIsTryingAdmin(false)
+								options?.onError?.(adminError)
 							},
-						});
+						})
 					} else {
-						options?.onError?.(clientError);
+						options?.onError?.(clientError)
 					}
 				},
-			});
+			})
 		},
 		[clientLogin, adminLogin],
-	);
+	)
 
 	const isPending =
-		clientLogin.isPending || adminLogin.isPending || isTryingAdmin;
+		clientLogin.isPending || adminLogin.isPending || isTryingAdmin
 
 	// Error is only shown when client failed and we're not trying/awaiting admin
 	// Use the ref for immediate synchronous check to prevent flash
@@ -235,14 +235,14 @@ export function useUnifiedLogin() {
 		!adminLogin.isPending &&
 		!isTryingAdmin
 			? adminLogin.error || clientLogin.error
-			: null;
+			: null
 
 	const reset = useCallback(() => {
-		tryingAdminRef.current = false;
-		setIsTryingAdmin(false);
-		clientLogin.reset();
-		adminLogin.reset();
-	}, [clientLogin, adminLogin]);
+		tryingAdminRef.current = false
+		setIsTryingAdmin(false)
+		clientLogin.reset()
+		adminLogin.reset()
+	}, [clientLogin, adminLogin])
 
 	return {
 		mutate,
@@ -253,5 +253,5 @@ export function useUnifiedLogin() {
 		isClientPending: clientLogin.isPending,
 		isAdminPending: adminLogin.isPending,
 		isTryingAdmin,
-	};
+	}
 }

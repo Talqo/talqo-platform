@@ -1,44 +1,44 @@
-import { eq, sql } from "drizzle-orm";
-import type { DB } from "../../db";
-import { clients, pendingRegistrations } from "../../db/schema";
+import { eq, sql } from "drizzle-orm"
+import type { DB } from "../../db"
+import { clients, pendingRegistrations } from "../../db/schema"
 
 // Matches the CLIENT entity in the ERD
 export type Client = {
-	id: string;
-	name: string;
-	email: string;
-	passwordHash: string;
-	balanceUsd: number;
-	monthlyUsageLimit: number;
-	lastActive: Date | null;
-	createdAt: Date;
-};
+	id: string
+	name: string
+	email: string
+	passwordHash: string
+	balanceUsd: number
+	monthlyUsageLimit: number
+	lastActive: Date | null
+	createdAt: Date
+}
 
 // Not in the ERD — transient storage for unverified registrations.
 // A CLIENT record is only created after email verification, so no verified flag is needed.
 export type PendingRegistration = {
-	token: string;
-	name: string;
-	email: string;
-	passwordHash: string;
-	expiresAt: Date;
-};
+	token: string
+	name: string
+	email: string
+	passwordHash: string
+	expiresAt: Date
+}
 
 export interface IAuthRepository {
-	findClientByEmail(email: string): Promise<Client | null>;
-	findClientById(id: string): Promise<Client | null>;
+	findClientByEmail(email: string): Promise<Client | null>
+	findClientById(id: string): Promise<Client | null>
 	// Case-insensitive name lookup; normalizes input internally
-	findClientByName(name: string): Promise<Client | null>;
+	findClientByName(name: string): Promise<Client | null>
 	// Check if a company name exists in pending registrations (case-insensitive)
-	findPendingByName(name: string): Promise<PendingRegistration | null>;
+	findPendingByName(name: string): Promise<PendingRegistration | null>
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
-	): Promise<Client>;
-	updateLastActive(clientId: string): Promise<void>;
+	): Promise<Client>
+	updateLastActive(clientId: string): Promise<void>
 	// Overwrites any existing pending registration for the same email
 	// Does NOT remove conflicting registrations by name; name conflicts should be
 	// rejected before calling this via findPendingByName() and throwing NAME_TAKEN
-	savePendingRegistration(record: PendingRegistration): Promise<void>;
+	savePendingRegistration(record: PendingRegistration): Promise<void>
 	// Atomically verifies the token, creates the Client record, and deletes the pending
 	// registration in a single transaction (e.g. SELECT … FOR UPDATE in a DB impl).
 	// The deletion happens only after successful creation, so a failed creation leaves
@@ -47,45 +47,45 @@ export interface IAuthRepository {
 	// Throws INVALID_TOKEN if no pending registration exists for the token.
 	// Throws TOKEN_EXPIRED if the registration has expired.
 	// Throws EMAIL_TAKEN if a client with this email already exists.
-	consumePendingRegistration(token: string): Promise<Client>;
+	consumePendingRegistration(token: string): Promise<Client>
 }
 
 export class InMemoryAuthRepository implements IAuthRepository {
-	private clients = new Map<string, Client>();
-	private pendingRegistrations = new Map<string, PendingRegistration>();
+	private clients = new Map<string, Client>()
+	private pendingRegistrations = new Map<string, PendingRegistration>()
 
 	async findClientByEmail(email: string): Promise<Client | null> {
 		for (const client of this.clients.values()) {
-			if (client.email === email) return client;
+			if (client.email === email) return client
 		}
-		return null;
+		return null
 	}
 
 	async findClientById(id: string): Promise<Client | null> {
-		return this.clients.get(id) ?? null;
+		return this.clients.get(id) ?? null
 	}
 
 	async findClientByName(name: string): Promise<Client | null> {
-		const normalizedName = name.toLowerCase();
+		const normalizedName = name.toLowerCase()
 		for (const client of this.clients.values()) {
-			if (client.name.toLowerCase() === normalizedName) return client;
+			if (client.name.toLowerCase() === normalizedName) return client
 		}
-		return null;
+		return null
 	}
 
 	async findPendingByName(name: string): Promise<PendingRegistration | null> {
-		const normalizedName = name.toLowerCase();
+		const normalizedName = name.toLowerCase()
 		for (const pending of this.pendingRegistrations.values()) {
-			if (pending.name.toLowerCase() === normalizedName) return pending;
+			if (pending.name.toLowerCase() === normalizedName) return pending
 		}
-		return null;
+		return null
 	}
 
 	async createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
 		for (const client of this.clients.values()) {
-			if (client.email === data.email) throw new Error("EMAIL_TAKEN");
+			if (client.email === data.email) throw new Error("EMAIL_TAKEN")
 		}
 		const client: Client = {
 			...data,
@@ -94,15 +94,15 @@ export class InMemoryAuthRepository implements IAuthRepository {
 			monthlyUsageLimit: 0,
 			lastActive: null,
 			createdAt: new Date(),
-		};
-		this.clients.set(client.id, client);
-		return client;
+		}
+		this.clients.set(client.id, client)
+		return client
 	}
 
 	async updateLastActive(clientId: string): Promise<void> {
-		const client = this.clients.get(clientId);
+		const client = this.clients.get(clientId)
 		if (client)
-			this.clients.set(clientId, { ...client, lastActive: new Date() });
+			this.clients.set(clientId, { ...client, lastActive: new Date() })
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
@@ -110,29 +110,29 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		// This supports legitimate re-registration flow
 		for (const [token, pending] of this.pendingRegistrations.entries()) {
 			if (pending.email === record.email) {
-				this.pendingRegistrations.delete(token);
-				break;
+				this.pendingRegistrations.delete(token)
+				break
 			}
 		}
-		this.pendingRegistrations.set(record.token, record);
+		this.pendingRegistrations.set(record.token, record)
 	}
 
 	// Single-threaded: no await points between the get, createClient, and delete,
 	// so the whole sequence is effectively atomic for this in-memory implementation.
 	async consumePendingRegistration(token: string): Promise<Client> {
-		const record = this.pendingRegistrations.get(token);
-		if (!record) throw new Error("INVALID_TOKEN");
-		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED");
+		const record = this.pendingRegistrations.get(token)
+		if (!record) throw new Error("INVALID_TOKEN")
+		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
 		// createClient throws EMAIL_TAKEN on duplicate; the token stays intact so
 		// the caller can detect the conflict and retry or surface an error.
 		const client = await this.createClient({
 			name: record.name,
 			email: record.email,
 			passwordHash: record.passwordHash,
-		});
+		})
 		// Delete only after successful creation to preserve retry-safety.
-		this.pendingRegistrations.delete(token);
-		return client;
+		this.pendingRegistrations.delete(token)
+		return client
 	}
 }
 
@@ -146,7 +146,7 @@ function mapClient(row: typeof clients.$inferSelect): Client {
 		monthlyUsageLimit: Number(row.monthlyUsageLimit ?? 0),
 		lastActive: row.lastActive,
 		createdAt: row.createdAt,
-	};
+	}
 }
 
 export class DrizzleAuthRepository implements IAuthRepository {
@@ -156,45 +156,45 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		const rows = await this.db
 			.select()
 			.from(clients)
-			.where(eq(clients.email, email));
-		return rows[0] ? mapClient(rows[0]) : null;
+			.where(eq(clients.email, email))
+		return rows[0] ? mapClient(rows[0]) : null
 	}
 
 	async findClientById(id: string): Promise<Client | null> {
-		const rows = await this.db.select().from(clients).where(eq(clients.id, id));
-		return rows[0] ? mapClient(rows[0]) : null;
+		const rows = await this.db.select().from(clients).where(eq(clients.id, id))
+		return rows[0] ? mapClient(rows[0]) : null
 	}
 
 	async findClientByName(name: string): Promise<Client | null> {
 		// Self-normalizing: lowercase input for case-insensitive comparison
-		const normalizedName = name.toLowerCase();
+		const normalizedName = name.toLowerCase()
 		const rows = await this.db
 			.select()
 			.from(clients)
-			.where(sql`LOWER(${clients.name}) = ${normalizedName}`);
-		return rows[0] ? mapClient(rows[0]) : null;
+			.where(sql`LOWER(${clients.name}) = ${normalizedName}`)
+		return rows[0] ? mapClient(rows[0]) : null
 	}
 
 	async findPendingByName(name: string): Promise<PendingRegistration | null> {
-		const normalizedName = name.toLowerCase();
+		const normalizedName = name.toLowerCase()
 		const rows = await this.db
 			.select()
 			.from(pendingRegistrations)
-			.where(sql`LOWER(${pendingRegistrations.name}) = ${normalizedName}`);
-		return rows[0] ?? null;
+			.where(sql`LOWER(${pendingRegistrations.name}) = ${normalizedName}`)
+		return rows[0] ?? null
 	}
 
 	async createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
 		try {
-			const rows = await this.db.insert(clients).values(data).returning();
+			const rows = await this.db.insert(clients).values(data).returning()
 			// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
-			return mapClient(rows[0]!);
+			return mapClient(rows[0]!)
 		} catch (err) {
 			// postgres unique_violation code
-			if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN");
-			throw err;
+			if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN")
+			throw err
 		}
 	}
 
@@ -202,7 +202,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		await this.db
 			.update(clients)
 			.set({ lastActive: new Date() })
-			.where(eq(clients.id, clientId));
+			.where(eq(clients.id, clientId))
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
@@ -219,7 +219,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 					passwordHash: record.passwordHash,
 					expiresAt: record.expiresAt,
 				},
-			});
+			})
 	}
 
 	async consumePendingRegistration(token: string): Promise<Client> {
@@ -227,12 +227,12 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			const [pending] = await tx
 				.select()
 				.from(pendingRegistrations)
-				.where(eq(pendingRegistrations.token, token));
+				.where(eq(pendingRegistrations.token, token))
 
-			if (!pending) throw new Error("INVALID_TOKEN");
-			if (pending.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED");
+			if (!pending) throw new Error("INVALID_TOKEN")
+			if (pending.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
 
-			let client: Client;
+			let client: Client
 			try {
 				const rows = await tx
 					.insert(clients)
@@ -241,20 +241,20 @@ export class DrizzleAuthRepository implements IAuthRepository {
 						email: pending.email,
 						passwordHash: pending.passwordHash,
 					})
-					.returning();
+					.returning()
 				// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
-				client = mapClient(rows[0]!);
+				client = mapClient(rows[0]!)
 			} catch (err) {
-				if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN");
-				throw err;
+				if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN")
+				throw err
 			}
 
 			await tx
 				.delete(pendingRegistrations)
-				.where(eq(pendingRegistrations.token, token));
+				.where(eq(pendingRegistrations.token, token))
 
-			return client;
-		});
+			return client
+		})
 	}
 }
 
@@ -264,5 +264,5 @@ function isUniqueViolation(err: unknown): boolean {
 		err !== null &&
 		"code" in err &&
 		(err as { code: string }).code === "23505"
-	);
+	)
 }

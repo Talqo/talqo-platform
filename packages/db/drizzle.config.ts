@@ -1,4 +1,4 @@
-import { defineConfig } from "drizzle-kit";
+import { defineConfig } from "drizzle-kit"
 
 const {
 	POSTGRES_USER,
@@ -6,7 +6,7 @@ const {
 	POSTGRES_HOST = "localhost",
 	POSTGRES_PORT = "5432",
 	POSTGRES_DB,
-} = process.env;
+} = process.env
 
 export default defineConfig({
 	dialect: "postgresql",
@@ -17,4 +17,4 @@ export default defineConfig({
 	},
 	verbose: true,
 	strict: true,
-});
+})

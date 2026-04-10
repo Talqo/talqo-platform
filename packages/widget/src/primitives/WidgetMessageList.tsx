@@ -1,9 +1,9 @@
-import type { HTMLAttributes, ReactNode, RefObject } from "react";
+import type { HTMLAttributes, ReactNode, RefObject } from "react"
 
 interface WidgetMessageListProps extends HTMLAttributes<HTMLDivElement> {
-	children: ReactNode;
+	children: ReactNode
 	/** Ref to the scroll-to-bottom anchor element */
-	scrollRef?: RefObject<HTMLDivElement | null>;
+	scrollRef?: RefObject<HTMLDivElement | null>
 }
 
 /**
@@ -11,11 +11,11 @@ interface WidgetMessageListProps extends HTMLAttributes<HTMLDivElement> {
  * Unstyled - consumers provide all styling
  */
 export function WidgetMessageList(props: WidgetMessageListProps) {
-	const { children, scrollRef, ...divProps } = props;
+	const { children, scrollRef, ...divProps } = props
 	return (
 		<div {...divProps}>
 			{children}
 			<div ref={scrollRef} />
 		</div>
-	);
+	)
 }

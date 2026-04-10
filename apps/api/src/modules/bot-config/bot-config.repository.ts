@@ -1,13 +1,13 @@
-import { eq } from "drizzle-orm";
-import type { DB } from "../../db";
-import { botConfigs } from "../../db/schema";
+import { eq } from "drizzle-orm"
+import type { DB } from "../../db"
+import { botConfigs } from "../../db/schema"
 
 type BotConfigUpdate = Partial<{
-	systemPrompt: string | null;
-	defaultRole: string | null;
-	toneStyle: string | null;
-	internetSearchEnabled: boolean;
-}>;
+	systemPrompt: string | null
+	defaultRole: string | null
+	toneStyle: string | null
+	internetSearchEnabled: boolean
+}>
 
 export class BotConfigRepository {
 	constructor(private readonly db: DB) {}
@@ -17,7 +17,7 @@ export class BotConfigRepository {
 			.select()
 			.from(botConfigs)
 			.where(eq(botConfigs.clientId, clientId))
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null)
 	}
 
 	async upsert(clientId: string, data: BotConfigUpdate) {
@@ -28,7 +28,7 @@ export class BotConfigRepository {
 				target: botConfigs.clientId,
 				set: { ...data, updatedAt: new Date() },
 			})
-			.returning();
-		return row;
+			.returning()
+		return row
 	}
 }

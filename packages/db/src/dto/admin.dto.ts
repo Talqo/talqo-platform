@@ -1,13 +1,13 @@
-import { createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
-import { adminUsers } from "../schema/admin";
-import { clients } from "../schema/client";
+import { createSelectSchema } from "drizzle-zod"
+import { z } from "zod"
+import { adminUsers } from "../schema/admin"
+import { clients } from "../schema/client"
 
 export const adminUserResponseSchema = createSelectSchema(adminUsers, {
 	email: z.string(),
 	createdAt: z.string(),
 	deletedAt: z.string().nullable(),
-}).omit({ passwordHash: true });
+}).omit({ passwordHash: true })
 
 // Summary projection used in admin client listing
 export const clientSummarySchema = createSelectSchema(clients, {
@@ -25,7 +25,7 @@ export const clientSummarySchema = createSelectSchema(clients, {
 	status: true,
 	lastActive: true,
 	createdAt: true,
-});
+})
 
-export type AdminUserResponse = z.infer<typeof adminUserResponseSchema>;
-export type ClientSummary = z.infer<typeof clientSummarySchema>;
+export type AdminUserResponse = z.infer<typeof adminUserResponseSchema>
+export type ClientSummary = z.infer<typeof clientSummarySchema>

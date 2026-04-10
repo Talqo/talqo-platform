@@ -1,7 +1,7 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react"
 
 interface WidgetHeaderProps extends HTMLAttributes<HTMLElement> {
-	children: ReactNode;
+	children: ReactNode
 }
 
 /**
@@ -9,6 +9,6 @@ interface WidgetHeaderProps extends HTMLAttributes<HTMLElement> {
  * Unstyled - consumers provide all styling
  */
 export function WidgetHeader(props: WidgetHeaderProps) {
-	const { children, ...headerProps } = props;
-	return <header {...headerProps}>{children}</header>;
+	const { children, ...headerProps } = props
+	return <header {...headerProps}>{children}</header>
 }

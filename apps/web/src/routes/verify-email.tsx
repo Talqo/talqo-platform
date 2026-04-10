@@ -1,47 +1,47 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useVerifyEmail } from "@/api/hooks/useAuth";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { useVerifyEmail } from "@/api/hooks/useAuth"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 
 export const Route = createFileRoute("/verify-email")({
 	component: VerifyEmailPage,
 	validateSearch: (search: Record<string, unknown>): { token?: string } => ({
 		token: typeof search.token === "string" ? search.token : undefined,
 	}),
-});
+})
 
 type VerificationState =
 	| { status: "loading" }
 	| { status: "success" }
-	| { status: "error"; code: string; message: string };
+	| { status: "error"; code: string; message: string }
 
 function VerifyEmailPage() {
-	const { token } = Route.useSearch();
-	const hasAttempted = useRef(false);
-	const [state, setState] = useState<VerificationState>({ status: "loading" });
-	const verifyEmail = useVerifyEmail();
+	const { token } = Route.useSearch()
+	const hasAttempted = useRef(false)
+	const [state, setState] = useState<VerificationState>({ status: "loading" })
+	const verifyEmail = useVerifyEmail()
 
 	useEffect(() => {
 		// Guard against React StrictMode double-mount
-		if (hasAttempted.current) return;
-		hasAttempted.current = true;
+		if (hasAttempted.current) return
+		hasAttempted.current = true
 
 		if (!token) {
 			setState({
 				status: "error",
 				code: "MISSING_TOKEN",
 				message: "Verification token is missing. Please check your email link.",
-			});
-			return;
+			})
+			return
 		}
 
 		// Call verify endpoint
@@ -49,28 +49,28 @@ function VerifyEmailPage() {
 			{ token },
 			{
 				onSuccess: () => {
-					setState({ status: "success" });
+					setState({ status: "success" })
 				},
 				onError: (error) => {
-					const code = error.error?.code || "UNKNOWN_ERROR";
-					let message = "Verification failed. Please try again.";
+					const code = error.error?.code || "UNKNOWN_ERROR"
+					let message = "Verification failed. Please try again."
 
 					if (code === "INVALID_TOKEN") {
 						message =
-							"The verification link is invalid. Please request a new one.";
+							"The verification link is invalid. Please request a new one."
 					} else if (code === "TOKEN_EXPIRED") {
 						message =
-							"The verification link has expired. Please register again.";
+							"The verification link has expired. Please register again."
 					} else if (code === "EMAIL_ALREADY_VERIFIED") {
 						message =
-							"This email has already been verified. You can log in now.";
+							"This email has already been verified. You can log in now."
 					}
 
-					setState({ status: "error", code, message });
+					setState({ status: "error", code, message })
 				},
 			},
-		);
-	}, [token, verifyEmail]);
+		)
+	}, [token, verifyEmail])
 
 	if (state.status === "loading") {
 		return (
@@ -87,7 +87,7 @@ function VerifyEmailPage() {
 					</CardHeader>
 				</Card>
 			</div>
-		);
+		)
 	}
 
 	if (state.status === "success") {
@@ -111,7 +111,7 @@ function VerifyEmailPage() {
 					</CardContent>
 				</Card>
 			</div>
-		);
+		)
 	}
 
 	// Error state
@@ -140,5 +140,5 @@ function VerifyEmailPage() {
 				</CardContent>
 			</Card>
 		</div>
-	);
+	)
 }

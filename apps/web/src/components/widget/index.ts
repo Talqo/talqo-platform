@@ -1,1 +1,1 @@
-export { StyledWidget } from "./StyledWidget";
+export { StyledWidget } from "./StyledWidget"

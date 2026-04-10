@@ -1,20 +1,20 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { clientSummarySchema } from "db/dto";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { clientSummarySchema } from "db/dto"
 import {
 	clientStatusUpdateSchema,
 	LoginSchema,
 	paginationQuerySchema,
-} from "shared";
+} from "shared"
 import {
 	errorResponseSchema,
 	successResponseSchema,
-} from "../../common/schemas";
-import type { AdminService } from "./admin.service";
+} from "../../common/schemas"
+import type { AdminService } from "./admin.service"
 
 // ─── Admin auth (unprotected) ──────────────────────────────────────────────────
 
 export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono();
+	const router = new OpenAPIHono()
 
 	router.openapi(
 		createRoute({
@@ -52,11 +52,11 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			const body = c.req.valid("json");
-			const result = await service.login(body);
-			return c.json({ success: true as const, data: result }, 200);
+			const body = c.req.valid("json")
+			const result = await service.login(body)
+			return c.json({ success: true as const, data: result }, 200)
 		},
-	);
+	)
 
 	router.openapi(
 		createRoute({
@@ -79,17 +79,17 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 			return c.json(
 				{ success: true as const, data: { message: "Logged out" } },
 				200,
-			);
+			)
 		},
-	);
+	)
 
-	return router;
+	return router
 }
 
 // ─── Admin client management (protected) ──────────────────────────────────────
 
 export function createAdminClientRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono();
+	const router = new OpenAPIHono()
 
 	router.openapi(
 		createRoute({
@@ -111,11 +111,11 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			const { limit, offset } = c.req.valid("query");
-			const clients = await service.listClients(limit, offset);
-			return c.json({ success: true as const, data: clients }, 200);
+			const { limit, offset } = c.req.valid("query")
+			const clients = await service.listClients(limit, offset)
+			return c.json({ success: true as const, data: clients }, 200)
 		},
-	);
+	)
 
 	router.openapi(
 		createRoute({
@@ -149,11 +149,11 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			const { clientId } = c.req.valid("param");
-			const client = await service.getClient(clientId);
-			return c.json({ success: true as const, data: client }, 200);
+			const { clientId } = c.req.valid("param")
+			const client = await service.getClient(clientId)
+			return c.json({ success: true as const, data: client }, 200)
 		},
-	);
+	)
 
 	router.openapi(
 		createRoute({
@@ -190,12 +190,12 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			const { clientId } = c.req.valid("param");
-			const { status } = c.req.valid("json");
-			const updated = await service.updateClientStatus(clientId, status);
-			return c.json({ success: true as const, data: updated }, 200);
+			const { clientId } = c.req.valid("param")
+			const { status } = c.req.valid("json")
+			const updated = await service.updateClientStatus(clientId, status)
+			return c.json({ success: true as const, data: updated }, 200)
 		},
-	);
+	)
 
 	router.openapi(
 		createRoute({
@@ -223,11 +223,11 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			const { clientId } = c.req.valid("param");
-			const result = await service.impersonate(clientId);
-			return c.json({ success: true as const, data: result }, 200);
+			const { clientId } = c.req.valid("param")
+			const result = await service.impersonate(clientId)
+			return c.json({ success: true as const, data: result }, 200)
 		},
-	);
+	)
 
-	return router;
+	return router
 }

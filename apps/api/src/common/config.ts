@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 const envSchema = z.object({
 	POSTGRES_USER: z.string().min(1),
@@ -13,11 +13,11 @@ const envSchema = z.object({
 	S3_SECRET_ACCESS_KEY: z.string().min(1),
 	S3_ENDPOINT: z.string().url(),
 	S3_BUCKET: z.string().min(1),
-});
+})
 
 // For tests, provide default values so config validation doesn't fail
 // These defaults are only used in test environment
-const isTest = process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1";
+const isTest = process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1"
 
 const testDefaults = isTest
 	? {
@@ -30,21 +30,21 @@ const testDefaults = isTest
 			S3_ENDPOINT: "http://localhost:9000",
 			S3_BUCKET: "test",
 		}
-	: {};
+	: {}
 
-const parsed = envSchema.safeParse({ ...testDefaults, ...process.env });
+const parsed = envSchema.safeParse({ ...testDefaults, ...process.env })
 
 if (!parsed.success) {
 	console.error(
 		"Invalid environment variables:",
 		parsed.error.flatten().fieldErrors,
-	);
-	process.exit(1);
+	)
+	process.exit(1)
 }
 
-const env = parsed.data;
+const env = parsed.data
 
 export const config = {
 	...env,
 	DATABASE_URL: `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DB}`,
-};
+}

@@ -1,6 +1,6 @@
-import { eq, sql } from "drizzle-orm";
-import type { DB } from "../../db";
-import { clients } from "../../db/schema";
+import { eq, sql } from "drizzle-orm"
+import type { DB } from "../../db"
+import { clients } from "../../db/schema"
 
 export class ClientAccountRepository {
 	constructor(private readonly db: DB) {}
@@ -20,7 +20,7 @@ export class ClientAccountRepository {
 			})
 			.from(clients)
 			.where(eq(clients.id, id))
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null)
 	}
 
 	async updateClient(
@@ -35,15 +35,15 @@ export class ClientAccountRepository {
 				id: clients.id,
 				name: clients.name,
 				email: clients.email,
-			});
-		return updated ?? null;
+			})
+		return updated ?? null
 	}
 
 	async updatePassword(id: string, passwordHash: string) {
 		await this.db
 			.update(clients)
 			.set({ passwordHash })
-			.where(eq(clients.id, id));
+			.where(eq(clients.id, id))
 	}
 
 	async getPasswordHash(id: string): Promise<string | null> {
@@ -51,8 +51,8 @@ export class ClientAccountRepository {
 			.select({ passwordHash: clients.passwordHash })
 			.from(clients)
 			.where(eq(clients.id, id))
-			.then((rows) => rows[0] ?? null);
-		return row?.passwordHash ?? null;
+			.then((rows) => rows[0] ?? null)
+		return row?.passwordHash ?? null
 	}
 
 	async addBalance(id: string, amount: string) {
@@ -60,22 +60,22 @@ export class ClientAccountRepository {
 			.update(clients)
 			.set({ balanceUsd: sql`${clients.balanceUsd} + ${amount}` })
 			.where(eq(clients.id, id))
-			.returning({ balanceUsd: clients.balanceUsd });
-		return updated ?? null;
+			.returning({ balanceUsd: clients.balanceUsd })
+		return updated ?? null
 	}
 
 	async setUsageLimit(id: string, limit: string | null) {
 		await this.db
 			.update(clients)
 			.set({ monthlyUsageLimit: limit })
-			.where(eq(clients.id, id));
+			.where(eq(clients.id, id))
 	}
 
 	async setUsageAlert(id: string, thresholdUsd: string | null) {
 		await this.db
 			.update(clients)
 			.set({ usageAlertThresholdUsd: thresholdUsd })
-			.where(eq(clients.id, id));
+			.where(eq(clients.id, id))
 	}
 
 	async findByEmail(email: string) {
@@ -83,6 +83,6 @@ export class ClientAccountRepository {
 			.select({ id: clients.id })
 			.from(clients)
 			.where(eq(clients.email, email))
-			.then((rows) => rows[0] ?? null);
+			.then((rows) => rows[0] ?? null)
 	}
 }

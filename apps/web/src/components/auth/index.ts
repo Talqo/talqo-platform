@@ -1,2 +1,2 @@
-export { AuthFormField } from "./AuthFormField";
-export { AuthHeader } from "./AuthHeader";
+export { AuthFormField } from "./AuthFormField"
+export { AuthHeader } from "./AuthHeader"

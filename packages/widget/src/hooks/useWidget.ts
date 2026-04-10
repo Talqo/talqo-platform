@@ -1,51 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react"
 
-export type WidgetTheme = "light" | "dark";
+export type WidgetTheme = "light" | "dark"
 
 export interface Message {
-	id: string;
-	role: "user" | "bot";
-	content: string;
+	id: string
+	role: "user" | "bot"
+	content: string
 }
 
 export interface UseWidgetOptions {
 	/** Initial open state */
-	defaultOpen?: boolean;
+	defaultOpen?: boolean
 	/** Initial messages */
-	initialMessages?: Message[];
+	initialMessages?: Message[]
 	/** Position of the widget */
-	position?: "left" | "right";
+	position?: "left" | "right"
 	/** Callback when message is sent */
-	onMessageSend?: (message: string) => void | Promise<void>;
+	onMessageSend?: (message: string) => void | Promise<void>
 	/** Callback when widget is toggled */
-	onOpenChange?: (isOpen: boolean) => void;
+	onOpenChange?: (isOpen: boolean) => void
 }
 
 export interface UseWidgetReturn {
 	/** Whether the chat panel is currently open */
-	isOpen: boolean;
+	isOpen: boolean
 	/** Whether the chat panel is expanded */
-	isExpanded: boolean;
+	isExpanded: boolean
 	/** Current input value */
-	inputValue: string;
+	inputValue: string
 	/** List of messages */
-	messages: Message[];
+	messages: Message[]
 	/** Whether bot is currently typing */
-	isTyping: boolean;
+	isTyping: boolean
 	/** Whether position is on the right side */
-	isRightPosition: boolean;
+	isRightPosition: boolean
 	/** Toggle the chat panel open/closed */
-	toggleOpen: () => void;
+	toggleOpen: () => void
 	/** Set whether panel is open */
-	setIsOpen: (value: boolean) => void;
+	setIsOpen: (value: boolean) => void
 	/** Toggle expanded state */
-	toggleExpanded: () => void;
+	toggleExpanded: () => void
 	/** Update input value */
-	setInputValue: (value: string) => void;
+	setInputValue: (value: string) => void
 	/** Send the current message */
-	sendMessage: () => void;
+	sendMessage: () => void
 	/** Clear all messages */
-	clearMessages: () => void;
+	clearMessages: () => void
 }
 
 /**
@@ -64,57 +64,57 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		],
 		position = "right",
 		onOpenChange,
-	} = options;
+	} = options
 
-	const [isOpen, setIsOpenState] = useState(defaultOpen);
-	const [isExpanded, setIsExpanded] = useState(false);
-	const [inputValue, setInputValue] = useState("");
-	const [messages, setMessages] = useState<Message[]>(initialMessages);
-	const [isTyping, setIsTyping] = useState(false);
-	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const isRightPosition = position === "right";
+	const [isOpen, setIsOpenState] = useState(defaultOpen)
+	const [isExpanded, setIsExpanded] = useState(false)
+	const [inputValue, setInputValue] = useState("")
+	const [messages, setMessages] = useState<Message[]>(initialMessages)
+	const [isTyping, setIsTyping] = useState(false)
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const isRightPosition = position === "right"
 
 	const setIsOpen = useCallback(
 		(value: boolean) => {
-			setIsOpenState(value);
-			onOpenChange?.(value);
+			setIsOpenState(value)
+			onOpenChange?.(value)
 		},
 		[onOpenChange],
-	);
+	)
 
 	const toggleOpen = useCallback(() => {
 		setIsOpenState((prev) => {
-			const next = !prev;
-			onOpenChange?.(next);
-			return next;
-		});
-	}, [onOpenChange]);
+			const next = !prev
+			onOpenChange?.(next)
+			return next
+		})
+	}, [onOpenChange])
 
 	const toggleExpanded = useCallback(() => {
-		setIsExpanded((prev) => !prev);
-	}, []);
+		setIsExpanded((prev) => !prev)
+	}, [])
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
 		return () => {
 			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
+				clearTimeout(timeoutRef.current)
 			}
-		};
-	}, []);
+		}
+	}, [])
 
 	const sendMessage = useCallback(() => {
-		const trimmedInput = inputValue.trim();
-		if (!trimmedInput || isTyping) return;
+		const trimmedInput = inputValue.trim()
+		if (!trimmedInput || isTyping) return
 
 		const userMsg: Message = {
 			id: Date.now().toString(),
 			role: "user",
 			content: trimmedInput,
-		};
-		setMessages((prev) => [...prev, userMsg]);
-		setInputValue("");
-		setIsTyping(true);
+		}
+		setMessages((prev) => [...prev, userMsg])
+		setInputValue("")
+		setIsTyping(true)
 
 		// Simulate bot response - replace with actual API call
 		timeoutRef.current = setTimeout(() => {
@@ -122,27 +122,27 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 				id: (Date.now() + 1).toString(),
 				role: "bot",
 				content: "Thanks for your message! Our team will get back to you soon.",
-			};
-			setMessages((prev) => [...prev, botMsg]);
-			setIsTyping(false);
-			timeoutRef.current = null;
-		}, 1500);
-	}, [inputValue, isTyping]);
+			}
+			setMessages((prev) => [...prev, botMsg])
+			setIsTyping(false)
+			timeoutRef.current = null
+		}, 1500)
+	}, [inputValue, isTyping])
 
 	const clearMessages = useCallback(() => {
 		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current);
-			timeoutRef.current = null;
+			clearTimeout(timeoutRef.current)
+			timeoutRef.current = null
 		}
-		setIsTyping(false);
+		setIsTyping(false)
 		setMessages([
 			{
 				id: "welcome",
 				role: "bot",
 				content: "Hi! How can I help you today?",
 			},
-		]);
-	}, []);
+		])
+	}, [])
 
 	return {
 		isOpen,
@@ -157,5 +157,5 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		setInputValue,
 		sendMessage,
 		clearMessages,
-	};
+	}
 }

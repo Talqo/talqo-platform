@@ -1,11 +1,11 @@
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { AUTH, STORAGE_KEYS } from "@/lib/constants";
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
+import { Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { AUTH, STORAGE_KEYS } from "@/lib/constants"
 
 export const Route = createFileRoute("/_authenticated")({
 	component: AuthenticatedLayout,
-});
+})
 
 // Validate token by making a lightweight request
 // Returns whether token is valid and whether it should be cleared from storage
@@ -21,59 +21,59 @@ async function validateToken(
 					Authorization: `Bearer ${token}`,
 				},
 			},
-		);
+		)
 
 		if (response.ok) {
-			return { valid: true, shouldClear: false };
+			return { valid: true, shouldClear: false }
 		}
 
 		// Only clear token on auth errors (401/403)
 		// Network errors, 5xx, and other transport issues should keep the token
-		const shouldClear = response.status === 401 || response.status === 403;
-		return { valid: false, shouldClear };
+		const shouldClear = response.status === 401 || response.status === 403
+		return { valid: false, shouldClear }
 	} catch {
 		// Network or other transport errors - don't clear token, treat as retryable
-		return { valid: false, shouldClear: false };
+		return { valid: false, shouldClear: false }
 	}
 }
 
 function AuthenticatedLayout() {
-	const [isLoading, setIsLoading] = useState(true);
-	const [isValid, setIsValid] = useState(false);
+	const [isLoading, setIsLoading] = useState(true)
+	const [isValid, setIsValid] = useState(false)
 
 	useEffect(() => {
 		const checkAuth = async () => {
-			const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+			const token = localStorage.getItem(STORAGE_KEYS.TOKEN)
 
 			if (!token) {
-				setIsValid(false);
-				setIsLoading(false);
-				return;
+				setIsValid(false)
+				setIsLoading(false)
+				return
 			}
 
-			const { valid, shouldClear } = await validateToken(token);
+			const { valid, shouldClear } = await validateToken(token)
 			if (shouldClear) {
 				// Token is invalid, clear it
-				localStorage.removeItem(STORAGE_KEYS.TOKEN);
+				localStorage.removeItem(STORAGE_KEYS.TOKEN)
 			}
-			setIsValid(valid);
-			setIsLoading(false);
-		};
+			setIsValid(valid)
+			setIsLoading(false)
+		}
 
-		checkAuth();
-	}, []);
+		checkAuth()
+	}, [])
 
 	if (isLoading) {
 		return (
 			<div className="flex h-screen items-center justify-center">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
 			</div>
-		);
+		)
 	}
 
 	if (!isValid) {
-		return <Navigate to={AUTH.LOGIN_ROUTE} replace />;
+		return <Navigate to={AUTH.LOGIN_ROUTE} replace />
 	}
 
-	return <Outlet />;
+	return <Outlet />
 }

@@ -1,11 +1,11 @@
-import { type LucideIcon, MessageSquare, Shield, Zap } from "lucide-react";
+import { type LucideIcon, MessageSquare, Shield, Zap } from "lucide-react"
 
 export interface Feature {
-	id: string;
-	icon: LucideIcon;
-	title: string;
-	description: string;
-	color: "blue" | "green" | "purple";
+	id: string
+	icon: LucideIcon
+	title: string
+	description: string
+	color: "blue" | "green" | "purple"
 }
 
 export const FEATURES: Feature[] = [
@@ -33,4 +33,4 @@ export const FEATURES: Feature[] = [
 			"Simple React and JS embed codes. Get your widget up and running in minutes.",
 		color: "purple",
 	},
-];
+]

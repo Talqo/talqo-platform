@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
-import type { Tool } from "@/data/tools";
-import { ToolIcon } from "./ToolIcon";
+import { Button } from "@/components/ui/button"
+import type { Tool } from "@/data/tools"
+import { ToolIcon } from "./ToolIcon"
 
 interface ToolCardProps {
-	tool: Tool;
-	isAdded: boolean;
-	onAdd: (tool: Tool, event: React.MouseEvent) => void;
+	tool: Tool
+	isAdded: boolean
+	onAdd: (tool: Tool, event: React.MouseEvent) => void
 }
 
 export function ToolCard({ tool, isAdded, onAdd }: ToolCardProps) {
@@ -16,8 +16,8 @@ export function ToolCard({ tool, isAdded, onAdd }: ToolCardProps) {
 				<Button
 					size="sm"
 					onClick={(e) => {
-						e.stopPropagation();
-						onAdd(tool, e);
+						e.stopPropagation()
+						onAdd(tool, e)
 					}}
 					disabled={isAdded}
 				>
@@ -27,5 +27,5 @@ export function ToolCard({ tool, isAdded, onAdd }: ToolCardProps) {
 			<p className="font-medium">{tool.name}</p>
 			<p className="text-muted-foreground text-sm">{tool.description}</p>
 		</div>
-	);
+	)
 }

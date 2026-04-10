@@ -1,27 +1,27 @@
-import { FileText, Plus, Upload } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileListEmpty } from "./FileListEmpty";
-import { FileListItem } from "./FileListItem";
-import type { ContextFile } from "./types";
-import { type UploadError, UploadErrorAlert } from "./UploadErrorAlert";
-import { useDragAndDrop } from "./useDragAndDrop";
-import { useFileValidation } from "./useFileValidation";
+import { FileText, Plus, Upload } from "lucide-react"
+import { useCallback, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { FileListEmpty } from "./FileListEmpty"
+import { FileListItem } from "./FileListItem"
+import type { ContextFile } from "./types"
+import { type UploadError, UploadErrorAlert } from "./UploadErrorAlert"
+import { useDragAndDrop } from "./useDragAndDrop"
+import { useFileValidation } from "./useFileValidation"
 
 interface FileListProps {
-	files: ContextFile[];
+	files: ContextFile[]
 	onRename: (
 		id: string,
 		newName: string,
-	) => { success: boolean; error?: "duplicate" };
-	onDelete: (id: string) => void;
-	onFilesUploaded: (files: File[]) => Promise<ContextFile[]>;
+	) => { success: boolean; error?: "duplicate" }
+	onDelete: (id: string) => void
+	onFilesUploaded: (files: File[]) => Promise<ContextFile[]>
 }
 
 interface EditingState {
-	id: string;
-	name: string;
+	id: string
+	name: string
 }
 
 export function FileList({
@@ -30,106 +30,106 @@ export function FileList({
 	onDelete,
 	onFilesUploaded,
 }: FileListProps) {
-	const [editing, setEditing] = useState<EditingState | null>(null);
-	const [renameError, setRenameError] = useState<string | null>(null);
-	const [uploadErrors, setUploadErrors] = useState<UploadError[]>([]);
-	const fileInputRef = useRef<HTMLInputElement>(null);
-	const { isTextFile } = useFileValidation();
+	const [editing, setEditing] = useState<EditingState | null>(null)
+	const [renameError, setRenameError] = useState<string | null>(null)
+	const [uploadErrors, setUploadErrors] = useState<UploadError[]>([])
+	const fileInputRef = useRef<HTMLInputElement>(null)
+	const { isTextFile } = useFileValidation()
 
 	const validateAndUpload = useCallback(
 		async (fileList: File[]) => {
-			if (!fileList.length) return;
+			if (!fileList.length) return
 
-			const existingNames = new Set(files.map((f) => f.name.toLowerCase()));
-			const errors: UploadError[] = [];
+			const existingNames = new Set(files.map((f) => f.name.toLowerCase()))
+			const errors: UploadError[] = []
 
 			const validFiles = fileList.filter((file) => {
 				if (!isTextFile(file)) {
-					errors.push({ fileName: file.name, reason: "invalid" });
-					return false;
+					errors.push({ fileName: file.name, reason: "invalid" })
+					return false
 				}
 				if (existingNames.has(file.name.toLowerCase())) {
-					errors.push({ fileName: file.name, reason: "duplicate" });
-					return false;
+					errors.push({ fileName: file.name, reason: "duplicate" })
+					return false
 				}
-				return true;
-			});
+				return true
+			})
 
 			if (errors.length > 0) {
-				setUploadErrors(errors);
+				setUploadErrors(errors)
 			}
 
 			if (validFiles.length > 0) {
-				await onFilesUploaded(validFiles);
+				await onFilesUploaded(validFiles)
 			}
 		},
 		[files, isTextFile, onFilesUploaded],
-	);
+	)
 
 	const { isDragging, bindDragEvents } = useDragAndDrop({
 		onDrop: validateAndUpload,
-	});
+	})
 
 	const handleFileInputChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
 			const filesArray = event.target.files
 				? Array.from(event.target.files)
-				: [];
-			validateAndUpload(filesArray);
+				: []
+			validateAndUpload(filesArray)
 			if (fileInputRef.current) {
-				fileInputRef.current.value = "";
+				fileInputRef.current.value = ""
 			}
 		},
 		[validateAndUpload],
-	);
+	)
 
 	const dismissErrors = useCallback(() => {
-		setUploadErrors([]);
-	}, []);
+		setUploadErrors([])
+	}, [])
 
 	const handleStartEditing = useCallback((file: ContextFile) => {
 		const ext = file.name.includes(".")
 			? file.name.slice(file.name.lastIndexOf("."))
-			: "";
+			: ""
 		const nameWithoutExt = ext
 			? file.name.slice(0, file.name.lastIndexOf(ext))
-			: file.name;
-		setEditing({ id: file.id, name: nameWithoutExt });
-		setRenameError(null);
-	}, []);
+			: file.name
+		setEditing({ id: file.id, name: nameWithoutExt })
+		setRenameError(null)
+	}, [])
 
 	const handleCancelEditing = useCallback(() => {
-		setEditing(null);
-		setRenameError(null);
-	}, []);
+		setEditing(null)
+		setRenameError(null)
+	}, [])
 
 	const handleConfirmEditing = useCallback(() => {
-		if (!editing) return;
+		if (!editing) return
 
-		const result = onRename(editing.id, editing.name);
+		const result = onRename(editing.id, editing.name)
 		if (result.success) {
-			setEditing(null);
-			setRenameError(null);
+			setEditing(null)
+			setRenameError(null)
 		} else if (result.error === "duplicate") {
-			setRenameError("A file with this name already exists");
+			setRenameError("A file with this name already exists")
 		}
-	}, [editing, onRename]);
+	}, [editing, onRename])
 
 	const handleEditChange = useCallback((value: string) => {
-		setEditing((prev) => (prev ? { ...prev, name: value } : null));
-		setRenameError(null);
-	}, []);
+		setEditing((prev) => (prev ? { ...prev, name: value } : null))
+		setRenameError(null)
+	}, [])
 
 	const handleEditKeyDown = useCallback(
 		(event: React.KeyboardEvent) => {
 			if (event.key === "Enter") {
-				handleConfirmEditing();
+				handleConfirmEditing()
 			} else if (event.key === "Escape") {
-				handleCancelEditing();
+				handleCancelEditing()
 			}
 		},
 		[handleConfirmEditing, handleCancelEditing],
-	);
+	)
 
 	return (
 		<Card
@@ -195,5 +195,5 @@ export function FileList({
 				)}
 			</CardContent>
 		</Card>
-	);
+	)
 }

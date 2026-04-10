@@ -1,7 +1,7 @@
 export type ApiResponse = {
-	message: string;
-	success: boolean;
-};
+	message: string
+	success: boolean
+}
 
 export type {
 	AiProviderConfig,
@@ -9,4 +9,4 @@ export type {
 	McpServerConfig,
 	McpSseConfig,
 	McpStdioConfig,
-} from "./agent";
+} from "./agent"

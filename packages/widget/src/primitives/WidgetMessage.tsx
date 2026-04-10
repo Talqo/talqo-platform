@@ -1,9 +1,9 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react"
 
 interface WidgetMessageProps extends HTMLAttributes<HTMLDivElement> {
-	children: ReactNode;
+	children: ReactNode
 	/** Role of the message sender */
-	role: "user" | "bot";
+	role: "user" | "bot"
 }
 
 /**
@@ -11,10 +11,10 @@ interface WidgetMessageProps extends HTMLAttributes<HTMLDivElement> {
  * Unstyled - consumers provide all styling
  */
 export function WidgetMessage(props: WidgetMessageProps) {
-	const { children, role, ...divProps } = props;
+	const { children, role, ...divProps } = props
 	return (
 		<div data-role={role} {...divProps}>
 			{children}
 		</div>
-	);
+	)
 }

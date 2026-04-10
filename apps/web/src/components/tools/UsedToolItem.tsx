@@ -1,11 +1,11 @@
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import type { Tool } from "@/data/tools";
-import { getToolDescription } from "@/data/tools";
-import { ToolIcon } from "./ToolIcon";
+import { motion } from "motion/react"
+import { Button } from "@/components/ui/button"
+import type { Tool } from "@/data/tools"
+import { getToolDescription } from "@/data/tools"
+import { ToolIcon } from "./ToolIcon"
 
 interface UsedToolItemProps {
-	tool: Tool;
+	tool: Tool
 }
 
 export function UsedToolItem({ tool }: UsedToolItemProps) {
@@ -37,5 +37,5 @@ export function UsedToolItem({ tool }: UsedToolItemProps) {
 				</Button>
 			</div>
 		</motion.div>
-	);
+	)
 }
