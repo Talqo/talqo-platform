@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useVerifyEmail } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -30,10 +30,12 @@ function VerifyEmailPage() {
 	const navigate = useNavigate()
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
 	const verifyEmail = useVerifyEmail()
+	const processedRef = useRef(false)
 
 	useEffect(() => {
-		// Guard: only run when in loading state (prevents re-running after error/success)
-		if (state.status !== "loading") return
+		// Guard: only run once (prevents StrictMode double execution)
+		if (processedRef.current) return
+		processedRef.current = true
 
 		if (!token) {
 			setState({
@@ -78,12 +80,7 @@ function VerifyEmailPage() {
 			},
 		)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		token,
-		navigate,
-		state.status, // Call verify endpoint
-		verifyEmail.mutate,
-	])
+	}, [token, navigate, verifyEmail.mutate])
 
 	if (state.status === "loading") {
 		return (
