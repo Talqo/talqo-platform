@@ -68,4 +68,31 @@ export class AuthService {
 			role: "client",
 		})
 	}
+
+	async resendVerificationEmail(email: string): Promise<void> {
+		const canonical = email.trim().toLowerCase()
+
+		// Check if already registered
+		const existing = await this.repo.findClientByEmail(canonical)
+		if (existing) {
+			// Don't reveal that email is registered - return silently
+			return
+		}
+
+		// Find pending registration
+		const pending = await this.repo.findPendingByEmail(canonical)
+		if (!pending) {
+			// No pending registration found - don't reveal this
+			return
+		}
+
+		// Check if expired
+		if (pending.expiresAt < new Date()) {
+			// Token expired - don't reveal this
+			return
+		}
+
+		// Resend email with existing token
+		await sendVerificationEmail(canonical, pending.token)
+	}
 }
