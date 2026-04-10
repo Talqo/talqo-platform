@@ -83,6 +83,14 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		return null
 	}
 
+	async findPendingByEmail(email: string): Promise<PendingRegistration | null> {
+		const canonical = email.toLowerCase()
+		for (const pending of this.pendingRegistrations.values()) {
+			if (pending.email === canonical) return pending
+		}
+		return null
+	}
+
 	async createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {

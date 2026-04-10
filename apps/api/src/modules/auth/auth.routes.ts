@@ -36,6 +36,10 @@ export function createAuthRouter(
 						},
 					},
 				},
+				409: {
+					description: "Email or name already taken",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 			},
 		}),
 		async (c) => {
@@ -44,15 +48,37 @@ export function createAuthRouter(
 				await service.register(name, email, password)
 			} catch (err) {
 				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
-					// Return same response as success to prevent account enumeration
 					c.get("logger").warn("Registration attempted with taken email")
-				} else if (err instanceof Error) {
-					// Log email errors but still return success (don't expose email issues)
-					c.get("logger").error("Registration error (email send failed)", {
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "EMAIL_TAKEN",
+								message: "This email is already registered",
+							},
+						},
+						409,
+					)
+				}
+				if (err instanceof Error && err.message === "NAME_TAKEN") {
+					c.get("logger").warn("Registration attempted with taken name")
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "NAME_TAKEN",
+								message: "This name is already taken",
+							},
+						},
+						409,
+					)
+				}
+				// Log other errors but still return success to avoid exposing email issues
+				if (err instanceof Error) {
+					c.get("logger").error("Registration error", {
 						error: err.message,
 						email,
 					})
-					// Don't throw - still return success to avoid exposing email issues
 				}
 			}
 			return c.json(
