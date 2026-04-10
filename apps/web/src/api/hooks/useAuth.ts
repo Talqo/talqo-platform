@@ -73,13 +73,24 @@ export function useRegister() {
 export function useVerifyEmail() {
 	return useMutation<AuthResponse, ApiError, { token: string }>({
 		mutationFn: async ({ token }) => {
-			const { data, error } = await client.GET("/auth/verify-email", {
-				params: {
-					query: { token },
-				},
-			})
-			if (error) throw error
-			return data as AuthResponse
+			console.log("[useAuth] mutationFn starting with token:", token)
+			try {
+				const { data, error } = await client.GET("/auth/verify-email", {
+					params: {
+						query: { token },
+					},
+				})
+				console.log("[useAuth] client.GET returned:", { data, error })
+				if (error) {
+					console.log("[useAuth] throwing error:", error)
+					throw error
+				}
+				console.log("[useAuth] returning data:", data)
+				return data as AuthResponse
+			} catch (e) {
+				console.log("[useAuth] caught exception:", e)
+				throw e
+			}
 		},
 	})
 }

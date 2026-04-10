@@ -80,11 +80,23 @@ function VerifyEmailPage() {
 
 		// Call verify endpoint
 		console.log("[VerifyEmail] Starting verification with token:", token)
+		console.log(
+			"[VerifyEmail] verifyEmail object keys:",
+			Object.keys(verifyEmail),
+		)
+		console.log(
+			"[VerifyEmail] verifyEmail.mutate function exists:",
+			typeof verifyEmail.mutate === "function",
+		)
+		console.log("[VerifyEmail] About to call mutate...")
 		verifyEmail.mutate(
 			{ token },
 			{
 				onSuccess: (data) => {
-					console.log("[VerifyEmail] Verification successful")
+					console.log(
+						"[VerifyEmail] onSuccess callback called with data:",
+						data,
+					)
 					setState({ status: "success" })
 					if (data.data.token) {
 						localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
@@ -95,9 +107,12 @@ function VerifyEmailPage() {
 					}, 2000)
 				},
 				onError: (error) => {
+					console.log(
+						"[VerifyEmail] onError callback called with error:",
+						error,
+					)
 					const code = error.error?.code || "UNKNOWN_ERROR"
 					let message = "Verification failed. Please try again."
-					console.log("[VerifyEmail] Verification failed:", code, message)
 
 					if (code === "INVALID_TOKEN") {
 						message =
