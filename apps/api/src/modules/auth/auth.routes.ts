@@ -102,10 +102,12 @@ export function createAuthRouter(
 			},
 			responses: {
 				200: {
-					description: "Email verified successfully",
+					description: "Email verified successfully, returns JWT token",
 					content: {
 						"application/json": {
-							schema: successResponseSchema(z.object({ message: z.string() })),
+							schema: successResponseSchema(
+								z.object({ token: z.string(), message: z.string() }),
+							),
 						},
 					},
 				},
@@ -122,11 +124,14 @@ export function createAuthRouter(
 		async (c) => {
 			const { token } = c.req.valid("query")
 			try {
-				await service.verifyEmail(token)
+				const jwtToken = await service.verifyEmail(token)
 				return c.json(
 					{
 						success: true as const,
-						data: { message: "Email verified successfully" },
+						data: {
+							token: jwtToken,
+							message: "Email verified successfully",
+						},
 					},
 					200,
 				)
@@ -222,6 +227,50 @@ export function createAuthRouter(
 				}
 				throw err
 			}
+		},
+	)
+
+	router.openapi(
+		createRoute({
+			method: "post",
+			path: "/resend-verification",
+			tags: ["Auth"],
+			summary: "Resend verification email",
+			request: {
+				body: {
+					content: {
+						"application/json": {
+							schema: z.object({ email: z.string().email() }),
+						},
+					},
+				},
+			},
+			responses: {
+				200: {
+					description:
+						"If a pending registration exists, verification email sent",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(z.object({ message: z.string() })),
+						},
+					},
+				},
+			},
+		}),
+		async (c) => {
+			const { email } = c.req.valid("json")
+			await service.resendVerificationEmail(email)
+			// Always return success to prevent user enumeration
+			return c.json(
+				{
+					success: true as const,
+					data: {
+						message:
+							"If a registration exists, a verification email has been sent",
+					},
+				},
+				200,
+			)
 		},
 	)
 

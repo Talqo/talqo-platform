@@ -35,11 +35,20 @@ export class AuthService {
 		await sendVerificationEmail(canonical, token)
 	}
 
-	async verifyEmail(token: string): Promise<void> {
+	async verifyEmail(token: string): Promise<string> {
 		try {
 			// consumePendingRegistration atomically validates the token, creates the
 			// Client, and removes the pending registration in one repo transaction.
-			await this.repo.consumePendingRegistration(token)
+			const client = await this.repo.consumePendingRegistration(token)
+
+			// Update last active timestamp
+			await this.repo.updateLastActive(client.id)
+
+			// Return JWT token for auto-login
+			return signToken({
+				sub: client.id,
+				role: "client",
+			})
 		} catch (err) {
 			// EMAIL_TAKEN means a client with this email was already created
 			// (e.g., a concurrent verify succeeded first).

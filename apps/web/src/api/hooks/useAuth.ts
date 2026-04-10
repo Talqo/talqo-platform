@@ -84,6 +84,19 @@ export function useVerifyEmail() {
 	})
 }
 
+// Resend verification email mutation
+export function useResendVerificationEmail() {
+	return useMutation<AuthResponse, ApiError, { email: string }>({
+		mutationFn: async ({ email }) => {
+			const { data, error } = await client.POST("/auth/resend-verification", {
+				body: { email },
+			})
+			if (error) throw error
+			return data as AuthResponse
+		},
+	})
+}
+
 // Admin login mutation
 export function useAdminLogin() {
 	const queryClient = useQueryClient()
