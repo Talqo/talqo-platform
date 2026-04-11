@@ -111,12 +111,12 @@ function LoginPage() {
 									>
 										Password
 									</label>
-									<button
-										type="button"
+									<Link
+										to="/forgot-password"
 										className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
 									>
 										Forgot password?
-									</button>
+									</Link>
 								</div>
 								<AuthFormField
 									id="password"
