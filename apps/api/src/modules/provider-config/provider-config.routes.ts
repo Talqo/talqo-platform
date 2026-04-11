@@ -1,7 +1,10 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
 import { upsertProviderConfigBodySchema } from "shared"
 import { z } from "zod"
-import { successResponseSchema } from "../../common/schemas"
+import {
+	errorResponseSchema,
+	successResponseSchema,
+} from "../../common/schemas"
 import { providerConfigService } from "./index"
 
 const router = new OpenAPIHono()
@@ -102,6 +105,12 @@ router.openapi(
 							z.object({ deleted: z.literal(true) }),
 						),
 					},
+				},
+			},
+			404: {
+				description: "No provider config found",
+				content: {
+					"application/json": { schema: errorResponseSchema },
 				},
 			},
 		},

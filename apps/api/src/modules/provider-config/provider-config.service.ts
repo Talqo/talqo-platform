@@ -1,9 +1,10 @@
+import type { ProviderType } from "shared"
 import { decrypt, encrypt } from "../../common/crypto"
 import { NotFoundError } from "../../common/errors"
 import type { ProviderConfigRepository } from "./provider-config.repository"
 
 type UpsertInput = {
-	providerType: "openai" | "openai_compatible" | "google" | "anthropic"
+	providerType: ProviderType
 	apiKey: string
 	model: string
 	baseUrl?: string
@@ -43,13 +44,11 @@ export class ProviderConfigService {
 			baseUrl: input.baseUrl ?? null,
 		})
 
-		const plainKey = await decrypt(row.apiKeyEncrypted)
-
 		return {
 			id: row.id,
 			clientId: row.clientId,
 			providerType: row.providerType,
-			apiKeyMasked: maskApiKey(plainKey),
+			apiKeyMasked: maskApiKey(input.apiKey),
 			model: row.model,
 			baseUrl: row.baseUrl,
 			updatedAt: row.updatedAt.toISOString(),

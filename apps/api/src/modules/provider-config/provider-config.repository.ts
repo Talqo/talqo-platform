@@ -1,9 +1,10 @@
 import { eq } from "drizzle-orm"
+import type { ProviderType } from "shared"
 import type { DB } from "../../db"
 import { aiProviderConfigs } from "../../db/schema"
 
 type ProviderConfigUpsert = {
-	providerType: "openai" | "openai_compatible" | "google" | "anthropic"
+	providerType: ProviderType
 	apiKeyEncrypted: string
 	model: string
 	baseUrl?: string | null

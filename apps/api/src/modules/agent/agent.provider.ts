@@ -8,14 +8,15 @@ import type { AiProviderConfig } from "shared"
 export function createLanguageModel(config: AiProviderConfig): LanguageModel {
 	switch (config.type) {
 		case "openai":
-			return createOpenAI({ apiKey: config.apiKey, baseURL: config.baseURL })(
-				config.model,
-			)
+			return createOpenAI({
+				apiKey: config.apiKey,
+				baseURL: config.baseURL,
+			})(config.model)
 		case "openai_compatible":
 			return createOpenAICompatible({
 				name: "custom",
 				apiKey: config.apiKey,
-				baseURL: config.baseURL ?? "",
+				baseURL: config.baseURL,
 			}).chatModel(config.model)
 		case "google":
 			return createGoogleGenerativeAI({

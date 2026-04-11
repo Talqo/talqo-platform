@@ -161,19 +161,23 @@ function ActiveProviderState({
 }
 
 function ProviderConfigForm({
+	config,
 	onCancel,
 	onSaved,
 	showCancel,
 }: {
+	config?: ProviderConfigResponse | null
 	onCancel?: () => void
 	onSaved: () => void
 	showCancel: boolean
 }) {
 	const upsert = useUpsertProviderConfig()
-	const [providerType, setProviderType] = useState<ProviderType>("openai")
+	const [providerType, setProviderType] = useState<ProviderType>(
+		config?.providerType ?? "openai",
+	)
 	const [apiKey, setApiKey] = useState("")
-	const [model, setModel] = useState("")
-	const [baseUrl, setBaseUrl] = useState("")
+	const [model, setModel] = useState(config?.model ?? "")
+	const [baseUrl, setBaseUrl] = useState(config?.baseUrl ?? "")
 
 	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -311,7 +315,7 @@ function ProviderConfigForm({
 }
 
 export function ProviderConfigTab() {
-	const { data: savedConfig, isLoading } = useProviderConfig()
+	const { data: savedConfig, isLoading, error } = useProviderConfig()
 	const deleteMutation = useDeleteProviderConfig()
 	const [configuring, setConfiguring] = useState(false)
 
@@ -320,6 +324,18 @@ export function ProviderConfigTab() {
 			<Card>
 				<CardContent className="pt-6">
 					<p className="text-muted-foreground text-sm">Loading…</p>
+				</CardContent>
+			</Card>
+		)
+	}
+
+	if (error) {
+		return (
+			<Card>
+				<CardContent className="pt-6">
+					<p className="text-destructive text-sm">
+						Failed to load provider config. Please refresh the page.
+					</p>
 				</CardContent>
 			</Card>
 		)
@@ -346,6 +362,7 @@ export function ProviderConfigTab() {
 						/>
 					) : (
 						<ProviderConfigForm
+							config={savedConfig}
 							showCancel={true}
 							onCancel={() => setConfiguring(false)}
 							onSaved={() => setConfiguring(false)}

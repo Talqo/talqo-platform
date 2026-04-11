@@ -3,12 +3,20 @@ import { config } from "./config"
 const ALGORITHM = "AES-GCM"
 const KEY_HEX = config.PROVIDER_KEY_SECRET
 
+let cachedKey: Promise<CryptoKey> | null = null
+
 async function importKey(): Promise<CryptoKey> {
-	const keyBytes = Buffer.from(KEY_HEX, "hex")
-	return crypto.subtle.importKey("raw", keyBytes, { name: ALGORITHM }, false, [
-		"encrypt",
-		"decrypt",
-	])
+	if (!cachedKey) {
+		const keyBytes = Buffer.from(KEY_HEX, "hex")
+		cachedKey = crypto.subtle.importKey(
+			"raw",
+			keyBytes,
+			{ name: ALGORITHM },
+			false,
+			["encrypt", "decrypt"],
+		)
+	}
+	return cachedKey
 }
 
 /**
