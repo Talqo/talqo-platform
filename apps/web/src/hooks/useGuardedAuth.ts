@@ -31,24 +31,44 @@ export function useGuardedAuth({
 	const [isValid, setIsValid] = useState(false)
 
 	useEffect(() => {
+		let mounted = true
+
 		const checkAuth = async () => {
 			const token = getToken()
 
 			if (!token) {
-				setIsValid(false)
-				setIsLoading(false)
+				if (mounted) {
+					setIsValid(false)
+					setIsLoading(false)
+				}
 				return
 			}
 
-			const { valid, shouldClear } = await validateToken(token, endpoint)
-			if (shouldClear) {
-				clearToken()
+			try {
+				const { valid, shouldClear } = await validateToken(token, endpoint)
+				if (shouldClear) {
+					clearToken()
+				}
+				if (mounted) {
+					setIsValid(valid)
+				}
+			} catch {
+				// Validation failed unexpectedly - treat as invalid
+				if (mounted) {
+					setIsValid(false)
+				}
+			} finally {
+				if (mounted) {
+					setIsLoading(false)
+				}
 			}
-			setIsValid(valid)
-			setIsLoading(false)
 		}
 
 		checkAuth()
+
+		return () => {
+			mounted = false
+		}
 	}, [getToken, endpoint, clearToken])
 
 	return { isLoading, isValid }

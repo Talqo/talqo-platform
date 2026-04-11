@@ -85,8 +85,13 @@ export async function validateToken(
 			return { valid: false, shouldClear: false }
 		}
 
-		// Network or other transport errors - don't clear token, treat as retryable
-		return { valid: false, shouldClear: false }
+		// Handle network failures - don't clear token, treat as retryable
+		if (error instanceof TypeError) {
+			return { valid: false, shouldClear: false }
+		}
+
+		// Rethrow unexpected errors (configuration errors, invalid endpoint, etc.)
+		throw error
 	}
 }
 
