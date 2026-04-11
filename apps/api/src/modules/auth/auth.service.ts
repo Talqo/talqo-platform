@@ -166,23 +166,23 @@ export class AuthService {
 	}
 
 	async resetPassword(token: string, newPassword: string): Promise<void> {
-		const record = await this.repo.consumePasswordResetToken(token)
-
 		const passwordHash = await Bun.password.hash(newPassword)
-		await this.repo.updateClientPassword(record.email, passwordHash)
+		const result = await this.repo.consumeTokenAndUpdatePassword(
+			token,
+			passwordHash,
+		)
 
-		logger.info("Password reset successful", { email: record.email })
+		logger.info("Password reset successful", {
+			clientId: result.clientId,
+			email: result.email,
+		})
 	}
 
 	async verifyResetToken(token: string): Promise<boolean> {
-		try {
-			const record = await this.repo.findPasswordResetToken(token)
-			if (!record) return false
-			if (record.expiresAt < new Date()) return false
-			if (record.consumedAt) return false
-			return true
-		} catch {
-			return false
-		}
+		const record = await this.repo.findPasswordResetToken(token)
+		if (!record) return false
+		if (record.expiresAt < new Date()) return false
+		if (record.consumedAt) return false
+		return true
 	}
 }

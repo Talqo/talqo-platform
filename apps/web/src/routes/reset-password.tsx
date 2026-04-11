@@ -42,9 +42,13 @@ function ResetPasswordPage() {
 	const [showPassword, setShowPassword] = useState(false)
 	const [state, setState] = useState<ResetState>({ status: "loading" })
 	const processedRef = useRef(false)
+	const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-	const { isLoading: isVerifying, isError: isVerifyError } =
-		useVerifyResetTokenQuery(token)
+	const {
+		isLoading: isVerifying,
+		isError: isVerifyError,
+		error: verifyError,
+	} = useVerifyResetTokenQuery(token)
 	const resetPassword = useResetPassword()
 
 	useEffect(() => {
@@ -61,11 +65,33 @@ function ResetPasswordPage() {
 		if (isVerifying) {
 			setState({ status: "loading" })
 		} else if (isVerifyError) {
-			setState({ status: "invalid" })
+			// Check if it's a genuine token error (4xx) vs transport error (5xx)
+			const errorCode = verifyError?.error?.code
+			const isTokenError =
+				errorCode === "INVALID_TOKEN" ||
+				errorCode === "TOKEN_EXPIRED" ||
+				errorCode === "TOKEN_ALREADY_USED"
+
+			if (isTokenError) {
+				setState({ status: "invalid" })
+			} else {
+				setState({
+					status: "error",
+					message: "Unable to verify link. Please try again later.",
+				})
+			}
 		} else if (token && !isVerifying) {
 			setState({ status: "ready" })
 		}
-	}, [isVerifying, isVerifyError, token])
+	}, [isVerifying, isVerifyError, verifyError, token])
+
+	useEffect(() => {
+		return () => {
+			if (redirectTimerRef.current) {
+				clearTimeout(redirectTimerRef.current)
+			}
+		}
+	}, [])
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
@@ -76,7 +102,11 @@ function ResetPasswordPage() {
 			{
 				onSuccess: () => {
 					setState({ status: "success" })
-					setTimeout(() => {
+					// Clear any existing timer before setting new one
+					if (redirectTimerRef.current) {
+						clearTimeout(redirectTimerRef.current)
+					}
+					redirectTimerRef.current = setTimeout(() => {
 						navigate({ to: "/login" })
 					}, 3000)
 				},
@@ -186,22 +216,24 @@ function ResetPasswordPage() {
 						<div className="space-y-2">
 							<Label htmlFor="password">New password</Label>
 							<div className="relative">
-								<Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+								<Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 								<Input
 									id="password"
 									type={showPassword ? "text" : "password"}
 									placeholder="Enter new password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
-									className="pl-10 pr-10"
+									className="pr-10 pl-10"
 									autoComplete="new-password"
 								/>
 								<Button
 									type="button"
 									variant="ghost"
 									size="icon"
-									className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+									className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2"
 									onClick={() => setShowPassword(!showPassword)}
+									aria-label={showPassword ? "Hide password" : "Show password"}
+									aria-pressed={showPassword}
 								>
 									{showPassword ? (
 										<EyeOff className="h-4 w-4" />

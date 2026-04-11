@@ -613,7 +613,7 @@ describe("POST /auth/reset-password", () => {
 
 	it("returns 400 when token is reused", async () => {
 		// First reset
-		await app.fetch(
+		const firstRes = await app.fetch(
 			new Request("http://localhost/auth/reset-password", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -623,6 +623,7 @@ describe("POST /auth/reset-password", () => {
 				}),
 			}),
 		)
+		expect(firstRes.status).toBe(200)
 
 		// Second reset with same token should fail
 		const res = await app.fetch(

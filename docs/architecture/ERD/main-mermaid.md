@@ -125,6 +125,6 @@ erDiagram
     ADMIN_USER ||--o{ ADMIN_ACCESS_LOG : performs
     CLIENT ||--o{ ADMIN_ACCESS_LOG : target
     PENDING_REGISTRATION ||--o| CLIENT : becomes
-    CLIENT ||--o{ PASSWORD_RESET_TOKEN : "requests"
+    CLIENT ||--o{ PASSWORD_RESET_TOKEN : "requests (by email)"
 
 ```

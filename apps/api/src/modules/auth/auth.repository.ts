@@ -72,6 +72,14 @@ export interface IAuthRepository {
 	savePasswordResetToken(record: PasswordResetToken): Promise<void>
 	consumePasswordResetToken(token: string): Promise<PasswordResetToken>
 	updateClientPassword(email: string, passwordHash: string): Promise<void>
+	// Atomically consume the token and update the client's password in a single transaction.
+	// Throws INVALID_TOKEN if token doesn't exist, TOKEN_EXPIRED if expired, or TOKEN_ALREADY_USED if consumed.
+	// Throws CLIENT_NOT_FOUND if the client for the token's email doesn't exist.
+	// Returns the clientId and email of the updated client.
+	consumeTokenAndUpdatePassword(
+		token: string,
+		passwordHash: string,
+	): Promise<{ clientId: string; email: string }>
 }
 
 export class InMemoryAuthRepository implements IAuthRepository {
@@ -212,6 +220,23 @@ export class InMemoryAuthRepository implements IAuthRepository {
 			if (client.email === email) {
 				client.passwordHash = passwordHash
 				return
+			}
+		}
+		throw new Error("CLIENT_NOT_FOUND")
+	}
+
+	async consumeTokenAndUpdatePassword(
+		token: string,
+		passwordHash: string,
+	): Promise<{ clientId: string; email: string }> {
+		// In-memory: this is inherently atomic
+		const record = await this.consumePasswordResetToken(token)
+		await this.updateClientPassword(record.email, passwordHash)
+
+		// Find the client to return ID
+		for (const client of this.clients.values()) {
+			if (client.email === record.email) {
+				return { clientId: client.id, email: record.email }
 			}
 		}
 		throw new Error("CLIENT_NOT_FOUND")
@@ -418,6 +443,45 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		if (rows.length === 0) {
 			throw new Error("CLIENT_NOT_FOUND")
 		}
+	}
+
+	async consumeTokenAndUpdatePassword(
+		token: string,
+		passwordHash: string,
+	): Promise<{ clientId: string; email: string }> {
+		return this.db.transaction(async (tx) => {
+			// Find and validate token with FOR UPDATE lock
+			const [record] = await tx
+				.select({
+					email: passwordResetTokens.email,
+					expiresAt: passwordResetTokens.expiresAt,
+					consumedAt: passwordResetTokens.consumedAt,
+				})
+				.from(passwordResetTokens)
+				.where(eq(passwordResetTokens.token, token))
+				.for("update")
+
+			if (!record) throw new Error("INVALID_TOKEN")
+			if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+			if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+
+			// Mark token consumed
+			await tx
+				.update(passwordResetTokens)
+				.set({ consumedAt: new Date() })
+				.where(eq(passwordResetTokens.token, token))
+
+			// Update client password and get client info
+			const [updated] = await tx
+				.update(clients)
+				.set({ passwordHash })
+				.where(eq(clients.email, record.email))
+				.returning({ id: clients.id })
+
+			if (!updated) throw new Error("CLIENT_NOT_FOUND")
+
+			return { clientId: updated.id, email: record.email }
+		})
 	}
 }
 

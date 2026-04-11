@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react"
 import { useState } from "react"
 import { useForgotPassword } from "@/api/hooks/useAuth"
 import { AuthHeader } from "@/components/auth"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -86,7 +87,7 @@ function ForgotPasswordPage() {
 							<div className="space-y-2">
 								<Label htmlFor="email">Email</Label>
 								<div className="relative">
-									<Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+									<Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 									<Input
 										id="email"
 										type="email"
@@ -98,6 +99,14 @@ function ForgotPasswordPage() {
 									/>
 								</div>
 							</div>
+							{forgotPassword.error && (
+								<Alert variant="destructive">
+									<AlertDescription>
+										Failed to send reset link. Please try again or contact
+										support.
+									</AlertDescription>
+								</Alert>
+							)}
 							<Button
 								type="submit"
 								className="w-full"
