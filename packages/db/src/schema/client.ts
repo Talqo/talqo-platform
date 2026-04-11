@@ -57,6 +57,13 @@ export const clients = pgTable("clients", {
 		.notNull(),
 })
 
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+	token: uuid("token").primaryKey().defaultRandom(),
+	email: varchar("email", { length: 255 }).notNull(),
+	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+	consumedAt: timestamp("consumed_at", { withTimezone: true }),
+})
+
 export const botConfigs = pgTable("bot_configs", {
 	id: uuid("id").primaryKey().defaultRandom(),
 	clientId: uuid("client_id")
