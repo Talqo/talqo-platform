@@ -10,7 +10,7 @@ import { resolve } from "node:path"
 
 const apiUrl = process.env.API_URL ?? "http://localhost:3000"
 const specUrl = `${apiUrl}/openapi.json`
-const apiDir = resolve(import.meta.dir, "../../../api")
+const apiDir = resolve(import.meta.dir, "../../api")
 
 const outDir = resolve(import.meta.dir, "../src/api/generated")
 const specFile = resolve(outDir, "openapi.json")
@@ -20,7 +20,10 @@ async function waitForApi(url: string, timeoutMs = 30000): Promise<boolean> {
 	const start = Date.now()
 	while (Date.now() - start < timeoutMs) {
 		try {
-			const res = await fetch(url, { method: "HEAD" })
+			const res = await fetch(url, {
+				method: "HEAD",
+				signal: AbortSignal.timeout(5000),
+			})
 			if (res.ok) return true
 		} catch {}
 		await new Promise((r) => setTimeout(r, 500))
@@ -49,7 +52,7 @@ function killApiProcess(proc: ReturnType<typeof spawn>): void {
 let apiProcess: ReturnType<typeof spawn> | null = null
 
 try {
-	const check = await fetch(specUrl)
+	const check = await fetch(specUrl, { signal: AbortSignal.timeout(5000) })
 	if (!check.ok) throw new Error("not running")
 	console.log("API already running, using existing instance")
 } catch {
@@ -73,12 +76,12 @@ try {
 try {
 	// Fetch spec and generate types
 	console.log(`Fetching OpenAPI spec from ${specUrl}...`)
-	const response = await fetch(specUrl)
+	const response = await fetch(specUrl, { signal: AbortSignal.timeout(5000) })
 	if (!response.ok) {
-		console.error(
+		process.exitCode = 1
+		throw new Error(
 			`Failed to fetch spec: ${response.status} ${response.statusText}`,
 		)
-		process.exit(1)
 	}
 
 	const spec = await response.json()

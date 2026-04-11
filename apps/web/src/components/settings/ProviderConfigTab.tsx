@@ -96,11 +96,13 @@ function ActiveProviderState({
 	onEdit,
 	onDelete,
 	deleting,
+	deleteError,
 }: {
 	config: ProviderConfigResponse
 	onEdit: () => void
 	onDelete: () => void
 	deleting: boolean
+	deleteError?: Error | null
 }) {
 	return (
 		<div className="space-y-4">
@@ -155,6 +157,11 @@ function ActiveProviderState({
 					{deleting ? "Removing…" : "Remove — revert to platform default"}
 				</Button>
 			</div>
+			{deleteError && (
+				<p className="text-destructive text-sm">
+					Failed to remove provider. Please try again.
+				</p>
+			)}
 		</div>
 	)
 }
@@ -370,6 +377,7 @@ export function ProviderConfigTab() {
 								}
 							}}
 							deleting={deleteMutation.isPending}
+							deleteError={deleteMutation.error}
 						/>
 					) : (
 						<ProviderConfigForm

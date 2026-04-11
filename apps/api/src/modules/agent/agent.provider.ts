@@ -30,9 +30,14 @@ export function createLanguageModel(config: AiProviderConfig): LanguageModel {
 				baseURL: config.baseURL,
 			})(config.model)
 		default: {
-			const unknownType = (config as { type: string }).type
-			logger.error("Unknown AI provider type", { type: unknownType })
-			throw new Error(`Unknown AI provider type: ${unknownType}`)
+			// TypeScript will error here if a new AiProviderConfig variant is added without a case
+			const _exhaustive: never = config
+			logger.error("Unknown AI provider config", {
+				config: JSON.stringify(_exhaustive),
+			})
+			throw new Error(
+				`Unknown AI provider config: ${JSON.stringify(_exhaustive)}`,
+			)
 		}
 	}
 }
