@@ -1,5 +1,5 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router"
-import { Building2, Loader2, Users } from "lucide-react"
+import { createFileRoute } from "@tanstack/react-router"
+import { Building2, Loader2 } from "lucide-react"
 import { useAdminClients } from "@/api/hooks/useAdmin"
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
 import { TenantsTable } from "@/components/backoffice/TenantsTable"
@@ -14,11 +14,14 @@ import {
 // Map API client response to Tenant format
 function mapClientsToTenants(clients: unknown[]) {
 	if (!clients || !Array.isArray(clients)) return []
+	const ALLOWED_STATUSES = new Set(["active", "suspended"])
 	return clients.map(
 		(client: { id: string; name: string; email: string; status?: string }) => ({
 			id: client.id,
 			name: client.name || client.email, // Fallback to email if no name
-			status: (client.status as "active" | "suspended") || "active",
+			status: ALLOWED_STATUSES.has(client.status)
+				? (client.status as "active" | "suspended")
+				: "active",
 			apiType: "Platform Default",
 			tokenUsage: "N/A",
 		}),
