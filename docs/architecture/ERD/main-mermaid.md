@@ -104,6 +104,13 @@ erDiagram
         uuid consumed_by_client_id FK
     }
 
+    PASSWORD_RESET_TOKEN {
+        uuid token PK
+        string email
+        datetime expires_at
+        datetime consumed_at
+    }
+
     CLIENT ||--|| BOT_CONFIG : has
     CLIENT ||--o{ BLACKLIST_WORD : defines
     CLIENT ||--o{ CUSTOM_MCP_SERVER : configures
@@ -118,5 +125,6 @@ erDiagram
     ADMIN_USER ||--o{ ADMIN_ACCESS_LOG : performs
     CLIENT ||--o{ ADMIN_ACCESS_LOG : target
     PENDING_REGISTRATION ||--o| CLIENT : becomes
+    CLIENT ||--o{ PASSWORD_RESET_TOKEN : "requests"
 
 ```
