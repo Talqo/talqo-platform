@@ -154,7 +154,7 @@ function ActiveProviderState({
 					onClick={onDelete}
 					disabled={deleting}
 				>
-					{deleting ? "Removing…" : "Remove — revert to platform default"}
+					{deleting ? "Removing…" : "Remove"}
 				</Button>
 			</div>
 			{deleteError && (
@@ -187,12 +187,16 @@ function ProviderConfigForm({
 
 	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		await upsert.mutateAsync(
-			providerType === "openai_compatible"
-				? { providerType, apiKey, model, baseUrl }
-				: { providerType, apiKey, model, ...(baseUrl ? { baseUrl } : {}) },
-		)
-		onSaved()
+		try {
+			await upsert.mutateAsync(
+				providerType === "openai_compatible"
+					? { providerType, apiKey, model, baseUrl }
+					: { providerType, apiKey, model, ...(baseUrl ? { baseUrl } : {}) },
+			)
+			onSaved()
+		} catch {
+			// error is captured in upsert.error and displayed below the form
+		}
 	}
 
 	return (
