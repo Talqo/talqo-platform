@@ -86,16 +86,16 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 	return router
 }
 
-// ─── Admin client management (protected) ──────────────────────────────────────
+// ─── Admin current user (protected) ───────────────────────────────────────────
 
-export function createAdminClientRouter(service: AdminService): OpenAPIHono {
+export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 	const router = new OpenAPIHono()
 
 	// GET /admin/me - Get current admin profile
 	router.openapi(
 		createRoute({
 			method: "get",
-			path: "/me",
+			path: "/",
 			tags: ["Admin"],
 			summary: "Get current admin profile",
 			security: [{ bearerAuth: [] }],
@@ -145,6 +145,14 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			)
 		},
 	)
+
+	return router
+}
+
+// ─── Admin client management (protected) ──────────────────────────────────────
+
+export function createAdminClientRouter(service: AdminService): OpenAPIHono {
+	const router = new OpenAPIHono()
 
 	router.openapi(
 		createRoute({

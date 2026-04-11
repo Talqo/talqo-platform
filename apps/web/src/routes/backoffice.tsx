@@ -22,9 +22,5 @@ function BackofficeRoute() {
 		return <Navigate to="/login" />
 	}
 
-	return (
-		<BackofficeLayout>
-			<Outlet />
-		</BackofficeLayout>
-	)
+	return <BackofficeLayout />
 }

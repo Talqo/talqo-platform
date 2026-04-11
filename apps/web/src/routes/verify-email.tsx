@@ -65,13 +65,16 @@ function VerifyEmailPage() {
 
 	const handleResend = () => {
 		if (!resendEmail || !canResend) return
-		setCanResend(false)
-		setResendTimeout(60)
 		resendVerification.mutate(
 			{ email: resendEmail },
 			{
 				onSuccess: () => {
 					setResendSuccess(true)
+					setCanResend(false)
+					setResendTimeout(60)
+				},
+				onError: () => {
+					setResendSuccess(false)
 				},
 			},
 		)
@@ -92,11 +95,9 @@ function VerifyEmailPage() {
 		}
 
 		// Call verify endpoint using mutateAsync for better promise handling
-		console.log("[VerifyEmail] Starting verification with token:", token)
 		verifyEmail
 			.mutateAsync({ token })
 			.then((data) => {
-				console.log("[VerifyEmail] Success handler with data:", data)
 				setState({ status: "success" })
 				if (data.data.token) {
 					localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
@@ -107,7 +108,6 @@ function VerifyEmailPage() {
 				}, 2000)
 			})
 			.catch((err) => {
-				console.log("[VerifyEmail] Error handler with error:", err)
 				const error = err as ApiError
 				const code = error.error?.code || "UNKNOWN_ERROR"
 				let message = "Verification failed. Please try again."

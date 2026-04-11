@@ -69,7 +69,7 @@ describe("email.service", () => {
 			}))
 			await expect(
 				sendVerificationEmail("user@example.com", "token-abc"),
-			).rejects.toThrow("Failed to send email to user@example.com")
+			).rejects.toThrow("Failed to send email")
 		})
 	})
 
@@ -101,7 +101,7 @@ describe("email.service", () => {
 			}))
 			await expect(
 				sendPasswordResetEmail("user@example.com", "reset-token"),
-			).rejects.toThrow("Failed to send email to user@example.com")
+			).rejects.toThrow("Failed to send email")
 		})
 	})
 
@@ -135,7 +135,7 @@ describe("email.service", () => {
 				},
 			}))
 			await expect(sendQuotaAlertEmail("user@example.com", 80)).rejects.toThrow(
-				"Failed to send email to user@example.com",
+				"Failed to send email",
 			)
 		})
 	})

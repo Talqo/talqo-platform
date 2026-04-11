@@ -9,7 +9,11 @@ import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
 import { requestLogger } from "./common/middleware/request-logger"
 import { widgetAuth } from "./common/middleware/widget-auth"
-import { adminAuthRoutes, adminClientRoutes } from "./modules/admin"
+import {
+	adminAuthRoutes,
+	adminClientRoutes,
+	adminMeRoutes,
+} from "./modules/admin"
 import {
 	adminAnalyticsRoutes,
 	clientAnalyticsRoutes,
@@ -70,7 +74,7 @@ app.route("/admin/auth", adminAuthRoutes)
 
 // ─── Admin dashboard (protected) ─────────────────────────────────────────────
 app.use("/admin/*", adminAuth)
-app.route("/admin/me", adminClientRoutes)
+app.route("/admin/me", adminMeRoutes)
 app.route("/admin/clients", adminClientRoutes)
 app.route("/admin/analytics", adminAnalyticsRoutes)
 app.route("/admin/mcp/pre-made", adminMcpRoutes)

@@ -62,7 +62,7 @@ function BackofficePage() {
 				<BackOfficeStatCard
 					title="Total Tenants"
 					value={clients?.length?.toString() ?? "0"}
-					description="Active tenants"
+					subtitle="Active tenants"
 					icon={Building2}
 				/>
 			</div>

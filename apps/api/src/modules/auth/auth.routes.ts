@@ -90,7 +90,7 @@ export function createAuthRouter(
 							success: false as const,
 							error: {
 								code: "EMAIL_FAILED",
-								message: `Failed to send verification email: ${err.message}`,
+								message: "Failed to send verification email",
 							},
 						},
 						500,
@@ -270,6 +270,10 @@ export function createAuthRouter(
 							schema: successResponseSchema(z.object({ message: z.string() })),
 						},
 					},
+				},
+				400: {
+					description: "Invalid email format",
+					content: { "application/json": { schema: errorResponseSchema } },
 				},
 			},
 		}),

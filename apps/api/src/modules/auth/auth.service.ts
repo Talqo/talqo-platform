@@ -33,7 +33,7 @@ export class AuthService {
 			expiresAt,
 		})
 
-		logger.info("Sending verification email", { email: canonical, token })
+		logger.info("Sending verification email", { email: canonical })
 		await sendVerificationEmail(canonical, token)
 	}
 
@@ -54,27 +54,27 @@ export class AuthService {
 			})
 		} catch (err) {
 			// EMAIL_TAKEN means a client with this email was already created by a concurrent request.
-			// The token may now be marked as consumed. Retry once to get the client.
+			// The token may now be marked as consumed. Poll for the client to be created.
 			if (err instanceof Error && err.message === "EMAIL_TAKEN") {
-				// Small delay to let the concurrent transaction complete
-				await new Promise((resolve) => setTimeout(resolve, 50))
-
-				// Try to find the client that was just created by checking the consumed token
-				const pending = await this.repo.findPendingByToken(token)
-				if (pending?.consumedByClientId) {
-					const client = await this.repo.findClientById(
-						pending.consumedByClientId,
-					)
-					if (client) {
-						await this.repo.updateLastActive(client.id)
-						return signToken({
-							sub: client.id,
-							role: "client",
-						})
+				// Poll up to 5 times at 25ms intervals (total 125ms max wait)
+				for (let attempt = 0; attempt < 5; attempt++) {
+					await new Promise((resolve) => setTimeout(resolve, 25))
+					const pending = await this.repo.findPendingByToken(token)
+					if (pending?.consumedByClientId) {
+						const client = await this.repo.findClientById(
+							pending.consumedByClientId,
+						)
+						if (client) {
+							await this.repo.updateLastActive(client.id)
+							return signToken({
+								sub: client.id,
+								role: "client",
+							})
+						}
 					}
 				}
 
-				// If we can't find the client, the email really is taken by someone else
+				// If we can't find the client after polling, the email really is taken by someone else
 				throw new Error("EMAIL_ALREADY_VERIFIED")
 			}
 			throw err
@@ -131,10 +131,7 @@ export class AuthService {
 		}
 
 		// Resend email with existing token
-		logger.info("Resending verification email", {
-			email: canonical,
-			token: pending.token,
-		})
+		logger.info("Resending verification email", { email: canonical })
 		await sendVerificationEmail(canonical, pending.token)
 	}
 }

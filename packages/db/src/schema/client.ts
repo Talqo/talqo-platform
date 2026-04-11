@@ -7,16 +7,30 @@ import {
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
-export const pendingRegistrations = pgTable("pending_registrations", {
-	token: uuid("token").primaryKey().defaultRandom(),
-	name: varchar("name", { length: 255 }).notNull(),
-	email: varchar("email", { length: 255 }).notNull().unique(),
-	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-	consumedAt: timestamp("consumed_at", { withTimezone: true }),
-	consumedByClientId: uuid("consumed_by_client_id"),
-})
+export const pendingRegistrations = pgTable(
+	"pending_registrations",
+	{
+		token: uuid("token").primaryKey().defaultRandom(),
+		name: varchar("name", { length: 255 }).notNull(),
+		email: varchar("email", { length: 255 }).notNull().unique(),
+		passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+		expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+		consumedAt: timestamp("consumed_at", { withTimezone: true }),
+		consumedByClientId: uuid("consumed_by_client_id").references(
+			() => clients.id,
+		),
+	},
+	(_table) => ({
+		checkConsumedState: sql`
+			CHECK (
+				(consumed_at IS NULL AND consumed_by_client_id IS NULL) OR
+				(consumed_at IS NOT NULL AND consumed_by_client_id IS NOT NULL)
+			)
+		`.as("check_consumed_state"),
+	}),
+)
 
 export const clients = pgTable("clients", {
 	id: uuid("id").primaryKey().defaultRandom(),
