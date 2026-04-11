@@ -13,8 +13,8 @@ const envSchema = z.object({
 	S3_SECRET_ACCESS_KEY: z.string().min(1),
 	S3_ENDPOINT: z.string().url(),
 	S3_BUCKET: z.string().min(1),
-	RESEND_API_KEY: z.string().min(1).optional(),
-	APP_URL: z.string().url().optional(),
+	RESEND_API_KEY: z.string().min(1),
+	APP_URL: z.string().url(),
 })
 
 // For tests, provide default values so config validation doesn't fail
@@ -31,6 +31,8 @@ const testDefaults = isTest
 			S3_SECRET_ACCESS_KEY: "test",
 			S3_ENDPOINT: "http://localhost:9000",
 			S3_BUCKET: "test",
+			RESEND_API_KEY: "test",
+			APP_URL: "http://localhost:3000",
 		}
 	: {}
 
