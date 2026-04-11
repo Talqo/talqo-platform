@@ -61,6 +61,9 @@ export const aiProviderConfigMaskedResponseSchema =
 export type ClientResponse = z.infer<typeof clientResponseSchema>
 export type BotConfigResponse = z.infer<typeof botConfigResponseSchema>
 export type BotConfigUpdate = z.infer<typeof botConfigUpdateSchema>
+export type AiProviderConfigResponse = z.infer<
+	typeof aiProviderConfigResponseSchema
+>
 export type AiProviderConfigMaskedResponse = z.infer<
 	typeof aiProviderConfigMaskedResponseSchema
 >

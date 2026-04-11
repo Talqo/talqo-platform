@@ -28,6 +28,23 @@ async function waitForApi(url: string, timeoutMs = 30000): Promise<boolean> {
 	return false
 }
 
+function killApiProcess(proc: ReturnType<typeof spawn>): void {
+	if (!proc.pid) return
+	try {
+		if (process.platform === "win32") {
+			// On Windows, negative PIDs are not supported; kill via taskkill
+			proc.kill()
+			spawn("taskkill", ["/PID", String(proc.pid), "/T", "/F"], {
+				stdio: "ignore",
+			})
+		} else {
+			process.kill(-proc.pid)
+		}
+	} catch {
+		// Swallow errors so cleanup never throws
+	}
+}
+
 // Check if API is already running
 let apiProcess: ReturnType<typeof spawn> | null = null
 
@@ -47,33 +64,36 @@ try {
 	const ready = await waitForApi(specUrl)
 	if (!ready) {
 		console.error("API failed to start within timeout")
+		if (apiProcess) killApiProcess(apiProcess)
 		process.exit(1)
 	}
 	console.log("API is ready")
 }
 
-// Fetch spec and generate types
-console.log(`Fetching OpenAPI spec from ${specUrl}...`)
-const response = await fetch(specUrl)
-if (!response.ok) {
-	console.error(
-		`Failed to fetch spec: ${response.status} ${response.statusText}`,
-	)
-	process.exit(1)
-}
+try {
+	// Fetch spec and generate types
+	console.log(`Fetching OpenAPI spec from ${specUrl}...`)
+	const response = await fetch(specUrl)
+	if (!response.ok) {
+		console.error(
+			`Failed to fetch spec: ${response.status} ${response.statusText}`,
+		)
+		process.exit(1)
+	}
 
-const spec = await response.json()
-writeFileSync(specFile, JSON.stringify(spec, null, 2))
-console.log(`Spec saved to ${specFile}`)
+	const spec = await response.json()
+	writeFileSync(specFile, JSON.stringify(spec, null, 2))
+	console.log(`Spec saved to ${specFile}`)
 
-console.log("Generating TypeScript types...")
-execSync(`bunx openapi-typescript ${specFile} -o ${typesFile}`, {
-	stdio: "inherit",
-})
-console.log(`Types generated at ${typesFile}`)
-
-// Cleanup: kill the API we started
-if (apiProcess?.pid) {
-	console.log("Stopping API server...")
-	process.kill(-apiProcess.pid)
+	console.log("Generating TypeScript types...")
+	execSync(`bunx openapi-typescript ${specFile} -o ${typesFile}`, {
+		stdio: "inherit",
+	})
+	console.log(`Types generated at ${typesFile}`)
+} finally {
+	// Cleanup: kill the API we started
+	if (apiProcess) {
+		console.log("Stopping API server...")
+		killApiProcess(apiProcess)
+	}
 }

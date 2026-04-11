@@ -1,5 +1,6 @@
 import { Plug } from "lucide-react"
 import { useState } from "react"
+import type { ProviderType } from "shared"
 import {
 	type ProviderConfigResponse,
 	useDeleteProviderConfig,
@@ -26,8 +27,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
-
-type ProviderType = "openai" | "openai_compatible" | "google" | "anthropic"
 
 const PROVIDER_LABELS: Record<ProviderType, string> = {
 	openai: "OpenAI",
@@ -195,7 +194,11 @@ function ProviderConfigForm({
 				<Label htmlFor="provider-type">Provider</Label>
 				<Select
 					value={providerType}
-					onValueChange={(v) => setProviderType(v as ProviderType)}
+					onValueChange={(v) => {
+						const newType = v as ProviderType
+						setProviderType(newType)
+						if (newType !== "openai_compatible") setBaseUrl("")
+					}}
 				>
 					<SelectTrigger id="provider-type" className="w-full">
 						<SelectValue placeholder="Select provider" />
@@ -357,7 +360,15 @@ export function ProviderConfigTab() {
 						<ActiveProviderState
 							config={savedConfig}
 							onEdit={() => setConfiguring(true)}
-							onDelete={() => deleteMutation.mutate()}
+							onDelete={() => {
+								if (
+									window.confirm(
+										"Remove your custom AI provider? Your chatbot will revert to the platform default.",
+									)
+								) {
+									deleteMutation.mutate()
+								}
+							}}
 							deleting={deleteMutation.isPending}
 						/>
 					) : (

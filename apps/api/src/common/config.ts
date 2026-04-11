@@ -19,7 +19,21 @@ const envSchema = z.object({
 	PROVIDER_KEY_SECRET: z
 		.string()
 		.length(64)
-		.regex(/^[0-9a-fA-F]+$/),
+		.regex(/^[0-9a-fA-F]+$/)
+		.refine(
+			(val) => {
+				// Allow trivially weak keys in test environment (e.g. all-zeros default)
+				if (process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1")
+					return true
+				const first = val[0]
+				// Reject all-same-character keys (e.g. 000...0, aaa...a)
+				return !val.split("").every((c) => c === first)
+			},
+			{
+				message:
+					"PROVIDER_KEY_SECRET must not be a trivially predictable value (all same character)",
+			},
+		),
 })
 
 // For tests, provide default values so config validation doesn't fail
