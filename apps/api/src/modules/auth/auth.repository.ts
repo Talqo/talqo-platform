@@ -1,6 +1,10 @@
 import { eq, sql } from "drizzle-orm"
 import type { DB } from "../../db"
-import { clients, pendingRegistrations } from "../../db/schema"
+import {
+	clients,
+	passwordResetTokens,
+	pendingRegistrations,
+} from "../../db/schema"
 
 // Matches the CLIENT entity in the ERD
 export type Client = {
@@ -24,6 +28,15 @@ export type PendingRegistration = {
 	expiresAt: Date
 	consumedAt?: Date | null
 	consumedByClientId?: string | null
+}
+
+// Transient storage for password reset requests.
+// Tokens are single-use and expire after 1 hour.
+export type PasswordResetToken = {
+	token: string
+	email: string
+	expiresAt: Date
+	consumedAt?: Date | null
 }
 
 export interface IAuthRepository {
@@ -54,11 +67,17 @@ export interface IAuthRepository {
 	// Throws TOKEN_EXPIRED if the registration has expired.
 	// Throws EMAIL_TAKEN if a client with this email already exists.
 	consumePendingRegistration(token: string): Promise<Client>
+	// Password reset token methods
+	findPasswordResetToken(token: string): Promise<PasswordResetToken | null>
+	savePasswordResetToken(record: PasswordResetToken): Promise<void>
+	consumePasswordResetToken(token: string): Promise<PasswordResetToken>
+	updateClientPassword(email: string, passwordHash: string): Promise<void>
 }
 
 export class InMemoryAuthRepository implements IAuthRepository {
 	private clients = new Map<string, Client>()
 	private pendingRegistrations = new Map<string, PendingRegistration>()
+	private passwordResetTokens = new Map<string, PasswordResetToken>()
 
 	async findClientByEmail(email: string): Promise<Client | null> {
 		for (const client of this.clients.values()) {
@@ -161,6 +180,41 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		this.pendingRegistrations.set(token, record)
 
 		return client
+	}
+
+	// Password reset token methods
+	async findPasswordResetToken(
+		token: string,
+	): Promise<PasswordResetToken | null> {
+		return this.passwordResetTokens.get(token) ?? null
+	}
+
+	async savePasswordResetToken(record: PasswordResetToken): Promise<void> {
+		this.passwordResetTokens.set(record.token, record)
+	}
+
+	async consumePasswordResetToken(token: string): Promise<PasswordResetToken> {
+		const record = this.passwordResetTokens.get(token)
+		if (!record) throw new Error("INVALID_TOKEN")
+		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+		if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+
+		record.consumedAt = new Date()
+		this.passwordResetTokens.set(token, record)
+		return record
+	}
+
+	async updateClientPassword(
+		email: string,
+		passwordHash: string,
+	): Promise<void> {
+		for (const client of this.clients.values()) {
+			if (client.email === email) {
+				client.passwordHash = passwordHash
+				return
+			}
+		}
+		throw new Error("CLIENT_NOT_FOUND")
 	}
 }
 
@@ -314,6 +368,55 @@ export class DrizzleAuthRepository implements IAuthRepository {
 
 			return client
 		})
+	}
+
+	// Password reset token methods
+	async findPasswordResetToken(
+		token: string,
+	): Promise<PasswordResetToken | null> {
+		const rows = await this.db
+			.select()
+			.from(passwordResetTokens)
+			.where(eq(passwordResetTokens.token, token))
+		return rows[0] ?? null
+	}
+
+	async savePasswordResetToken(record: PasswordResetToken): Promise<void> {
+		await this.db.insert(passwordResetTokens).values(record)
+	}
+
+	async consumePasswordResetToken(token: string): Promise<PasswordResetToken> {
+		return this.db.transaction(async (tx) => {
+			const [record] = await tx
+				.select()
+				.from(passwordResetTokens)
+				.where(eq(passwordResetTokens.token, token))
+				.for("update")
+
+			if (!record) throw new Error("INVALID_TOKEN")
+			if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+			if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+
+			await tx
+				.update(passwordResetTokens)
+				.set({ consumedAt: new Date() })
+				.where(eq(passwordResetTokens.token, token))
+
+			return record
+		})
+	}
+
+	async updateClientPassword(
+		email: string,
+		passwordHash: string,
+	): Promise<void> {
+		const result = await this.db
+			.update(clients)
+			.set({ passwordHash })
+			.where(eq(clients.email, email))
+		if (result.rowCount === 0) {
+			throw new Error("CLIENT_NOT_FOUND")
+		}
 	}
 }
 
