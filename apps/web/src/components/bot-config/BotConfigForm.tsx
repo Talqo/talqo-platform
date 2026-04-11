@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useBotConfig, useUpdateBotConfig } from "@/api/hooks/useBotConfig"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -47,10 +47,17 @@ type BotConfigFormInnerProps = {
 function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 	const updateBotConfig = useUpdateBotConfig()
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
+	const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	const clearFeedback = useCallback(() => {
-		const id = setTimeout(() => setFeedback(null), 5000)
-		return () => clearTimeout(id)
+		if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current)
+		feedbackTimerRef.current = setTimeout(() => setFeedback(null), 5000)
+	}, [])
+
+	useEffect(() => {
+		return () => {
+			if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current)
+		}
 	}, [])
 
 	const {
@@ -225,8 +232,6 @@ export function BotConfigForm() {
 		}
 	}, [data, initialValues])
 
-	if (isLoading || !initialValues) return <BotConfigFormSkeleton />
-
 	if (isError) {
 		return (
 			<Alert variant="destructive">
@@ -236,6 +241,8 @@ export function BotConfigForm() {
 			</Alert>
 		)
 	}
+
+	if (isLoading || !initialValues) return <BotConfigFormSkeleton />
 
 	return <BotConfigFormInner initialValues={initialValues} />
 }
