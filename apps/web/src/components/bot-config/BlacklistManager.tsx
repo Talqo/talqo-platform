@@ -50,8 +50,7 @@ export function BlacklistManager() {
 	const handleRemove = async (wordId: string) => {
 		try {
 			await removeWord.mutateAsync(wordId)
-		} catch (e) {
-			console.log(e)
+		} catch {
 			setAddError("Failed to remove word. Please try again.")
 		}
 	}
