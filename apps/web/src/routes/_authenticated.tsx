@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
-import { clearClientToken, getClientToken, validateToken } from "@/lib/auth"
+import { useGuardedAuth } from "@/hooks/useGuardedAuth"
+import { clearClientToken, getClientToken } from "@/lib/auth"
 import { AUTH } from "@/lib/constants"
 
 export const Route = createFileRoute("/_authenticated")({
@@ -9,30 +9,11 @@ export const Route = createFileRoute("/_authenticated")({
 })
 
 function AuthenticatedLayout() {
-	const [isLoading, setIsLoading] = useState(true)
-	const [isValid, setIsValid] = useState(false)
-
-	useEffect(() => {
-		const checkAuth = async () => {
-			const token = getClientToken()
-
-			if (!token) {
-				setIsValid(false)
-				setIsLoading(false)
-				return
-			}
-
-			const { valid, shouldClear } = await validateToken(token, "/client/me")
-			if (shouldClear) {
-				// Token is invalid, clear it
-				clearClientToken()
-			}
-			setIsValid(valid)
-			setIsLoading(false)
-		}
-
-		checkAuth()
-	}, [])
+	const { isLoading, isValid } = useGuardedAuth({
+		getToken: getClientToken,
+		endpoint: "/client/me",
+		clearToken: clearClientToken,
+	})
 
 	if (isLoading) {
 		return (

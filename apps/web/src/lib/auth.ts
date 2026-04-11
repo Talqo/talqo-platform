@@ -9,31 +9,63 @@ export interface TokenValidationResult {
 	shouldClear: boolean
 }
 
+/** Valid endpoints for token validation */
+export type AuthValidationEndpoint = "/client/me" | "/admin/me"
+
 const VALIDATION_TIMEOUT_MS = 5000
+
+/**
+ * Runtime guard to check if a string is a valid AuthValidationEndpoint
+ */
+export function isValidAuthValidationEndpoint(
+	value: string,
+): value is AuthValidationEndpoint {
+	return value === "/client/me" || value === "/admin/me"
+}
+
+/**
+ * Get the API base URL from environment variables
+ * @throws Error if VITE_API_URL is not configured
+ */
+function getApiBaseUrl(): string {
+	const baseUrl = import.meta.env.VITE_API_URL
+	if (!baseUrl) {
+		throw new Error(
+			"VITE_API_URL is not configured. Please set the API URL in your environment.",
+		)
+	}
+	return baseUrl
+}
 
 /**
  * Validate a JWT token by making a request to the specified endpoint
  * @param token - The JWT token to validate
- * @param endpoint - The API endpoint to use for validation (e.g., "/client/me" or "/admin/me")
+ * @param endpoint - The API endpoint to use for validation ("/client/me" or "/admin/me")
  * @returns Object containing whether token is valid and whether it should be cleared
+ * @throws Error if endpoint is invalid or VITE_API_URL is not configured
  */
 export async function validateToken(
 	token: string,
-	endpoint: string,
+	endpoint: AuthValidationEndpoint,
 ): Promise<TokenValidationResult> {
+	// Runtime validation of endpoint
+	if (!isValidAuthValidationEndpoint(endpoint)) {
+		throw new Error(
+			`Invalid endpoint: ${endpoint}. Must be "/client/me" or "/admin/me"`,
+		)
+	}
+
+	const baseUrl = getApiBaseUrl()
 	const controller = new AbortController()
 	const timeoutId = setTimeout(() => controller.abort(), VALIDATION_TIMEOUT_MS)
 
 	try {
-		const response = await fetch(
-			`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}${endpoint}`,
-			{
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-				signal: controller.signal,
+		const response = await fetch(`${baseUrl}${endpoint}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
 			},
-		)
+			signal: controller.signal,
+		})
 
 		clearTimeout(timeoutId)
 
