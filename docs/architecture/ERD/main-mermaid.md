@@ -94,6 +94,16 @@ erDiagram
     }
 
     %% TODO: WIDGET_CONFIG entity is not yet defined — columns TBD
+    PENDING_REGISTRATION {
+        uuid token PK
+        string name
+        string email
+        string password_hash
+        datetime expires_at
+        datetime consumed_at
+        uuid consumed_by_client_id FK
+    }
+
     CLIENT ||--|| BOT_CONFIG : has
     CLIENT ||--o{ BLACKLIST_WORD : defines
     CLIENT ||--o{ CUSTOM_MCP_SERVER : configures
@@ -107,5 +117,6 @@ erDiagram
 
     ADMIN_USER ||--o{ ADMIN_ACCESS_LOG : performs
     CLIENT ||--o{ ADMIN_ACCESS_LOG : target
+    PENDING_REGISTRATION ||--o| CLIENT : becomes
 
 ```

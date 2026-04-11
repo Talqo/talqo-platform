@@ -32,7 +32,7 @@ export function BackofficeLayout() {
 			{/* Sidebar */}
 			<aside className="sticky top-0 flex h-screen w-64 flex-col overflow-y-auto border-border border-r bg-card">
 				<Link
-					to="/backoffice"
+					to="/"
 					className="flex h-16 items-center gap-2 border-border border-b px-6 transition-colors hover:bg-muted/50"
 				>
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
