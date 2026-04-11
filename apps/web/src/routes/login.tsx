@@ -111,12 +111,6 @@ function LoginPage() {
 									>
 										Password
 									</label>
-									<Link
-										to="/forgot-password"
-										className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-									>
-										Forgot password?
-									</Link>
 								</div>
 								<AuthFormField
 									id="password"
@@ -131,6 +125,14 @@ function LoginPage() {
 									errorId="password-error"
 									autoComplete="current-password"
 								/>
+								<div className="flex justify-end">
+									<Link
+										to="/forgot-password"
+										className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+									>
+										Forgot password?
+									</Link>
+								</div>
 							</div>
 						</CardContent>
 						<CardFooter className="flex flex-col">
