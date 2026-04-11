@@ -11,26 +11,42 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 
+interface Tenant {
+	id: string
+	name: string
+	status: "active" | "suspended"
+	apiType: string
+	tokenUsage: string
+}
+
 // Map API client response to Tenant format
-function mapClientsToTenants(clients: unknown[]) {
-	if (!clients || !Array.isArray(clients)) return []
+function mapClientsToTenants(clients: Client[]): Tenant[] {
 	const ALLOWED_STATUSES = new Set(["active", "suspended"])
-	return clients.map(
-		(client: { id: string; name: string; email: string; status?: string }) => ({
-			id: client.id,
-			name: client.name || client.email, // Fallback to email if no name
-			status: ALLOWED_STATUSES.has(client.status)
+	return clients.map((client) => ({
+		id: client.id,
+		name: client.name || client.email, // Fallback to email if no name
+		status:
+			client.status && ALLOWED_STATUSES.has(client.status)
 				? (client.status as "active" | "suspended")
 				: "active",
-			apiType: "Platform Default",
-			tokenUsage: "N/A",
-		}),
-	)
+		apiType: "Platform Default",
+		tokenUsage: "N/A",
+	}))
 }
 
 export const Route = createFileRoute("/backoffice/")({
 	component: BackofficePage,
 })
+
+interface Client {
+	id: string
+	name: string
+	email: string
+	balanceUsd: string
+	status: string
+	lastActive: string | null
+	createdAt: string
+}
 
 function BackofficePage() {
 	const { data: clients, isLoading, error } = useAdminClients({ limit: 50 })
@@ -77,7 +93,7 @@ function BackofficePage() {
 					<CardDescription>Manage all tenants in the system</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<TenantsTable tenants={mapClientsToTenants(clients)} />
+					<TenantsTable tenants={clients ? mapClientsToTenants(clients) : []} />
 				</CardContent>
 			</Card>
 		</div>

@@ -23,7 +23,7 @@ interface AuthResponse {
 	}
 }
 
-interface ApiError {
+export interface ApiError {
 	success: false
 	error: {
 		code: string
@@ -186,13 +186,29 @@ export function useCurrentUser() {
 }
 
 // Get current admin (for admin dashboard)
+interface AdminProfile {
+	id: string
+	email: string
+	role: "admin"
+}
+
 export function useCurrentAdmin() {
-	return useQuery({
+	return useQuery<AdminProfile>({
 		queryKey: ["admin", "me"],
 		queryFn: async () => {
-			const { data, error } = await client.GET("/admin/me")
-			if (error) throw error
-			return data
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/admin/me`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem(AUTH.ADMIN_TOKEN_KEY) ?? ""}`,
+					},
+				},
+			)
+			if (!response.ok) {
+				throw new Error("Failed to fetch admin profile")
+			}
+			const result = await response.json()
+			return result.data as AdminProfile
 		},
 		enabled: !!localStorage.getItem(AUTH.ADMIN_TOKEN_KEY),
 	})

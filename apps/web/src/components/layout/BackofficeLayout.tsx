@@ -12,7 +12,11 @@ import { Button } from "@/components/ui/button"
 import { useTheme } from "@/lib/useTheme"
 import { cn } from "@/lib/utils"
 
-export function BackofficeLayout() {
+interface BackofficeLayoutProps {
+	children?: React.ReactNode
+}
+
+export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 	const location = useLocation()
 	const logout = useAdminLogout()
 	const { theme, toggleTheme } = useTheme()
@@ -94,7 +98,7 @@ export function BackofficeLayout() {
 
 			{/* Main Content */}
 			<main className="flex-1 overflow-auto bg-background p-8">
-				<Outlet />
+				{children ?? <Outlet />}
 			</main>
 		</div>
 	)

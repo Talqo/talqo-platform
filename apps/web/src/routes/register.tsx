@@ -54,9 +54,11 @@ function RegisterPage() {
 				setResendTimeout((prev) => prev - 1)
 			}, 1000)
 			return () => clearTimeout(timer)
-		} else if (resendTimeout === 0 && !canResend) {
+		}
+		if (resendTimeout === 0 && !canResend) {
 			setCanResend(true)
 		}
+		return undefined
 	}, [resendTimeout, canResend])
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
