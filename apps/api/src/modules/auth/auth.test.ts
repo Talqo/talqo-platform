@@ -39,6 +39,8 @@ describe("POST /auth/register", () => {
 	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(() => {
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
 		const built = buildApp()
 		app = built.app
 		repo = built.repo
@@ -57,7 +59,7 @@ describe("POST /auth/register", () => {
 		const body = (await res.json()) as Record<string, unknown>
 		expect(body.success).toBe(true)
 		expect(mockSend).toHaveBeenCalledTimes(1)
-		expect((mockSend.mock.calls[0] as [{ to: string }])[0].to).toBe(
+		expect((mockSend.mock.calls[0] as unknown as [{ to: string }])[0].to).toBe(
 			validRegistration.email,
 		)
 	})
@@ -75,7 +77,7 @@ describe("POST /auth/register", () => {
 		// Get token from repository to verify email
 		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending!.token}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 
 		// Second registration with same email
@@ -142,6 +144,8 @@ describe("GET /auth/verify-email", () => {
 	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(() => {
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
 		const built = buildApp()
 		app = built.app
 		repo = built.repo
@@ -161,7 +165,7 @@ describe("GET /auth/verify-email", () => {
 		const pending = await repo.findPendingByEmail(validRegistration.email)
 
 		const res = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending!.token}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(res.status).toBe(200)
 		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
@@ -196,7 +200,7 @@ describe("GET /auth/verify-email", () => {
 		const pending = await repo.findPendingByEmail(validRegistration.email)
 
 		const firstRes = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending!.token}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(firstRes.status).toBe(200)
 		const firstBody = (await firstRes.json()) as {
@@ -206,7 +210,7 @@ describe("GET /auth/verify-email", () => {
 
 		// Second verification with same token should also succeed (idempotent)
 		const secondRes = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending!.token}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(secondRes.status).toBe(200)
 		const secondBody = (await secondRes.json()) as {
@@ -227,10 +231,12 @@ describe("POST /auth/login", () => {
 	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(async () => {
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		process.env.JWT_SECRET ??= "test-secret"
 		const built = buildApp()
 		app = built.app
 		repo = built.repo
-		process.env.JWT_SECRET = "test-secret"
 
 		// Register and verify a client
 		await app.fetch(
@@ -244,7 +250,7 @@ describe("POST /auth/login", () => {
 		// Get token from repository and verify
 		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending!.token}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		mockSend.mockClear()
 	})
@@ -346,6 +352,8 @@ describe("POST /auth/resend-verification", () => {
 	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(() => {
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
 		const built = buildApp()
 		app = built.app
 		repo = built.repo
@@ -388,7 +396,7 @@ describe("POST /auth/resend-verification", () => {
 
 		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending!.token}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		mockSend.mockClear()
 
