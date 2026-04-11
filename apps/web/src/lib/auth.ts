@@ -9,6 +9,8 @@ export interface TokenValidationResult {
 	shouldClear: boolean
 }
 
+const VALIDATION_TIMEOUT_MS = 5000
+
 /**
  * Validate a JWT token by making a request to the specified endpoint
  * @param token - The JWT token to validate
@@ -19,6 +21,9 @@ export async function validateToken(
 	token: string,
 	endpoint: string,
 ): Promise<TokenValidationResult> {
+	const controller = new AbortController()
+	const timeoutId = setTimeout(() => controller.abort(), VALIDATION_TIMEOUT_MS)
+
 	try {
 		const response = await fetch(
 			`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}${endpoint}`,
@@ -26,8 +31,11 @@ export async function validateToken(
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
+				signal: controller.signal,
 			},
 		)
+
+		clearTimeout(timeoutId)
 
 		if (response.ok) {
 			return { valid: true, shouldClear: false }
@@ -37,7 +45,14 @@ export async function validateToken(
 		// Network errors, 5xx, and other transport issues should keep the token
 		const shouldClear = response.status === 401 || response.status === 403
 		return { valid: false, shouldClear }
-	} catch {
+	} catch (error) {
+		clearTimeout(timeoutId)
+
+		// Handle timeout - treat as network error (don't clear token)
+		if (error instanceof DOMException && error.name === "AbortError") {
+			return { valid: false, shouldClear: false }
+		}
+
 		// Network or other transport errors - don't clear token, treat as retryable
 		return { valid: false, shouldClear: false }
 	}
