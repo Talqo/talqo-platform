@@ -1,4 +1,7 @@
-import { sendVerificationEmail } from "../../common/email/email.service"
+import {
+	sendPasswordResetEmail,
+	sendVerificationEmail,
+} from "../../common/email/email.service"
 import { signToken } from "../../common/jwt"
 import { logger } from "../../common/logger"
 import type { IAuthRepository } from "./auth.repository"
@@ -133,5 +136,53 @@ export class AuthService {
 		// Resend email with existing token
 		logger.info("Resending verification email", { email: canonical })
 		await sendVerificationEmail(canonical, pending.token)
+	}
+
+	async requestPasswordReset(email: string): Promise<void> {
+		const canonical = email.trim().toLowerCase()
+
+		// Always return success to prevent user enumeration
+		// Only send email if client exists
+		const client = await this.repo.findClientByEmail(canonical)
+		if (!client) {
+			logger.info("Password reset requested for non-existent email", {
+				email: canonical,
+			})
+			return
+		}
+
+		// Generate token with 1-hour expiry
+		const token = crypto.randomUUID()
+		const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+		await this.repo.savePasswordResetToken({
+			token,
+			email: canonical,
+			expiresAt,
+		})
+
+		logger.info("Sending password reset email", { email: canonical })
+		await sendPasswordResetEmail(canonical, token)
+	}
+
+	async resetPassword(token: string, newPassword: string): Promise<void> {
+		const record = await this.repo.consumePasswordResetToken(token)
+
+		const passwordHash = await Bun.password.hash(newPassword)
+		await this.repo.updateClientPassword(record.email, passwordHash)
+
+		logger.info("Password reset successful", { email: record.email })
+	}
+
+	async verifyResetToken(token: string): Promise<boolean> {
+		try {
+			const record = await this.repo.findPasswordResetToken(token)
+			if (!record) return false
+			if (record.expiresAt < new Date()) return false
+			if (record.consumedAt) return false
+			return true
+		} catch {
+			return false
+		}
 	}
 }
