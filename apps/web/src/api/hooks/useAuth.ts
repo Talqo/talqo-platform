@@ -23,7 +23,7 @@ interface AuthResponse {
 	}
 }
 
-interface ApiError {
+export interface ApiError {
 	success: false
 	error: {
 		code: string
@@ -73,10 +73,54 @@ export function useRegister() {
 export function useVerifyEmail() {
 	return useMutation<AuthResponse, ApiError, { token: string }>({
 		mutationFn: async ({ token }) => {
+			console.log("[useAuth] mutationFn starting with token:", token)
+			try {
+				const { data, error } = await client.GET("/auth/verify-email", {
+					params: {
+						query: { token },
+					},
+				})
+				console.log("[useAuth] client.GET returned:", { data, error })
+				if (error) {
+					console.log("[useAuth] throwing error:", error)
+					throw error
+				}
+				console.log("[useAuth] returning data:", data)
+				return data as AuthResponse
+			} catch (e) {
+				console.log("[useAuth] caught exception:", e)
+				throw e
+			}
+		},
+	})
+}
+
+// Hook that includes callbacks for verify email
+export function useVerifyEmailWithCallbacks(
+	onSuccess?: (data: AuthResponse) => void,
+	onError?: (error: ApiError) => void,
+) {
+	return useMutation<AuthResponse, ApiError, { token: string }>({
+		mutationFn: async ({ token }) => {
 			const { data, error } = await client.GET("/auth/verify-email", {
 				params: {
 					query: { token },
 				},
+			})
+			if (error) throw error
+			return data as AuthResponse
+		},
+		onSuccess,
+		onError,
+	})
+}
+
+// Resend verification email mutation
+export function useResendVerificationEmail() {
+	return useMutation<AuthResponse, ApiError, { email: string }>({
+		mutationFn: async ({ email }) => {
+			const { data, error } = await client.POST("/auth/resend-verification", {
+				body: { email },
 			})
 			if (error) throw error
 			return data as AuthResponse
@@ -138,6 +182,35 @@ export function useCurrentUser() {
 			return data
 		},
 		enabled: !!localStorage.getItem(AUTH.TOKEN_KEY),
+	})
+}
+
+// Get current admin (for admin dashboard)
+interface AdminProfile {
+	id: string
+	email: string
+	role: "admin"
+}
+
+export function useCurrentAdmin() {
+	return useQuery<AdminProfile>({
+		queryKey: ["admin", "me"],
+		queryFn: async () => {
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/admin/me`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem(AUTH.ADMIN_TOKEN_KEY) ?? ""}`,
+					},
+				},
+			)
+			if (!response.ok) {
+				throw new Error("Failed to fetch admin profile")
+			}
+			const result = await response.json()
+			return result.data as AdminProfile
+		},
+		enabled: !!localStorage.getItem(AUTH.ADMIN_TOKEN_KEY),
 	})
 }
 

@@ -36,6 +36,14 @@ export function createAuthRouter(
 						},
 					},
 				},
+				409: {
+					description: "Email or name already taken",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				500: {
+					description: "Failed to send verification email",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 			},
 		}),
 		async (c) => {
@@ -43,18 +51,50 @@ export function createAuthRouter(
 			try {
 				await service.register(name, email, password)
 			} catch (err) {
+				if (err instanceof Error && err.message === "NAME_TAKEN") {
+					c.get("logger").warn("Registration attempted with taken name")
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "NAME_TAKEN",
+								message: "This name is already taken",
+							},
+						},
+						409,
+					)
+				}
 				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
-					// Return same response as success to prevent account enumeration
-					c.get("logger").warn("Registration attempted with taken email")
-				} else if (err instanceof Error) {
-					// Log email errors but still return success (don't expose email issues)
-					c.get("logger").error("Registration error (email send failed)", {
+					c.get("logger").warn("Registration attempted with taken email", {
+						email,
+					})
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "EMAIL_TAKEN",
+								message: "This email is already registered",
+							},
+						},
+						409,
+					)
+				}
+				// Re-throw email errors so user knows registration failed
+				if (err instanceof Error) {
+					c.get("logger").error("Registration error", {
 						error: err.message,
 						email,
 					})
-					throw err
-				} else {
-					throw err
+					return c.json(
+						{
+							success: false as const,
+							error: {
+								code: "EMAIL_FAILED",
+								message: "Failed to send verification email",
+							},
+						},
+						500,
+					)
 				}
 			}
 			return c.json(
@@ -78,10 +118,12 @@ export function createAuthRouter(
 			},
 			responses: {
 				200: {
-					description: "Email verified successfully",
+					description: "Email verified successfully, returns JWT token",
 					content: {
 						"application/json": {
-							schema: successResponseSchema(z.object({ message: z.string() })),
+							schema: successResponseSchema(
+								z.object({ token: z.string(), message: z.string() }),
+							),
 						},
 					},
 				},
@@ -98,11 +140,14 @@ export function createAuthRouter(
 		async (c) => {
 			const { token } = c.req.valid("query")
 			try {
-				await service.verifyEmail(token)
+				const jwtToken = await service.verifyEmail(token)
 				return c.json(
 					{
 						success: true as const,
-						data: { message: "Email verified successfully" },
+						data: {
+							token: jwtToken,
+							message: "Email verified successfully",
+						},
 					},
 					200,
 				)
@@ -198,6 +243,62 @@ export function createAuthRouter(
 				}
 				throw err
 			}
+		},
+	)
+
+	router.openapi(
+		createRoute({
+			method: "post",
+			path: "/resend-verification",
+			tags: ["Auth"],
+			summary: "Resend verification email",
+			request: {
+				body: {
+					content: {
+						"application/json": {
+							schema: z.object({ email: z.string().email() }),
+						},
+					},
+				},
+			},
+			responses: {
+				200: {
+					description:
+						"If a pending registration exists, verification email sent",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(z.object({ message: z.string() })),
+						},
+					},
+				},
+				400: {
+					description: "Invalid email format",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const { email } = c.req.valid("json")
+			try {
+				await service.resendVerificationEmail(email)
+			} catch (err) {
+				// Log error but still return success to prevent user enumeration
+				c.get("logger").error("Failed to resend verification email", {
+					email,
+					error: err instanceof Error ? err.message : String(err),
+				})
+			}
+			// Always return success to prevent user enumeration
+			return c.json(
+				{
+					success: true as const,
+					data: {
+						message:
+							"If a registration exists, a verification email has been sent",
+					},
+				},
+				200,
+			)
 		},
 	)
 

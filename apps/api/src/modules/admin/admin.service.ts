@@ -29,6 +29,12 @@ export class AdminService {
 		return { token, admin: { id: admin.id, email: admin.email } }
 	}
 
+	async getAdminById(adminId: string) {
+		const admin = await this.repo.findAdminById(adminId)
+		if (!admin) return null
+		return { id: admin.id, email: admin.email }
+	}
+
 	async listClients(limit: number, offset: number) {
 		return this.repo.listClients(limit, offset)
 	}

@@ -47,6 +47,22 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Email or name already taken */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: false;
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -74,7 +90,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Email verified successfully */
+                /** @description Email verified successfully, returns JWT token */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -84,6 +100,7 @@ export interface paths {
                             /** @enum {boolean} */
                             success: true;
                             data: {
+                                token: string;
                                 message: string;
                             };
                         };
@@ -197,6 +214,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/resend-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resend verification email */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description If a pending registration exists, verification email sent */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/client/me": {
         parameters: {
             query?: never;
@@ -227,7 +293,6 @@ export interface paths {
                                 /** Format: uuid */
                                 id: string;
                                 name: string;
-                                /** Format: email */
                                 email: string;
                                 balanceUsd: string;
                                 monthlyUsageLimit: string | null;
@@ -1762,7 +1827,6 @@ export interface paths {
                                 /** Format: uuid */
                                 id: string;
                                 name: string;
-                                /** Format: email */
                                 email: string;
                                 balanceUsd: string;
                                 status: string;
@@ -1814,7 +1878,6 @@ export interface paths {
                                 /** Format: uuid */
                                 id: string;
                                 name: string;
-                                /** Format: email */
                                 email: string;
                                 balanceUsd: string;
                                 status: string;

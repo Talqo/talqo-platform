@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
 import { db } from "../../db"
-import { activeAdminUsers, adminAccessLogs } from "../../db/schema"
+import { adminAccessLogs, adminUsers } from "../../db/schema"
 import { ForbiddenError, UnauthorizedError } from "../errors"
 import { verifyToken } from "../jwt"
 
@@ -21,9 +21,9 @@ export const adminAuth: MiddlewareHandler = async (c, next) => {
 	}
 
 	const admin = await db
-		.select({ id: activeAdminUsers.id })
-		.from(activeAdminUsers)
-		.where(eq(activeAdminUsers.id, payload.sub))
+		.select({ id: adminUsers.id })
+		.from(adminUsers)
+		.where(and(eq(adminUsers.id, payload.sub), eq(adminUsers.isDeleted, false)))
 		.then((rows) => rows[0])
 
 	if (!admin) {

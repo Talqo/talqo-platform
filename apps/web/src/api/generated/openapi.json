@@ -58,7 +58,9 @@
   "paths": {
     "/auth/register": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Register a new client account",
         "requestBody": {
           "content": {
@@ -66,11 +68,26 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": { "type": "string" },
-                  "email": { "type": "string", "format": "email" },
-                  "password": { "type": "string" }
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 100
+                  }
                 },
-                "required": ["name", "email", "password"]
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -83,16 +100,65 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "enum": [true] },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "message": { "type": "string" }
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["message"]
+                      "required": [
+                        "message"
+                      ]
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email or name already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        false
+                      ]
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ]
                 }
               }
             }
@@ -102,34 +168,55 @@
     },
     "/auth/verify-email": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Verify email address with token",
         "parameters": [
           {
-            "name": "token",
-            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
             "required": true,
-            "schema": { "type": "string" }
+            "name": "token",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Email verified successfully",
+            "description": "Email verified successfully, returns JWT token",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "enum": [true] },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "message": { "type": "string" }
+                        "token": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["message"]
+                      "required": [
+                        "token",
+                        "message"
+                      ]
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 }
               }
             }
@@ -141,17 +228,32 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "enum": [false] },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        false
+                      ]
+                    },
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["code", "message"]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
                     }
                   },
-                  "required": ["success", "error"]
+                  "required": [
+                    "success",
+                    "error"
+                  ]
                 }
               }
             }
@@ -163,17 +265,32 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "enum": [false] },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        false
+                      ]
+                    },
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["code", "message"]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
                     }
                   },
-                  "required": ["success", "error"]
+                  "required": [
+                    "success",
+                    "error"
+                  ]
                 }
               }
             }
@@ -183,7 +300,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Log in to a client account",
         "requestBody": {
           "content": {
@@ -191,10 +310,19 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email" },
-                  "password": { "type": "string" }
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1
+                  }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -207,16 +335,28 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "enum": [true] },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "token": { "type": "string" }
+                        "token": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["token"]
+                      "required": [
+                        "token"
+                      ]
                     }
                   },
-                  "required": ["success", "data"]
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 }
               }
             }
@@ -228,17 +368,93 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "enum": [false] },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        false
+                      ]
+                    },
                     "error": {
                       "type": "object",
                       "properties": {
-                        "code": { "type": "string" },
-                        "message": { "type": "string" }
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
                       },
-                      "required": ["code", "message"]
+                      "required": [
+                        "code",
+                        "message"
+                      ]
                     }
                   },
-                  "required": ["success", "error"]
+                  "required": [
+                    "success",
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/resend-verification": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Resend verification email",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If a pending registration exists, verification email sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ]
                 }
               }
             }
@@ -282,8 +498,7 @@
                           "type": "string"
                         },
                         "email": {
-                          "type": "string",
-                          "format": "email"
+                          "type": "string"
                         },
                         "balanceUsd": {
                           "type": "string"
@@ -2497,7 +2712,9 @@
                             "type": "string"
                           },
                           "tokenCount": {
-                            "type": "number"
+                            "type": "integer",
+                            "minimum": -2147483648,
+                            "maximum": 2147483647
                           },
                           "createdAt": {
                             "type": "string"
@@ -2629,7 +2846,9 @@
                               "type": "string"
                             },
                             "tokenCount": {
-                              "type": "number"
+                              "type": "integer",
+                              "minimum": -2147483648,
+                              "maximum": 2147483647
                             },
                             "createdAt": {
                               "type": "string"
@@ -2667,7 +2886,9 @@
                               "type": "string"
                             },
                             "tokenCount": {
-                              "type": "number"
+                              "type": "integer",
+                              "minimum": -2147483648,
+                              "maximum": 2147483647
                             },
                             "createdAt": {
                               "type": "string"
@@ -2961,8 +3182,7 @@
                             "type": "string"
                           },
                           "email": {
-                            "type": "string",
-                            "format": "email"
+                            "type": "string"
                           },
                           "balanceUsd": {
                             "type": "string"
@@ -3048,8 +3268,7 @@
                           "type": "string"
                         },
                         "email": {
-                          "type": "string",
-                          "format": "email"
+                          "type": "string"
                         },
                         "balanceUsd": {
                           "type": "string"

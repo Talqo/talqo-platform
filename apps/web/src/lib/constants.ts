@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
 
 	// Auth
 	TOKEN: "token",
+	ADMIN_TOKEN: "admin_token",
 } as const
 
 // Default values
@@ -42,6 +43,6 @@ export const AUTH = {
 	TOKEN_KEY: "token",
 	ADMIN_TOKEN_KEY: "admin_token",
 	DEFAULT_REDIRECT: "/dashboard",
-	ADMIN_DEFAULT_REDIRECT: "/dashboard",
+	ADMIN_DEFAULT_REDIRECT: "/backoffice",
 	LOGIN_ROUTE: "/login",
 } as const

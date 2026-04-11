@@ -1,18 +1,25 @@
 import { z } from "zod"
 
 export const RegisterSchema = z.object({
-	name: z.string().trim().min(1).max(100),
-	email: z.string().trim().email(),
-	password: z.string().min(8).max(100),
+	name: z
+		.string()
+		.trim()
+		.min(1, "Name is required")
+		.max(100, "Name must be 100 characters or less"),
+	email: z.string().trim().email("Please enter a valid email address"),
+	password: z
+		.string()
+		.min(8, "Password must be at least 8 characters")
+		.max(100, "Password must be 100 characters or less"),
 })
 
 export const LoginSchema = z.object({
-	email: z.string().email(),
-	password: z.string().min(1),
+	email: z.string().trim().email("Please enter a valid email address"),
+	password: z.string().min(1, "Password is required"),
 })
 
 export const VerifyEmailSchema = z.object({
-	token: z.string().uuid(),
+	token: z.string().uuid("Invalid verification token format"),
 })
 
 export type RegisterInput = z.infer<typeof RegisterSchema>

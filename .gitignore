@@ -31,3 +31,4 @@ dist/
 
 # Git worktrees
 .worktrees/
+.claude/worktrees/

@@ -22,6 +22,8 @@ export type PendingRegistration = {
 	email: string
 	passwordHash: string
 	expiresAt: Date
+	consumedAt?: Date | null
+	consumedByClientId?: string | null
 }
 
 export interface IAuthRepository {
@@ -31,6 +33,10 @@ export interface IAuthRepository {
 	findClientByName(name: string): Promise<Client | null>
 	// Check if a company name exists in pending registrations (case-insensitive)
 	findPendingByName(name: string): Promise<PendingRegistration | null>
+	// Find pending registration by email (case-insensitive)
+	findPendingByEmail(email: string): Promise<PendingRegistration | null>
+	// Find pending registration by token
+	findPendingByToken(token: string): Promise<PendingRegistration | null>
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>
@@ -81,6 +87,18 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		return null
 	}
 
+	async findPendingByEmail(email: string): Promise<PendingRegistration | null> {
+		const canonical = email.toLowerCase()
+		for (const pending of this.pendingRegistrations.values()) {
+			if (pending.email.toLowerCase() === canonical) return pending
+		}
+		return null
+	}
+
+	async findPendingByToken(token: string): Promise<PendingRegistration | null> {
+		return this.pendingRegistrations.get(token) ?? null
+	}
+
 	async createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
@@ -117,12 +135,18 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		this.pendingRegistrations.set(record.token, record)
 	}
 
-	// Single-threaded: no await points between the get, createClient, and delete,
-	// so the whole sequence is effectively atomic for this in-memory implementation.
 	async consumePendingRegistration(token: string): Promise<Client> {
 		const record = this.pendingRegistrations.get(token)
 		if (!record) throw new Error("INVALID_TOKEN")
 		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+
+		// If already consumed, return the existing client (idempotent)
+		if (record.consumedAt && record.consumedByClientId) {
+			const existingClient = this.clients.get(record.consumedByClientId)
+			if (existingClient) return existingClient
+			// If client somehow missing, continue to recreate
+		}
+
 		// createClient throws EMAIL_TAKEN on duplicate; the token stays intact so
 		// the caller can detect the conflict and retry or surface an error.
 		const client = await this.createClient({
@@ -130,8 +154,12 @@ export class InMemoryAuthRepository implements IAuthRepository {
 			email: record.email,
 			passwordHash: record.passwordHash,
 		})
-		// Delete only after successful creation to preserve retry-safety.
-		this.pendingRegistrations.delete(token)
+
+		// Mark as consumed instead of deleting (preserves token for idempotency)
+		record.consumedAt = new Date()
+		record.consumedByClientId = client.id
+		this.pendingRegistrations.set(token, record)
+
 		return client
 	}
 }
@@ -184,6 +212,23 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		return rows[0] ?? null
 	}
 
+	async findPendingByEmail(email: string): Promise<PendingRegistration | null> {
+		const canonical = email.toLowerCase()
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(sql`LOWER(${pendingRegistrations.email}) = ${canonical}`)
+		return rows[0] ?? null
+	}
+
+	async findPendingByToken(token: string): Promise<PendingRegistration | null> {
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(eq(pendingRegistrations.token, token))
+		return rows[0] ?? null
+	}
+
 	async createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
@@ -232,6 +277,15 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			if (!pending) throw new Error("INVALID_TOKEN")
 			if (pending.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
 
+			// If already consumed, return the existing client (idempotent)
+			if (pending.consumedAt && pending.consumedByClientId) {
+				const existingClient = await this.findClientById(
+					pending.consumedByClientId,
+				)
+				if (existingClient) return existingClient
+				// If client somehow missing, continue to create new one
+			}
+
 			let client: Client
 			try {
 				const rows = await tx
@@ -249,8 +303,13 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				throw err
 			}
 
+			// Mark as consumed instead of deleting (preserves token for idempotency)
 			await tx
-				.delete(pendingRegistrations)
+				.update(pendingRegistrations)
+				.set({
+					consumedAt: new Date(),
+					consumedByClientId: client.id,
+				})
 				.where(eq(pendingRegistrations.token, token))
 
 			return client
