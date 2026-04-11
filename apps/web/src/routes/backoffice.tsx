@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
+import { createFileRoute, Navigate } from "@tanstack/react-router"
 import { useCurrentAdmin } from "@/api/hooks/useAuth"
 import { BackofficeLayout } from "@/components/layout"
 
