@@ -163,10 +163,16 @@ export function useVerifyResetTokenQuery(token: string | undefined) {
 	return useQuery<{ success: boolean; data?: { valid: boolean } }, ApiError>({
 		queryKey: ["auth", "verify-reset-token", token],
 		queryFn: async () => {
-			// Safe to assert token exists because enabled: !!token guard prevents execution
+			// Guard against undefined token (shouldn't happen due to enabled check, but satisfies type safety)
+			if (!token) {
+				throw {
+					success: false,
+					error: { code: "MISSING_TOKEN", message: "Token is required" },
+				}
+			}
 			const { data, error } = await client.GET("/auth/verify-reset-token", {
 				params: {
-					query: { token: token! },
+					query: { token },
 				},
 			})
 			if (error) throw error
