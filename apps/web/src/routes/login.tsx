@@ -1,4 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
 import type { LoginInput } from "shared"
 import { useUnifiedLogin } from "@/api/hooks/useAuth"
@@ -13,11 +18,86 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { AUTH } from "@/lib/constants"
+import { AUTH, STORAGE_KEYS } from "@/lib/constants"
 import { useForm } from "@/lib/useForm"
 import { loginSchema } from "@/schemas"
 
+// Validate token by checking with the API
+async function validateToken(
+	token: string,
+	endpoint: string,
+): Promise<{ valid: boolean; shouldClear: boolean }> {
+	try {
+		const response = await fetch(
+			`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}${endpoint}`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			},
+		)
+
+		if (response.ok) {
+			return { valid: true, shouldClear: false }
+		}
+
+		// Only clear token on auth errors (401/403)
+		const shouldClear = response.status === 401 || response.status === 403
+		return { valid: false, shouldClear }
+	} catch {
+		// Network or other transport errors - don't clear token
+		return { valid: false, shouldClear: false }
+	}
+}
+
+// Check auth and redirect based on role before loading the page
+async function checkAuthAndRedirect() {
+	const clientToken = localStorage.getItem(STORAGE_KEYS.TOKEN)
+	const adminToken = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN)
+
+	// If no tokens, allow access to login page
+	if (!clientToken && !adminToken) {
+		return
+	}
+
+	// Check both tokens in parallel
+	const [clientResult, adminResult] = await Promise.all([
+		clientToken
+			? validateToken(clientToken, "/client/me")
+			: { valid: false, shouldClear: false },
+		adminToken
+			? validateToken(adminToken, "/admin/me")
+			: { valid: false, shouldClear: false },
+	])
+
+	// Clear invalid tokens
+	if (clientResult.shouldClear) {
+		localStorage.removeItem(STORAGE_KEYS.TOKEN)
+	}
+	if (adminResult.shouldClear) {
+		localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN)
+	}
+
+	// Redirect based on which token is valid (client takes priority if both valid)
+	if (clientResult.valid) {
+		throw redirect({
+			to: AUTH.DEFAULT_REDIRECT,
+			replace: true,
+		})
+	}
+
+	if (adminResult.valid) {
+		throw redirect({
+			to: AUTH.ADMIN_DEFAULT_REDIRECT,
+			replace: true,
+		})
+	}
+
+	// No valid tokens - allow access to login page
+}
+
 export const Route = createFileRoute("/login")({
+	beforeLoad: checkAuthAndRedirect,
 	component: LoginPage,
 })
 
