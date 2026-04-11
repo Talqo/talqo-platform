@@ -1,5 +1,12 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { LoginSchema, RegisterSchema, VerifyEmailSchema } from "shared"
+import {
+	ForgotPasswordSchema,
+	LoginSchema,
+	RegisterSchema,
+	ResetPasswordSchema,
+	VerifyEmailSchema,
+	VerifyResetTokenSchema,
+} from "shared"
 import type { AppVariables } from "../../common/jwt"
 import {
 	errorResponseSchema,
@@ -299,6 +306,193 @@ export function createAuthRouter(
 				},
 				200,
 			)
+		},
+	)
+
+	router.openapi(
+		createRoute({
+			method: "post",
+			path: "/forgot-password",
+			tags: ["Auth"],
+			summary: "Request password reset email",
+			request: {
+				body: {
+					content: {
+						"application/json": {
+							schema: ForgotPasswordSchema,
+						},
+					},
+				},
+			},
+			responses: {
+				200: {
+					description: "If account exists, password reset email sent",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(z.object({ message: z.string() })),
+						},
+					},
+				},
+				400: {
+					description: "Invalid email format",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const { email } = c.req.valid("json")
+			try {
+				await service.requestPasswordReset(email)
+			} catch (err) {
+				c.get("logger").error("Failed to send password reset email", {
+					email,
+					error: err instanceof Error ? err.message : String(err),
+				})
+			}
+			// Always return success to prevent user enumeration
+			return c.json(
+				{
+					success: true as const,
+					data: {
+						message:
+							"If an account exists with this email, a password reset link has been sent",
+					},
+				},
+				200,
+			)
+		},
+	)
+
+	router.openapi(
+		createRoute({
+			method: "get",
+			path: "/verify-reset-token",
+			tags: ["Auth"],
+			summary: "Verify password reset token is valid and not expired",
+			request: {
+				query: VerifyResetTokenSchema,
+			},
+			responses: {
+				200: {
+					description: "Token is valid",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(
+								z.object({ valid: z.boolean(), email: z.string().optional() }),
+							),
+						},
+					},
+				},
+				400: {
+					description: "Invalid or expired token",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const { token } = c.req.valid("query")
+			const isValid = await service.verifyResetToken(token)
+			if (!isValid) {
+				return c.json(
+					{
+						success: false as const,
+						error: {
+							code: "INVALID_TOKEN",
+							message: "Invalid or expired token",
+						},
+					},
+					400,
+				)
+			}
+			return c.json(
+				{
+					success: true as const,
+					data: { valid: true },
+				},
+				200,
+			)
+		},
+	)
+
+	router.openapi(
+		createRoute({
+			method: "post",
+			path: "/reset-password",
+			tags: ["Auth"],
+			summary: "Reset password with token",
+			request: {
+				body: {
+					content: {
+						"application/json": {
+							schema: ResetPasswordSchema,
+						},
+					},
+				},
+			},
+			responses: {
+				200: {
+					description: "Password reset successful",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(z.object({ message: z.string() })),
+						},
+					},
+				},
+				400: {
+					description: "Invalid or expired token",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const { token, password } = c.req.valid("json")
+			try {
+				await service.resetPassword(token, password)
+				return c.json(
+					{
+						success: true as const,
+						data: { message: "Password reset successful" },
+					},
+					200,
+				)
+			} catch (err) {
+				if (err instanceof Error) {
+					if (
+						err.message === "INVALID_TOKEN" ||
+						err.message === "TOKEN_EXPIRED"
+					) {
+						c.get("logger").warn("Password reset failed", {
+							reason: err.message,
+						})
+						return c.json(
+							{
+								success: false as const,
+								error: {
+									code: err.message,
+									message: "Invalid or expired token",
+								},
+							},
+							400,
+						)
+					}
+					if (err.message === "TOKEN_ALREADY_USED") {
+						c.get("logger").warn("Password reset failed", {
+							reason: err.message,
+						})
+						return c.json(
+							{
+								success: false as const,
+								error: {
+									code: "TOKEN_ALREADY_USED",
+									message: "This link has already been used",
+								},
+							},
+							400,
+						)
+					}
+				}
+				throw err
+			}
 		},
 	)
 
