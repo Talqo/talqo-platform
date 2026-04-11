@@ -410,11 +410,12 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		email: string,
 		passwordHash: string,
 	): Promise<void> {
-		const result = await this.db
+		const rows = await this.db
 			.update(clients)
 			.set({ passwordHash })
 			.where(eq(clients.email, email))
-		if (result.rowCount === 0) {
+			.returning({ id: clients.id })
+		if (rows.length === 0) {
 			throw new Error("CLIENT_NOT_FOUND")
 		}
 	}
