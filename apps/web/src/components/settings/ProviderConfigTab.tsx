@@ -1,5 +1,11 @@
 import { Plug } from "lucide-react"
 import { useState } from "react"
+import {
+	type ProviderConfigResponse,
+	useDeleteProviderConfig,
+	useProviderConfig,
+	useUpsertProviderConfig,
+} from "@/api/hooks/useProviderConfig"
 import anthropicIcon from "@/assets/anthropic.svg"
 import googleIcon from "@/assets/google.svg"
 import openaiIcon from "@/assets/openai.svg"
@@ -23,14 +29,6 @@ import {
 
 type ProviderType = "openai" | "openai_compatible" | "google" | "anthropic"
 
-type SavedConfig = {
-	providerType: ProviderType
-	apiKeyMasked: string
-	model: string
-	baseUrl: string | null
-	updatedAt: string
-}
-
 const PROVIDER_LABELS: Record<ProviderType, string> = {
 	openai: "OpenAI",
 	openai_compatible: "OpenAI Compatible",
@@ -44,9 +42,6 @@ const MODEL_PLACEHOLDERS: Record<ProviderType, string> = {
 	google: "gemini-2.0-flash, gemini-1.5-pro",
 	anthropic: "claude-sonnet-4-6, claude-haiku-4-5",
 }
-
-// Mock saved config — replace with real API query (null = using platform default)
-const MOCK_SAVED: SavedConfig | null = null
 
 function ProviderBadge({ type }: { type: ProviderType }) {
 	const colors: Record<ProviderType, string> = {
@@ -101,10 +96,12 @@ function ActiveProviderState({
 	config,
 	onEdit,
 	onDelete,
+	deleting,
 }: {
-	config: SavedConfig
+	config: ProviderConfigResponse
 	onEdit: () => void
 	onDelete: () => void
+	deleting: boolean
 }) {
 	return (
 		<div className="space-y-4">
@@ -154,8 +151,9 @@ function ActiveProviderState({
 					size="sm"
 					className="text-destructive hover:text-destructive"
 					onClick={onDelete}
+					disabled={deleting}
 				>
-					Remove — revert to platform default
+					{deleting ? "Removing…" : "Remove — revert to platform default"}
 				</Button>
 			</div>
 		</div>
@@ -164,23 +162,27 @@ function ActiveProviderState({
 
 function ProviderConfigForm({
 	onCancel,
+	onSaved,
 	showCancel,
 }: {
 	onCancel?: () => void
+	onSaved: () => void
 	showCancel: boolean
 }) {
+	const upsert = useUpsertProviderConfig()
 	const [providerType, setProviderType] = useState<ProviderType>("openai")
 	const [apiKey, setApiKey] = useState("")
 	const [model, setModel] = useState("")
 	const [baseUrl, setBaseUrl] = useState("")
-	const [saving, setSaving] = useState(false)
 
 	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		setSaving(true)
-		// TODO: wire to API mutation
-		await new Promise((r) => setTimeout(r, 600))
-		setSaving(false)
+		await upsert.mutateAsync(
+			providerType === "openai_compatible"
+				? { providerType, apiKey, model, baseUrl }
+				: { providerType, apiKey, model, ...(baseUrl ? { baseUrl } : {}) },
+		)
+		onSaved()
 	}
 
 	return (
@@ -288,9 +290,15 @@ function ProviderConfigForm({
 				</div>
 			)}
 
+			{upsert.error && (
+				<p className="text-destructive text-sm">
+					Failed to save. Please try again.
+				</p>
+			)}
+
 			<div className="flex gap-2 pt-1">
-				<Button type="submit" disabled={saving}>
-					{saving ? "Saving…" : "Save provider"}
+				<Button type="submit" disabled={upsert.isPending}>
+					{upsert.isPending ? "Saving…" : "Save provider"}
 				</Button>
 				{showCancel && onCancel && (
 					<Button type="button" variant="ghost" onClick={onCancel}>
@@ -303,8 +311,19 @@ function ProviderConfigForm({
 }
 
 export function ProviderConfigTab() {
-	const savedConfig: SavedConfig | null = MOCK_SAVED
+	const { data: savedConfig, isLoading } = useProviderConfig()
+	const deleteMutation = useDeleteProviderConfig()
 	const [configuring, setConfiguring] = useState(false)
+
+	if (isLoading) {
+		return (
+			<Card>
+				<CardContent className="pt-6">
+					<p className="text-muted-foreground text-sm">Loading…</p>
+				</CardContent>
+			</Card>
+		)
+	}
 
 	return (
 		<Card>
@@ -322,14 +341,14 @@ export function ProviderConfigTab() {
 						<ActiveProviderState
 							config={savedConfig}
 							onEdit={() => setConfiguring(true)}
-							onDelete={() => {
-								/* TODO: wire delete mutation */
-							}}
+							onDelete={() => deleteMutation.mutate()}
+							deleting={deleteMutation.isPending}
 						/>
 					) : (
 						<ProviderConfigForm
 							showCancel={true}
 							onCancel={() => setConfiguring(false)}
+							onSaved={() => setConfiguring(false)}
 						/>
 					)
 				) : (

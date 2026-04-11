@@ -20,7 +20,7 @@ export function BotSettingsTab() {
 					<Label htmlFor="bot-prompt">Context</Label>
 					<Textarea
 						id="bot-prompt"
-						className="min-h-[160px]"
+						className="min-h-40"
 						placeholder="Define the behavior and context for your AI assistant..."
 					/>
 					<p className="text-muted-foreground text-sm">
