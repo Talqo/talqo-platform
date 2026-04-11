@@ -78,10 +78,12 @@ function VerifyEmailPage() {
 				setResendTimeout((prev) => prev - 1)
 			}, 1000)
 			return () => clearTimeout(timer)
-		} else if (resendTimeout === 0 && !canResend) {
+		}
+		if (resendTimeout === 0 && !canResend) {
 			setCanResend(true)
 			setResendSuccess(false)
 		}
+		return undefined
 	}, [resendTimeout, canResend])
 
 	const handleResend = () => {
