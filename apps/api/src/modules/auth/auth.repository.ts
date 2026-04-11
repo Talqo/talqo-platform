@@ -230,16 +230,26 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		passwordHash: string,
 	): Promise<{ clientId: string; email: string }> {
 		// In-memory: this is inherently atomic
-		const record = await this.consumePasswordResetToken(token)
+		// First, find and validate the token without consuming it
+		const record = this.passwordResetTokens.get(token)
+		if (!record) throw new Error("INVALID_TOKEN")
+		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+		if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+
+		// Find the client first to ensure they exist
+		const client = Array.from(this.clients.values()).find(
+			(c) => c.email === record.email,
+		)
+		if (!client) throw new Error("INVALID_TOKEN")
+
+		// Update password
 		await this.updateClientPassword(record.email, passwordHash)
 
-		// Find the client to return ID
-		for (const client of this.clients.values()) {
-			if (client.email === record.email) {
-				return { clientId: client.id, email: record.email }
-			}
-		}
-		throw new Error("CLIENT_NOT_FOUND")
+		// Only consume the token after successful password update
+		record.consumedAt = new Date()
+		this.passwordResetTokens.set(token, record)
+
+		return { clientId: client.id, email: record.email }
 	}
 }
 
@@ -422,12 +432,14 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
 			if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
 
+			const consumedAt = new Date()
 			await tx
 				.update(passwordResetTokens)
-				.set({ consumedAt: new Date() })
+				.set({ consumedAt })
 				.where(eq(passwordResetTokens.token, token))
 
-			return record
+			// Return record with consumedAt set (consistent with InMemoryAuthRepository)
+			return { ...record, consumedAt }
 		})
 	}
 
@@ -450,7 +462,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		passwordHash: string,
 	): Promise<{ clientId: string; email: string }> {
 		return this.db.transaction(async (tx) => {
-			// Find and validate token with FOR UPDATE lock
+			// First, find and validate the token with FOR UPDATE lock (without consuming yet)
 			const [record] = await tx
 				.select({
 					email: passwordResetTokens.email,
@@ -465,20 +477,21 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
 			if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
 
-			// Mark token consumed
-			await tx
-				.update(passwordResetTokens)
-				.set({ consumedAt: new Date() })
-				.where(eq(passwordResetTokens.token, token))
-
-			// Update client password and get client info
+			// Update client password and get client info first
 			const [updated] = await tx
 				.update(clients)
 				.set({ passwordHash })
 				.where(eq(clients.email, record.email))
 				.returning({ id: clients.id })
 
-			if (!updated) throw new Error("CLIENT_NOT_FOUND")
+			// If no client found, treat as invalid token
+			if (!updated) throw new Error("INVALID_TOKEN")
+
+			// Only consume the token after successful password update
+			await tx
+				.update(passwordResetTokens)
+				.set({ consumedAt: new Date() })
+				.where(eq(passwordResetTokens.token, token))
 
 			return { clientId: updated.id, email: record.email }
 		})
