@@ -4,10 +4,10 @@ import type { paths } from "./generated/openapi"
 
 const authMiddleware: Middleware = {
 	async onRequest({ request }) {
-		// Check for client token first, then admin token
 		const clientToken = localStorage.getItem(AUTH.TOKEN_KEY)
 		const adminToken = localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
-		const token = clientToken || adminToken
+		const isAdminRequest = request.url.includes("/admin")
+		const token = isAdminRequest ? adminToken : clientToken || adminToken
 		if (token) {
 			request.headers.set("Authorization", `Bearer ${token}`)
 		}

@@ -27,6 +27,27 @@ import { Label } from "@/components/ui/label"
 import { AUTH } from "@/lib/constants"
 import { useTheme } from "@/lib/useTheme"
 
+function ThemeToggleButton() {
+	const { theme, toggleTheme } = useTheme()
+	return (
+		<Button
+			variant="ghost"
+			size="icon"
+			onClick={toggleTheme}
+			className="absolute top-4 right-4"
+			aria-label={
+				theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+			}
+		>
+			{theme === "dark" ? (
+				<Sun className="h-5 w-5" />
+			) : (
+				<Moon className="h-5 w-5" />
+			)}
+		</Button>
+	)
+}
+
 export const Route = createFileRoute("/verify-email")({
 	component: VerifyEmailPage,
 	validateSearch: (search: Record<string, unknown>): { token?: string } => ({
@@ -50,7 +71,6 @@ function VerifyEmailPage() {
 	const verifyEmail = useVerifyEmail()
 	const resendVerification = useResendVerificationEmail()
 	const processedRef = useRef(false)
-	const { theme, toggleTheme } = useTheme()
 
 	useEffect(() => {
 		if (resendTimeout > 0) {
@@ -60,6 +80,7 @@ function VerifyEmailPage() {
 			return () => clearTimeout(timer)
 		} else if (resendTimeout === 0 && !canResend) {
 			setCanResend(true)
+			setResendSuccess(false)
 		}
 	}, [resendTimeout, canResend])
 
@@ -123,30 +144,14 @@ function VerifyEmailPage() {
 
 				setState({ status: "error", code, message })
 			})
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		// navigate and verifyEmail are stable references from TanStack Router/Query
 		// Only run when token changes (on initial load with token from URL)
-	}, [token])
+	}, [token, navigate, verifyEmail])
 
 	if (state.status === "loading") {
 		return (
 			<div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-				{/* Theme Toggle */}
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={toggleTheme}
-					className="absolute top-4 right-4"
-					aria-label={
-						theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-					}
-				>
-					{theme === "dark" ? (
-						<Sun className="h-5 w-5" />
-					) : (
-						<Moon className="h-5 w-5" />
-					)}
-				</Button>
+				<ThemeToggleButton />
 				<Card className="w-full max-w-md">
 					<CardHeader className="text-center">
 						<div className="mb-4 flex justify-center">
@@ -165,22 +170,7 @@ function VerifyEmailPage() {
 	if (state.status === "success") {
 		return (
 			<div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-				{/* Theme Toggle */}
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={toggleTheme}
-					className="absolute top-4 right-4"
-					aria-label={
-						theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-					}
-				>
-					{theme === "dark" ? (
-						<Sun className="h-5 w-5" />
-					) : (
-						<Moon className="h-5 w-5" />
-					)}
-				</Button>
+				<ThemeToggleButton />
 				<Card className="w-full max-w-md">
 					<CardHeader className="text-center">
 						<div className="mb-4 flex justify-center">
@@ -204,22 +194,7 @@ function VerifyEmailPage() {
 
 	return (
 		<div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-			{/* Theme Toggle */}
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={toggleTheme}
-				className="absolute top-4 right-4"
-				aria-label={
-					theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-				}
-			>
-				{theme === "dark" ? (
-					<Sun className="h-5 w-5" />
-				) : (
-					<Moon className="h-5 w-5" />
-				)}
-			</Button>
+			<ThemeToggleButton />
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
 					<div className="mb-4 flex justify-center">
