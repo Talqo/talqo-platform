@@ -34,6 +34,7 @@ src/
 </routing>
 <data_fetching>
 - **API client is auto-generated** from the backend's OpenAPI spec into `src/api/generated/`. Never edit — regenerate when the spec changes.
+- **To regenerate:** Run `bun run generate-api`. The script starts the API automatically if not already running, generates types, then stops it.
 - Use `useQuery` and `useMutation` directly in components with the generated client functions.
 </data_fetching>
 <file_naming>

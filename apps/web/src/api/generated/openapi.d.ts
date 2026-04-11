@@ -63,6 +63,22 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Failed to send verification email */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: false;
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -250,6 +266,22 @@ export interface paths {
                             /** @enum {boolean} */
                             success: true;
                             data: {
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Invalid email format */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: false;
+                            error: {
+                                code: string;
                                 message: string;
                             };
                         };
@@ -1311,6 +1343,151 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/me/provider-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get current AI provider configuration */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Provider config or null (platform default) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                clientId: string;
+                                /** @enum {string} */
+                                providerType: "openai" | "openai_compatible" | "google" | "anthropic";
+                                apiKeyMasked: string;
+                                model: string;
+                                baseUrl: string | null;
+                                updatedAt: string;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        /** Create or replace AI provider configuration */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        providerType: "openai";
+                        apiKey: string;
+                        model: string;
+                        /** Format: uri */
+                        baseUrl?: string;
+                    } | {
+                        /** @enum {string} */
+                        providerType: "openai_compatible";
+                        apiKey: string;
+                        model: string;
+                        /** Format: uri */
+                        baseUrl: string;
+                    } | {
+                        /** @enum {string} */
+                        providerType: "google";
+                        apiKey: string;
+                        model: string;
+                        /** Format: uri */
+                        baseUrl?: string;
+                    } | {
+                        /** @enum {string} */
+                        providerType: "anthropic";
+                        apiKey: string;
+                        model: string;
+                        /** Format: uri */
+                        baseUrl?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Upserted provider config */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                clientId: string;
+                                /** @enum {string} */
+                                providerType: "openai" | "openai_compatible" | "google" | "anthropic";
+                                apiKeyMasked: string;
+                                model: string;
+                                baseUrl: string | null;
+                                updatedAt: string;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Remove AI provider configuration (reverts to platform default) */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                /** @enum {boolean} */
+                                deleted: true;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/widget/{clientId}/sessions": {
         parameters: {
             query?: never;
@@ -1788,6 +1965,83 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get current admin profile */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Admin profile */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                id: string;
+                                email: string;
+                                /** @enum {string} */
+                                role: "admin";
+                            };
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: false;
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Admin not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: false;
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

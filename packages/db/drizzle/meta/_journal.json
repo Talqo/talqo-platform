@@ -57,6 +57,13 @@
 			"when": 1744291200000,
 			"tag": "0007_add_admin_soft_delete",
 			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "7",
+			"when": 1775906397383,
+			"tag": "0008_tranquil_silver_samurai",
+			"breakpoints": true
 		}
 	]
 }

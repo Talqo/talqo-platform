@@ -15,6 +15,25 @@ const envSchema = z.object({
 	S3_BUCKET: z.string().min(1),
 	RESEND_API_KEY: z.string().min(1),
 	APP_URL: z.string().url(),
+	// 32-byte AES-256-GCM key represented as 64 hex characters
+	PROVIDER_KEY_SECRET: z
+		.string()
+		.length(64)
+		.regex(/^[0-9a-fA-F]+$/)
+		.refine(
+			(val) => {
+				// Allow trivially weak keys in test environment (e.g. all-zeros default)
+				if (process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1")
+					return true
+				const first = val[0]
+				// Reject all-same-character keys (e.g. 000...0, aaa...a)
+				return !val.split("").every((c) => c === first)
+			},
+			{
+				message:
+					"PROVIDER_KEY_SECRET must not be a trivially predictable value (all same character)",
+			},
+		),
 })
 
 // For tests, provide default values so config validation doesn't fail
@@ -33,6 +52,9 @@ const testDefaults = isTest
 			S3_BUCKET: "test",
 			RESEND_API_KEY: "test",
 			APP_URL: "http://localhost:3000",
+			// 64 hex chars = 32 bytes, valid for AES-256-GCM
+			PROVIDER_KEY_SECRET:
+				"0000000000000000000000000000000000000000000000000000000000000000",
 		}
 	: {}
 
