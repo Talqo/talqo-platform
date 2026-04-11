@@ -49,7 +49,8 @@ describe("generateResponse", () => {
 			mcpServers: [],
 			contextDirectory: contextDir,
 			provider: {
-				baseUrl: "https://api.example.com",
+				type: "openai_compatible" as const,
+				baseURL: "https://api.example.com",
 				apiKey: "test-key",
 				model: "gpt-4",
 			},

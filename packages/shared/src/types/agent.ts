@@ -20,7 +20,8 @@ export type McpHttpConfig = {
 export type McpServerConfig = McpStdioConfig | McpSseConfig | McpHttpConfig
 
 export type AiProviderConfig = {
-	baseUrl: string
+	type: "openai" | "openai_compatible" | "google" | "anthropic"
 	apiKey: string
 	model: string
+	baseURL?: string // required when type === 'openai_compatible'
 }

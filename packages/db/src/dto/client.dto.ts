@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { botConfigs, clients } from "../schema/client"
+import { aiProviderConfigs, botConfigs, clients } from "../schema/client"
 
 export const clientSelectSchema = createSelectSchema(clients)
 
@@ -37,6 +37,30 @@ export const botConfigUpdateSchema = createInsertSchema(botConfigs)
 	.omit({ id: true, clientId: true, updatedAt: true })
 	.partial()
 
+export const aiProviderConfigResponseSchema = createSelectSchema(
+	aiProviderConfigs,
+	{
+		providerType: z.enum([
+			"openai",
+			"openai_compatible",
+			"google",
+			"anthropic",
+		]),
+		model: z.string(),
+		baseUrl: z.string().nullable(),
+		updatedAt: z.string(),
+	},
+).omit({ apiKeyEncrypted: true })
+
+// Add masked API key hint to the response
+export const aiProviderConfigMaskedResponseSchema =
+	aiProviderConfigResponseSchema.extend({
+		apiKeyMasked: z.string(),
+	})
+
 export type ClientResponse = z.infer<typeof clientResponseSchema>
 export type BotConfigResponse = z.infer<typeof botConfigResponseSchema>
 export type BotConfigUpdate = z.infer<typeof botConfigUpdateSchema>
+export type AiProviderConfigMaskedResponse = z.infer<
+	typeof aiProviderConfigMaskedResponseSchema
+>

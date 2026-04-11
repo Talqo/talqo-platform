@@ -34,7 +34,7 @@ export function BotSettingsTab() {
 					<Textarea
 						id="bot-blacklist"
 						placeholder="competitor-name, swear-word"
-						className="min-h-[80px] resize-y"
+						className="min-h-20 resize-y"
 					/>
 					<p className="text-muted-foreground text-sm">
 						Expands if the list gets too long.
