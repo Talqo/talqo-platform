@@ -25,18 +25,29 @@ spec:
       containers:
         - name: migrate
           image: "{{ .Values.migration.image.repository }}:{{ required "migration.image.tag is required — pass --set migration.image.tag=<version>" .Values.migration.image.tag }}"
-          command: ["bun", "run", "drizzle-kit", "migrate"]
+          workingDir: /app/packages/db
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              bun add drizzle-kit@^0.31.10 && \
+              bun run drizzle-kit migrate
           volumeMounts:
             - name: tmp
               mountPath: /tmp
           env:
-            - name: DATABASE_PASSWORD
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "pagepal.dbSecretName" . }}
                   key: password
-            - name: DATABASE_URL
-              value: {{ include "pagepal.databaseUrl" . | quote }}
+            - name: POSTGRES_HOST
+              value: {{ printf "%s-postgresql" (include "pagepal.fullname" .) | quote }}
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.auth.database | quote }}
           resources:
             {{- toYaml .Values.migration.resources | nindent 12 }}
           securityContext:

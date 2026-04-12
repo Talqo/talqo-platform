@@ -47,6 +47,6 @@ minio:
       memory: "64Mi"
 
 migration:
-  enabled: false
+  enabled: true
   image:
     tag: ""

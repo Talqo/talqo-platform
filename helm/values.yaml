@@ -151,8 +151,7 @@ providerKey:
   existingSecret: ""
 
 migration:
-  # Disabled until packages/db implements Drizzle migrations.
-  enabled: false
+  enabled: true
   image:
     repository: "ghcr.io/pagepal-agent/pagepal-api"
     tag: ""
