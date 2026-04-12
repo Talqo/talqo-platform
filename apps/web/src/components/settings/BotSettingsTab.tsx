@@ -20,7 +20,7 @@ export function BotSettingsTab() {
 					<Label htmlFor="bot-prompt">Context</Label>
 					<Textarea
 						id="bot-prompt"
-						className="min-h-[160px]"
+						className="min-h-40"
 						placeholder="Define the behavior and context for your AI assistant..."
 					/>
 					<p className="text-muted-foreground text-sm">
@@ -34,7 +34,7 @@ export function BotSettingsTab() {
 					<Textarea
 						id="bot-blacklist"
 						placeholder="competitor-name, swear-word"
-						className="min-h-[80px] resize-y"
+						className="min-h-20 resize-y"
 					/>
 					<p className="text-muted-foreground text-sm">
 						Expands if the list gets too long.

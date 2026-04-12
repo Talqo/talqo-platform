@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import upgradeImage from "@/assets/Gemini_Generated_Image_7dq4tr7dq4tr7dq4.png"
 import {
 	Card,
@@ -30,6 +31,16 @@ export function BillingSettingsTab() {
 					</div>
 					<Switch id="usage-alerts" defaultChecked />
 				</div>
+				<p className="text-muted-foreground text-sm">
+					Want to use your own API key instead?{" "}
+					<Link
+						to="/dashboard/settings"
+						search={{ tab: "ai-provider" }}
+						className="text-foreground underline underline-offset-2 hover:text-primary"
+					>
+						Configure it in the AI Provider tab.
+					</Link>
+				</p>
 			</CardContent>
 			<CardFooter className="flex justify-between">
 				<button

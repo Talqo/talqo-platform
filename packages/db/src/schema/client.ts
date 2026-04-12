@@ -2,12 +2,20 @@ import { sql } from "drizzle-orm"
 import {
 	boolean,
 	numeric,
+	pgEnum,
 	pgTable,
 	text,
 	timestamp,
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core"
+
+export const providerTypeEnum = pgEnum("provider_type", [
+	"openai",
+	"openai_compatible",
+	"google",
+	"anthropic",
+])
 
 export const pendingRegistrations = pgTable(
 	"pending_registrations",
@@ -62,6 +70,21 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
 	email: varchar("email", { length: 255 }).notNull(),
 	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 	consumedAt: timestamp("consumed_at", { withTimezone: true }),
+})
+
+export const aiProviderConfigs = pgTable("ai_provider_configs", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	clientId: uuid("client_id")
+		.notNull()
+		.unique()
+		.references(() => clients.id, { onDelete: "cascade" }),
+	providerType: providerTypeEnum("provider_type").notNull(),
+	apiKeyEncrypted: text("api_key_encrypted").notNull(),
+	model: varchar("model", { length: 255 }).notNull(),
+	baseUrl: text("base_url"),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.defaultNow()
+		.notNull(),
 })
 
 export const botConfigs = pgTable("bot_configs", {

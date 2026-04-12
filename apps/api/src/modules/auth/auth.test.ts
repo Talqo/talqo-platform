@@ -3,17 +3,14 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 import type { AppVariables } from "../../common/jwt"
 import { logger } from "../../common/logger"
 
-const mockSendVerificationEmail = mock(
-	async (_to: string, _token: string) => {},
-)
+// Track email sends for assertions - mock at the resend level to avoid module caching issues
+// with email.service.test.ts which also mocks resend
+const mockSend = mock(async () => ({ data: { id: "test-id" }, error: null }))
 
-const mockSendPasswordResetEmail = mock(
-	async (_to: string, _token: string) => {},
-)
-
-mock.module("../../common/email/email.service", () => ({
-	sendVerificationEmail: mockSendVerificationEmail,
-	sendPasswordResetEmail: mockSendPasswordResetEmail,
+mock.module("resend", () => ({
+	Resend: class {
+		emails = { send: mockSend }
+	},
 }))
 
 const { createAuthRouter } = await import("./auth.routes")
@@ -28,7 +25,7 @@ function buildApp() {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
 		await next()
 	})
-	return app.route("/auth", createAuthRouter(service))
+	return { app: app.route("/auth", createAuthRouter(service)), repo }
 }
 
 const validRegistration = {
@@ -38,11 +35,16 @@ const validRegistration = {
 }
 
 describe("POST /auth/register", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(() => {
-		app = buildApp()
-		mockSendVerificationEmail.mockClear()
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
 	})
 
 	it("returns 201 and sends verification email on success", async () => {
@@ -56,18 +58,14 @@ describe("POST /auth/register", () => {
 		expect(res.status).toBe(201)
 		const body = (await res.json()) as Record<string, unknown>
 		expect(body.success).toBe(true)
-		expect(mockSendVerificationEmail).toHaveBeenCalledTimes(1)
-		expect(
-			(mockSendVerificationEmail.mock.calls[0] as [string, string])[0],
-		).toBe(validRegistration.email)
+		expect(mockSend).toHaveBeenCalledTimes(1)
+		expect((mockSend.mock.calls[0] as unknown as [{ to: string }])[0].to).toBe(
+			validRegistration.email,
+		)
 	})
 
 	it("returns 409 when a verified account already exists for the email", async () => {
 		// Complete the full flow to create a CLIENT record
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -75,8 +73,11 @@ describe("POST /auth/register", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
+
+		// Get token from repository to verify email
+		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 
 		// Second registration with same email
@@ -139,19 +140,19 @@ describe("POST /auth/register", () => {
 })
 
 describe("GET /auth/verify-email", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(() => {
-		app = buildApp()
-		mockSendVerificationEmail.mockClear()
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
 	})
 
 	it("returns 200 and creates the CLIENT account", async () => {
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
-
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -160,8 +161,11 @@ describe("GET /auth/verify-email", () => {
 			}),
 		)
 
+		// Get token from repository
+		const pending = await repo.findPendingByEmail(validRegistration.email)
+
 		const res = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(res.status).toBe(200)
 		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
@@ -184,11 +188,6 @@ describe("GET /auth/verify-email", () => {
 	})
 
 	it("returns 200 when the same token is used twice (idempotent)", async () => {
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
-
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -197,8 +196,11 @@ describe("GET /auth/verify-email", () => {
 			}),
 		)
 
+		// Get token from repository
+		const pending = await repo.findPendingByEmail(validRegistration.email)
+
 		const firstRes = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(firstRes.status).toBe(200)
 		const firstBody = (await firstRes.json()) as {
@@ -208,7 +210,7 @@ describe("GET /auth/verify-email", () => {
 
 		// Second verification with same token should also succeed (idempotent)
 		const secondRes = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(secondRes.status).toBe(200)
 		const secondBody = (await secondRes.json()) as {
@@ -225,18 +227,18 @@ describe("GET /auth/verify-email", () => {
 })
 
 describe("POST /auth/login", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(async () => {
-		app = buildApp()
-		process.env.JWT_SECRET = "test-secret"
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		process.env.JWT_SECRET ??= "test-secret"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
 
 		// Register and verify a client
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
-
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -244,10 +246,13 @@ describe("POST /auth/login", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
+
+		// Get token from repository and verify
+		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
-		mockSendVerificationEmail.mockClear()
+		mockSend.mockClear()
 	})
 
 	afterEach(() => {
@@ -304,7 +309,6 @@ describe("POST /auth/login", () => {
 
 	it("returns 401 when email is registered but not yet verified", async () => {
 		// Register but do NOT verify
-		mockSendVerificationEmail.mockImplementationOnce(async () => {})
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -344,16 +348,20 @@ describe("POST /auth/login", () => {
 })
 
 describe("POST /auth/resend-verification", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(() => {
-		app = buildApp()
-		mockSendVerificationEmail.mockClear()
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
 	})
 
 	it("returns 200 and resends verification email for pending registration", async () => {
 		// Register but don't verify
-		mockSendVerificationEmail.mockImplementationOnce(async () => {})
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -373,15 +381,11 @@ describe("POST /auth/resend-verification", () => {
 
 		expect(res.status).toBe(200)
 		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
-		expect(mockSendVerificationEmail).toHaveBeenCalledTimes(2) // Once for register, once for resend
+		expect(mockSend).toHaveBeenCalledTimes(2) // Once for register, once for resend
 	})
 
 	it("returns 200 even if email is already verified (prevents enumeration)", async () => {
 		// Register and verify first
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -389,10 +393,12 @@ describe("POST /auth/resend-verification", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
+
+		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
-		mockSendVerificationEmail.mockClear()
+		mockSend.mockClear()
 
 		// Try to resend
 		const res = await app.fetch(
@@ -405,7 +411,7 @@ describe("POST /auth/resend-verification", () => {
 
 		expect(res.status).toBe(200)
 		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
-		expect(mockSendVerificationEmail).not.toHaveBeenCalled() // No email sent for verified accounts
+		expect(mockSend).not.toHaveBeenCalled() // No email sent for verified accounts
 	})
 
 	it("returns 200 even if email has no pending registration (prevents enumeration)", async () => {
@@ -419,7 +425,7 @@ describe("POST /auth/resend-verification", () => {
 
 		expect(res.status).toBe(200)
 		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
-		expect(mockSendVerificationEmail).not.toHaveBeenCalled()
+		expect(mockSend).not.toHaveBeenCalled()
 	})
 
 	it("returns 400 for invalid email format", async () => {
@@ -436,19 +442,19 @@ describe("POST /auth/resend-verification", () => {
 })
 
 describe("POST /auth/forgot-password", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 
 	beforeEach(async () => {
-		app = buildApp()
-		mockSendPasswordResetEmail.mockClear()
 		process.env.JWT_SECRET = "test-secret"
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
 
 		// Register and verify a client for testing
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
-
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -456,13 +462,15 @@ describe("POST /auth/forgot-password", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
+		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
-		mockSendVerificationEmail.mockClear()
+		mockSend.mockClear()
 	})
 
 	it("returns success for non-existent email (no enumeration)", async () => {
+		const sendCountBefore = mockSend.mock.calls.length
 		const res = await app.fetch(
 			new Request("http://localhost/auth/forgot-password", {
 				method: "POST",
@@ -473,15 +481,11 @@ describe("POST /auth/forgot-password", () => {
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
 		expect(body.success).toBe(true)
-		expect(mockSendPasswordResetEmail).not.toHaveBeenCalled()
+		// No additional email should be sent for non-existent email
+		expect(mockSend.mock.calls.length).toBe(sendCountBefore)
 	})
 
 	it("returns success for existing client and sends email", async () => {
-		let resetToken = ""
-		mockSendPasswordResetEmail.mockImplementationOnce(async (_to, token) => {
-			resetToken = token
-		})
-
 		const res = await app.fetch(
 			new Request("http://localhost/auth/forgot-password", {
 				method: "POST",
@@ -492,8 +496,7 @@ describe("POST /auth/forgot-password", () => {
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
 		expect(body.success).toBe(true)
-		expect(mockSendPasswordResetEmail).toHaveBeenCalled()
-		expect(resetToken).not.toBe("")
+		expect(mockSend).toHaveBeenCalledTimes(1)
 	})
 
 	it("returns 400 for invalid email", async () => {

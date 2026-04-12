@@ -30,7 +30,7 @@ describe("email.service", () => {
 
 	afterEach(() => {
 		delete process.env.RESEND_API_KEY
-		delete process.env.APP_URL
+		// Don't delete APP_URL - it's needed by other test files and provided by .env.example
 		mockSend.mockClear()
 	})
 
