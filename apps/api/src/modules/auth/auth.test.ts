@@ -512,20 +512,20 @@ describe("POST /auth/forgot-password", () => {
 })
 
 describe("POST /auth/reset-password", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 	let resetToken: string
 
 	beforeEach(async () => {
-		app = buildApp()
-		mockSendPasswordResetEmail.mockClear()
 		process.env.JWT_SECRET = "test-secret"
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
 
 		// Register and verify a client
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
-
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -533,17 +533,13 @@ describe("POST /auth/reset-password", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
+		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
-		mockSendVerificationEmail.mockClear()
+		mockSend.mockClear()
 
-		// Request password reset
-		resetToken = ""
-		mockSendPasswordResetEmail.mockImplementationOnce(async (_to, token) => {
-			resetToken = token
-		})
-
+		// Request password reset and capture the token from the sent email
 		await app.fetch(
 			new Request("http://localhost/auth/forgot-password", {
 				method: "POST",
@@ -551,6 +547,10 @@ describe("POST /auth/reset-password", () => {
 				body: JSON.stringify({ email: validRegistration.email }),
 			}),
 		)
+		const resetCall = mockSend.mock.calls[0] as unknown as [{ html: string }]
+		const match = resetCall[0].html.match(/token=([a-f0-9-]{36})/)
+		resetToken = match ? match[1] : ""
+		mockSend.mockClear()
 	})
 
 	it("returns 400 for invalid token", async () => {
@@ -644,20 +644,20 @@ describe("POST /auth/reset-password", () => {
 })
 
 describe("GET /auth/verify-reset-token", () => {
-	let app: ReturnType<typeof buildApp>
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
 	let resetToken: string
 
 	beforeEach(async () => {
-		app = buildApp()
-		mockSendPasswordResetEmail.mockClear()
 		process.env.JWT_SECRET = "test-secret"
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
 
 		// Register and verify a client
-		let capturedToken = ""
-		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
-			capturedToken = token
-		})
-
 		await app.fetch(
 			new Request("http://localhost/auth/register", {
 				method: "POST",
@@ -665,17 +665,13 @@ describe("GET /auth/verify-reset-token", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
+		const pending = await repo.findPendingByEmail(validRegistration.email)
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
-		mockSendVerificationEmail.mockClear()
+		mockSend.mockClear()
 
-		// Request password reset
-		resetToken = ""
-		mockSendPasswordResetEmail.mockImplementationOnce(async (_to, token) => {
-			resetToken = token
-		})
-
+		// Request password reset and capture the token from the sent email
 		await app.fetch(
 			new Request("http://localhost/auth/forgot-password", {
 				method: "POST",
@@ -683,6 +679,10 @@ describe("GET /auth/verify-reset-token", () => {
 				body: JSON.stringify({ email: validRegistration.email }),
 			}),
 		)
+		const resetCall = mockSend.mock.calls[0] as unknown as [{ html: string }]
+		const match = resetCall[0].html.match(/token=([a-f0-9-]{36})/)
+		resetToken = match ? match[1] : ""
+		mockSend.mockClear()
 	})
 
 	it("returns 200 for valid token", async () => {
