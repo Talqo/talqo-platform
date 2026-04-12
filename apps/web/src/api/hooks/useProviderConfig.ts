@@ -1,26 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import type { ProviderType } from "shared"
 import { client } from "../client"
-import type { paths } from "../generated/openapi"
 
-type ProviderConfigPath = paths["/client/me/provider-config"]
+// Extract raw response and make fields required to match what backend returns
+export type ProviderConfigResponse = {
+	id: string
+	clientId: string
+	providerType: ProviderType
+	apiKeyMasked: string
+	model: string
+	baseUrl: string | null
+	updatedAt: string
+}
 
-export type ProviderConfigResponse = NonNullable<
-	ProviderConfigPath["get"]["responses"][200]["content"]["application/json"]["data"]
->
-
-type UpsertProviderConfigBody = NonNullable<
-	ProviderConfigPath["put"]["requestBody"]
->["content"]["application/json"]
+type UpsertProviderConfigBody = {
+	providerType: ProviderType
+	apiKey: string
+	model: string
+	baseUrl?: string
+}
 
 const QUERY_KEY = ["provider-config"] as const
 
 export function useProviderConfig() {
-	return useQuery({
+	return useQuery<ProviderConfigResponse | null>({
 		queryKey: QUERY_KEY,
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/provider-config", {})
 			if (error) throw error
-			return data.data ?? null
+			// Type assertion needed because generated types have optional fields
+			// but backend always returns complete objects
+			return (data.data as ProviderConfigResponse | null) ?? null
 		},
 	})
 }

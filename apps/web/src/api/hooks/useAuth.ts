@@ -128,6 +128,60 @@ export function useResendVerificationEmail() {
 	})
 }
 
+// Forgot password mutation
+export function useForgotPassword() {
+	return useMutation<AuthResponse, ApiError, { email: string }>({
+		mutationFn: async ({ email }) => {
+			const { data, error } = await client.POST("/auth/forgot-password", {
+				body: { email },
+			})
+			if (error) throw error
+			return data as AuthResponse
+		},
+	})
+}
+
+// Reset password mutation
+export function useResetPassword() {
+	return useMutation<
+		AuthResponse,
+		ApiError,
+		{ token: string; password: string }
+	>({
+		mutationFn: async ({ token, password }) => {
+			const { data, error } = await client.POST("/auth/reset-password", {
+				body: { token, password },
+			})
+			if (error) throw error
+			return data as AuthResponse
+		},
+	})
+}
+
+// Verify reset token query
+export function useVerifyResetTokenQuery(token: string | undefined) {
+	return useQuery<{ success: boolean; data?: { valid: boolean } }, ApiError>({
+		queryKey: ["auth", "verify-reset-token", token],
+		queryFn: async () => {
+			// Guard against undefined token (shouldn't happen due to enabled check, but satisfies type safety)
+			if (!token) {
+				throw {
+					success: false,
+					error: { code: "MISSING_TOKEN", message: "Token is required" },
+				}
+			}
+			const { data, error } = await client.GET("/auth/verify-reset-token", {
+				params: {
+					query: { token },
+				},
+			})
+			if (error) throw error
+			return data
+		},
+		enabled: !!token,
+	})
+}
+
 // Admin login mutation
 export function useAdminLogin() {
 	const queryClient = useQueryClient()

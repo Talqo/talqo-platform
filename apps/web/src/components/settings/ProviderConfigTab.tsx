@@ -98,7 +98,7 @@ function ActiveProviderState({
 	deleting,
 	deleteError,
 }: {
-	config: ProviderConfigResponse
+	config: NonNullable<ProviderConfigResponse>
 	onEdit: () => void
 	onDelete: () => void
 	deleting: boolean

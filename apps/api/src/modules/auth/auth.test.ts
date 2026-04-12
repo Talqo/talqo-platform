@@ -440,3 +440,279 @@ describe("POST /auth/resend-verification", () => {
 		expect(res.status).toBe(400)
 	})
 })
+
+describe("POST /auth/forgot-password", () => {
+	let app: ReturnType<typeof buildApp>["app"]
+	let repo: InstanceType<typeof InMemoryAuthRepository>
+
+	beforeEach(async () => {
+		process.env.JWT_SECRET = "test-secret"
+		process.env.APP_URL ??= "http://localhost:5173"
+		process.env.RESEND_API_KEY ??= "test-api-key"
+		const built = buildApp()
+		app = built.app
+		repo = built.repo
+		mockSend.mockClear()
+
+		// Register and verify a client for testing
+		await app.fetch(
+			new Request("http://localhost/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+		const pending = await repo.findPendingByEmail(validRegistration.email)
+		await app.fetch(
+			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+		)
+		mockSend.mockClear()
+	})
+
+	it("returns success for non-existent email (no enumeration)", async () => {
+		const sendCountBefore = mockSend.mock.calls.length
+		const res = await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "nonexistent@example.com" }),
+			}),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as Record<string, unknown>
+		expect(body.success).toBe(true)
+		// No additional email should be sent for non-existent email
+		expect(mockSend.mock.calls.length).toBe(sendCountBefore)
+	})
+
+	it("returns success for existing client and sends email", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as Record<string, unknown>
+		expect(body.success).toBe(true)
+		expect(mockSend).toHaveBeenCalledTimes(1)
+	})
+
+	it("returns 400 for invalid email", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: "not-an-email" }),
+			}),
+		)
+		expect(res.status).toBe(400)
+	})
+})
+
+describe("POST /auth/reset-password", () => {
+	let app: ReturnType<typeof buildApp>
+	let resetToken: string
+
+	beforeEach(async () => {
+		app = buildApp()
+		mockSendPasswordResetEmail.mockClear()
+		process.env.JWT_SECRET = "test-secret"
+
+		// Register and verify a client
+		let capturedToken = ""
+		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
+			capturedToken = token
+		})
+
+		await app.fetch(
+			new Request("http://localhost/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+		await app.fetch(
+			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+		)
+		mockSendVerificationEmail.mockClear()
+
+		// Request password reset
+		resetToken = ""
+		mockSendPasswordResetEmail.mockImplementationOnce(async (_to, token) => {
+			resetToken = token
+		})
+
+		await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+	})
+
+	it("returns 400 for invalid token", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: "00000000-0000-0000-0000-000000000000",
+					password: "newpassword123",
+				}),
+			}),
+		)
+		expect(res.status).toBe(400)
+		const body = (await res.json()) as Record<string, unknown>
+		expect(body).toHaveProperty("error")
+	})
+
+	it("returns 400 for short password", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: resetToken,
+					password: "short",
+				}),
+			}),
+		)
+		expect(res.status).toBe(400)
+	})
+
+	it("resets password and allows login with new password", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: resetToken,
+					password: "newpassword123",
+				}),
+			}),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as Record<string, unknown>
+		expect(body.success).toBe(true)
+
+		// Login with new password should work
+		const loginRes = await app.fetch(
+			new Request("http://localhost/auth/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					email: validRegistration.email,
+					password: "newpassword123",
+				}),
+			}),
+		)
+		expect(loginRes.status).toBe(200)
+		const loginBody = (await loginRes.json()) as { success: boolean }
+		expect(loginBody.success).toBe(true)
+	})
+
+	it("returns 400 when token is reused", async () => {
+		// First reset
+		const firstRes = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: resetToken,
+					password: "newpassword123",
+				}),
+			}),
+		)
+		expect(firstRes.status).toBe(200)
+
+		// Second reset with same token should fail
+		const res = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: resetToken,
+					password: "anotherpassword123",
+				}),
+			}),
+		)
+		expect(res.status).toBe(400)
+	})
+})
+
+describe("GET /auth/verify-reset-token", () => {
+	let app: ReturnType<typeof buildApp>
+	let resetToken: string
+
+	beforeEach(async () => {
+		app = buildApp()
+		mockSendPasswordResetEmail.mockClear()
+		process.env.JWT_SECRET = "test-secret"
+
+		// Register and verify a client
+		let capturedToken = ""
+		mockSendVerificationEmail.mockImplementationOnce(async (_to, token) => {
+			capturedToken = token
+		})
+
+		await app.fetch(
+			new Request("http://localhost/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+		await app.fetch(
+			new Request(`http://localhost/auth/verify-email?token=${capturedToken}`),
+		)
+		mockSendVerificationEmail.mockClear()
+
+		// Request password reset
+		resetToken = ""
+		mockSendPasswordResetEmail.mockImplementationOnce(async (_to, token) => {
+			resetToken = token
+		})
+
+		await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+	})
+
+	it("returns 200 for valid token", async () => {
+		const res = await app.fetch(
+			new Request(
+				`http://localhost/auth/verify-reset-token?token=${resetToken}`,
+			),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as {
+			success: boolean
+			data: { valid: boolean }
+		}
+		expect(body.success).toBe(true)
+		expect(body.data.valid).toBe(true)
+	})
+
+	it("returns 400 for invalid token", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/auth/verify-reset-token?token=invalid"),
+		)
+		expect(res.status).toBe(400)
+	})
+
+	it("returns 400 for non-existent token", async () => {
+		const res = await app.fetch(
+			new Request(
+				"http://localhost/auth/verify-reset-token?token=00000000-0000-0000-0000-000000000000",
+			),
+		)
+		expect(res.status).toBe(400)
+	})
+})
