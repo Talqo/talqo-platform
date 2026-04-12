@@ -144,6 +144,12 @@ minio:
 jwt:
   existingSecret: ""
 
+resend:
+  existingSecret: ""
+
+providerKey:
+  existingSecret: ""
+
 migration:
   # Disabled until packages/db implements Drizzle migrations.
   enabled: false

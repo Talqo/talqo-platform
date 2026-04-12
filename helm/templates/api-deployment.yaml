@@ -58,6 +58,18 @@ spec:
               value: "http://{{ include "pagepal.fullname" . }}-minio:9000"
             - name: S3_BUCKET
               value: {{ (index .Values.minio.buckets 0).name | quote }}
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.resendSecretName" . }}
+                  key: apiKey
+            - name: APP_URL
+              value: {{ printf "%s://%s" (ternary "https" "http" .Values.ingress.tls) .Values.ingress.host | quote }}
+            - name: PROVIDER_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.providerKeySecretName" . }}
+                  key: secret
           livenessProbe:
             httpGet:
               path: /health

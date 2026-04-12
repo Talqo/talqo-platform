@@ -195,7 +195,8 @@ deploy: ns-create helm-deps _require-tag ## Deploy to cluster (env based on git 
 		--set api.image.tag="$(IMAGE_TAG)" \
 		--set web.image.tag="$(IMAGE_TAG)" \
 		--set migration.image.tag="$(IMAGE_TAG)" \
-		--set minio.rootPassword="$$MINIO_PASS"
+		--set minio.rootPassword="$$MINIO_PASS" \
+		$${RESEND_API_KEY:+--set resend.apiKey="$$RESEND_API_KEY"}
 
 .PHONY: undeploy
 undeploy: ## Uninstall from cluster (env based on git branch)

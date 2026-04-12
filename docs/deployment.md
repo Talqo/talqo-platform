@@ -12,11 +12,12 @@
 
 ## Required GitHub Secrets
 
-The CD pipeline requires one repository secret to be configured in **Settings → Secrets and variables → Actions → Repository Secrets**:
+The CD pipeline requires repository secrets to be configured in **Settings → Secrets and variables → Actions → Repository Secrets**:
 
 | Secret | Value |
 |--------|-------|
 | `KUBECONFIG` | Base64-encoded kubeconfig with access to both `pagepal-dev` and `pagepal-prod` namespaces |
+| `RESEND_API_KEY` | API key from the [Resend dashboard](https://resend.com/api-keys) used by the API to send emails |
 
 To encode your kubeconfig:
 ```bash

@@ -91,3 +91,25 @@ JWT secret name — uses existingSecret when provided, otherwise the generated o
 {{- include "pagepal.fullname" . }}-jwt-secret
 {{- end }}
 {{- end }}
+
+{{/*
+Resend secret name — uses existingSecret when provided, otherwise the generated one.
+*/}}
+{{- define "pagepal.resendSecretName" -}}
+{{- if .Values.resend.existingSecret }}
+{{- .Values.resend.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-resend-secret
+{{- end }}
+{{- end }}
+
+{{/*
+Provider key secret name — uses existingSecret when provided, otherwise the generated one.
+*/}}
+{{- define "pagepal.providerKeySecretName" -}}
+{{- if .Values.providerKey.existingSecret }}
+{{- .Values.providerKey.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-provider-key-secret
+{{- end }}
+{{- end }}
