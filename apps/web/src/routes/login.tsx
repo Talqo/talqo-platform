@@ -1,4 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
 import type { LoginInput } from "shared"
 import { useUnifiedLogin } from "@/api/hooks/useAuth"
@@ -13,11 +18,65 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import {
+	clearAdminToken,
+	clearClientToken,
+	getAdminToken,
+	getClientToken,
+	validateToken,
+} from "@/lib/auth"
 import { AUTH } from "@/lib/constants"
 import { useForm } from "@/lib/useForm"
 import { loginSchema } from "@/schemas"
 
+// Check auth and redirect based on role before loading the page
+async function checkAuthAndRedirect() {
+	const clientToken = getClientToken()
+	const adminToken = getAdminToken()
+
+	// If no tokens, allow access to login page
+	if (!clientToken && !adminToken) {
+		return
+	}
+
+	// Check both tokens in parallel
+	const [clientResult, adminResult] = await Promise.all([
+		clientToken
+			? validateToken(clientToken, "/client/me")
+			: { valid: false, shouldClear: false },
+		adminToken
+			? validateToken(adminToken, "/admin/me")
+			: { valid: false, shouldClear: false },
+	])
+
+	// Clear invalid tokens
+	if (clientResult.shouldClear) {
+		clearClientToken()
+	}
+	if (adminResult.shouldClear) {
+		clearAdminToken()
+	}
+
+	// Redirect based on which token is valid (client takes priority if both valid)
+	if (clientResult.valid) {
+		throw redirect({
+			to: AUTH.DEFAULT_REDIRECT,
+			replace: true,
+		})
+	}
+
+	if (adminResult.valid) {
+		throw redirect({
+			to: AUTH.ADMIN_DEFAULT_REDIRECT,
+			replace: true,
+		})
+	}
+
+	// No valid tokens - allow access to login page
+}
+
 export const Route = createFileRoute("/login")({
+	beforeLoad: checkAuthAndRedirect,
 	component: LoginPage,
 })
 
