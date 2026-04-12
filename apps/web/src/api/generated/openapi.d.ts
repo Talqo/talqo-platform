@@ -2480,10 +2480,14 @@ export interface paths {
                         "application/json": {
                             success?: boolean;
                             data?: {
+                                id?: string;
+                                clientId?: string;
                                 providerType?: string;
+                                apiKeyMasked?: string;
                                 model?: string;
-                                baseUrl?: string;
-                            };
+                                baseUrl?: string | null;
+                                updatedAt?: string;
+                            } | null;
                         };
                     };
                 };
@@ -2517,8 +2521,14 @@ export interface paths {
                         "application/json": {
                             success?: boolean;
                             data?: {
-                                message?: string;
-                            };
+                                id?: string;
+                                clientId?: string;
+                                providerType?: string;
+                                apiKeyMasked?: string;
+                                model?: string;
+                                baseUrl?: string | null;
+                                updatedAt?: string;
+                            } | null;
                         };
                     };
                 };
@@ -2544,7 +2554,8 @@ export interface paths {
                         "application/json": {
                             success?: boolean;
                             data?: {
-                                message?: string;
+                                /** @enum {boolean} */
+                                deleted: true;
                             };
                         };
                     };

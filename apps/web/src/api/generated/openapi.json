@@ -4236,16 +4236,30 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "clientId": {
+                          "type": "string"
+                        },
                         "providerType": {
+                          "type": "string"
+                        },
+                        "apiKeyMasked": {
                           "type": "string"
                         },
                         "model": {
                           "type": "string"
                         },
                         "baseUrl": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "updatedAt": {
                           "type": "string"
                         }
-                      }
+                      },
+                      "nullable": true
                     }
                   }
                 }
@@ -4273,10 +4287,16 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "message": {
-                          "type": "string"
+                        "deleted": {
+                          "type": "boolean",
+                          "enum": [
+                            true
+                          ]
                         }
-                      }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
                     }
                   }
                 }
@@ -4332,10 +4352,30 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "message": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "clientId": {
+                          "type": "string"
+                        },
+                        "providerType": {
+                          "type": "string"
+                        },
+                        "apiKeyMasked": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "baseUrl": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "updatedAt": {
                           "type": "string"
                         }
-                      }
+                      },
+                      "nullable": true
                     }
                   }
                 }
