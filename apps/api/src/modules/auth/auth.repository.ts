@@ -32,12 +32,8 @@ export type PendingRegistration = {
 
 // Transient storage for password reset requests.
 // Tokens are single-use and expire after 1 hour.
-export type PasswordResetToken = {
-	token: string
-	email: string
-	expiresAt: Date
-	consumedAt?: Date | null
-}
+// Inferred from Drizzle schema - single source of truth
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
 
 export interface IAuthRepository {
 	findClientByEmail(email: string): Promise<Client | null>

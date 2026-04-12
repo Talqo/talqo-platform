@@ -159,6 +159,7 @@ export class AuthService {
 			token,
 			email: canonical,
 			expiresAt,
+			consumedAt: null,
 		})
 
 		logger.info("Sending password reset email", { email: canonical })
