@@ -9,4 +9,5 @@ export type {
 	McpServerConfig,
 	McpSseConfig,
 	McpStdioConfig,
+	ProviderType,
 } from "./agent"

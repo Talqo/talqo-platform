@@ -23,6 +23,7 @@ import { blacklistRoutes } from "./modules/blacklist"
 import { botConfigRoutes } from "./modules/bot-config"
 import { clientAccountRoutes } from "./modules/client-account"
 import { adminMcpRoutes, clientMcpRoutes } from "./modules/mcp"
+import { providerConfigRoutes } from "./modules/provider-config"
 import {
 	widgetConversationRoutes,
 	widgetMessageRoutes,
@@ -56,6 +57,7 @@ app.route("/client/me/bot-config", botConfigRoutes)
 app.route("/client/me/blacklist", blacklistRoutes)
 app.route("/client/me/mcp", clientMcpRoutes)
 app.route("/client/me/analytics", clientAnalyticsRoutes)
+app.route("/client/me/provider-config", providerConfigRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 app.use("/widget/*", widgetAuth)
@@ -106,6 +108,7 @@ app.doc("/openapi.json", {
 		{ name: "Blacklist", description: "Word blacklist management" },
 		{ name: "MCP", description: "MCP server management" },
 		{ name: "Analytics", description: "Usage analytics" },
+		{ name: "Provider Config", description: "AI provider configuration" },
 		{ name: "Widget", description: "End-user chat widget" },
 		{ name: "Admin", description: "Platform administration" },
 	],

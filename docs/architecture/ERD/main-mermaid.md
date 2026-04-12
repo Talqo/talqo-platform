@@ -93,6 +93,16 @@ erDiagram
         datetime created_at
     }
 
+    AI_PROVIDER_CONFIG {
+        uuid id PK
+        uuid client_id FK
+        enum provider_type
+        text api_key_encrypted
+        string model
+        text base_url
+        datetime updated_at
+    }
+
     %% TODO: WIDGET_CONFIG entity is not yet defined — columns TBD
     PENDING_REGISTRATION {
         uuid token PK
@@ -105,6 +115,7 @@ erDiagram
     }
 
     CLIENT ||--|| BOT_CONFIG : has
+    CLIENT ||--o| AI_PROVIDER_CONFIG : configures
     CLIENT ||--o{ BLACKLIST_WORD : defines
     CLIENT ||--o{ CUSTOM_MCP_SERVER : configures
     CLIENT }o--o{ PRE_MADE_MCP_SERVER : uses
