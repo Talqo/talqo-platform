@@ -31,7 +31,7 @@ export function useRemoveBlacklistWord() {
 	return useMutation({
 		mutationFn: async (wordId: string) => {
 			const { data, error } = await client.DELETE(
-				"/client/me/blacklist/:wordId",
+				"/client/me/blacklist/{wordId}",
 				{ params: { path: { wordId } } },
 			)
 			if (error) throw error

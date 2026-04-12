@@ -5,11 +5,16 @@ import { z } from "zod"
  */
 
 export const botConfigSchema = z.object({
-	context: z
+	systemPrompt: z
 		.string()
-		.max(4000, "Context must be less than 4000 characters")
-		.optional(),
-	blacklist: z.string().optional(),
+		.max(4000, "System prompt must be less than 4000 characters"),
+	defaultRole: z
+		.string()
+		.max(200, "Default role must be less than 200 characters"),
+	toneStyle: z
+		.string()
+		.max(200, "Tone & style must be less than 200 characters"),
+	internetSearchEnabled: z.boolean(),
 })
 
 export type BotConfigSchema = z.infer<typeof botConfigSchema>

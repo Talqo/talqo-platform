@@ -800,7 +800,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/client/me/blacklist/:wordId": {
+    "/client/me/blacklist/{wordId}": {
         parameters: {
             query?: never;
             header?: never;

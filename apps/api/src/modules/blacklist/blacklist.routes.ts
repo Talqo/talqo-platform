@@ -76,7 +76,7 @@ router.openapi(
 router.openapi(
 	createRoute({
 		method: "delete",
-		path: "/:wordId",
+		path: "/{wordId}",
 		tags: ["Blacklist"],
 		summary: "Remove a word from the blacklist",
 		security: [{ bearerAuth: [] }],

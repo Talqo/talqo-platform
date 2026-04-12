@@ -1403,7 +1403,7 @@
         }
       }
     },
-    "/client/me/blacklist/:wordId": {
+    "/client/me/blacklist/{wordId}": {
       "delete": {
         "tags": [
           "Blacklist"
