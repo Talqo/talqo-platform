@@ -2489,9 +2489,8 @@ export interface paths {
                 };
             };
         };
-        put?: never;
-        /** Create or update AI provider configuration */
-        post: {
+        /** Create or replace AI provider configuration */
+        put: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -2525,6 +2524,7 @@ export interface paths {
                 };
             };
         };
+        post?: never;
         /** Delete AI provider configuration */
         delete: {
             parameters: {

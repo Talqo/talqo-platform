@@ -4254,11 +4254,42 @@
           }
         }
       },
-      "post": {
+      "delete": {
         "tags": [
           "Provider Config"
         ],
-        "summary": "Create or update AI provider configuration",
+        "summary": "Delete AI provider configuration",
+        "responses": {
+          "200": {
+            "description": "Configuration deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Provider Config"
+        ],
+        "summary": "Create or replace AI provider configuration",
         "requestBody": {
           "content": {
             "application/json": {
@@ -4290,37 +4321,6 @@
         "responses": {
           "200": {
             "description": "Configuration saved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Provider Config"
-        ],
-        "summary": "Delete AI provider configuration",
-        "responses": {
-          "200": {
-            "description": "Configuration deleted",
             "content": {
               "application/json": {
                 "schema": {
