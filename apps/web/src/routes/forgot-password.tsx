@@ -19,10 +19,11 @@ function ForgotPasswordPage() {
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
-		if (!email) return
+		const normalized = email.trim()
+		if (!normalized) return
 
 		forgotPassword.mutate(
-			{ email },
+			{ email: normalized },
 			{
 				onSuccess: () => {
 					setIsSubmitted(true)

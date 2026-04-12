@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowLeft, Loader2, Mail } from "lucide-react"
+import type { ApiError } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,7 +18,7 @@ interface ForgotPasswordFormProps {
 	onEmailChange: (email: string) => void
 	onSubmit: (e: React.FormEvent) => void
 	isPending: boolean
-	error: Error | null
+	error: ApiError | null
 }
 
 export function ForgotPasswordForm({
