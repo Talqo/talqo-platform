@@ -12,4 +12,5 @@ const s3Client = new S3Client({
 })
 
 export const filesService = new FilesService(s3Client)
-export type { FileEntry } from "./files.service"
+export type { FileEntry, DirectoryListing } from "./files.service"
+export { default as filesRoutes } from "./files.routes"
