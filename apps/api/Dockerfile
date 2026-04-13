@@ -26,13 +26,14 @@ COPY --from=builder /app/packages/shared/package.json ./packages/shared/
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/db/package.json ./packages/db/
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
-# Drizzle files must come from pruner (full source) since turbo prune excludes them
-COPY --from=pruner /app/packages/db/drizzle.config.ts ./packages/db/
-COPY --from=pruner /app/packages/db/drizzle ./packages/db/drizzle
-COPY --from=pruner /app/packages/db/src/schema ./packages/db/src/schema
+COPY --from=builder /app/packages/db/drizzle.config.ts ./packages/db/
+COPY --from=builder /app/packages/db/drizzle ./packages/db/drizzle
+COPY --from=builder /app/packages/db/src/schema ./packages/db/src/schema
 COPY --from=pruner /app/out/bun.lock ./bun.lock
 # Install production dependencies with workspace context
 RUN bun install --frozen-lockfile --production --ignore-scripts
+# Install drizzle-kit for migrations (needed by Helm migration job)
+RUN bun add drizzle-kit@^0.31.10
 COPY --from=builder /app/apps/api/src ./apps/api/src
 RUN chown -R bun:bun /app
 USER bun

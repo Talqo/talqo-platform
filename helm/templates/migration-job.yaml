@@ -25,12 +25,7 @@ spec:
       containers:
         - name: migrate
           image: "{{ .Values.migration.image.repository }}:{{ required "migration.image.tag is required — pass --set migration.image.tag=<version>" .Values.migration.image.tag }}"
-          workingDir: /app/packages/db
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              bun add drizzle-kit@^0.31.10 && \
-              bun run drizzle-kit migrate
+          command: ["bun", "run", "drizzle-kit", "migrate", "--config", "/app/packages/db/drizzle.config.ts"]
           volumeMounts:
             - name: tmp
               mountPath: /tmp
