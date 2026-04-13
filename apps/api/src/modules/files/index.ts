@@ -1,5 +1,6 @@
 import { S3Client } from "bun"
 import { config } from "../../common/config"
+import { createFilesRouter } from "./files.routes"
 import { FilesService } from "./files.service"
 
 const s3Client = new S3Client({
@@ -12,5 +13,6 @@ const s3Client = new S3Client({
 })
 
 export const filesService = new FilesService(s3Client)
-export type { FileEntry, DirectoryListing } from "./files.service"
-export { default as filesRoutes } from "./files.routes"
+export const filesRoutes = createFilesRouter(filesService)
+
+export type { DirectoryListing, FileEntry } from "./files.service"
