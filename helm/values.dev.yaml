@@ -5,7 +5,7 @@ api:
   replicaCount: 1
   image:
     tag: ""
-    pullPolicy: "IfNotPresent"
+    pullPolicy: "Always"
   resources:
     limits:
       cpu: "500m"
@@ -18,7 +18,7 @@ web:
   replicaCount: 1
   image:
     tag: ""
-    pullPolicy: "IfNotPresent"
+    pullPolicy: "Always"
 
 ingress:
   enabled: true
