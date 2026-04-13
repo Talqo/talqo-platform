@@ -147,8 +147,9 @@ describe("FilesService.list()", () => {
 				].filter((e) => !prefix || e.key.startsWith(prefix)),
 			}),
 		}
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		service = new FilesService(fakeS3 as any)
+		service = new FilesService(
+			fakeS3 as unknown as ConstructorParameters<typeof FilesService>[0],
+		)
 	})
 
 	it("returns direct files at the root prefix", async () => {
