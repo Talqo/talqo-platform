@@ -12,6 +12,7 @@ import { widgetAuth } from "./common/middleware/widget-auth"
 import {
 	adminAuthRoutes,
 	adminClientRoutes,
+	adminConversationRoutes,
 	adminMeRoutes,
 } from "./modules/admin"
 import {
@@ -79,6 +80,7 @@ app.use("/admin/*", adminAuth)
 app.route("/admin/me", adminMeRoutes)
 app.route("/admin/clients", adminClientRoutes)
 app.route("/admin/analytics", adminAnalyticsRoutes)
+app.route("/admin/conversations", adminConversationRoutes)
 app.route("/admin/mcp/pre-made", adminMcpRoutes)
 
 // ─── Security scheme definitions ─────────────────────────────────────────────

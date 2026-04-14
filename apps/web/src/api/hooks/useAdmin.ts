@@ -1,30 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
 
-export function useAdminLogin() {
-	return useMutation({
-		mutationFn: async (body: { email: string; password: string }) => {
-			const { data, error } = await client.POST("/admin/auth/login", { body })
-			if (error) throw error
-			return data.data
-		},
-		onSuccess: ({ token }) => {
-			localStorage.setItem("token", token)
-		},
-	})
-}
-
-export function useAdminLogout() {
-	return useMutation({
-		mutationFn: async () => {
-			const { data, error } = await client.POST("/admin/auth/logout", {})
-			if (error) throw error
-			localStorage.removeItem("token")
-			return data.data
-		},
-	})
-}
-
 export function useAdminClients(
 	params: { limit?: number; offset?: number } = {},
 ) {
@@ -98,6 +74,38 @@ export function useAdminPlatformStats() {
 			if (error) throw error
 			return data.data
 		},
+	})
+}
+
+// ─── Admin Conversations ───────────────────────────────────────────────────────
+
+export function useAdminConversations(
+	params: { clientId?: string; limit?: number; offset?: number } = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "conversations", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/conversations", {
+				params: { query: params },
+			})
+			if (error) throw error
+			return data.data
+		},
+	})
+}
+
+export function useAdminConversation(conversationId: string) {
+	return useQuery({
+		queryKey: ["admin", "conversations", conversationId],
+		queryFn: async () => {
+			const { data, error } = await client.GET(
+				"/admin/conversations/:conversationId",
+				{ params: { path: { conversationId } } },
+			)
+			if (error) throw error
+			return data.data
+		},
+		enabled: !!conversationId,
 	})
 }
 

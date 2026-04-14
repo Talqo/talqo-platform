@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { clientSummarySchema } from "db/dto"
+import { clientSummarySchema, messageResponseSchema } from "db/dto"
 import {
 	clientStatusUpdateSchema,
 	LoginSchema,
@@ -288,6 +288,96 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const result = await service.impersonate(clientId)
+			return c.json({ success: true as const, data: result }, 200)
+		},
+	)
+
+	return router
+}
+
+// ─── Admin conversation viewer (protected) ────────────────────────────────────
+
+const conversationSummarySchema = z.object({
+	id: z.string().uuid(),
+	clientId: z.string().uuid(),
+	clientName: z.string().nullable(),
+	clientEmail: z.string().nullable(),
+	startedAt: z.string(),
+	satisfactionRating: z.number().int().min(1).max(5).nullable(),
+	messageCount: z.number().int(),
+})
+
+export function createAdminConversationRouter(
+	service: AdminService,
+): OpenAPIHono {
+	const router = new OpenAPIHono()
+
+	router.openapi(
+		createRoute({
+			method: "get",
+			path: "/",
+			tags: ["Admin"],
+			summary: "List all conversations",
+			security: [{ bearerAuth: [] }],
+			request: {
+				query: paginationQuerySchema.extend({
+					clientId: z.string().uuid().optional(),
+				}),
+			},
+			responses: {
+				200: {
+					description: "Conversations list",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(z.array(conversationSummarySchema)),
+						},
+					},
+				},
+			},
+		}),
+		async (c) => {
+			const { limit, offset, clientId } = c.req.valid("query")
+			const result = await service.listConversations({
+				clientId,
+				limit,
+				offset,
+			})
+			return c.json({ success: true as const, data: result }, 200)
+		},
+	)
+
+	router.openapi(
+		createRoute({
+			method: "get",
+			path: "/:conversationId",
+			tags: ["Admin"],
+			summary: "Get conversation with messages",
+			security: [{ bearerAuth: [] }],
+			request: {
+				params: z.object({ conversationId: z.string().uuid() }),
+			},
+			responses: {
+				200: {
+					description: "Conversation detail with messages",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(
+								conversationSummarySchema
+									.omit({ messageCount: true })
+									.extend({ messages: z.array(messageResponseSchema) }),
+							),
+						},
+					},
+				},
+				404: {
+					description: "Conversation not found",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const { conversationId } = c.req.valid("param")
+			const result = await service.getConversation(conversationId)
 			return c.json({ success: true as const, data: result }, 200)
 		},
 	)

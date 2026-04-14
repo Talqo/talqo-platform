@@ -37,8 +37,10 @@ export const adminAuth: MiddlewareHandler = async (c, next) => {
 	// Log mutating admin actions after the handler completes
 	const method = c.req.method
 	if (["POST", "PATCH", "PUT", "DELETE"].includes(method)) {
-		// Best-effort: extract clientId from URL if present
-		const clientId = c.req.param("clientId" as never) as string | undefined
+		// c.req.param() is not reliable in shared middleware — extract UUID from the real path instead
+		const uuidPattern =
+			/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+		const clientId = c.req.path.match(uuidPattern)?.[0]
 		if (clientId) {
 			await db.insert(adminAccessLogs).values({
 				adminId: payload.sub,
