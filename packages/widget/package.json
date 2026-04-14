@@ -3,24 +3,27 @@
 	"version": "0.0.0",
 	"private": false,
 	"type": "module",
-	"main": "dist/index.cjs",
-	"module": "dist/index.js",
+	"main": "dist/widget-bundle.js",
+	"module": "dist/widget-bundle.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
+			"import": "./dist/widget-bundle.js",
+			"require": "./dist/widget-bundle.js"
 		},
 		"./theme/default.css": "./dist/theme/default.css"
 	},
 	"scripts": {
-		"dev": "vite build --watch",
-		"build": "vite build && tsgo --emitDeclarationOnly",
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"build:watch": "vite build --watch",
+		"preview": "vite preview",
+		"deploy": "bash scripts/deploy.sh",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
-		"type-check": "tsgo --noEmit",
+		"type-check": "tsc --noEmit",
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
 	"peerDependencies": {
