@@ -1,0 +1,25 @@
+name: GHCR Cleanup
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  cleanup:
+    name: Prune old GHCR images (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [pagepal-api, pagepal-web]
+    steps:
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.package }}
+          package-type: container
+          # Never delete semver-tagged prod releases (e.g. 1.2.3)
+          ignore-versions: '^\d+\.\d+\.\d+$'
+          min-versions-to-keep: 5
