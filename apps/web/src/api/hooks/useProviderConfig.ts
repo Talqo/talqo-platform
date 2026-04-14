@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { ProviderType } from "shared"
 import { client } from "../client"
+import type { paths } from "../generated/openapi"
 
 // Extract raw response and make fields required to match what backend returns
 export type ProviderConfigResponse = {
@@ -13,12 +14,9 @@ export type ProviderConfigResponse = {
 	updatedAt: string
 }
 
-type UpsertProviderConfigBody = {
-	providerType: ProviderType
-	apiKey: string
-	model: string
-	baseUrl?: string
-}
+type UpsertProviderConfigBody = NonNullable<
+	paths["/client/me/provider-config"]["put"]["requestBody"]
+>["content"]["application/json"]
 
 const QUERY_KEY = ["provider-config"] as const
 
