@@ -2,23 +2,27 @@ import { resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js"
 import svgr from "vite-plugin-svgr"
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url))
 
 export default defineConfig({
-	plugins: [react(), svgr()],
+	plugins: [react(), svgr(), cssInjectedByJsPlugin()],
 	build: {
 		lib: {
-			entry: resolve(__dirname, "src/index.ts"),
-			formats: ["es", "cjs"],
-			fileName: "index",
+			entry: resolve(__dirname, "src/main.tsx"),
+			formats: ["iife"],
+			name: "AIWidget",
+			fileName: () => "widget-bundle.js",
 		},
 		rollupOptions: {
-			external: ["react", "react-dom", "react/jsx-runtime"],
 			output: {
-				assetFileNames: "[name][extname]",
+				inlineDynamicImports: true,
 			},
 		},
+		assetsDir: ".",
+		cssCodeSplit: false,
+		minify: "terser",
 	},
 })
