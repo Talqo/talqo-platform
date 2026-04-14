@@ -130,13 +130,21 @@ export class AdminRepository {
 	}
 
 	async getConversationWithMessages(conversationId: string) {
-		const conversation = await this.db
-			.select()
+		const row = await this.db
+			.select({
+				id: conversations.id,
+				clientId: conversations.clientId,
+				clientName: clients.name,
+				clientEmail: clients.email,
+				startedAt: conversations.startedAt,
+				satisfactionRating: conversations.satisfactionRating,
+			})
 			.from(conversations)
+			.innerJoin(clients, eq(conversations.clientId, clients.id))
 			.where(eq(conversations.id, conversationId))
 			.then((rows) => rows.at(0) ?? null)
 
-		if (!conversation) return null
+		if (!row) return null
 
 		const msgs = await this.db
 			.select()
@@ -144,6 +152,6 @@ export class AdminRepository {
 			.where(eq(messages.conversationId, conversationId))
 			.orderBy(messages.createdAt)
 
-		return { ...conversation, messages: msgs }
+		return { ...row, messages: msgs }
 	}
 }
