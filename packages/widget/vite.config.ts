@@ -11,15 +11,14 @@ export default defineConfig(({ mode }) => {
 	const isDev = mode === "development"
 
 	return {
-		plugins: [
-			react(),
-			svgr(),
-			// Only inject CSS in build mode
-			!isDev && cssInjectedByJsPlugin(),
-		],
+		plugins: [react(), svgr(), cssInjectedByJsPlugin()],
 		server: {
 			port: 5174,
 			cors: true,
+		},
+		define: {
+			// Replace process.env.NODE_ENV for browser bundle
+			"process.env.NODE_ENV": JSON.stringify(mode),
 		},
 		build: {
 			lib: {
@@ -36,11 +35,5 @@ export default defineConfig(({ mode }) => {
 			cssCodeSplit: false,
 			minify: "esbuild",
 		},
-		// In dev, also serve the entry point as widget-bundle.js
-		...(isDev && {
-			optimizeDeps: {
-				entries: ["src/main.tsx"],
-			},
-		}),
 	}
 })
