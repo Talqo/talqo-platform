@@ -141,7 +141,9 @@ function BackofficeChatsPage() {
 						<div className="flex items-center justify-between">
 							<div>
 								<CardTitle>
-									{selected.clientName || selected.clientEmail}
+									{selected.clientName ||
+										selected.clientEmail ||
+										selected.clientId}
 								</CardTitle>
 								<CardDescription>
 									Started{" "}
