@@ -1,7 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { EmbeddedWidget } from "./EmbeddedWidget"
-import type { WidgetConfig } from "./types"
+import type { ResolvedWidgetConfig, WidgetColors, WidgetConfig } from "./types"
 import "./theme/default.css"
 
 // Global config type augmentation
@@ -11,7 +11,7 @@ declare global {
 	}
 }
 
-const DEFAULT_COLORS = {
+const DEFAULT_COLORS: WidgetColors = {
 	primary: "hsl(142 76% 36%)",
 	bgPrimary: "#ffffff",
 	bgSecondary: "hsl(240 5% 96%)",
@@ -20,7 +20,20 @@ const DEFAULT_COLORS = {
 	border: "hsl(240 6% 90%)",
 }
 
-function resolveConfig(): Required<WidgetConfig> {
+function resolveColors(
+	userColors: Partial<WidgetColors> | undefined,
+): WidgetColors {
+	return {
+		primary: userColors?.primary ?? DEFAULT_COLORS.primary,
+		bgPrimary: userColors?.bgPrimary ?? DEFAULT_COLORS.bgPrimary,
+		bgSecondary: userColors?.bgSecondary ?? DEFAULT_COLORS.bgSecondary,
+		textPrimary: userColors?.textPrimary ?? DEFAULT_COLORS.textPrimary,
+		textSecondary: userColors?.textSecondary ?? DEFAULT_COLORS.textSecondary,
+		border: userColors?.border ?? DEFAULT_COLORS.border,
+	}
+}
+
+function resolveConfig(): ResolvedWidgetConfig {
 	const userConfig = window.__AI_WIDGET_CONFIG__
 
 	if (!userConfig?.clientId) {
@@ -35,13 +48,13 @@ function resolveConfig(): Required<WidgetConfig> {
 			userConfig.apiUrl ||
 			import.meta.env.VITE_API_URL ||
 			"https://dev.pagepa.dyn.cloud.e-infra.cz/",
-		colors: { ...DEFAULT_COLORS, ...userConfig.colors },
+		colors: resolveColors(userConfig.colors),
 		position: userConfig.position ?? "right",
 		defaultOpen: userConfig.defaultOpen ?? false,
 	}
 }
 
-function injectCSSVariables(config: Required<WidgetConfig>): HTMLElement {
+function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	const root = document.createElement("div")
 	root.id = "ai-widget-root"
 	root.style.setProperty("--widget-primary", config.colors.primary)

@@ -9,6 +9,10 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url))
 
 export default defineConfig({
 	plugins: [react(), svgr(), cssInjectedByJsPlugin()],
+	server: {
+		// Enable CORS for cross-origin widget loading during dev
+		cors: true,
+	},
 	build: {
 		lib: {
 			entry: resolve(__dirname, "src/main.tsx"),

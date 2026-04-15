@@ -18,5 +18,23 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- AI Chat Widget (dogfooding our embeddable widget) -->
+    <script>
+      window.__AI_WIDGET_CONFIG__ = {
+        clientId: "demo-client",
+        position: "right",
+        defaultOpen: false,
+        colors: {
+          primary: "hsl(142 76% 36%)",      // Our green theme
+          bgPrimary: "#ffffff",
+          bgSecondary: "hsl(240 5% 96%)",
+          textPrimary: "hsl(240 6% 10%)",
+          textSecondary: "hsl(240 4% 46%)",
+          border: "hsl(240 6% 90%)"
+        }
+      };
+    </script>
+    <script async defer src="http://localhost:5173/widget-bundle.js"></script>
   </body>
 </html>
