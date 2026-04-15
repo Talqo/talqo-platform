@@ -10,6 +10,7 @@
 		"prepare": "husky",
 		"db:start": "docker compose up -d db --wait",
 		"db:logs": "docker compose logs --follow db",
+		"minio:start": "docker compose up -d minio --wait && docker compose up minio-init",
 		"dev": "turbo run dev db:logs",
 		"dev:web": "turbo dev --filter=web",
 		"dev:api": "turbo dev --filter=api",
