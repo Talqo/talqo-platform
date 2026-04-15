@@ -19,13 +19,40 @@ spec:
     spec:
       restartPolicy: Never
       volumes:
-        # drizzle-kit writes temp files to /tmp; required with readOnlyRootFilesystem: true
+        # Writable /tmp required by Bun's runtime with readOnlyRootFilesystem: true
         - name: tmp
           emptyDir: {}
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for PostgreSQL at $POSTGRES_HOST:5432..."
+              until nc -z "$POSTGRES_HOST" 5432; do
+                echo "PostgreSQL not ready, retrying in 2s..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready."
+          env:
+            - name: POSTGRES_HOST
+              value: {{ printf "%s-postgresql" (include "pagepal.fullname" .) | quote }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
       containers:
         - name: migrate
           image: "{{ .Values.migration.image.repository }}:{{ required "migration.image.tag is required — pass --set migration.image.tag=<version>" .Values.migration.image.tag }}"
-          command: ["bun", "run", "drizzle-kit", "migrate", "--config", "/app/packages/db/drizzle.config.ts"]
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command: ["bun", "/app/packages/db/migrate.ts"]
           volumeMounts:
             - name: tmp
               mountPath: /tmp
