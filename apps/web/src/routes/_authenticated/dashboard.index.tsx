@@ -13,8 +13,9 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function AdminDashboard() {
 	const { data: profile } = useClientProfile()
 
-	const balanceValue = profile?.balanceUsd
-		? `$${Number(profile.balanceUsd).toFixed(2)}`
+	const balanceRaw = Number(profile?.balanceUsd)
+	const balanceValue = Number.isFinite(balanceRaw)
+		? `$${balanceRaw.toFixed(2)}`
 		: "$0.00"
 
 	return (
