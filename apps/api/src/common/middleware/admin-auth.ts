@@ -37,16 +37,22 @@ export const adminAuth: MiddlewareHandler = async (c, next) => {
 	// Log mutating admin actions after the handler completes
 	const method = c.req.method
 	if (["POST", "PATCH", "PUT", "DELETE"].includes(method)) {
-		// c.req.param() is not reliable in shared middleware — extract UUID from the real path instead
-		const uuidPattern =
-			/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
-		const clientId = c.req.path.match(uuidPattern)?.[0]
-		if (clientId) {
-			await db.insert(adminAccessLogs).values({
-				adminId: payload.sub,
-				clientId,
-				actionType: `${method} ${c.req.path}`,
-			})
+		// Only log client-scoped actions — clientId is NOT NULL in adminAccessLogs,
+		// so we must not extract UUIDs from non-client paths (e.g. /admin/conversations/:id)
+		// which would produce an FK violation or a silently wrong audit record.
+		const isClientRoute = /^\/admin\/clients(?:\/|$)/.test(c.req.path)
+		if (isClientRoute) {
+			// c.req.param() is not reliable in shared middleware — extract UUID from the real path instead
+			const uuidPattern =
+				/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+			const clientId = c.req.path.match(uuidPattern)?.[0]
+			if (clientId) {
+				await db.insert(adminAccessLogs).values({
+					adminId: payload.sub,
+					clientId,
+					actionType: `${method} ${c.req.path}`,
+				})
+			}
 		}
 	}
 }
