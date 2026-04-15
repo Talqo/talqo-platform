@@ -139,7 +139,9 @@ export function createFilesRouter(service: FilesService) {
 				body: {
 					content: {
 						"multipart/form-data": {
-							schema: z.object({ file: z.any() }),
+							schema: z.object({
+								file: z.any().openapi({ type: "string", format: "binary" }),
+							}),
 						},
 					},
 				},

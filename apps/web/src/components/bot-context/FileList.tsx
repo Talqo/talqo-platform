@@ -1,27 +1,27 @@
 import { FileText, Plus, Upload } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
+import type { FileEntry } from "@/api/hooks/useFiles"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileListEmpty } from "./FileListEmpty"
 import { FileListItem } from "./FileListItem"
-import type { ContextFile } from "./types"
 import { type UploadError, UploadErrorAlert } from "./UploadErrorAlert"
 import { useDragAndDrop } from "./useDragAndDrop"
 import { useFileValidation } from "./useFileValidation"
 
 interface FileListProps {
-	files: ContextFile[]
+	files: FileEntry[]
 	onRename: (
-		id: string,
+		name: string,
 		newName: string,
-	) => { success: boolean; error?: "duplicate" }
-	onDelete: (id: string) => void
-	onFilesUploaded: (files: File[]) => Promise<ContextFile[]>
+	) => Promise<{ success: boolean; error?: "duplicate" }>
+	onDelete: (name: string) => void
+	onFilesUploaded: (files: File[]) => Promise<void>
 }
 
 interface EditingState {
-	id: string
 	name: string
+	editValue: string
 }
 
 export function FileList({
@@ -87,14 +87,14 @@ export function FileList({
 		setUploadErrors([])
 	}, [])
 
-	const handleStartEditing = useCallback((file: ContextFile) => {
+	const handleStartEditing = useCallback((file: FileEntry) => {
 		const ext = file.name.includes(".")
 			? file.name.slice(file.name.lastIndexOf("."))
 			: ""
 		const nameWithoutExt = ext
 			? file.name.slice(0, file.name.lastIndexOf(ext))
 			: file.name
-		setEditing({ id: file.id, name: nameWithoutExt })
+		setEditing({ name: file.name, editValue: nameWithoutExt })
 		setRenameError(null)
 	}, [])
 
@@ -103,10 +103,10 @@ export function FileList({
 		setRenameError(null)
 	}, [])
 
-	const handleConfirmEditing = useCallback(() => {
+	const handleConfirmEditing = useCallback(async () => {
 		if (!editing) return
 
-		const result = onRename(editing.id, editing.name)
+		const result = await onRename(editing.name, editing.editValue)
 		if (result.success) {
 			setEditing(null)
 			setRenameError(null)
@@ -116,7 +116,7 @@ export function FileList({
 	}, [editing, onRename])
 
 	const handleEditChange = useCallback((value: string) => {
-		setEditing((prev) => (prev ? { ...prev, name: value } : null))
+		setEditing((prev) => (prev ? { ...prev, editValue: value } : null))
 		setRenameError(null)
 	}, [])
 
@@ -178,10 +178,10 @@ export function FileList({
 					<div className="divide-y divide-border rounded-lg border border-border">
 						{files.map((file) => (
 							<FileListItem
-								key={file.id}
+								key={file.name}
 								file={file}
-								isEditing={editing?.id === file.id}
-								editValue={editing?.id === file.id ? editing.name : ""}
+								isEditing={editing?.name === file.name}
+								editValue={editing?.name === file.name ? editing.editValue : ""}
 								error={renameError}
 								onStartEditing={handleStartEditing}
 								onConfirmEditing={handleConfirmEditing}
