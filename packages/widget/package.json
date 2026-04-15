@@ -6,6 +6,7 @@
 	"main": "dist/widget-bundle.js",
 	"scripts": {
 		"dev": "vite",
+		"dev:bundle": "concurrently \"tsc --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --port 5174 --strictPort\"",
 		"build": "tsc && vite build",
 		"build:watch": "vite build --watch",
 		"preview": "vite preview",

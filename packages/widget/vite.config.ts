@@ -7,27 +7,40 @@ import svgr from "vite-plugin-svgr"
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url))
 
-export default defineConfig({
-	plugins: [react(), svgr(), cssInjectedByJsPlugin()],
-	server: {
-		port: 5174,
-		// Enable CORS for cross-origin widget loading during dev
-		cors: true,
-	},
-	build: {
-		lib: {
-			entry: resolve(__dirname, "src/main.tsx"),
-			formats: ["iife"],
-			name: "AIWidget",
-			fileName: () => "widget-bundle.js",
+export default defineConfig(({ mode }) => {
+	const isDev = mode === "development"
+
+	return {
+		plugins: [
+			react(),
+			svgr(),
+			// Only inject CSS in build mode
+			!isDev && cssInjectedByJsPlugin(),
+		],
+		server: {
+			port: 5174,
+			cors: true,
 		},
-		rollupOptions: {
-			output: {
-				inlineDynamicImports: true,
+		build: {
+			lib: {
+				entry: resolve(__dirname, "src/main.tsx"),
+				formats: ["iife"],
+				name: "AIWidget",
+				fileName: () => "widget-bundle.js",
 			},
+			rollupOptions: {
+				output: {
+					inlineDynamicImports: true,
+				},
+			},
+			cssCodeSplit: false,
+			minify: "esbuild",
 		},
-		assetsDir: ".",
-		cssCodeSplit: false,
-		minify: "esbuild",
-	},
+		// In dev, also serve the entry point as widget-bundle.js
+		...(isDev && {
+			optimizeDeps: {
+				entries: ["src/main.tsx"],
+			},
+		}),
+	}
 })
