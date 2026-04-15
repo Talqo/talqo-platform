@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Loader2 } from "lucide-react"
 import { useState } from "react"
 import {
 	useAdminConversation,
@@ -53,13 +52,21 @@ function MessageBubble({
 }
 
 function ConversationPreview({ conversationId }: { conversationId: string }) {
-	const { data, isLoading } = useAdminConversation(conversationId)
+	const { data, isLoading, error } = useAdminConversation(conversationId)
 
 	if (isLoading) {
 		return (
 			<div className="flex h-40 items-center justify-center">
 				<Spinner size="md" className="text-primary" />
 			</div>
+		)
+	}
+
+	if (error) {
+		return (
+			<p className="py-6 text-center text-sm text-muted-foreground">
+				Failed to load conversation
+			</p>
 		)
 	}
 
@@ -98,7 +105,7 @@ function BackofficeChatsPage() {
 	if (isLoading) {
 		return (
 			<div className="flex h-[400px] items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				<Spinner size="lg" className="text-primary" />
 			</div>
 		)
 	}
@@ -118,7 +125,7 @@ function BackofficeChatsPage() {
 			<div>
 				<h1 className="font-bold text-3xl tracking-tight">Chat Previews</h1>
 				<p className="text-muted-foreground">
-					Browse and inspect end-user conversations
+					Browse and inspect end-user conversations (showing most recent 50)
 				</p>
 			</div>
 

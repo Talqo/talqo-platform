@@ -138,11 +138,10 @@ function BackofficePage() {
 				/>
 				<BackOfficeStatCard
 					title="Total Cost"
-					value={
-						stats?.totalCostUsd != null
-							? `$${Number(stats.totalCostUsd).toFixed(2)}`
-							: "—"
-					}
+					value={(() => {
+						const cost = Number(stats?.totalCostUsd)
+						return Number.isFinite(cost) ? `$${cost.toFixed(2)}` : "—"
+					})()}
 					subtitle="Platform spend"
 					icon={DollarSign}
 				/>
