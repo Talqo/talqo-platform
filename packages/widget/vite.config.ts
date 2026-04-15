@@ -7,8 +7,9 @@ import svgr from "vite-plugin-svgr"
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url))
 
-export default defineConfig(({ mode }) => {
-	const isDev = mode === "development"
+export default defineConfig(() => {
+	// Always use production mode for the embeddable bundle
+	const nodeEnv = JSON.stringify("production")
 
 	return {
 		plugins: [react(), svgr(), cssInjectedByJsPlugin()],
@@ -16,9 +17,11 @@ export default defineConfig(({ mode }) => {
 			port: 5174,
 			cors: true,
 		},
+		mode: "production",
 		define: {
 			// Replace process.env.NODE_ENV for browser bundle
-			"process.env.NODE_ENV": JSON.stringify(mode),
+			"process.env.NODE_ENV": nodeEnv,
+			"process.env": { NODE_ENV: "production" },
 		},
 		build: {
 			lib: {
@@ -28,6 +31,8 @@ export default defineConfig(({ mode }) => {
 				fileName: () => "widget-bundle.js",
 			},
 			rollupOptions: {
+				// Bundle React into the IIFE (no external deps)
+				external: [],
 				output: {
 					inlineDynamicImports: true,
 				},

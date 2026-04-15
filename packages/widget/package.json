@@ -17,9 +17,9 @@
 		"type-check": "tsc --noEmit",
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
-	"peerDependencies": {
-		"react": "^18 || ^19",
-		"react-dom": "^18 || ^19"
+	"dependencies": {
+		"react": "^19",
+		"react-dom": "^19"
 	},
 	"devDependencies": {
 		"@types/react": "^19.2.7",
