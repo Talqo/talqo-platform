@@ -125,7 +125,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build packages and web app
-        run: bunx turbo build --filter=web
+        run: bunx turbo build --filter=web --filter=db
 
       - name: Run database migrations
         run: bun packages/db/migrate.ts
@@ -144,8 +144,8 @@ jobs:
 
       - name: Wait for services
         run: |
-          until curl -sf http://localhost:3000/health; do sleep 2; done
-          until curl -sf http://localhost:4173; do sleep 2; done
+          timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
+          timeout 60 bash -c 'until curl -sf http://localhost:4173; do sleep 2; done'
 
       - name: Run E2E tests
         run: cd apps/e2e && bun run test
