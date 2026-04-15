@@ -13,6 +13,8 @@
 		"dev": "turbo run dev db:logs",
 		"dev:web": "turbo dev --filter=web",
 		"dev:api": "turbo dev --filter=api",
+		"dev:widget": "turbo dev --filter=widget",
+		"dev:full": "turbo dev --filter=api --filter=web --filter=widget",
 		"build": "turbo build",
 		"lint": "turbo lint",
 		"check": "biome check .",
