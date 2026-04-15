@@ -12,7 +12,6 @@ import {
 import {
 	BotIcon,
 	ClearIcon,
-	CloseIcon,
 	ExpandIcon,
 	MinimizeIcon,
 	SendIcon,
@@ -34,11 +33,13 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 
 	return (
 		<div className={"aiw-root"} data-position={config.position}>
-			<WidgetTrigger
-				className={"aiw-trigger"}
-				closedContent={<BotIcon size={28} />}
-				openContent={<CloseIcon size={24} />}
-			/>
+			{/* Only show trigger button when widget is closed */}
+			{!widget.isOpen && (
+				<WidgetTrigger
+					className={"aiw-trigger"}
+					closedContent={<BotIcon size={28} />}
+				/>
+			)}
 
 			<WidgetPanel className={"aiw-panel"} data-expanded={widget.isExpanded}>
 				<WidgetHeader className={"aiw-header"}>

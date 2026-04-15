@@ -52,7 +52,7 @@
 .aiw-panel {
 	display: flex;
 	width: 90vw;
-	max-width: min(600px, calc(100vw - 3rem));
+	max-width: min(380px, calc(100vw - 2rem));
 	flex-direction: column;
 	overflow: hidden;
 	border-radius: 1rem;
@@ -76,14 +76,14 @@
 	box-shadow: 0 0 0 1px hsl(240 4% 16%);
 }
 
-/* Header */
+/* Header - Green theme style */
 .aiw-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	border-bottom: 1px solid var(--widget-border);
+	border-bottom: 2px solid var(--widget-primary);
 	padding: 0.75rem 1rem;
-	background-color: var(--widget-bg-secondary);
+	background-color: var(--widget-bg-primary);
 }
 
 .aiw-header-left {
@@ -93,9 +93,14 @@
 	color: var(--widget-text-primary);
 }
 
+.aiw-header-left > svg {
+	color: var(--widget-primary);
+}
+
 .aiw-header-title {
 	font-weight: 600;
 	font-size: 0.875rem;
+	color: var(--widget-text-primary);
 }
 
 .aiw-header-actions {
@@ -176,7 +181,8 @@
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background-color: var(--widget-bg-secondary);
+	background-color: var(--widget-primary);
+	color: white;
 	display: flex;
 	align-items: center;
 	justify-content: center;
