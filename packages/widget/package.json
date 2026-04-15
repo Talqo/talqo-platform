@@ -4,16 +4,6 @@
 	"private": false,
 	"type": "module",
 	"main": "dist/widget-bundle.js",
-	"module": "dist/widget-bundle.js",
-	"types": "dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/widget-bundle.js",
-			"require": "./dist/widget-bundle.js"
-		},
-		"./theme/default.css": "./dist/theme/default.css"
-	},
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",

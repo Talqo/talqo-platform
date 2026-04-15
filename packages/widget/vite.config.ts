@@ -23,6 +23,6 @@ export default defineConfig({
 		},
 		assetsDir: ".",
 		cssCodeSplit: false,
-		minify: "terser",
+		minify: "esbuild",
 	},
 })
