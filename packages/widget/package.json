@@ -9,7 +9,6 @@
 		"dev:spa": "vite --mode development",
 		"dev:bundle": "concurrently \"tsc --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --port 5174 --strictPort\"",
 		"build": "tsc && vite build --mode production",
-		"build:production": "tsc && vite build --mode production",
 		"build:watch": "vite build --watch --mode production",
 		"preview": "vite preview --port 5174 --strictPort",
 		"deploy": "bash scripts/deploy.sh",
@@ -28,11 +27,8 @@
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.1",
 		"typescript": "^6.0.0",
-		"vite": "^8.0.0-beta.13",
+		"vite": "^8.0.8",
 		"vite-plugin-css-injected-by-js": "^3.5.2",
 		"vite-plugin-svgr": "^4.5.0"
-	},
-	"overrides": {
-		"vite": "^8.0.0-beta.13"
 	}
 }

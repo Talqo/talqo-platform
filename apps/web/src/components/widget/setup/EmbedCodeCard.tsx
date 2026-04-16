@@ -34,7 +34,10 @@ export function EmbedCodeCard({
 		colors,
 	}
 
+	// Escape script-sensitive sequences to prevent XSS
 	const configJson = JSON.stringify(configObject, null, 2)
+		.replace(/</g, "\\x3c")
+		.replace(/>/g, "\\x3e")
 
 	const embedCode = `<script>
   window.__AI_WIDGET_CONFIG__ = ${configJson};

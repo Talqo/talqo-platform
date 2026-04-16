@@ -37,7 +37,7 @@ export function AppearanceCard({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<fieldset className="space-y-2">
-					<legend className="text-sm font-medium">Widget Position</legend>
+					<legend className="font-medium text-sm">Widget Position</legend>
 					<div
 						className="flex gap-2"
 						role="radiogroup"

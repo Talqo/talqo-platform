@@ -35,9 +35,20 @@
 	box-shadow:
 		0 20px 25px -5px rgb(0 0 0 / 0.1),
 		0 8px 10px -6px rgb(0 0 0 / 0.1);
-	transition: transform 0.2s;
 	border: none;
 	cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.aiw-trigger {
+		transition: transform 0.2s;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aiw-trigger {
+		transition: none;
+	}
 }
 
 .aiw-trigger:hover {
@@ -58,8 +69,19 @@
 	border-radius: 1rem;
 	background-color: var(--widget-bg-primary);
 	box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-	transition: all 0.3s;
 	margin-bottom: 0.75rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.aiw-panel {
+		transition: all 0.3s;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aiw-panel {
+		transition: none;
+	}
 }
 
 .aiw-panel[data-expanded="true"] {
@@ -68,7 +90,8 @@
 }
 
 .aiw-panel[data-expanded="false"] {
-	height: 500px;
+	max-height: min(500px, calc(100vh - 10rem));
+	height: auto;
 }
 
 .aiw-root[data-theme="dark"] .aiw-panel {
@@ -128,8 +151,8 @@
 }
 
 .aiw-root[data-theme="dark"] .aiw-header {
-	background-color: hsl(142 70% 25%);
-	border-color: hsl(142 70% 30%);
+	background-color: var(--widget-primary);
+	border-color: var(--widget-border);
 }
 
 /* Message list */
@@ -249,6 +272,12 @@
 	}
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.aiw-typing > div > div {
+		animation: none;
+	}
+}
+
 .aiw-root[data-theme="dark"] .aiw-typing > div {
 	background-color: hsl(240 4% 16%);
 }
@@ -304,7 +333,18 @@
 	background-color: var(--widget-primary);
 	color: white;
 	cursor: pointer;
-	transition: opacity 0.2s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.aiw-send-btn {
+		transition: opacity 0.2s;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aiw-send-btn {
+		transition: none;
+	}
 }
 
 .aiw-send-btn:hover {
@@ -326,6 +366,6 @@
 }
 
 .aiw-root[data-theme="dark"] .aiw-footer {
-	background-color: hsl(142 70% 25%);
+	background-color: var(--widget-primary);
 	color: rgba(255, 255, 255, 0.8);
 }

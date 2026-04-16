@@ -8,14 +8,22 @@ interface ColorPickerProps {
 }
 
 function tryHslToHex(hsl: string): string | null {
-	if (hsl.startsWith("#")) return hsl
+	if (hsl.startsWith("#")) return null
 
-	const match = hsl.match(/hsl\((\d+)\s+(\d+)%?\s+(\d+)%?\)/)
+	// Stricter HSL regex: requires percentages for S and L, validates ranges
+	const match = hsl.match(/^hsl\(\s*(\d{1,3})\s+([\d.]+)%\s+([\d.]+)%\s*\)$/)
 	if (!match) return null
 
-	const h = Number.parseInt(match[1], 10) / 360
-	const s = Number.parseInt(match[2], 10) / 100
-	const l = Number.parseInt(match[3], 10) / 100
+	const h = Number.parseInt(match[1], 10)
+	const s = Number.parseFloat(match[2])
+	const l = Number.parseFloat(match[3])
+
+	// Validate ranges
+	if (h < 0 || h > 360 || s < 0 || s > 100 || l < 0 || l > 100) return null
+
+	const hNorm = h / 360
+	const sNorm = s / 100
+	const lNorm = l / 100
 
 	const hue2rgb = (p: number, q: number, t: number) => {
 		if (t < 0) t += 1
@@ -26,12 +34,12 @@ function tryHslToHex(hsl: string): string | null {
 		return p
 	}
 
-	const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-	const p = 2 * l - q
+	const q = lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm
+	const p = 2 * lNorm - q
 
-	const r = Math.round(hue2rgb(p, q, h + 1 / 3) * 255)
-	const g = Math.round(hue2rgb(p, q, h) * 255)
-	const b = Math.round(hue2rgb(p, q, h - 1 / 3) * 255)
+	const r = Math.round(hue2rgb(p, q, hNorm + 1 / 3) * 255)
+	const g = Math.round(hue2rgb(p, q, hNorm) * 255)
+	const b = Math.round(hue2rgb(p, q, hNorm - 1 / 3) * 255)
 
 	return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
 }
@@ -42,10 +50,23 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 	}
 
 	const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.value
-		// Only update if it's valid hex or HSL
-		if (newValue.startsWith("#") || newValue.startsWith("hsl(")) {
-			onChange(newValue)
+		const newValue = e.target.value.trim().toLowerCase()
+
+		// Validate hex: #RGB, #RRGGBB, #RRGGBBAA
+		if (newValue.startsWith("#")) {
+			const hex = newValue.slice(1)
+			if (/^[0-9a-f]{3}$|^[0-9a-f]{6}$|^[0-9a-f]{8}$/i.test(hex)) {
+				onChange(newValue)
+			}
+			return
+		}
+
+		// Validate HSL: hsl(h s% l%)
+		if (newValue.startsWith("hsl(")) {
+			const converted = tryHslToHex(newValue)
+			if (converted) {
+				onChange(newValue)
+			}
 		}
 	}
 

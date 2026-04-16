@@ -5,7 +5,11 @@
 export interface WidgetConfig {
 	/** Client ID for API authentication */
 	clientId: string
-	/** Optional API base URL (defaults to production) */
+	/**
+	 * Optional API base URL.
+	 * Falls back to VITE_API_URL environment variable if not provided.
+	 * Defaults to "https://dev.pagepal.dyn.cloud.e-infra.cz" in development.
+	 */
 	apiUrl?: string
 	/** Theme colors - omit to use defaults */
 	colors?: Partial<WidgetColors>

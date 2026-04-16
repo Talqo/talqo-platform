@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import type { ProviderType } from "shared"
+import type { ProviderType, UpsertProviderConfigBody } from "shared"
 import { client } from "../client"
 
 // Extract raw response and make fields required to match what backend returns
@@ -11,13 +11,6 @@ export type ProviderConfigResponse = {
 	model: string
 	baseUrl: string | null
 	updatedAt: string
-}
-
-type UpsertProviderConfigBody = {
-	providerType: ProviderType
-	apiKey: string
-	model: string
-	baseUrl?: string
 }
 
 const QUERY_KEY = ["provider-config"] as const
@@ -39,11 +32,8 @@ export function useUpsertProviderConfig() {
 	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (body: UpsertProviderConfigBody) => {
-			// Cast body to never to satisfy OpenAPI discriminated union
-			// The backend validates the actual shape
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const { data, error } = await client.PUT("/client/me/provider-config", {
-				body: body as never,
+				body,
 			})
 			if (error) throw error
 			return data.data
