@@ -1,3 +1,5 @@
+import type { ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -45,27 +47,45 @@ function tryHslToHex(hsl: string): string | null {
 }
 
 export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
-	const handleColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	// Draft state allows typing intermediate values before validation
+	const [draftValue, setDraftValue] = useState(value)
+
+	// Sync draft with external prop changes
+	useEffect(() => {
+		setDraftValue(value)
+	}, [value])
+
+	const handleColorInputChange = (e: ChangeEvent<HTMLInputElement>) => {
 		onChange(e.target.value)
 	}
 
-	const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.value.trim().toLowerCase()
+	const handleTextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value
+		setDraftValue(newValue)
 
-		// Validate hex: #RGB, #RRGGBB, #RRGGBBAA
-		if (newValue.startsWith("#")) {
-			const hex = newValue.slice(1)
-			if (/^[0-9a-f]{3}$|^[0-9a-f]{6}$|^[0-9a-f]{8}$/i.test(hex)) {
-				onChange(newValue)
+		const trimmed = newValue.trim().toLowerCase()
+
+		// Validate hex: only #RRGGBB (input type="color" compatible)
+		if (trimmed.startsWith("#")) {
+			const hex = trimmed.slice(1)
+			// Normalize 3-digit RGB to 6-digit
+			if (/^[0-9a-f]{3}$/i.test(hex)) {
+				const normalized = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
+				onChange(normalized)
+				return
+			}
+			// Accept 6-digit hex only (ignore 8-digit with alpha)
+			if (/^[0-9a-f]{6}$/i.test(hex)) {
+				onChange(trimmed)
 			}
 			return
 		}
 
 		// Validate HSL: hsl(h s% l%)
-		if (newValue.startsWith("hsl(")) {
-			const converted = tryHslToHex(newValue)
+		if (trimmed.startsWith("hsl(")) {
+			const converted = tryHslToHex(trimmed)
 			if (converted) {
-				onChange(newValue)
+				onChange(trimmed)
 			}
 		}
 	}
@@ -85,7 +105,7 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 				/>
 				<Input
 					type="text"
-					value={value}
+					value={draftValue}
 					onChange={handleTextInputChange}
 					className="flex-1 font-mono text-sm"
 					placeholder="#ffffff or hsl(...)"

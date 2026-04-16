@@ -397,6 +397,12 @@ export function useDismissWidgetSetup() {
 				"/client/me/dismiss-widget-setup",
 			)
 			if (error) throw error
+			// Validate response shape - fail fast if data is invalid
+			if (!data || typeof data !== "object") {
+				throw new Error(
+					"Invalid response: expected dismiss-widget-setup data object",
+				)
+			}
 			return data
 		},
 		onSuccess: () => {
