@@ -74,6 +74,8 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 			// Normalize 3-digit RGB to 6-digit
 			if (/^[0-9a-f]{3}$/i.test(hex)) {
 				const normalized = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
+				// Update draft to normalized value to prevent jump
+				setDraftValue(normalized)
 				onChange(normalized)
 				return
 			}
@@ -94,6 +96,8 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 	}
 
 	const colorPickerValue = tryHslToHex(value) || value
+	// Validate that the color picker receives a proper 6-digit hex
+	const isValidHex = /^#([0-9a-f]{6})$/i.test(colorPickerValue)
 
 	return (
 		<div className="flex items-center gap-3">
@@ -101,10 +105,12 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 			<div className="flex flex-1 items-center gap-2">
 				<Input
 					type="color"
-					value={colorPickerValue}
+					value={isValidHex ? colorPickerValue : "#000000"}
 					onChange={handleColorInputChange}
-					className="h-9 w-16 p-1"
+					disabled={!isValidHex}
+					className="h-9 w-16 p-1 disabled:cursor-not-allowed disabled:opacity-50"
 					aria-label={`${label} color picker`}
+					aria-invalid={!isValidHex}
 				/>
 				<Input
 					type="text"
