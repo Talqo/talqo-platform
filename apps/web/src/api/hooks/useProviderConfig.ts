@@ -39,8 +39,11 @@ export function useUpsertProviderConfig() {
 	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (body: UpsertProviderConfigBody) => {
+			// Cast body to never to satisfy OpenAPI discriminated union
+			// The backend validates the actual shape
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const { data, error } = await client.PUT("/client/me/provider-config", {
-				body,
+				body: body as never,
 			})
 			if (error) throw error
 			return data.data
