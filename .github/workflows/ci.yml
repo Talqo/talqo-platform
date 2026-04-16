@@ -79,6 +79,9 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+      options: --ipc=host
     needs: lint
     services:
       postgres:
@@ -94,28 +97,17 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    env:
-      POSTGRES_USER: pagepal
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: "5432"
-      POSTGRES_DB: pagepal
-      JWT_SECRET: ci-e2e-secret-that-is-at-least-32-characters-long
-      JWT_EXPIRES_IN: 24h
-      API_PORT: "3000"
-      S3_ACCESS_KEY_ID: minioadmin
-      S3_SECRET_ACCESS_KEY: minioadmin
-      S3_ENDPOINT: http://localhost:9000
-      S3_BUCKET: pagepal-files
-      RESEND_API_KEY: re_test_key
-      APP_URL: http://localhost:4173
-      VITE_API_URL: http://localhost:3000
-      PROVIDER_KEY_SECRET: 0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20
-      BASE_URL: http://localhost:4173
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Load environment
+        run: |
+          grep -v '^#' .env.example | grep -v '^$' >> $GITHUB_ENV
+          echo "POSTGRES_HOST=postgres" >> $GITHUB_ENV
+          echo "APP_URL=http://localhost:4173" >> $GITHUB_ENV
+          echo "BASE_URL=http://localhost:4173" >> $GITHUB_ENV
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -133,9 +125,6 @@ jobs:
 
       - name: Seed database
         run: bun apps/api/src/db/seed.ts
-
-      - name: Install Playwright browsers
-        run: cd apps/e2e && bunx playwright install --with-deps chromium
 
       - name: Start API server
         run: bun apps/api/src/index.ts &
