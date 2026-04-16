@@ -3,7 +3,6 @@ import { Bot, ChevronRight, X } from "lucide-react"
 import { useState } from "react"
 import { useDismissWidgetSetup } from "@/api/hooks"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
 	Dialog,
 	DialogContent,
@@ -12,7 +11,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 
 interface OnboardingPopupProps {
 	open: boolean
@@ -21,19 +19,17 @@ interface OnboardingPopupProps {
 
 export function OnboardingPopup({ open, onOpenChange }: OnboardingPopupProps) {
 	const dismissMutation = useDismissWidgetSetup()
-	const [dontShowAgain, setDontShowAgain] = useState(false)
 
-	const handleDismiss = async () => {
-		if (dontShowAgain) {
-			await dismissMutation.mutateAsync()
-		}
+	const handleDismiss = () => {
 		onOpenChange(false)
 	}
 
 	const handleSetUpNow = () => {
-		if (dontShowAgain) {
-			dismissMutation.mutate()
-		}
+		onOpenChange(false)
+	}
+
+	const handleDontShowAgain = async () => {
+		await dismissMutation.mutateAsync()
 		onOpenChange(false)
 	}
 
@@ -87,21 +83,14 @@ export function OnboardingPopup({ open, onOpenChange }: OnboardingPopupProps) {
 						Remind Me Later
 					</Button>
 
-					<div className="flex items-center justify-center gap-2 pt-2">
-						<Checkbox
-							id="dont-show"
-							checked={dontShowAgain}
-							onCheckedChange={(checked) =>
-								setDontShowAgain(checked as boolean)
-							}
-						/>
-						<Label
-							htmlFor="dont-show"
-							className="cursor-pointer text-muted-foreground text-sm"
-						>
-							Don&apos;t show this again
-						</Label>
-					</div>
+					<Button
+						variant="ghost"
+						className="w-full text-muted-foreground"
+						onClick={handleDontShowAgain}
+						disabled={dismissMutation.isPending}
+					>
+						{dismissMutation.isPending ? "Saving..." : "Don't Show This Again"}
+					</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

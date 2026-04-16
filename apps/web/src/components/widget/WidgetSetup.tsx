@@ -37,7 +37,7 @@ export function WidgetSetup() {
 
 	const embedCode = `<script>
   window.__AI_WIDGET_CONFIG__ = {
-    clientId: "${client?.widgetToken || "your-client-id"}",
+    clientId: "${client?.data?.id || "your-client-id"}",
     position: "${position}",
     colors: {
       primary: "${colors.primary}",
