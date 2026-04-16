@@ -1,6 +1,6 @@
 import { Check, Code, Copy, Monitor } from "lucide-react"
 import { useState } from "react"
-import { useAuth } from "@/api/hooks"
+import { useCurrentUser } from "@/api/hooks"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,7 @@ const defaultColors: WidgetColors = {
 }
 
 export function WidgetSetup() {
-	const { data: client } = useAuth()
+	const { data: client } = useCurrentUser()
 	const [colors, setColors] = useState<WidgetColors>(defaultColors)
 	const [position, setPosition] = useState<"left" | "right">("right")
 	const [copied, setCopied] = useState(false)

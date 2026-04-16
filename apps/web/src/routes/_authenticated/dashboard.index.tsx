@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
-import { useAuth } from "@/api/hooks"
+import { useCurrentUser } from "@/api/hooks"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { PageHeader } from "@/components/layout"
 import { StatsGrid } from "@/components/stats"
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 })
 
 function AdminDashboard() {
-	const { data: client } = useAuth()
+	const { data: client } = useCurrentUser()
 	const [showPopup, setShowPopup] = useState(
 		() => client?.data?.widgetSetupDismissed === false,
 	)
