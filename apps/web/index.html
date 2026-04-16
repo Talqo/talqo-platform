@@ -37,11 +37,14 @@
             }
           };
 
-          // Load widget bundle from dev server
+          // Load widget bundle from dev server dist folder
+          const scriptSrc = 'http://localhost:5174/dist/widget-bundle.js';
+
           const script = document.createElement('script');
-          script.src = 'http://localhost:5174/widget-bundle.js';
+          script.src = scriptSrc;
           script.async = true;
           script.defer = true;
+          script.crossOrigin = 'anonymous';
           document.body.appendChild(script);
         }
       })();

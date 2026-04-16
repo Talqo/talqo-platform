@@ -33,6 +33,33 @@ function resolveColors(
 	}
 }
 
+function resolveDarkColors(
+	lightColors: WidgetColors,
+	userDarkColors: Partial<WidgetColors> | undefined,
+): WidgetColors {
+	// If user provided custom dark colors, use them; otherwise auto-generate
+	if (userDarkColors) {
+		return {
+			primary: userDarkColors.primary ?? lightColors.primary,
+			bgPrimary: userDarkColors.bgPrimary ?? "hsl(240 10% 3.9%)",
+			bgSecondary: userDarkColors.bgSecondary ?? "hsl(240 4% 16%)",
+			textPrimary: userDarkColors.textPrimary ?? "hsl(0 0% 98%)",
+			textSecondary: userDarkColors.textSecondary ?? "hsl(240 5% 65%)",
+			border: userDarkColors.border ?? "hsl(240 4% 16%)",
+		}
+	}
+
+	// Auto-generate dark colors based on light colors
+	return {
+		primary: lightColors.primary,
+		bgPrimary: "hsl(240 10% 3.9%)",
+		bgSecondary: "hsl(240 4% 16%)",
+		textPrimary: "hsl(0 0% 98%)",
+		textSecondary: "hsl(240 5% 65%)",
+		border: "hsl(240 4% 16%)",
+	}
+}
+
 function resolveConfig(): ResolvedWidgetConfig {
 	const userConfig = window.__AI_WIDGET_CONFIG__
 
@@ -42,13 +69,16 @@ function resolveConfig(): ResolvedWidgetConfig {
 		)
 	}
 
+	const lightColors = resolveColors(userConfig.colors)
+
 	return {
 		clientId: userConfig.clientId,
 		apiUrl:
 			userConfig.apiUrl ||
 			import.meta.env.VITE_API_URL ||
 			"https://dev.pagepal.dyn.cloud.e-infra.cz/",
-		colors: resolveColors(userConfig.colors),
+		colors: lightColors,
+		darkColors: resolveDarkColors(lightColors, userConfig.darkColors),
 		position: userConfig.position ?? "right",
 		defaultOpen: userConfig.defaultOpen ?? false,
 	}
@@ -78,6 +108,8 @@ function darkenColor(color: string, percent = 6): string {
 function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	const root = document.createElement("div")
 	root.id = "ai-widget-root"
+
+	// Light mode colors (default)
 	root.style.setProperty("--widget-primary", config.colors.primary)
 	root.style.setProperty("--widget-bg-primary", config.colors.bgPrimary)
 	root.style.setProperty("--widget-bg-secondary", config.colors.bgSecondary)
@@ -88,6 +120,19 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 		"--widget-primary-hover",
 		darkenColor(config.colors.primary),
 	)
+
+	// Dark mode colors - use resolved dark colors from config
+	const darkColors =
+		config.darkColors ?? resolveDarkColors(config.colors, undefined)
+	root.style.setProperty("--widget-dark-primary", darkColors.primary)
+	root.style.setProperty("--widget-dark-bg-primary", darkColors.bgPrimary)
+	root.style.setProperty("--widget-dark-bg-secondary", darkColors.bgSecondary)
+	root.style.setProperty("--widget-dark-text-primary", darkColors.textPrimary)
+	root.style.setProperty(
+		"--widget-dark-text-secondary",
+		darkColors.textSecondary,
+	)
+	root.style.setProperty("--widget-dark-border", darkColors.border)
 
 	document.body.appendChild(root)
 	return root

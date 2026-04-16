@@ -13,6 +13,8 @@ export interface WidgetConfig {
 	apiUrl?: string
 	/** Theme colors - omit to use defaults */
 	colors?: Partial<WidgetColors>
+	/** Dark mode colors - if not provided, will be auto-generated from light colors */
+	darkColors?: Partial<WidgetColors>
 	/** Widget positioning */
 	position?: "left" | "right"
 	/** Initial open state */
@@ -20,24 +22,25 @@ export interface WidgetConfig {
 }
 
 export interface WidgetColors {
-	/** Primary accent color (buttons, user messages) - default: hsl(220 14% 46%) */
+	/** Primary accent color (buttons, user messages) - default: #64748b */
 	primary: string
-	/** Panel background - default: white */
+	/** Panel background - default: #ffffff */
 	bgPrimary: string
-	/** Header/bot message background - default: hsl(220 14% 96%) */
+	/** Header/bot message background - default: #f1f5f9 */
 	bgSecondary: string
-	/** Main text color - default: hsl(220 14% 10%) */
+	/** Main text color - default: #0f172a */
 	textPrimary: string
-	/** Secondary text (footer, placeholders) - default: hsl(220 9% 46%) */
+	/** Secondary text (footer, placeholders) - default: #64748b */
 	textSecondary: string
-	/** Borders and dividers - default: hsl(220 13% 91%) */
+	/** Borders and dividers - default: #e2e8f0 */
 	border: string
 }
 
 /** Validated config with defaults applied */
 export interface ResolvedWidgetConfig
-	extends Required<Omit<WidgetConfig, "colors">> {
+	extends Required<Omit<WidgetConfig, "colors" | "darkColors">> {
 	colors: WidgetColors
+	darkColors?: WidgetColors
 }
 
 export type WidgetTheme = "light" | "dark"

@@ -7,11 +7,26 @@ export interface WidgetColors {
 	border: string
 }
 
-export const defaultColors: WidgetColors = {
-	primary: "hsl(142 76% 36%)",
-	bgPrimary: "#ffffff",
-	bgSecondary: "hsl(240 5% 96%)",
-	textPrimary: "hsl(240 6% 10%)",
-	textSecondary: "hsl(240 4% 46%)",
-	border: "hsl(240 6% 90%)",
+export interface WidgetColorsConfig {
+	light: WidgetColors
+	dark: WidgetColors
+}
+
+export const defaultColors: WidgetColorsConfig = {
+	light: {
+		primary: "#16a34a",
+		bgPrimary: "#ffffff",
+		bgSecondary: "#f3f4f6",
+		textPrimary: "#111827",
+		textSecondary: "#6b7280",
+		border: "#e5e7eb",
+	},
+	dark: {
+		primary: "#16a34a",
+		bgPrimary: "#09090b",
+		bgSecondary: "#27272a",
+		textPrimary: "#fafafa",
+		textSecondary: "#a1a1aa",
+		border: "#27272a",
+	},
 }

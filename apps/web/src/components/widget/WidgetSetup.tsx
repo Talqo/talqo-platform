@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useCurrentUser } from "@/api/hooks"
+import type { WidgetColors, WidgetColorsConfig } from "./setup"
 import {
 	AppearanceCard,
 	defaultColors,
@@ -9,11 +10,15 @@ import {
 
 export function WidgetSetup() {
 	const { data: client, isLoading } = useCurrentUser()
-	const [colors, setColors] = useState(defaultColors)
+	const [colors, setColors] = useState<WidgetColorsConfig>(defaultColors)
 	const [position, setPosition] = useState<"left" | "right">("right")
 
-	const updateColor = (key: keyof typeof colors, value: string) => {
-		setColors((prev) => ({ ...prev, [key]: value }))
+	const updateLightColor = (key: keyof WidgetColors, value: string) => {
+		setColors((prev) => ({ ...prev, light: { ...prev.light, [key]: value } }))
+	}
+
+	const updateDarkColor = (key: keyof WidgetColors, value: string) => {
+		setColors((prev) => ({ ...prev, dark: { ...prev.dark, [key]: value } }))
 	}
 
 	return (
@@ -23,7 +28,8 @@ export function WidgetSetup() {
 				<AppearanceCard
 					colors={colors}
 					position={position}
-					onColorChange={updateColor}
+					onLightColorChange={updateLightColor}
+					onDarkColorChange={updateDarkColor}
 					onPositionChange={setPosition}
 				/>
 

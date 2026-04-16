@@ -98,6 +98,15 @@
 	height: auto;
 }
 
+/* Dark mode colors */
+.aiw-root[data-theme="dark"] {
+	--widget-bg-primary: var(--widget-dark-bg-primary);
+	--widget-bg-secondary: var(--widget-dark-bg-secondary);
+	--widget-text-primary: var(--widget-dark-text-primary);
+	--widget-text-secondary: var(--widget-dark-text-secondary);
+	--widget-border: var(--widget-dark-border);
+}
+
 .aiw-root[data-theme="dark"] .aiw-panel {
 	background-color: var(--widget-bg-primary);
 	box-shadow: 0 0 0 1px var(--widget-border);

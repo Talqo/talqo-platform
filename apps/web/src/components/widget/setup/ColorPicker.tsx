@@ -100,15 +100,15 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 	const isValidHex = /^#([0-9a-f]{6})$/i.test(colorPickerValue)
 
 	return (
-		<div className="flex items-center gap-3">
-			<Label className="w-32 flex-shrink-0 text-sm">{label}</Label>
-			<div className="flex flex-1 items-center gap-2">
+		<div className="space-y-2">
+			<Label className="text-sm font-medium">{label}</Label>
+			<div className="flex items-center gap-3">
 				<Input
 					type="color"
 					value={isValidHex ? colorPickerValue : "#000000"}
 					onChange={handleColorInputChange}
 					disabled={!isValidHex}
-					className="h-9 w-16 p-1 disabled:cursor-not-allowed disabled:opacity-50"
+					className="h-10 w-20 flex-shrink-0 p-1 disabled:cursor-not-allowed disabled:opacity-50"
 					aria-label={`${label} color picker`}
 					aria-invalid={!isValidHex}
 				/>

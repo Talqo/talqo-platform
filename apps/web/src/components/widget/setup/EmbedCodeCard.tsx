@@ -2,12 +2,12 @@ import { Check, Code, Copy } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { WidgetColors } from "./types"
+import type { WidgetColorsConfig } from "./types"
 
 interface EmbedCodeCardProps {
 	clientId: string | undefined
 	position: "left" | "right"
-	colors: WidgetColors
+	colors: WidgetColorsConfig
 	isLoading: boolean
 }
 
@@ -31,7 +31,8 @@ export function EmbedCodeCard({
 	const configObject = {
 		clientId: actualClientId,
 		position,
-		colors,
+		colors: colors.light,
+		darkColors: colors.dark,
 	}
 
 	// Escape script-sensitive sequences to prevent XSS
