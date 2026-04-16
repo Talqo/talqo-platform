@@ -239,6 +239,9 @@ export function useCurrentUser() {
 	})
 }
 
+// Alias for useCurrentUser - used by WidgetSetup and other components
+export const useAuth = useCurrentUser
+
 // Get current admin (for admin dashboard)
 interface AdminProfile {
 	id: string
