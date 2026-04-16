@@ -387,7 +387,7 @@ export function useUnifiedLogin() {
 export function useDismissWidgetSetup() {
 	const queryClient = useQueryClient()
 
-	return useMutation<AuthResponse, ApiError>({
+	return useMutation<AuthResponse, ApiError, void>({
 		mutationFn: async () => {
 			const { data, error } = await client.POST(
 				"/client/me/dismiss-widget-setup",
