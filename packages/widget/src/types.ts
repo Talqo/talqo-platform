@@ -41,10 +41,6 @@ export interface WidgetColors {
 export interface WidgetIcons {
 	/** Bot avatar icon - shown in header and messages - default: bot */
 	botAvatar: string
-	/** Send button icon - default: send */
-	sendButton: string
-	/** Trigger button (floating action button) icon - default: message-circle */
-	triggerButton: string
 }
 
 /** Validated config with defaults applied */

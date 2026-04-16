@@ -12,6 +12,10 @@ export interface WidgetColorsConfig {
 	dark: WidgetColors
 }
 
+export interface WidgetIcons {
+	botAvatar: string
+}
+
 export const defaultColors: WidgetColorsConfig = {
 	light: {
 		primary: "#16a34a",
@@ -29,4 +33,8 @@ export const defaultColors: WidgetColorsConfig = {
 		textSecondary: "#a1a1aa",
 		border: "#27272a",
 	},
+}
+
+export const defaultIcons: WidgetIcons = {
+	botAvatar: "bot",
 }
