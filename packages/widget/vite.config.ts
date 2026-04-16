@@ -27,7 +27,9 @@ export default defineConfig(({ mode }) => {
 			"process.env.NODE_ENV": JSON.stringify(
 				isDevelopment ? "development" : "production",
 			),
-			"process.env": { NODE_ENV: isDevelopment ? "development" : "production" },
+			"process.env": JSON.stringify({
+				NODE_ENV: isDevelopment ? "development" : "production",
+			}),
 		},
 		build: isDevelopment
 			? {} // Regular SPA build for dev mode (uses index.html)
