@@ -7,11 +7,11 @@ interface ColorPickerProps {
 	onChange: (value: string) => void
 }
 
-function hslToHex(hsl: string): string {
+function tryHslToHex(hsl: string): string | null {
 	if (hsl.startsWith("#")) return hsl
 
 	const match = hsl.match(/hsl\((\d+)\s+(\d+)%?\s+(\d+)%?\)/)
-	if (!match) return "#10b981"
+	if (!match) return null
 
 	const h = Number.parseInt(match[1], 10) / 360
 	const s = Number.parseInt(match[2], 10) / 100
@@ -37,22 +37,38 @@ function hslToHex(hsl: string): string {
 }
 
 export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
+	const handleColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		onChange(e.target.value)
+	}
+
+	const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value
+		// Only update if it's valid hex or HSL
+		if (newValue.startsWith("#") || newValue.startsWith("hsl(")) {
+			onChange(newValue)
+		}
+	}
+
+	const colorPickerValue = tryHslToHex(value) || value
+
 	return (
 		<div className="flex items-center gap-3">
 			<Label className="w-32 flex-shrink-0 text-sm">{label}</Label>
 			<div className="flex flex-1 items-center gap-2">
 				<Input
 					type="color"
-					value={value.startsWith("hsl") ? hslToHex(value) : value}
-					onChange={(e) => onChange(e.target.value)}
+					value={colorPickerValue}
+					onChange={handleColorInputChange}
 					className="h-9 w-16 p-1"
+					aria-label={`${label} color picker`}
 				/>
 				<Input
 					type="text"
 					value={value}
-					onChange={(e) => onChange(e.target.value)}
+					onChange={handleTextInputChange}
 					className="flex-1 font-mono text-sm"
 					placeholder="#ffffff or hsl(...)"
+					aria-label={`${label} color value`}
 				/>
 			</div>
 		</div>

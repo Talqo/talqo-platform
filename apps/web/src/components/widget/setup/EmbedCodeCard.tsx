@@ -1,5 +1,5 @@
 import { Check, Code, Copy } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { WidgetColors } from "./types"
@@ -18,35 +18,47 @@ export function EmbedCodeCard({
 	isLoading,
 }: EmbedCodeCardProps) {
 	const [copied, setCopied] = useState(false)
+	const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-	const scriptUrl = import.meta.env.DEV
-		? "http://localhost:5174/widget-bundle.js"
-		: "https://dev.pagepal.dyn.cloud.e-infra.cz/widget-bundle.js"
+	const scriptUrl =
+		import.meta.env.VITE_WIDGET_BUNDLE_URL ??
+		(import.meta.env.DEV
+			? "http://localhost:5174/widget-bundle.js"
+			: "https://dev.pagepal.dyn.cloud.e-infra.cz/widget-bundle.js")
 
 	const actualClientId = clientId || "your-client-id"
 
+	const configObject = {
+		clientId: actualClientId,
+		position,
+		colors,
+	}
+
+	const configJson = JSON.stringify(configObject, null, 2)
+
 	const embedCode = `<script>
-  window.__AI_WIDGET_CONFIG__ = {
-    clientId: "${actualClientId}",
-    position: "${position}",
-    colors: {
-      primary: "${colors.primary}",
-      bgPrimary: "${colors.bgPrimary}",
-      bgSecondary: "${colors.bgSecondary}",
-      textPrimary: "${colors.textPrimary}",
-      textSecondary: "${colors.textSecondary}",
-      border: "${colors.border}"
-    }
-  };
+  window.__AI_WIDGET_CONFIG__ = ${configJson};
 </script>
 <script async defer src="${scriptUrl}"></script>`
+
+	useEffect(() => {
+		return () => {
+			if (copiedTimeoutRef.current) {
+				clearTimeout(copiedTimeoutRef.current)
+			}
+		}
+	}, [])
 
 	const copyToClipboard = async () => {
 		if (isLoading || !clientId) return
 		try {
 			await navigator.clipboard.writeText(embedCode)
 			setCopied(true)
-			setTimeout(() => setCopied(false), 2000)
+
+			if (copiedTimeoutRef.current) {
+				clearTimeout(copiedTimeoutRef.current)
+			}
+			copiedTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
 		} catch (err) {
 			console.error("Failed to copy to clipboard:", err)
 			setCopied(false)

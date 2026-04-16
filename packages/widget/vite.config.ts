@@ -21,7 +21,6 @@ export default defineConfig(({ mode }) => {
 			port: 5174,
 			cors: true,
 		},
-		mode: isDevelopment ? "development" : "production",
 		define: {
 			// Replace process.env.NODE_ENV for browser bundle
 			"process.env.NODE_ENV": JSON.stringify(

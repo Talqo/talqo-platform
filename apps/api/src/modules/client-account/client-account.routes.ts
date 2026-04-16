@@ -250,6 +250,10 @@ router.openapi(
 					},
 				},
 			},
+			404: {
+				description: "Client not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
 		},
 	}),
 	async (c) => {

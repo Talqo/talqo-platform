@@ -12,6 +12,15 @@ interface AppearanceCardProps {
 	onPositionChange: (position: "left" | "right") => void
 }
 
+const COLOR_PICKERS: { key: keyof WidgetColors; label: string }[] = [
+	{ key: "primary", label: "Primary (buttons, header)" },
+	{ key: "bgPrimary", label: "Background Primary" },
+	{ key: "bgSecondary", label: "Background Secondary" },
+	{ key: "textPrimary", label: "Text Primary" },
+	{ key: "textSecondary", label: "Text Secondary" },
+	{ key: "border", label: "Border Color" },
+]
+
 export function AppearanceCard({
 	colors,
 	position,
@@ -27,11 +36,17 @@ export function AppearanceCard({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<div className="space-y-2">
-					<Label>Widget Position</Label>
-					<div className="flex gap-2">
+				<fieldset className="space-y-2">
+					<legend className="text-sm font-medium">Widget Position</legend>
+					<div
+						className="flex gap-2"
+						role="radiogroup"
+						aria-label="Widget Position"
+					>
 						<Button
 							type="button"
+							role="radio"
+							aria-checked={position === "left"}
 							variant={position === "left" ? "default" : "outline"}
 							onClick={() => onPositionChange("left")}
 						>
@@ -39,47 +54,27 @@ export function AppearanceCard({
 						</Button>
 						<Button
 							type="button"
+							role="radio"
+							aria-checked={position === "right"}
 							variant={position === "right" ? "default" : "outline"}
 							onClick={() => onPositionChange("right")}
 						>
 							Bottom Right
 						</Button>
 					</div>
-				</div>
+				</fieldset>
 
 				<div className="space-y-3">
 					<Label>Brand Colors</Label>
 					<div className="grid gap-3">
-						<ColorPicker
-							label="Primary (buttons, header)"
-							value={colors.primary}
-							onChange={(v) => onColorChange("primary", v)}
-						/>
-						<ColorPicker
-							label="Background Primary"
-							value={colors.bgPrimary}
-							onChange={(v) => onColorChange("bgPrimary", v)}
-						/>
-						<ColorPicker
-							label="Background Secondary"
-							value={colors.bgSecondary}
-							onChange={(v) => onColorChange("bgSecondary", v)}
-						/>
-						<ColorPicker
-							label="Text Primary"
-							value={colors.textPrimary}
-							onChange={(v) => onColorChange("textPrimary", v)}
-						/>
-						<ColorPicker
-							label="Text Secondary"
-							value={colors.textSecondary}
-							onChange={(v) => onColorChange("textSecondary", v)}
-						/>
-						<ColorPicker
-							label="Border Color"
-							value={colors.border}
-							onChange={(v) => onColorChange("border", v)}
-						/>
+						{COLOR_PICKERS.map((item) => (
+							<ColorPicker
+								key={item.key}
+								label={item.label}
+								value={colors[item.key]}
+								onChange={(v) => onColorChange(item.key, v)}
+							/>
+						))}
 					</div>
 				</div>
 			</CardContent>
