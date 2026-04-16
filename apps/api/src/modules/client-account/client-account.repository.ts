@@ -17,6 +17,7 @@ export class ClientAccountRepository {
 				status: clients.status,
 				lastActive: clients.lastActive,
 				createdAt: clients.createdAt,
+				widgetSetupDismissed: clients.widgetSetupDismissed,
 			})
 			.from(clients)
 			.where(eq(clients.id, id))
@@ -25,7 +26,11 @@ export class ClientAccountRepository {
 
 	async updateClient(
 		id: string,
-		data: Partial<{ name: string; email: string }>,
+		data: Partial<{
+			name: string
+			email: string
+			widgetSetupDismissed: boolean
+		}>,
 	) {
 		const [updated] = await this.db
 			.update(clients)

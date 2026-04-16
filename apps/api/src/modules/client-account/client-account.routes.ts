@@ -234,4 +234,32 @@ router.openapi(
 	},
 )
 
+router.openapi(
+	createRoute({
+		method: "post",
+		path: "/me/dismiss-widget-setup",
+		tags: ["Client Account"],
+		summary: "Dismiss widget setup onboarding",
+		security: [{ bearerAuth: [] }],
+		responses: {
+			200: {
+				description: "Widget setup dismissed",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(z.object({ message: z.string() })),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		await clientAccountService.dismissWidgetSetup(clientId)
+		return c.json(
+			{ success: true as const, data: { message: "Widget setup dismissed" } },
+			200,
+		)
+	},
+)
+
 export default router

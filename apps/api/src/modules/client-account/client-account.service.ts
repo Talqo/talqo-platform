@@ -70,4 +70,8 @@ export class ClientAccountService {
 			thresholdUsd !== null ? thresholdUsd.toFixed(4) : null,
 		)
 	}
+
+	async dismissWidgetSetup(clientId: string) {
+		await this.repo.updateClient(clientId, { widgetSetupDismissed: true })
+	}
 }
