@@ -35,7 +35,7 @@ function AdminDashboard() {
 						<Link
 							to="/dashboard/add-funds"
 							aria-label="Add funds"
-							className="text-muted-foreground transition-colors hover:text-primary"
+							className="flex items-center text-muted-foreground transition-colors hover:text-primary"
 						>
 							<PlusCircle size={18} />
 						</Link>
