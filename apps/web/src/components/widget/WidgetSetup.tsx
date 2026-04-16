@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
 
 interface WidgetColors {
@@ -76,20 +75,22 @@ export function WidgetSetup() {
 					<CardContent className="space-y-4">
 						<div className="space-y-2">
 							<Label>Widget Position</Label>
-							<RadioGroup
-								value={position}
-								onValueChange={(v) => setPosition(v as "left" | "right")}
-								className="flex gap-4"
-							>
-								<div className="flex items-center space-x-2">
-									<RadioGroupItem value="left" id="left" />
-									<Label htmlFor="left">Bottom Left</Label>
-								</div>
-								<div className="flex items-center space-x-2">
-									<RadioGroupItem value="right" id="right" />
-									<Label htmlFor="right">Bottom Right</Label>
-								</div>
-							</RadioGroup>
+							<div className="flex gap-2">
+								<Button
+									type="button"
+									variant={position === "left" ? "default" : "outline"}
+									onClick={() => setPosition("left")}
+								>
+									Bottom Left
+								</Button>
+								<Button
+									type="button"
+									variant={position === "right" ? "default" : "outline"}
+									onClick={() => setPosition("right")}
+								>
+									Bottom Right
+								</Button>
+							</div>
 						</div>
 
 						<div className="space-y-3">
