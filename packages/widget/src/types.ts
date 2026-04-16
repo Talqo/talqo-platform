@@ -15,6 +15,8 @@ export interface WidgetConfig {
 	colors?: Partial<WidgetColors>
 	/** Dark mode colors - if not provided, will be auto-generated from light colors */
 	darkColors?: Partial<WidgetColors>
+	/** Custom icons configuration - icon names or SVG strings */
+	icons?: Partial<WidgetIcons>
 	/** Widget positioning */
 	position?: "left" | "right"
 	/** Initial open state */
@@ -36,11 +38,21 @@ export interface WidgetColors {
 	border: string
 }
 
+export interface WidgetIcons {
+	/** Bot avatar icon - shown in header and messages - default: bot */
+	botAvatar: string
+	/** Send button icon - default: send */
+	sendButton: string
+	/** Trigger button (floating action button) icon - default: message-circle */
+	triggerButton: string
+}
+
 /** Validated config with defaults applied */
 export interface ResolvedWidgetConfig
-	extends Required<Omit<WidgetConfig, "colors" | "darkColors">> {
+	extends Required<Omit<WidgetConfig, "colors" | "darkColors" | "icons">> {
 	colors: WidgetColors
 	darkColors?: WidgetColors
+	icons: WidgetIcons
 }
 
 export type WidgetTheme = "light" | "dark"
