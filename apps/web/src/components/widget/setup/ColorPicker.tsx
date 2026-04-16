@@ -12,13 +12,16 @@ interface ColorPickerProps {
 function tryHslToHex(hsl: string): string | null {
 	if (hsl.startsWith("#")) return null
 
-	// Stricter HSL regex: requires percentages for S and L, validates ranges
-	const match = hsl.match(/^hsl\(\s*(\d{1,3})\s+([\d.]+)%\s+([\d.]+)%\s*\)$/)
+	// Strict HSL regex: validates proper numeric format and ranges
+	// Hue: 0-360 (optional decimal), Saturation/Lightness: 0-100% (optional decimal)
+	const match = hsl.match(
+		/^hsl\(\s*(\d{1,3}(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)%\s+(\d{1,3}(?:\.\d+)?)%\s*\)$/,
+	)
 	if (!match) return null
 
-	const h = Number.parseInt(match[1], 10)
-	const s = Number.parseFloat(match[2])
-	const l = Number.parseFloat(match[3])
+	const h = Number(match[1])
+	const s = Number(match[2])
+	const l = Number(match[3])
 
 	// Validate ranges
 	if (h < 0 || h > 360 || s < 0 || s > 100 || l < 0 || l > 100) return null

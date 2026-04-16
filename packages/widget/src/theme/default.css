@@ -74,7 +74,11 @@
 
 @media (prefers-reduced-motion: no-preference) {
 	.aiw-panel {
-		transition: all 0.3s;
+		transition:
+			opacity 0.3s,
+			transform 0.3s,
+			max-height 0.3s,
+			height 0.3s;
 	}
 }
 
@@ -142,7 +146,20 @@
 	background: transparent;
 	color: rgba(255, 255, 255, 0.8);
 	cursor: pointer;
-	transition: all 0.2s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.aiw-icon-btn {
+		transition:
+			background-color 0.2s,
+			color 0.2s;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aiw-icon-btn {
+		transition: none;
+	}
 }
 
 .aiw-icon-btn:hover {

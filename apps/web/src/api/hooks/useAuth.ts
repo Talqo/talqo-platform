@@ -398,10 +398,20 @@ export function useDismissWidgetSetup() {
 			)
 			if (error) throw error
 			// Validate response shape - fail fast if data is invalid
-			if (!data || typeof data !== "object") {
-				throw new Error(
-					"Invalid response: expected dismiss-widget-setup data object",
-				)
+			if (
+				!data ||
+				typeof data !== "object" ||
+				Array.isArray(data) ||
+				Object.keys(data).length === 0
+			) {
+				throw {
+					success: false,
+					error: {
+						code: "INVALID_RESPONSE",
+						message:
+							"Invalid response: expected non-empty dismiss-widget-setup data object",
+					},
+				} satisfies ApiError
 			}
 			return data
 		},
