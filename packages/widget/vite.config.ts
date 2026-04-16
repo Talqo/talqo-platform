@@ -7,38 +7,46 @@ import svgr from "vite-plugin-svgr"
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url))
 
-export default defineConfig(() => {
-	// Always use production mode for the embeddable bundle
-	const nodeEnv = JSON.stringify("production")
+export default defineConfig(({ mode }) => {
+	const isDevelopment =
+		mode === "development" || process.env.NODE_ENV === "development"
 
 	return {
-		plugins: [react(), svgr(), cssInjectedByJsPlugin()],
+		plugins: [
+			react(),
+			svgr(),
+			isDevelopment ? null : cssInjectedByJsPlugin(),
+		].filter(Boolean),
 		server: {
 			port: 5174,
 			cors: true,
 		},
-		mode: "production",
+		mode: isDevelopment ? "development" : "production",
 		define: {
 			// Replace process.env.NODE_ENV for browser bundle
-			"process.env.NODE_ENV": nodeEnv,
-			"process.env": { NODE_ENV: "production" },
+			"process.env.NODE_ENV": JSON.stringify(
+				isDevelopment ? "development" : "production",
+			),
+			"process.env": { NODE_ENV: isDevelopment ? "development" : "production" },
 		},
-		build: {
-			lib: {
-				entry: resolve(__dirname, "src/main.tsx"),
-				formats: ["iife"],
-				name: "AIWidget",
-				fileName: () => "widget-bundle.js",
-			},
-			rollupOptions: {
-				// Bundle React into the IIFE (no external deps)
-				external: [],
-				output: {
-					inlineDynamicImports: true,
+		build: isDevelopment
+			? {} // Regular SPA build for dev mode (uses index.html)
+			: {
+					lib: {
+						entry: resolve(__dirname, "src/main.tsx"),
+						formats: ["iife"],
+						name: "AIWidget",
+						fileName: () => "widget-bundle.js",
+					},
+					rollupOptions: {
+						// Bundle React into the IIFE (no external deps)
+						external: [],
+						output: {
+							inlineDynamicImports: true,
+						},
+					},
+					cssCodeSplit: false,
+					minify: "esbuild",
 				},
-			},
-			cssCodeSplit: false,
-			minify: "esbuild",
-		},
 	}
 })

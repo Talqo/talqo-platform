@@ -14,7 +14,9 @@ import {
 	ClearIcon,
 	ExpandIcon,
 	MinimizeIcon,
+	MoonIcon,
 	SendIcon,
+	SunIcon,
 	XLargeIcon,
 } from "./primitives/icons"
 import { useWidgetContext } from "./primitives/WidgetRoot"
@@ -32,7 +34,11 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 	const widget = useWidgetContext()
 
 	return (
-		<div className={"aiw-root"} data-position={config.position}>
+		<div
+			className={"aiw-root"}
+			data-position={config.position}
+			data-theme={widget.isDark ? "dark" : "light"}
+		>
 			{/* Only show trigger button when widget is closed */}
 			{!widget.isOpen && (
 				<WidgetTrigger
@@ -48,6 +54,16 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 						<span className={"aiw-header-title"}>AI Assistant</span>
 					</div>
 					<div className={"aiw-header-actions"}>
+						<button
+							type="button"
+							className={"aiw-icon-btn"}
+							onClick={widget.toggleTheme}
+							aria-label={
+								widget.isDark ? "Switch to light mode" : "Switch to dark mode"
+							}
+						>
+							{widget.isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
+						</button>
 						<button
 							type="button"
 							className={"aiw-icon-btn"}

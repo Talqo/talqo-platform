@@ -12,12 +12,12 @@ declare global {
 }
 
 const DEFAULT_COLORS: WidgetColors = {
-	primary: "hsl(142 76% 36%)",
+	primary: "hsl(220 14% 46%)", // Neutral gray neutral-600), must be provided by customer
 	bgPrimary: "#ffffff",
-	bgSecondary: "hsl(240 5% 96%)",
-	textPrimary: "hsl(240 6% 10%)",
-	textSecondary: "hsl(240 4% 46%)",
-	border: "hsl(240 6% 90%)",
+	bgSecondary: "hsl(220 14% 96%)", // Neutral gray (gray-100)
+	textPrimary: "hsl(220 14% 10%)", // Neutral dark (gray-900)
+	textSecondary: "hsl(220 9% 46%)", // Neutral gray (gray-500)
+	border: "hsl(220 13% 91%)", // Neutral border (gray-200)
 }
 
 function resolveColors(

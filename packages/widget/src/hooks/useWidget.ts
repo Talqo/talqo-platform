@@ -15,6 +15,8 @@ export interface UseWidgetOptions {
 	initialMessages?: Message[]
 	/** Position of the widget */
 	position?: "left" | "right"
+	/** Initial theme (defaults to light) */
+	defaultTheme?: WidgetTheme
 	/** Callback when message is sent */
 	onMessageSend?: (message: string) => void | Promise<void>
 	/** Callback when widget is toggled */
@@ -34,12 +36,18 @@ export interface UseWidgetReturn {
 	isTyping: boolean
 	/** Whether position is on the right side */
 	isRightPosition: boolean
+	/** Current theme */
+	theme: WidgetTheme
+	/** Whether current theme is dark */
+	isDark: boolean
 	/** Toggle the chat panel open/closed */
 	toggleOpen: () => void
 	/** Set whether panel is open */
 	setIsOpen: (value: boolean) => void
 	/** Toggle expanded state */
 	toggleExpanded: () => void
+	/** Toggle theme between light and dark */
+	toggleTheme: () => void
 	/** Update input value */
 	setInputValue: (value: string) => void
 	/** Send the current message */
@@ -63,6 +71,7 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 			},
 		],
 		position = "right",
+		defaultTheme = "light",
 		onOpenChange,
 	} = options
 
@@ -71,8 +80,14 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 	const [inputValue, setInputValue] = useState("")
 	const [messages, setMessages] = useState<Message[]>(initialMessages)
 	const [isTyping, setIsTyping] = useState(false)
+	const [theme, setTheme] = useState<WidgetTheme>(defaultTheme)
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const isRightPosition = position === "right"
+	const isDark = theme === "dark"
+
+	const toggleTheme = useCallback(() => {
+		setTheme((prev) => (prev === "light" ? "dark" : "light"))
+	}, [])
 
 	const setIsOpen = useCallback(
 		(value: boolean) => {
@@ -151,9 +166,12 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		messages,
 		isTyping,
 		isRightPosition,
+		theme,
+		isDark,
 		toggleOpen,
 		setIsOpen,
 		toggleExpanded,
+		toggleTheme,
 		setInputValue,
 		sendMessage,
 		clearMessages,
