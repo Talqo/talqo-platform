@@ -89,7 +89,7 @@ try {
 	console.log(`Spec saved to ${specFile}`)
 
 	console.log("Generating TypeScript types...")
-	execSync(`bunx openapi-typescript ${specFile} -o ${typesFile}`, {
+	execSync(`bun x openapi-typescript ${specFile} -o ${typesFile}`, {
 		stdio: "inherit",
 	})
 	console.log(`Types generated at ${typesFile}`)
