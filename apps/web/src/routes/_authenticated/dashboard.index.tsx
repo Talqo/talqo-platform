@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
+import { useAuth } from "@/api/hooks"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { PageHeader } from "@/components/layout"
 import { StatsGrid } from "@/components/stats"
+import { OnboardingPopup } from "@/components/widget"
 import { ADMIN_STATS, WEEKLY_STATS_DATA } from "@/data/charts"
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
@@ -9,6 +12,11 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 })
 
 function AdminDashboard() {
+	const { data: client } = useAuth()
+	const [showPopup, setShowPopup] = useState(
+		() => client?.data?.widgetSetupDismissed === false,
+	)
+
 	return (
 		<div className="space-y-6">
 			<PageHeader
@@ -22,6 +30,8 @@ function AdminDashboard() {
 				<TokenConsumptionChart data={WEEKLY_STATS_DATA} />
 				<QuestionsAskedChart data={WEEKLY_STATS_DATA} />
 			</div>
+
+			<OnboardingPopup open={showPopup} onOpenChange={setShowPopup} />
 		</div>
 	)
 }

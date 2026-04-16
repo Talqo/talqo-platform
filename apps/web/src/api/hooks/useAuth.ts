@@ -382,3 +382,21 @@ export function useUnifiedLogin() {
 		isTryingAdmin,
 	}
 }
+
+// Dismiss widget setup onboarding
+export function useDismissWidgetSetup() {
+	const queryClient = useQueryClient()
+
+	return useMutation<AuthResponse, ApiError>({
+		mutationFn: async () => {
+			const { data, error } = await client.POST(
+				"/client/me/dismiss-widget-setup",
+			)
+			if (error) throw error
+			return data as AuthResponse
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
+		},
+	})
+}
