@@ -43,20 +43,18 @@ const messageResponseSchema = z.object({
 
 /**
  * Sanitizes a user-supplied path and prepends the client prefix.
- * Returns null if the path contains traversal sequences.
+ * Assumes the path has already been validated by Zod (no traversal sequences).
  */
-function buildKey(clientId: string, userPath: string): string | null {
+function buildKey(clientId: string, userPath: string): string {
 	const normalized = userPath.replace(/^\/+/, "").replace(/\/+$/, "")
-	if (normalized.includes("..")) return null
 	return normalized ? `${clientId}/${normalized}` : `${clientId}/`
 }
 
 /**
  * Same as buildKey but always appends a trailing slash — used for directory prefixes.
  */
-function buildDirKey(clientId: string, userPath: string): string | null {
+function buildDirKey(clientId: string, userPath: string): string {
 	const key = buildKey(clientId, userPath)
-	if (key === null) return null
 	return key.endsWith("/") ? key : `${key}/`
 }
 
@@ -104,7 +102,6 @@ export function createFilesRouter(service: FilesService) {
 			const { path } = c.req.valid("query")
 
 			const prefix = buildDirKey(clientId, path)
-			if (prefix === null) throw new ValidationError("Invalid path")
 
 			const { files, directories } = await service.list(prefix)
 
@@ -166,7 +163,6 @@ export function createFilesRouter(service: FilesService) {
 			const { path } = c.req.valid("query")
 
 			const dirKey = buildDirKey(clientId, path)
-			if (dirKey === null) throw new ValidationError("Invalid path")
 
 			const body = await c.req.parseBody()
 			const file = body.file
@@ -225,11 +221,7 @@ export function createFilesRouter(service: FilesService) {
 			const clientId = c.get("clientId" as never) as string
 			const { path } = c.req.valid("json")
 
-			// Check for directory path before normalization (buildKey strips trailing slashes)
-			if (path.endsWith("/")) throw new ValidationError("Invalid file path")
-
 			const key = buildKey(clientId, path)
-			if (key === null) throw new ValidationError("Invalid file path")
 
 			const url = service.presign(key)
 
@@ -269,7 +261,7 @@ export function createFilesRouter(service: FilesService) {
 			const { path } = c.req.valid("query")
 
 			const key = buildKey(clientId, path)
-			if (key === null || key === `${clientId}/`)
+			if (key === `${clientId}/`)
 				throw new ValidationError("Invalid path — cannot delete root")
 
 			await service.delete(key)
@@ -319,7 +311,7 @@ export function createFilesRouter(service: FilesService) {
 			const { path } = c.req.valid("json")
 
 			const key = buildDirKey(clientId, path)
-			if (key === null || key === `${clientId}/`)
+			if (key === `${clientId}/`)
 				throw new ValidationError("Invalid directory path")
 
 			// Zero-byte marker with trailing slash — S3 convention for directories
@@ -369,15 +361,8 @@ export function createFilesRouter(service: FilesService) {
 			const clientId = c.get("clientId" as never) as string
 			const { from, to } = c.req.valid("json")
 
-			// Check for directory paths before normalization (buildKey strips trailing slashes)
-			if (from.endsWith("/") || to.endsWith("/"))
-				throw new ValidationError("Cannot move directories")
-
 			const fromKey = buildKey(clientId, from)
 			const toKey = buildKey(clientId, to)
-
-			if (fromKey === null || toKey === null)
-				throw new ValidationError("Invalid path")
 
 			await service.move(fromKey, toKey)
 

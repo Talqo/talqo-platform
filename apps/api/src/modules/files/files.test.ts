@@ -241,11 +241,11 @@ describe("GET /client/me/files", () => {
 		expect(names).toContain("docs/report.pdf")
 	})
 
-	it("returns 422 for path traversal", async () => {
+	it("returns 400 for path traversal", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files?path=/../etc"),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 })
 
@@ -313,7 +313,7 @@ describe("POST /client/me/files", () => {
 		expect(res.status).toBe(422)
 	})
 
-	it("returns 422 for path traversal", async () => {
+	it("returns 400 for path traversal", async () => {
 		const formData = new FormData()
 		formData.append("file", new File(["x"], "x.txt"))
 
@@ -323,7 +323,7 @@ describe("POST /client/me/files", () => {
 				body: formData,
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 })
 
@@ -354,7 +354,7 @@ describe("POST /client/me/files/presign", () => {
 		expect(body.data.url).toContain("file.pdf")
 	})
 
-	it("returns 422 for a directory path", async () => {
+	it("returns 400 for a directory path", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files/presign", {
 				method: "POST",
@@ -362,10 +362,10 @@ describe("POST /client/me/files/presign", () => {
 				body: JSON.stringify({ path: "/docs/" }),
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 
-	it("returns 422 for path traversal", async () => {
+	it("returns 400 for path traversal", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files/presign", {
 				method: "POST",
@@ -373,7 +373,7 @@ describe("POST /client/me/files/presign", () => {
 				body: JSON.stringify({ path: "/../etc/passwd" }),
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 })
 
@@ -411,13 +411,13 @@ describe("DELETE /client/me/files", () => {
 		expect(res.status).toBe(422)
 	})
 
-	it("returns 422 for path traversal", async () => {
+	it("returns 400 for path traversal", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files?path=/../etc", {
 				method: "DELETE",
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 })
 
@@ -456,7 +456,7 @@ describe("POST /client/me/files/mkdir", () => {
 		expect(res.status).toBe(422)
 	})
 
-	it("returns 422 for path traversal", async () => {
+	it("returns 400 for path traversal", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files/mkdir", {
 				method: "POST",
@@ -464,7 +464,7 @@ describe("POST /client/me/files/mkdir", () => {
 				body: JSON.stringify({ path: "/../etc" }),
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 })
 
@@ -496,7 +496,7 @@ describe("POST /client/me/files/move", () => {
 		expect(service.has(`${TEST_CLIENT_ID}/new.txt`)).toBe(true)
 	})
 
-	it("returns 422 when the source is a directory path", async () => {
+	it("returns 400 when the source is a directory path", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files/move", {
 				method: "POST",
@@ -504,10 +504,10 @@ describe("POST /client/me/files/move", () => {
 				body: JSON.stringify({ from: "/somedir/", to: "/otherdir" }),
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 
-	it("returns 422 for path traversal in from", async () => {
+	it("returns 400 for path traversal in from", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files/move", {
 				method: "POST",
@@ -515,10 +515,10 @@ describe("POST /client/me/files/move", () => {
 				body: JSON.stringify({ from: "/../etc/passwd", to: "/stolen.txt" }),
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 
-	it("returns 422 for path traversal in to", async () => {
+	it("returns 400 for path traversal in to", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files/move", {
 				method: "POST",
@@ -526,6 +526,6 @@ describe("POST /client/me/files/move", () => {
 				body: JSON.stringify({ from: "/old.txt", to: "/../etc/stolen" }),
 			}),
 		)
-		expect(res.status).toBe(422)
+		expect(res.status).toBe(400)
 	})
 })
