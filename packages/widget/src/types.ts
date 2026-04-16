@@ -16,17 +16,17 @@ export interface WidgetConfig {
 }
 
 export interface WidgetColors {
-	/** Primary accent color (buttons, user messages) - default: hsl(142 76% 36%) */
+	/** Primary accent color (buttons, user messages) - default: hsl(220 14% 46%) */
 	primary: string
 	/** Panel background - default: white */
 	bgPrimary: string
-	/** Header/bot message background - default: hsl(240 5% 96%) */
+	/** Header/bot message background - default: hsl(220 14% 96%) */
 	bgSecondary: string
-	/** Main text color - default: hsl(240 6% 10%) */
+	/** Main text color - default: hsl(220 14% 10%) */
 	textPrimary: string
-	/** Secondary text (footer, placeholders) - default: hsl(240 4% 46%) */
+	/** Secondary text (footer, placeholders) - default: hsl(220 9% 46%) */
 	textSecondary: string
-	/** Borders and dividers - default: hsl(240 6% 90%) */
+	/** Borders and dividers - default: hsl(220 13% 91%) */
 	border: string
 }
 
@@ -37,9 +37,3 @@ export interface ResolvedWidgetConfig
 }
 
 export type WidgetTheme = "light" | "dark"
-
-/** Runtime state for the widget */
-export interface WidgetState {
-	theme: WidgetTheme
-	isDark: boolean
-}

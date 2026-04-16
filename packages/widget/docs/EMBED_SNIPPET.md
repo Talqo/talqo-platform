@@ -79,7 +79,7 @@ All color values accept any valid CSS color (hex, rgb, hsl, named colors):
 
 ## Dark Mode
 
-The widget automatically detects the user's system preference (`prefers-color-scheme`). Users can also manually toggle dark mode within the chat header.
+The widget determines theme by checking for a "dark" class on the parent document's root element (or falls back to the provided `defaultTheme` option). Users can also manually toggle dark mode within the chat header using the `toggleTheme()` method.
 
 ## Browser Support
 

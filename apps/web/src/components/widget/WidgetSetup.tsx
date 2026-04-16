@@ -52,9 +52,14 @@ export function WidgetSetup() {
 <script async defer src="${scriptUrl}"></script>`
 
 	const copyToClipboard = async () => {
-		await navigator.clipboard.writeText(embedCode)
-		setCopied(true)
-		setTimeout(() => setCopied(false), 2000)
+		try {
+			await navigator.clipboard.writeText(embedCode)
+			setCopied(true)
+			setTimeout(() => setCopied(false), 2000)
+		} catch (err) {
+			console.error("Failed to copy to clipboard:", err)
+			setCopied(false)
+		}
 	}
 
 	const updateColor = (key: keyof WidgetColors, value: string) => {

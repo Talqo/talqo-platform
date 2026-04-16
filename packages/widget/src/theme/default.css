@@ -173,7 +173,7 @@
 }
 
 .aiw-message[data-role="bot"] .aiw-message-content {
-	background-color: white;
+	background-color: var(--widget-bg-secondary);
 	color: var(--widget-text-primary);
 	border: 1px solid var(--widget-border);
 }
@@ -259,7 +259,7 @@
 	gap: 0.5rem;
 	border-top: 1px solid var(--widget-border);
 	padding: 1rem;
-	background-color: white;
+	background-color: var(--widget-bg-primary);
 }
 
 .aiw-root[data-theme="dark"] .aiw-input-area {

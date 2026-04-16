@@ -72,6 +72,10 @@ export class ClientAccountService {
 	}
 
 	async dismissWidgetSetup(clientId: string) {
-		await this.repo.updateClient(clientId, { widgetSetupDismissed: true })
+		const updated = await this.repo.updateClient(clientId, {
+			widgetSetupDismissed: true,
+		})
+		if (!updated) throw new NotFoundError("Client not found")
+		return updated
 	}
 }

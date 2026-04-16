@@ -28,8 +28,13 @@ export function OnboardingPopup({ open, onOpenChange }: OnboardingPopupProps) {
 	}
 
 	const handleDontShowAgain = async () => {
-		await dismissMutation.mutateAsync()
-		onOpenChange(false)
+		try {
+			await dismissMutation.mutateAsync()
+		} catch (err) {
+			console.error("Failed to dismiss widget setup:", err)
+		} finally {
+			onOpenChange(false)
+		}
 	}
 
 	return (
