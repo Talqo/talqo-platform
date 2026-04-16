@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Bot, ChevronRight, X } from "lucide-react"
-import { useState } from "react"
+import { Bot, ChevronRight } from "lucide-react"
 import { useDismissWidgetSetup } from "@/api/hooks"
 import { Button } from "@/components/ui/button"
 import {

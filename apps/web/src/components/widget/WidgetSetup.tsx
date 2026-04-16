@@ -231,7 +231,7 @@ export function WidgetSetup() {
 										{/* Bot message */}
 										<div className="flex gap-2">
 											<div
-												className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs text-white"
+												className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-white text-xs"
 												style={{ backgroundColor: colors.primary }}
 											>
 												AI
