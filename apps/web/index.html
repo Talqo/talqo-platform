@@ -18,5 +18,33 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Widget embed for development testing -->
+    <script>
+      (() => {
+        // Only load widget in development
+        if (window.location.port === '5173' || window.location.hostname === 'localhost') {
+          // Use a test client ID for development
+          window.__AI_WIDGET_CONFIG__ = {
+            clientId: 'dev-test-client-id',
+            position: 'right',
+            colors: {
+              primary: 'hsl(142 76% 36%)',
+              bgPrimary: '#ffffff',
+              bgSecondary: 'hsl(240 5% 96%)',
+              textPrimary: 'hsl(240 6% 10%)',
+              textSecondary: 'hsl(240 4% 46%)',
+              border: 'hsl(240 6% 90%)'
+            }
+          };
+
+          // Load widget bundle from dev server
+          const script = document.createElement('script');
+          script.src = 'http://localhost:5174/widget-bundle.js';
+          script.async = true;
+          script.defer = true;
+          document.body.appendChild(script);
+        }
+      })();
+    </script>
   </body>
 </html>
