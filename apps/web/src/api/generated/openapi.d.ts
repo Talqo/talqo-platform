@@ -524,6 +524,7 @@ export interface paths {
                                 status: string;
                                 lastActive: string | null;
                                 createdAt: string;
+                                widgetSetupDismissed: boolean;
                             };
                         };
                     };
@@ -1795,7 +1796,7 @@ export interface paths {
                     };
                 };
                 /** @description Invalid path */
-                400: {
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1848,7 +1849,7 @@ export interface paths {
                     };
                 };
                 /** @description Invalid path or missing file */
-                400: {
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1893,7 +1894,7 @@ export interface paths {
                     };
                 };
                 /** @description Invalid path */
-                400: {
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1956,7 +1957,7 @@ export interface paths {
                     };
                 };
                 /** @description Invalid path */
-                400: {
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2020,7 +2021,7 @@ export interface paths {
                     };
                 };
                 /** @description Invalid path */
-                400: {
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2085,7 +2086,7 @@ export interface paths {
                     };
                 };
                 /** @description Invalid path */
-                400: {
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
