@@ -203,7 +203,7 @@ export function BotNameCard({
 
 				{/* Avatar Upload */}
 				<div className="space-y-3">
-					<Label className="font-medium">Bot Avatar</Label>
+					<Label className="mb-2 block font-medium">Bot Avatar</Label>
 					{error && (
 						<div className="rounded-md bg-destructive/10 p-3 font-medium text-destructive text-sm">
 							{error}
