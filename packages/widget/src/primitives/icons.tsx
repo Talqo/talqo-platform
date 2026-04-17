@@ -13,6 +13,46 @@ interface IconProps {
 	className?: string
 }
 
+interface AvatarIconProps extends IconProps {
+	/** SVG string for custom icon, or "bot" for default */
+	iconSvg?: string
+}
+
+export function AvatarIcon({
+	size = 24,
+	className = "",
+	iconSvg,
+}: AvatarIconProps) {
+	// If custom SVG is provided, render it
+	if (iconSvg && iconSvg !== "bot") {
+		return (
+			<span
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: Widget accepts custom SVG from trusted config only
+				dangerouslySetInnerHTML={{ __html: iconSvg }}
+				className={className}
+				style={{
+					width: size,
+					height: size,
+					display: "inline-flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+				aria-hidden="true"
+			/>
+		)
+	}
+
+	// Default bot icon
+	return (
+		<BotIconSvg
+			width={size}
+			height={size}
+			className={className}
+			aria-hidden="true"
+		/>
+	)
+}
+
 export function SendIcon({ size = 16, className = "" }: IconProps) {
 	return (
 		<SendIconSvg

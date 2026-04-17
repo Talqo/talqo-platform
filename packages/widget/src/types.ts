@@ -21,6 +21,8 @@ export interface WidgetConfig {
 	position?: "left" | "right"
 	/** Initial open state */
 	defaultOpen?: boolean
+	/** Bot name shown in header - default: "AI Assistant" */
+	botName?: string
 }
 
 export interface WidgetColors {
@@ -45,10 +47,13 @@ export interface WidgetIcons {
 
 /** Validated config with defaults applied */
 export interface ResolvedWidgetConfig
-	extends Required<Omit<WidgetConfig, "colors" | "darkColors" | "icons">> {
+	extends Required<
+		Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
+	> {
 	colors: WidgetColors
 	darkColors?: WidgetColors
 	icons: WidgetIcons
+	botName: string
 }
 
 export type WidgetTheme = "light" | "dark"

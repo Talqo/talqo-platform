@@ -81,6 +81,10 @@ function resolveConfig(): ResolvedWidgetConfig {
 		darkColors: resolveDarkColors(lightColors, userConfig.darkColors),
 		position: userConfig.position ?? "right",
 		defaultOpen: userConfig.defaultOpen ?? false,
+		botName: userConfig.botName ?? "AI Assistant",
+		icons: {
+			botAvatar: userConfig.icons?.botAvatar ?? "bot",
+		},
 	}
 }
 

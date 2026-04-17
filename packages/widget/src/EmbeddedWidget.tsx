@@ -10,7 +10,7 @@ import {
 	WidgetTypingIndicator,
 } from "./primitives"
 import {
-	BotIcon,
+	AvatarIcon,
 	ClearIcon,
 	ExpandIcon,
 	MinimizeIcon,
@@ -32,6 +32,7 @@ interface EmbeddedWidgetProps {
  */
 function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 	const widget = useWidgetContext()
+	const botAvatarSvg = config.icons.botAvatar
 
 	return (
 		<div
@@ -43,15 +44,15 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 			{!widget.isOpen && (
 				<WidgetTrigger
 					className={"aiw-trigger"}
-					closedContent={<BotIcon size={28} />}
+					closedContent={<AvatarIcon size={28} iconSvg={botAvatarSvg} />}
 				/>
 			)}
 
 			<WidgetPanel className={"aiw-panel"} data-expanded={widget.isExpanded}>
 				<WidgetHeader className={"aiw-header"}>
 					<div className={"aiw-header-left"}>
-						<BotIcon size={24} />
-						<span className={"aiw-header-title"}>AI Assistant</span>
+						<AvatarIcon size={24} iconSvg={botAvatarSvg} />
+						<span className={"aiw-header-title"}>{config.botName}</span>
 					</div>
 					<div className={"aiw-header-actions"}>
 						<button
@@ -104,7 +105,7 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 						>
 							{msg.role === "bot" && (
 								<div className={"aiw-message-avatar"}>
-									<BotIcon size={20} />
+									<AvatarIcon size={20} iconSvg={botAvatarSvg} />
 								</div>
 							)}
 							<div className={"aiw-message-content"}>{msg.content}</div>
