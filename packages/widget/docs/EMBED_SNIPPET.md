@@ -24,9 +24,11 @@ Add this snippet to your website's HTML, just before the closing `</body>` tag:
   };
 </script>
 
-<!-- Load Widget -->
-<script async defer src="https://s3.eu-central-1.amazonaws.com/your-bucket/widget-bundle.js"></script>
+<!-- Load Widget from GitHub (development) or your S3/MinIO bucket (production) -->
+<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
 ```
+
+Replace `YOUR_CLIENT_ID` with your actual client ID from the dashboard.
 
 ## Configuration Options
 
@@ -42,7 +44,10 @@ Add this snippet to your website's HTML, just before the closing `</body>` tag:
 |-------|------|---------|-------------|
 | `position` | `"left" \| "right"` | `"right"` | Which corner the widget appears in |
 | `defaultOpen` | `boolean` | `false` | Whether the chat starts open |
-| `colors` | `object` | See below | Customize the widget appearance |
+| `botName` | `string` | `"AI Assistant"` | Name shown in widget header |
+| `colors` | `object` | See below | Customize light mode colors |
+| `darkColors` | `object` | Auto-generated | Customize dark mode colors |
+| `icons` | `object` | `{ botAvatar: "bot" }` | Custom SVG icon for bot avatar |
 
 ### Color Options
 
@@ -57,29 +62,32 @@ All color values accept any valid CSS color (hex, rgb, hsl, named colors):
 | `textSecondary` | `#71717a` | Footer text, input placeholder |
 | `border` | `#e4e4e7` | Input borders, dividers |
 
-## Example: Custom Branded Widget
+## Example: Custom Bot Name and Icon
 
 ```html
 <script>
   window.__AI_WIDGET_CONFIG__ = {
-    clientId: "client-abc-123",
-    position: "left",
+    clientId: "YOUR_CLIENT_ID",
+    botName: "PagePal Assistant",
+    icons: {
+      botAvatar: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M9 10h.01'/><path d='M15 10h.01'/><path d='M10 14c.5 1 2 1.5 4 1.5'/></svg>"
+    },
     colors: {
-      primary: "#8b5cf6",       // Purple brand color
-      bgPrimary: "#fafafa",     // Slightly off-white
-      bgSecondary: "#e2e8f0",   // Slate gray
+      primary: "#8b5cf6",
+      bgPrimary: "#fafafa",
+      bgSecondary: "#e2e8f0",
       textPrimary: "#1e293b",
       textSecondary: "#64748b",
       border: "#cbd5e1"
     }
   };
 </script>
-<script async defer src="https://s3.eu-central-1.amazonaws.com/your-bucket/widget-bundle.js"></script>
+<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
 ```
 
 ## Dark Mode
 
-The widget determines theme by checking for a "dark" class on the parent document's root element (or falls back to the provided `defaultTheme` option). Users can also manually toggle dark mode within the chat header using the `toggleTheme()` method.
+The widget determines theme by checking for a "dark" class on the parent document's root element. Users can also manually toggle dark mode within the chat header.
 
 ## Browser Support
 
@@ -103,4 +111,4 @@ The widget determines theme by checking for a "dark" class on the parent documen
 
 ### CORS errors
 
-If you see CORS errors in the console, the S3 bucket hosting the widget needs to be configured to allow requests from your domain. Contact support if this persists.
+If you see CORS errors in the console, the server hosting the widget needs CORS configured. See CORS_SETUP.md for details.

@@ -1,8 +1,8 @@
 # S3 CORS Configuration
 
-Your S3 bucket must allow cross-origin requests for the widget to work on customer websites.
+To serve the widget bundle from S3 (or S3-compatible storage like MinIO), you need to configure CORS.
 
-## AWS S3 CORS Configuration
+## Generic S3 CORS Configuration
 
 Add this CORS configuration to your S3 bucket:
 
@@ -18,20 +18,23 @@ Add this CORS configuration to your S3 bucket:
 ]
 ```
 
-## Via AWS Console
+## Via S3 Console (AWS S3, MinIO, etc.)
 
-1. Go to S3 Your bucket Permissions tab
-2. Scroll to "Cross-origin resource sharing (CORS)"
-3. Click Edit
-4. Paste the JSON above
-5. Save changes
+1. Go to your bucket's Permissions/CORS settings
+2. Add or edit CORS rules
+3. Paste the JSON configuration above
+4. Save changes
 
-## Via AWS CLI
+## Via MinIO Client (mc)
+
+If using MinIO:
 
 ```bash
-aws s3api put-bucket-cors \
-    --bucket your-widget-bucket \
-    --cors-configuration file://cors.json
+# Set alias for your MinIO server
+mc alias set myminio http://localhost:9000 ACCESS_KEY SECRET_KEY
+
+# Apply CORS configuration from file
+mc admin bucket set myminio/your-bucket cors.json
 ```
 
 Where `cors.json` contains:
@@ -50,17 +53,17 @@ Where `cors.json` contains:
 }
 ```
 
-## CloudFront (Recommended for Production)
+## Alternative: GitHub Raw URLs (Development)
 
-For production, use CloudFront in front of S3:
+For development, you can serve the widget bundle directly from GitHub raw URLs:
 
-1. Create a CloudFront distribution
-2. Set origin to your S3 bucket
-3. Enable CORS in the distribution settings
-4. Use the CloudFront URL instead of the direct S3 URL
+```html
+<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
+```
 
-This provides:
-- Global CDN caching
-- HTTPS by default
-- Better performance
-- Custom domain support
+Note: GitHub raw URLs are suitable for development and testing but not recommended for production due to:
+- Rate limiting
+- No caching guarantees
+- Potential URL changes
+
+For production, use S3 or another reliable CDN.
