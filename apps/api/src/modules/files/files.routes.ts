@@ -372,6 +372,10 @@ export function createFilesRouter(service: FilesService) {
 			const fromKey = buildKey(clientId, from)
 			const toKey = buildKey(clientId, to)
 
+			if (fromKey === `${clientId}/` || toKey === `${clientId}/`) {
+				throw new ValidationError("Invalid path — cannot move from or to root")
+			}
+
 			await service.move(fromKey, toKey)
 
 			return c.json({ success: true as const, data: { message: "Moved" } }, 200)
