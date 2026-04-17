@@ -101,7 +101,7 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 
 	return (
 		<div className="space-y-2">
-			<Label className="text-sm font-medium">{label}</Label>
+			<Label className="font-medium text-sm">{label}</Label>
 			<div className="flex items-center gap-3">
 				<Input
 					type="color"

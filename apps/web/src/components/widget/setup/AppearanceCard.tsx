@@ -133,7 +133,7 @@ function ColorRow({
 
 	return (
 		<div className="grid grid-cols-[140px_1fr_1fr] items-start gap-4">
-			<Label className="break-words pt-2 text-sm font-medium leading-tight">
+			<Label className="break-words pt-2 font-medium text-sm leading-tight">
 				{label}
 			</Label>
 
@@ -231,12 +231,12 @@ export function AppearanceCard({
 
 				<div className="space-y-4">
 					<div className="grid grid-cols-[120px_1fr_1fr] gap-4 border-b pb-2">
-						<span className="text-sm font-medium">Color</span>
-						<div className="flex items-center gap-2 text-sm font-medium">
+						<span className="font-medium text-sm">Color</span>
+						<div className="flex items-center gap-2 font-medium text-sm">
 							<div className="h-4 w-4 rounded-full border border-gray-200 bg-white" />
 							Light Mode
 						</div>
-						<div className="flex items-center gap-2 text-sm font-medium">
+						<div className="flex items-center gap-2 font-medium text-sm">
 							<div className="h-4 w-4 rounded-full border border-gray-600 bg-gray-900" />
 							Dark Mode
 						</div>

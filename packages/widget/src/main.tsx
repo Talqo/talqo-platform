@@ -12,7 +12,7 @@ declare global {
 }
 
 const DEFAULT_COLORS: WidgetColors = {
-	primary: "hsl(220 14% 46%)", // Neutral gray neutral-600), must be provided by customer
+	primary: "hsl(220 14% 46%)", // Neutral gray (neutral-600), must be provided by customer
 	bgPrimary: "#ffffff",
 	bgSecondary: "hsl(220 14% 96%)", // Neutral gray (gray-100)
 	textPrimary: "hsl(220 14% 10%)", // Neutral dark (gray-900)
