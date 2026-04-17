@@ -2,6 +2,7 @@ import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
 } from "../../common/email/email.service"
+import { AuthConflictError, UnauthorizedError } from "../../common/errors"
 import { signToken } from "../../common/jwt"
 import { logger } from "../../common/logger"
 import type { IAuthRepository } from "./auth.repository"
@@ -12,15 +13,21 @@ export class AuthService {
 	async register(name: string, email: string, password: string): Promise<void> {
 		const canonical = email.trim().toLowerCase()
 		const existing = await this.repo.findClientByEmail(canonical)
-		if (existing) throw new Error("EMAIL_TAKEN")
+		if (existing)
+			throw new AuthConflictError(
+				"EMAIL_TAKEN",
+				"This email is already registered",
+			)
 
 		const canonicalName = name.trim().toLowerCase()
 		const existingName = await this.repo.findClientByName(canonicalName)
-		if (existingName) throw new Error("NAME_TAKEN")
+		if (existingName)
+			throw new AuthConflictError("NAME_TAKEN", "This name is already taken")
 
 		// Also check pending registrations for name conflicts
 		const pendingName = await this.repo.findPendingByName(canonicalName)
-		if (pendingName) throw new Error("NAME_TAKEN")
+		if (pendingName)
+			throw new AuthConflictError("NAME_TAKEN", "This name is already taken")
 
 		const passwordHash = await Bun.password.hash(password)
 
@@ -78,7 +85,10 @@ export class AuthService {
 				}
 
 				// If we can't find the client after polling, the email really is taken by someone else
-				throw new Error("EMAIL_ALREADY_VERIFIED")
+				throw new AuthConflictError(
+					"EMAIL_ALREADY_VERIFIED",
+					"Email already verified",
+				)
 			}
 			throw err
 		}
@@ -91,7 +101,7 @@ export class AuthService {
 			!client ||
 			!(await Bun.password.verify(password, client.passwordHash))
 		) {
-			throw new Error("INVALID_CREDENTIALS")
+			throw new UnauthorizedError("Invalid credentials")
 		}
 
 		await this.repo.updateLastActive(client.id)

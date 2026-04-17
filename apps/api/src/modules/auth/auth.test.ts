@@ -16,11 +16,13 @@ mock.module("resend", () => ({
 const { createAuthRouter } = await import("./auth.routes")
 const { InMemoryAuthRepository } = await import("./auth.repository")
 const { AuthService } = await import("./auth.service")
+const { errorHandler } = await import("../../common/middleware/error-handler")
 
 function buildApp() {
 	const repo = new InMemoryAuthRepository()
 	const service = new AuthService(repo)
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
+	app.onError(errorHandler)
 	app.use("/*", async (c, next) => {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
 		await next()

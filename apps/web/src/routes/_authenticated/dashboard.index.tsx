@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
-import { useClientProfile } from "@/api/hooks"
+import { useEffect, useState } from "react"
+import { useClientProfile, useCurrentUser } from "@/api/hooks"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { PageHeader } from "@/components/layout"
 import { StatCard } from "@/components/stats/StatCard"
+import { OnboardingPopup } from "@/components/widget"
 import { WEEKLY_STATS_DATA } from "@/data/charts"
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
@@ -12,6 +14,14 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function AdminDashboard() {
 	const { data: profile } = useClientProfile()
+	const { data: client, isSuccess } = useCurrentUser()
+	const [showPopup, setShowPopup] = useState(false)
+
+	useEffect(() => {
+		if (isSuccess && client?.data?.widgetSetupDismissed === false) {
+			setShowPopup(true)
+		}
+	}, [isSuccess, client])
 
 	const balanceRaw = Number(profile?.balanceUsd)
 	const balanceValue = Number.isFinite(balanceRaw)
@@ -71,6 +81,8 @@ function AdminDashboard() {
 				<TokenConsumptionChart data={WEEKLY_STATS_DATA} />
 				<QuestionsAskedChart data={WEEKLY_STATS_DATA} />
 			</div>
+
+			<OnboardingPopup open={showPopup} onOpenChange={setShowPopup} />
 		</div>
 	)
 }
