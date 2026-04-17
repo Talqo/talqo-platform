@@ -13,18 +13,30 @@ Add this snippet to your website's HTML, just before the closing `</body>` tag:
     clientId: "YOUR_CLIENT_ID", // Required: Get this from your dashboard
     position: "right",          // Optional: "left" or "right" (default: right)
     defaultOpen: false,         // Optional: Start open or closed (default: false)
-    colors: {                   // Optional: Customize colors
-      primary: "#10b981",       // Buttons, user messages (default: green)
+    botName: "AI Assistant",    // Optional: Name shown in widget header
+    colors: {                   // Optional: Customize light mode colors
+      primary: "#16a34a",       // Buttons, user messages (default: green)
       bgPrimary: "#ffffff",     // Chat background (default: white)
-      bgSecondary: "#f4f4f5",   // Header, bot messages (default: light gray)
-      textPrimary: "#18181b",   // Main text (default: dark gray)
-      textSecondary: "#71717a", // Footer, placeholders (default: medium gray)
-      border: "#e4e4e7"         // Borders (default: light gray)
+      bgSecondary: "#f3f4f6",   // Header, bot messages (default: light gray)
+      textPrimary: "#111827",   // Main text (default: dark gray)
+      textSecondary: "#6b7280", // Footer, placeholders (default: medium gray)
+      border: "#e5e7eb"         // Borders (default: light gray)
+    },
+    darkColors: {               // Optional: Customize dark mode colors
+      primary: "#16a34a",       // Buttons, user messages (default: green)
+      bgPrimary: "#09090b",     // Chat background (default: black)
+      bgSecondary: "#27272a",   // Header, bot messages (default: dark gray)
+      textPrimary: "#fafafa",   // Main text (default: white)
+      textSecondary: "#a1a1aa", // Footer, placeholders (default: light gray)
+      border: "#27272a"         // Borders (default: dark gray)
+    },
+    icons: {                    // Optional: Custom SVG icon for bot avatar
+      botAvatar: "bot"          // Default "bot" icon, or use custom SVG string
     }
   };
 </script>
 
-<!-- Load Widget from GitHub (development) or your S3/MinIO bucket (production) -->
+<!-- Load Widget from GitHub raw URL -->
 <script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
 ```
 
@@ -53,41 +65,52 @@ Replace `YOUR_CLIENT_ID` with your actual client ID from the dashboard.
 
 All color values accept any valid CSS color (hex, rgb, hsl, named colors):
 
+**Light Mode (`colors`)**
+
 | Color | Default | Used For |
 |-------|---------|----------|
-| `primary` | `#10b981` | Send button, user message bubbles, trigger button |
+| `primary` | `#16a34a` | Send button, user message bubbles, trigger button |
 | `bgPrimary` | `#ffffff` | Chat panel background |
-| `bgSecondary` | `#f4f4f5` | Header background, bot message bubbles |
-| `textPrimary` | `#18181b` | Main text in messages |
-| `textSecondary` | `#71717a` | Footer text, input placeholder |
-| `border` | `#e4e4e7` | Input borders, dividers |
+| `bgSecondary` | `#f3f4f6` | Header background, bot message bubbles |
+| `textPrimary` | `#111827` | Main text in messages |
+| `textSecondary` | `#6b7280` | Footer text, input placeholder |
+| `border` | `#e5e7eb` | Input borders, dividers |
 
-## Example: Custom Bot Name and Icon
+**Dark Mode (`darkColors`)**
 
-```html
-<script>
-  window.__AI_WIDGET_CONFIG__ = {
-    clientId: "YOUR_CLIENT_ID",
-    botName: "PagePal Assistant",
-    icons: {
-      botAvatar: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M9 10h.01'/><path d='M15 10h.01'/><path d='M10 14c.5 1 2 1.5 4 1.5'/></svg>"
-    },
-    colors: {
-      primary: "#8b5cf6",
-      bgPrimary: "#fafafa",
-      bgSecondary: "#e2e8f0",
-      textPrimary: "#1e293b",
-      textSecondary: "#64748b",
-      border: "#cbd5e1"
-    }
-  };
-</script>
-<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
+| Color | Default | Used For |
+|-------|---------|----------|
+| `primary` | `#16a34a` | Send button, user message bubbles, trigger button |
+| `bgPrimary` | `#09090b` | Chat panel background |
+| `bgSecondary` | `#27272a` | Header background, bot message bubbles |
+| `textPrimary` | `#fafafa` | Main text in messages |
+| `textSecondary` | `#a1a1aa` | Footer text, input placeholder |
+| `border` | `#27272a` | Input borders, dividers |
+
+### Custom Icons
+
+The `icons` object allows you to customize the bot's avatar:
+
+```javascript
+icons: {
+  // Use the default bot icon
+  botAvatar: "bot",
+
+  // Or provide a custom SVG string
+  botAvatar: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M9 10h.01'/><path d='M15 10h.01'/><path d='M10 14c.5 1 2 1.5 4 1.5'/></svg>"
+}
 ```
+
+**Important for custom SVG icons:**
+- Use `currentColor` for stroke/fill to inherit theme colors
+- Avoid `width` and `height` attributes for proper scaling
+- Keep the SVG simple and optimized
 
 ## Dark Mode
 
-The widget determines theme by checking for a "dark" class on the parent document's root element. Users can also manually toggle dark mode within the chat header.
+The widget automatically detects dark mode by checking for a `dark` class on the `<html>` or `<body>` element. Users can also manually toggle dark mode within the chat header.
+
+If `darkColors` is not specified, the widget will auto-generate appropriate dark colors from your light theme.
 
 ## Browser Support
 
@@ -111,4 +134,4 @@ The widget determines theme by checking for a "dark" class on the parent documen
 
 ### CORS errors
 
-If you see CORS errors in the console, the server hosting the widget needs CORS configured. See CORS_SETUP.md for details.
+GitHub raw URLs serve content with appropriate CORS headers. If you see CORS errors, try refreshing the page or use a different hosting solution for production.

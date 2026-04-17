@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from "react"
 import { Bot, Upload, X } from "lucide-react"
+import { useCallback, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,22 @@ export function BotNameCard({
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const hasCustomAvatar = botAvatar && botAvatar !== "bot"
 
+	const readSvgFile = useCallback(
+		(file: File) => {
+			const reader = new FileReader()
+			reader.onload = (event) => {
+				const svgContent = event.target?.result as string
+				// Strip width/height attributes to allow scaling
+				const cleanedSvg = svgContent
+					.replace(/width="[^"]*"/g, "")
+					.replace(/height="[^"]*"/g, "")
+				onBotAvatarChange(cleanedSvg)
+			}
+			reader.readAsText(file)
+		},
+		[onBotAvatarChange],
+	)
+
 	const handleDragOver = useCallback((e: React.DragEvent) => {
 		e.preventDefault()
 		setIsDragging(true)
@@ -42,7 +58,7 @@ export function BotNameCard({
 				readSvgFile(file)
 			}
 		},
-		[onBotAvatarChange],
+		[readSvgFile],
 	)
 
 	const handleFileSelect = useCallback(
@@ -52,21 +68,8 @@ export function BotNameCard({
 				readSvgFile(file)
 			}
 		},
-		[onBotAvatarChange],
+		[readSvgFile],
 	)
-
-	const readSvgFile = (file: File) => {
-		const reader = new FileReader()
-		reader.onload = (event) => {
-			const svgContent = event.target?.result as string
-			// Strip width/height attributes to allow scaling
-			const cleanedSvg = svgContent
-				.replace(/width="[^"]*"/g, "")
-				.replace(/height="[^"]*"/g, "")
-			onBotAvatarChange(cleanedSvg)
-		}
-		reader.readAsText(file)
-	}
 
 	const handleClearAvatar = () => {
 		onBotAvatarChange("bot")
@@ -101,7 +104,7 @@ export function BotNameCard({
 						placeholder="AI Assistant"
 						maxLength={100}
 					/>
-					<p className="text-xs text-muted-foreground">
+					<p className="text-muted-foreground text-xs">
 						This name will be displayed in the widget header.
 					</p>
 				</div>
@@ -114,6 +117,7 @@ export function BotNameCard({
 						<div className="flex items-center gap-4 rounded-lg border bg-muted/50 p-4">
 							<div
 								className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-primary/10"
+								// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG content is user-uploaded avatar
 								dangerouslySetInnerHTML={{ __html: botAvatar }}
 								style={{
 									display: "flex",
@@ -122,8 +126,8 @@ export function BotNameCard({
 								}}
 							/>
 							<div className="flex-1">
-								<p className="text-sm font-medium">Custom avatar uploaded</p>
-								<p className="text-xs text-muted-foreground">SVG</p>
+								<p className="font-medium text-sm">Custom avatar uploaded</p>
+								<p className="text-muted-foreground text-xs">SVG</p>
 							</div>
 							<Button
 								type="button"
@@ -135,8 +139,9 @@ export function BotNameCard({
 							</Button>
 						</div>
 					) : (
-						<div
-							className={`cursor-pointer rounded-lg border-2 border-dashed p-6 transition-colors ${
+						<button
+							type="button"
+							className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-left transition-colors ${
 								isDragging
 									? "border-primary bg-primary/5"
 									: "border-muted-foreground/25 hover:border-muted-foreground/50"
@@ -145,13 +150,6 @@ export function BotNameCard({
 							onDragLeave={handleDragLeave}
 							onDrop={handleDrop}
 							onClick={handleClickUpload}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
-									handleClickUpload()
-								}
-							}}
-							role="button"
-							tabIndex={0}
 							aria-label="Upload SVG avatar"
 						>
 							<input
@@ -166,15 +164,15 @@ export function BotNameCard({
 									<Upload size={20} className="text-muted-foreground" />
 								</div>
 								<div>
-									<p className="text-sm font-medium">
+									<p className="font-medium text-sm">
 										Drop SVG here or click to upload
 									</p>
-									<p className="text-xs text-muted-foreground">
+									<p className="text-muted-foreground text-xs">
 										Upload a square SVG for best results
 									</p>
 								</div>
 							</div>
-						</div>
+						</button>
 					)}
 				</div>
 			</CardContent>

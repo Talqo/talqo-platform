@@ -97,6 +97,7 @@ export function WidgetPreview({
 										{hasCustomAvatar ? (
 											<div
 												className="h-4 w-4"
+												// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
 												dangerouslySetInnerHTML={{
 													__html: icons.botAvatar,
 												}}
@@ -125,6 +126,7 @@ export function WidgetPreview({
 										{hasCustomAvatar ? (
 											<div
 												className="h-3.5 w-3.5"
+												// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
 												dangerouslySetInnerHTML={{
 													__html: icons.botAvatar,
 												}}
@@ -202,6 +204,7 @@ export function WidgetPreview({
 							{hasCustomAvatar ? (
 								<div
 									className="h-7 w-7"
+									// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
 									dangerouslySetInnerHTML={{ __html: icons.botAvatar }}
 								/>
 							) : (

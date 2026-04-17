@@ -1,8 +1,22 @@
 # S3 CORS Configuration
 
-To serve the widget bundle from S3 (or S3-compatible storage like MinIO), you need to configure CORS.
+## Recommended: GitHub Raw URLs (Development)
 
-## Generic S3 CORS Configuration
+The simplest way to serve the widget bundle during development is directly from GitHub raw URLs:
+
+```html
+<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
+```
+
+GitHub raw URLs serve content with appropriate CORS headers, making them suitable for development and testing without any additional configuration.
+
+---
+
+## S3/MinIO CORS Configuration (Production)
+
+For production use with S3 or S3-compatible storage like MinIO, you need to configure CORS.
+
+### Generic S3 CORS Configuration
 
 Add this CORS configuration to your S3 bucket:
 
@@ -18,14 +32,14 @@ Add this CORS configuration to your S3 bucket:
 ]
 ```
 
-## Via S3 Console (AWS S3, MinIO, etc.)
+### Via S3 Console (AWS S3, MinIO, etc.)
 
 1. Go to your bucket's Permissions/CORS settings
 2. Add or edit CORS rules
 3. Paste the JSON configuration above
 4. Save changes
 
-## Via MinIO Client (mc)
+### Via MinIO Client (mc)
 
 If using MinIO:
 
@@ -52,18 +66,3 @@ Where `cors.json` contains:
     ]
 }
 ```
-
-## Alternative: GitHub Raw URLs (Development)
-
-For development, you can serve the widget bundle directly from GitHub raw URLs:
-
-```html
-<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
-```
-
-Note: GitHub raw URLs are suitable for development and testing but not recommended for production due to:
-- Rate limiting
-- No caching guarantees
-- Potential URL changes
-
-For production, use S3 or another reliable CDN.
