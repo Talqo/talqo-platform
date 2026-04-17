@@ -78,55 +78,46 @@ function ColorRow({
 		onDarkChange(e.target.value)
 	}
 
-	const handleLightTextChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.value
-		setLightDraft(newValue)
-		const trimmed = newValue.trim().toLowerCase()
-		if (trimmed.startsWith("#")) {
-			const hex = trimmed.slice(1)
-			if (/^[0-9a-f]{3}$/i.test(hex)) {
-				const normalized = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
-				setLightDraft(normalized)
-				onLightChange(normalized)
+	// Factory function to create color text change handlers
+	// Reduces duplication between light and dark mode handlers
+	const createColorChangeHandler = (
+		setDraft: (value: string) => void,
+		onChange: (value: string) => void,
+	) => {
+		return (e: ChangeEvent<HTMLInputElement>) => {
+			const newValue = e.target.value
+			setDraft(newValue)
+			const trimmed = newValue.trim().toLowerCase()
+			if (trimmed.startsWith("#")) {
+				const hex = trimmed.slice(1)
+				if (/^[0-9a-f]{3}$/i.test(hex)) {
+					const normalized = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
+					setDraft(normalized)
+					onChange(normalized)
+					return
+				}
+				if (/^[0-9a-f]{6}$/i.test(hex)) {
+					onChange(trimmed)
+				}
 				return
 			}
-			if (/^[0-9a-f]{6}$/i.test(hex)) {
-				onLightChange(trimmed)
-			}
-			return
-		}
-		if (trimmed.startsWith("hsl(")) {
-			const converted = tryHslToHex(trimmed)
-			if (converted) {
-				onLightChange(trimmed)
+			if (trimmed.startsWith("hsl(")) {
+				const converted = tryHslToHex(trimmed)
+				if (converted) {
+					onChange(trimmed)
+				}
 			}
 		}
 	}
 
-	const handleDarkTextChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.value
-		setDarkDraft(newValue)
-		const trimmed = newValue.trim().toLowerCase()
-		if (trimmed.startsWith("#")) {
-			const hex = trimmed.slice(1)
-			if (/^[0-9a-f]{3}$/i.test(hex)) {
-				const normalized = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
-				setDarkDraft(normalized)
-				onDarkChange(normalized)
-				return
-			}
-			if (/^[0-9a-f]{6}$/i.test(hex)) {
-				onDarkChange(trimmed)
-			}
-			return
-		}
-		if (trimmed.startsWith("hsl(")) {
-			const converted = tryHslToHex(trimmed)
-			if (converted) {
-				onDarkChange(trimmed)
-			}
-		}
-	}
+	const handleLightTextChange = createColorChangeHandler(
+		setLightDraft,
+		onLightChange,
+	)
+	const handleDarkTextChange = createColorChangeHandler(
+		setDarkDraft,
+		onDarkChange,
+	)
 
 	const lightPickerValue = tryHslToHex(lightValue) || lightValue
 	const darkPickerValue = tryHslToHex(darkValue) || darkValue
