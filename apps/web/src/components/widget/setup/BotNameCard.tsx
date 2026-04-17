@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { DEFAULT_BOT_AVATAR } from "./constants"
 
 interface BotNameCardProps {
 	botName: string
@@ -24,7 +25,7 @@ export function BotNameCard({
 	const [isDragging, setIsDragging] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
-	const hasCustomAvatar = botAvatar && botAvatar !== "bot"
+	const hasCustomAvatar = Boolean(botAvatar) && botAvatar !== DEFAULT_BOT_AVATAR
 
 	const sanitizeSvg = useCallback((svgContent: string): string | null => {
 		// Verify content starts with SVG tag (content-sniffing)
@@ -145,7 +146,7 @@ export function BotNameCard({
 			setIsDragging(false)
 
 			const file = e.dataTransfer.files[0]
-			if (file && file.type === "image/svg+xml") {
+			if (file) {
 				readSvgFile(file)
 			}
 		},
@@ -155,7 +156,7 @@ export function BotNameCard({
 	const handleFileSelect = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0]
-			if (file && file.type === "image/svg+xml") {
+			if (file) {
 				readSvgFile(file)
 			}
 		},
@@ -164,7 +165,7 @@ export function BotNameCard({
 
 	const handleClearAvatar = () => {
 		setError(null)
-		onBotAvatarChange("bot")
+		onBotAvatarChange(DEFAULT_BOT_AVATAR)
 		if (fileInputRef.current) {
 			fileInputRef.current.value = ""
 		}
@@ -214,7 +215,7 @@ export function BotNameCard({
 						<div className="flex items-center gap-4 rounded-lg border bg-muted/50 p-4">
 							<div
 								className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-primary/10"
-								// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG content is user-uploaded avatar
+								// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG is sanitized by sanitizeSvg
 								dangerouslySetInnerHTML={{ __html: botAvatar }}
 								style={{
 									display: "flex",

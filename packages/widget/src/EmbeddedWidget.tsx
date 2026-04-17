@@ -27,6 +27,26 @@ interface EmbeddedWidgetProps {
 }
 
 /**
+ * Get the initial theme from localStorage or system preference
+ */
+function getInitialTheme(): "light" | "dark" {
+	if (typeof window === "undefined") return "light"
+
+	// Check localStorage first
+	const savedTheme = localStorage.getItem("theme")
+	if (savedTheme === "dark" || savedTheme === "light") {
+		return savedTheme
+	}
+
+	// Fall back to system preference
+	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+		return "dark"
+	}
+
+	return "light"
+}
+
+/**
  * Inner component that consumes widget context.
  * Must be rendered inside WidgetRoot.
  */
@@ -140,7 +160,11 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
  */
 export function EmbeddedWidget({ config }: EmbeddedWidgetProps) {
 	return (
-		<WidgetRoot defaultOpen={config.defaultOpen} position={config.position}>
+		<WidgetRoot
+			defaultOpen={config.defaultOpen}
+			position={config.position}
+			defaultTheme={getInitialTheme()}
+		>
 			<EmbeddedWidgetInner config={config} />
 		</WidgetRoot>
 	)

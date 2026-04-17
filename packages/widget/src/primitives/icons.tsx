@@ -1,3 +1,4 @@
+import DOMPurify from "isomorphic-dompurify"
 import BotIconSvg from "../../assets/bot-icon.svg?react"
 import ClearIconSvg from "../../assets/clear-icon.svg?react"
 import CloseIconSvg from "../../assets/close-icon.svg?react"
@@ -18,17 +19,25 @@ interface AvatarIconProps extends IconProps {
 	iconSvg?: string
 }
 
+// Default avatar sentinel value - must match EmbedCodeCard and BotNameCard
+export const DEFAULT_BOT_AVATAR = "bot"
+
 export function AvatarIcon({
 	size = 24,
 	className = "",
 	iconSvg,
 }: AvatarIconProps) {
-	// If custom SVG is provided, render it
-	if (iconSvg && iconSvg !== "bot") {
+	// If custom SVG is provided, render it with sanitization
+	if (iconSvg && iconSvg !== DEFAULT_BOT_AVATAR) {
+		// Sanitize SVG to prevent XSS attacks
+		const sanitizedSvg = DOMPurify.sanitize(iconSvg, {
+			USE_PROFILES: { svg: true },
+		})
+
 		return (
 			<span
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: Widget accepts custom SVG from trusted config only
-				dangerouslySetInnerHTML={{ __html: iconSvg }}
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG is sanitized with DOMPurify above
+				dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
 				className={className}
 				style={{
 					width: size,

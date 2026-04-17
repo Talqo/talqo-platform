@@ -47,7 +47,8 @@ export interface ResolvedWidgetConfig
 		Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
 	> {
 	colors: WidgetColors
-	darkColors?: WidgetColors
+	/** Dark mode colors - always populated by resolveConfig */
+	darkColors: WidgetColors
 	icons: WidgetIcons
 	botName: string
 }

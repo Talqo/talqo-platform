@@ -1,6 +1,6 @@
 import { Monitor } from "lucide-react"
 import type { ChangeEvent } from "react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -23,19 +23,40 @@ interface ColorRowProps {
 	onDarkChange: (value: string) => void
 }
 
+/**
+ * Parse HSL color string to hex.
+ * Accepts multiple formats:
+ * - hsl(120 50% 50%) - space-separated (modern)
+ * - hsl(120, 50%, 50%) - comma-separated
+ * - hsla(120, 50%, 50%, 0.5) - with alpha (alpha is ignored)
+ * - hsl(120 50% 50% / 0.5) - space-separated with alpha
+ */
 function tryHslToHex(hsl: string): string | null {
 	if (hsl.startsWith("#")) return null
-	const match = hsl.match(
-		/^hsl\(\s*(\d{1,3}(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)%\s+(\d{1,3}(?:\.\d+)?)%\s*\)$/,
+
+	// Normalize the input: handle hsla, commas, and slash-separated alpha
+	const normalized = hsl
+		.replace(/^hsla?\(/i, "")
+		.replace(/\)$/, "")
+		.replace(/\//g, ",") // Convert slash to comma for uniform handling
+		.replace(/\s+/g, " ") // Normalize whitespace
+
+	// Match: h s% l% (optional alpha)
+	const match = normalized.match(
+		/^(\d{1,3}(?:\.\d+)?)[,\s]+(\d{1,3}(?:\.\d+)?)%[,\s]+(\d{1,3}(?:\.\d+)?)%/,
 	)
 	if (!match) return null
+
 	const h = Number(match[1])
 	const s = Number(match[2])
 	const l = Number(match[3])
+
 	if (h < 0 || h > 360 || s < 0 || s > 100 || l < 0 || l > 100) return null
+
 	const hNorm = h / 360
 	const sNorm = s / 100
 	const lNorm = l / 100
+
 	const hue2rgb = (p: number, q: number, t: number) => {
 		if (t < 0) t += 1
 		if (t > 1) t -= 1
@@ -44,11 +65,13 @@ function tryHslToHex(hsl: string): string | null {
 		if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
 		return p
 	}
+
 	const q = lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm
 	const p = 2 * lNorm - q
 	const r = Math.round(hue2rgb(p, q, hNorm + 1 / 3) * 255)
 	const g = Math.round(hue2rgb(p, q, hNorm) * 255)
 	const b = Math.round(hue2rgb(p, q, hNorm - 1 / 3) * 255)
+
 	return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
 }
 
@@ -59,16 +82,13 @@ function ColorRow({
 	onLightChange,
 	onDarkChange,
 }: ColorRowProps) {
-	const [lightDraft, setLightDraft] = useState(lightValue)
-	const [darkDraft, setDarkDraft] = useState(darkValue)
+	// Track invalid text input separately to show parsing errors
+	const [lightInvalid, setLightInvalid] = useState<string | null>(null)
+	const [darkInvalid, setDarkInvalid] = useState<string | null>(null)
 
-	useEffect(() => {
-		setLightDraft(lightValue)
-	}, [lightValue])
-
-	useEffect(() => {
-		setDarkDraft(darkValue)
-	}, [darkValue])
+	// Compute display values - use invalid text if present, otherwise use prop value
+	const lightDisplayValue = lightInvalid ?? lightValue
+	const darkDisplayValue = darkInvalid ?? darkValue
 
 	const handleLightChange = (e: ChangeEvent<HTMLInputElement>) => {
 		onLightChange(e.target.value)
@@ -79,43 +99,49 @@ function ColorRow({
 	}
 
 	// Factory function to create color text change handlers
-	// Reduces duplication between light and dark mode handlers
 	const createColorChangeHandler = (
-		setDraft: (value: string) => void,
+		setInvalid: (value: string | null) => void,
 		onChange: (value: string) => void,
 	) => {
 		return (e: ChangeEvent<HTMLInputElement>) => {
 			const newValue = e.target.value
-			setDraft(newValue)
 			const trimmed = newValue.trim().toLowerCase()
+
+			// Update invalid state to show the user's raw input
+			setInvalid(newValue)
+
 			if (trimmed.startsWith("#")) {
 				const hex = trimmed.slice(1)
 				if (/^[0-9a-f]{3}$/i.test(hex)) {
 					const normalized = `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
-					setDraft(normalized)
+					setInvalid(null)
 					onChange(normalized)
 					return
 				}
 				if (/^[0-9a-f]{6}$/i.test(hex)) {
+					setInvalid(null)
 					onChange(trimmed)
 				}
 				return
 			}
+
 			if (trimmed.startsWith("hsl(")) {
 				const converted = tryHslToHex(trimmed)
 				if (converted) {
-					onChange(trimmed)
+					setInvalid(null)
+					onChange(converted)
 				}
+				// Keep invalid state if parsing fails so user sees their input
 			}
 		}
 	}
 
 	const handleLightTextChange = createColorChangeHandler(
-		setLightDraft,
+		setLightInvalid,
 		onLightChange,
 	)
 	const handleDarkTextChange = createColorChangeHandler(
-		setDarkDraft,
+		setDarkInvalid,
 		onDarkChange,
 	)
 
@@ -139,7 +165,7 @@ function ColorRow({
 				/>
 				<Input
 					type="text"
-					value={lightDraft}
+					value={lightDisplayValue}
 					onChange={handleLightTextChange}
 					className="h-8 font-mono text-xs"
 					placeholder="#ffffff"
@@ -157,7 +183,7 @@ function ColorRow({
 				/>
 				<Input
 					type="text"
-					value={darkDraft}
+					value={darkDisplayValue}
 					onChange={handleDarkTextChange}
 					className="h-8 font-mono text-xs"
 					placeholder="#000000"
@@ -194,15 +220,10 @@ export function AppearanceCard({
 			<CardContent className="space-y-6">
 				<fieldset className="space-y-2">
 					<legend className="font-medium text-sm">Widget Position</legend>
-					<div
-						className="flex gap-2"
-						role="radiogroup"
-						aria-label="Widget Position"
-					>
+					<div className="flex gap-2">
 						<Button
 							type="button"
-							role="radio"
-							aria-checked={position === "left"}
+							aria-pressed={position === "left"}
 							variant={position === "left" ? "default" : "outline"}
 							onClick={() => onPositionChange("left")}
 						>
@@ -210,8 +231,7 @@ export function AppearanceCard({
 						</Button>
 						<Button
 							type="button"
-							role="radio"
-							aria-checked={position === "right"}
+							aria-pressed={position === "right"}
 							variant={position === "right" ? "default" : "outline"}
 							onClick={() => onPositionChange("right")}
 						>

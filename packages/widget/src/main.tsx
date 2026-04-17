@@ -77,12 +77,16 @@ function resolveConfig(): ResolvedWidgetConfig {
 	}
 
 	const lightColors = resolveColors(userConfig.colors)
+	const resolvedDarkColors = resolveDarkColors(
+		lightColors,
+		userConfig.darkColors,
+	)
 
 	return {
 		clientId: userConfig.clientId,
 		apiUrl,
 		colors: lightColors,
-		darkColors: resolveDarkColors(lightColors, userConfig.darkColors),
+		darkColors: resolvedDarkColors,
 		position: userConfig.position ?? "right",
 		defaultOpen: userConfig.defaultOpen ?? false,
 		botName: userConfig.botName ?? "AI Assistant",
@@ -93,6 +97,12 @@ function resolveConfig(): ResolvedWidgetConfig {
 }
 
 function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
+	// Check if root element already exists to prevent duplicate mounts
+	const existingRoot = document.getElementById("ai-widget-root")
+	if (existingRoot) {
+		return existingRoot
+	}
+
 	const root = document.createElement("div")
 	root.id = "ai-widget-root"
 
@@ -104,18 +114,25 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	root.style.setProperty("--widget-text-secondary", config.colors.textSecondary)
 	root.style.setProperty("--widget-border", config.colors.border)
 
-	// Dark mode colors - use resolved dark colors from config
-	const darkColors =
-		config.darkColors ?? resolveDarkColors(config.colors, undefined)
-	root.style.setProperty("--widget-dark-primary", darkColors.primary)
-	root.style.setProperty("--widget-dark-bg-primary", darkColors.bgPrimary)
-	root.style.setProperty("--widget-dark-bg-secondary", darkColors.bgSecondary)
-	root.style.setProperty("--widget-dark-text-primary", darkColors.textPrimary)
+	// Dark mode colors - config.darkColors is always populated by resolveConfig
+	root.style.setProperty("--widget-dark-primary", config.darkColors.primary)
+	root.style.setProperty(
+		"--widget-dark-bg-primary",
+		config.darkColors.bgPrimary,
+	)
+	root.style.setProperty(
+		"--widget-dark-bg-secondary",
+		config.darkColors.bgSecondary,
+	)
+	root.style.setProperty(
+		"--widget-dark-text-primary",
+		config.darkColors.textPrimary,
+	)
 	root.style.setProperty(
 		"--widget-dark-text-secondary",
-		darkColors.textSecondary,
+		config.darkColors.textSecondary,
 	)
-	root.style.setProperty("--widget-dark-border", darkColors.border)
+	root.style.setProperty("--widget-dark-border", config.darkColors.border)
 
 	document.body.appendChild(root)
 	return root

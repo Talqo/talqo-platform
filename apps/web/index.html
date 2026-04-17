@@ -19,10 +19,10 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <!-- Widget embed for development testing -->
-    <script>
+    <script type="module">
       (() => {
-        // Only load widget in development
-        if (window.location.port === '5173' || window.location.hostname === 'localhost') {
+        // Only load widget in development - check BOTH hostname AND port
+        if (window.location.hostname === 'localhost' && window.location.port === '5173') {
           // Use a test client ID for development
           window.__AI_WIDGET_CONFIG__ = {
             clientId: 'dev-test-client-id',
@@ -37,8 +37,8 @@
             }
           };
 
-          // Load widget bundle from dev server dist folder
-          const scriptSrc = 'http://localhost:5174/dist/widget-bundle.js';
+          // Load widget bundle from dev server - Vite preview serves from root
+          const scriptSrc = 'http://localhost:5174/widget-bundle.js';
 
           const script = document.createElement('script');
           script.src = scriptSrc;

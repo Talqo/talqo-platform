@@ -18,6 +18,7 @@
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
 	"dependencies": {
+		"isomorphic-dompurify": "^2.24.0",
 		"react": "^19",
 		"react-dom": "^19"
 	},

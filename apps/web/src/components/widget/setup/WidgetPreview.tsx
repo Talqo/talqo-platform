@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { DEFAULT_BOT_AVATAR } from "./constants"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
 interface WidgetPreviewProps {
@@ -20,7 +21,7 @@ interface PreviewAvatarProps {
 
 // Extracted avatar component to reduce duplication across header, messages, and trigger
 function PreviewAvatar({ botAvatar, size, className }: PreviewAvatarProps) {
-	const hasCustomAvatar = botAvatar && botAvatar !== "bot"
+	const hasCustomAvatar = Boolean(botAvatar) && botAvatar !== DEFAULT_BOT_AVATAR
 
 	if (hasCustomAvatar) {
 		return (
