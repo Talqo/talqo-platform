@@ -1,4 +1,9 @@
 import { eq, sql } from "drizzle-orm"
+import {
+	AuthConflictError,
+	BadRequestError,
+	NotFoundError,
+} from "../../common/errors"
 import type { DB } from "../../db"
 import {
 	clients,
@@ -126,7 +131,8 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client> {
 		for (const client of this.clients.values()) {
-			if (client.email === data.email) throw new Error("EMAIL_TAKEN")
+			if (client.email === data.email)
+				throw new AuthConflictError("EMAIL_TAKEN", "Email already registered")
 		}
 		const client: Client = {
 			...data,
@@ -160,8 +166,10 @@ export class InMemoryAuthRepository implements IAuthRepository {
 
 	async consumePendingRegistration(token: string): Promise<Client> {
 		const record = this.pendingRegistrations.get(token)
-		if (!record) throw new Error("INVALID_TOKEN")
-		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+		if (!record)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+		if (record.expiresAt < new Date())
+			throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
 
 		// If already consumed, return the existing client (idempotent)
 		if (record.consumedAt && record.consumedByClientId) {
@@ -199,9 +207,15 @@ export class InMemoryAuthRepository implements IAuthRepository {
 
 	async consumePasswordResetToken(token: string): Promise<PasswordResetToken> {
 		const record = this.passwordResetTokens.get(token)
-		if (!record) throw new Error("INVALID_TOKEN")
-		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
-		if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+		if (!record)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+		if (record.expiresAt < new Date())
+			throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+		if (record.consumedAt)
+			throw new BadRequestError(
+				"TOKEN_ALREADY_USED",
+				"Token has already been used",
+			)
 
 		record.consumedAt = new Date()
 		this.passwordResetTokens.set(token, record)
@@ -218,7 +232,7 @@ export class InMemoryAuthRepository implements IAuthRepository {
 				return
 			}
 		}
-		throw new Error("CLIENT_NOT_FOUND")
+		throw new NotFoundError("Client not found")
 	}
 
 	async consumeTokenAndUpdatePassword(
@@ -228,15 +242,22 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		// In-memory: this is inherently atomic
 		// First, find and validate the token without consuming it
 		const record = this.passwordResetTokens.get(token)
-		if (!record) throw new Error("INVALID_TOKEN")
-		if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
-		if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+		if (!record)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+		if (record.expiresAt < new Date())
+			throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+		if (record.consumedAt)
+			throw new BadRequestError(
+				"TOKEN_ALREADY_USED",
+				"Token has already been used",
+			)
 
 		// Find the client first to ensure they exist
 		const client = Array.from(this.clients.values()).find(
 			(c) => c.email === record.email,
 		)
-		if (!client) throw new Error("INVALID_TOKEN")
+		if (!client)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
 
 		// Update password
 		await this.updateClientPassword(record.email, passwordHash)
@@ -323,7 +344,8 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			return mapClient(rows[0]!)
 		} catch (err) {
 			// postgres unique_violation code
-			if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN")
+			if (isUniqueViolation(err))
+				throw new AuthConflictError("EMAIL_TAKEN", "Email already registered")
 			throw err
 		}
 	}
@@ -359,8 +381,10 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				.from(pendingRegistrations)
 				.where(eq(pendingRegistrations.token, token))
 
-			if (!pending) throw new Error("INVALID_TOKEN")
-			if (pending.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
+			if (!pending)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+			if (pending.expiresAt < new Date())
+				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
 
 			// If already consumed, return the existing client (idempotent)
 			if (pending.consumedAt && pending.consumedByClientId) {
@@ -384,7 +408,8 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
 				client = mapClient(rows[0]!)
 			} catch (err) {
-				if (isUniqueViolation(err)) throw new Error("EMAIL_TAKEN")
+				if (isUniqueViolation(err))
+					throw new AuthConflictError("EMAIL_TAKEN", "Email already registered")
 				throw err
 			}
 
@@ -424,9 +449,15 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				.where(eq(passwordResetTokens.token, token))
 				.for("update")
 
-			if (!record) throw new Error("INVALID_TOKEN")
-			if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
-			if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+			if (!record)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+			if (record.expiresAt < new Date())
+				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+			if (record.consumedAt)
+				throw new BadRequestError(
+					"TOKEN_ALREADY_USED",
+					"Token has already been used",
+				)
 
 			const consumedAt = new Date()
 			await tx
@@ -449,7 +480,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 			.where(eq(clients.email, email))
 			.returning({ id: clients.id })
 		if (rows.length === 0) {
-			throw new Error("CLIENT_NOT_FOUND")
+			throw new NotFoundError("Client not found")
 		}
 	}
 
@@ -469,9 +500,15 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				.where(eq(passwordResetTokens.token, token))
 				.for("update")
 
-			if (!record) throw new Error("INVALID_TOKEN")
-			if (record.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED")
-			if (record.consumedAt) throw new Error("TOKEN_ALREADY_USED")
+			if (!record)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+			if (record.expiresAt < new Date())
+				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+			if (record.consumedAt)
+				throw new BadRequestError(
+					"TOKEN_ALREADY_USED",
+					"Token has already been used",
+				)
 
 			// Update client password and get client info first
 			const [updated] = await tx
@@ -481,7 +518,8 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				.returning({ id: clients.id })
 
 			// If no client found, treat as invalid token
-			if (!updated) throw new Error("INVALID_TOKEN")
+			if (!updated)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
 
 			// Only consume the token after successful password update
 			await tx

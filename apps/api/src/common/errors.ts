@@ -38,3 +38,18 @@ export class ValidationError extends AppError {
 		super(422, "VALIDATION_ERROR", message)
 	}
 }
+
+export class BadRequestError extends AppError {
+	constructor(code: string, message: string) {
+		super(400, code, message)
+	}
+}
+
+export class AuthConflictError extends AppError {
+	constructor(
+		code: "EMAIL_TAKEN" | "NAME_TAKEN" | "EMAIL_ALREADY_VERIFIED",
+		message: string,
+	) {
+		super(409, code, message)
+	}
+}
