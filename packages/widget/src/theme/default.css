@@ -31,7 +31,7 @@
 	justify-content: center;
 	border-radius: 9999px;
 	background-color: var(--widget-primary);
-	color: white;
+	color: var(--widget-primary-foreground, white);
 	box-shadow:
 		0 20px 25px -5px rgb(0 0 0 / 0.1),
 		0 8px 10px -6px rgb(0 0 0 / 0.1);
@@ -137,14 +137,14 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: white;
+	color: var(--widget-primary-foreground, white);
 }
 
 .aiw-header-left > svg,
 .aiw-header-left > span {
 	width: 24px;
 	height: 24px;
-	color: white;
+	color: var(--widget-primary-foreground, white);
 }
 
 .aiw-header-left > span > svg {
@@ -155,7 +155,7 @@
 .aiw-header-title {
 	font-weight: 600;
 	font-size: 0.875rem;
-	color: white;
+	color: var(--widget-primary-foreground, white);
 }
 
 .aiw-header-actions {
@@ -172,7 +172,7 @@
 	border-radius: 0.5rem;
 	border: none;
 	background: transparent;
-	color: rgba(255, 255, 255, 0.8);
+	color: var(--widget-primary-foreground, rgba(255, 255, 255, 0.8));
 	cursor: pointer;
 }
 
@@ -192,7 +192,7 @@
 
 .aiw-icon-btn:hover {
 	background-color: rgba(255, 255, 255, 0.2);
-	color: white;
+	color: var(--widget-primary-foreground, white);
 }
 
 .aiw-root[data-theme="dark"] .aiw-header {
@@ -238,7 +238,7 @@
 
 .aiw-message[data-role="user"] .aiw-message-content {
 	background-color: var(--widget-primary);
-	color: white;
+	color: var(--widget-primary-foreground, white);
 }
 
 .aiw-message[data-role="bot"] .aiw-message-content {
@@ -252,7 +252,7 @@
 	height: 28px;
 	border-radius: 50%;
 	background-color: var(--widget-primary);
-	color: white;
+	color: var(--widget-primary-foreground, white);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -382,7 +382,7 @@
 	border-radius: 0.75rem;
 	border: none;
 	background-color: var(--widget-primary);
-	color: white;
+	color: var(--widget-primary-foreground, white);
 	cursor: pointer;
 }
 
@@ -411,12 +411,12 @@
 .aiw-footer {
 	text-align: center;
 	font-size: 0.625rem;
-	color: rgba(255, 255, 255, 0.8);
+	color: var(--widget-primary-foreground, rgba(255, 255, 255, 0.8));
 	padding: 0.5rem;
 	background-color: var(--widget-primary);
 }
 
 .aiw-root[data-theme="dark"] .aiw-footer {
 	background-color: var(--widget-primary);
-	color: rgba(255, 255, 255, 0.8);
+	color: var(--widget-primary-foreground, rgba(255, 255, 255, 0.8));
 }

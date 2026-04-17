@@ -30,10 +30,8 @@ export function EmbedCodeCard({
 			? "http://localhost:5174/widget-bundle.js"
 			: "https://dev.pagepal.dyn.cloud.e-infra.cz/widget-bundle.js")
 
-	const actualClientId = clientId || "your-client-id"
-
 	const configObject = {
-		clientId: actualClientId,
+		clientId,
 		position,
 		botName,
 		colors: colors.light,
@@ -41,15 +39,26 @@ export function EmbedCodeCard({
 		icons,
 	}
 
-	// Escape script-sensitive sequences to prevent XSS
-	const configJson = JSON.stringify(configObject, null, 2)
-		.replace(/</g, "\\x3c")
-		.replace(/>/g, "\\x3e")
+	const placeholderCode = `// Loading your widget configuration...
+// Please wait while we fetch your client ID.`
 
-	const embedCode = `<script>
+	// Build embed code only when clientId is available
+	let embedCode: string
+	if (isLoading || !clientId) {
+		embedCode = placeholderCode
+	} else {
+		// Escape script-sensitive sequences to prevent XSS and Unicode separators
+		const configJson = JSON.stringify(configObject, null, 2)
+			.replace(/</g, "\\x3c")
+			.replace(/>/g, "\\x3e")
+			.replace(/\u2028/g, "\\u2028") // Line separator
+			.replace(/\u2029/g, "\\u2029") // Paragraph separator
+
+		embedCode = `<script>
   window.__AI_WIDGET_CONFIG__ = ${configJson};
 </script>
 <script async defer src="${scriptUrl}"></script>`
+	}
 
 	useEffect(() => {
 		return () => {
@@ -85,7 +94,9 @@ export function EmbedCodeCard({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="relative">
-					<pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
+					<pre
+						className={`overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm ${isLoading || !clientId ? "opacity-50 blur-[1px]" : ""}`}
+					>
 						{embedCode}
 					</pre>
 					<Button

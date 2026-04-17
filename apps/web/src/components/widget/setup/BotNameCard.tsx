@@ -147,6 +147,11 @@ export function BotNameCard({
 
 			const file = e.dataTransfer.files[0]
 			if (file) {
+				if (file.type !== "image/svg+xml") {
+					setError("Only SVG files are supported.")
+					return
+				}
+				setError(null)
 				readSvgFile(file)
 			}
 		},
@@ -157,6 +162,11 @@ export function BotNameCard({
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0]
 			if (file) {
+				if (file.type !== "image/svg+xml") {
+					setError("Only SVG files are supported.")
+					return
+				}
+				setError(null)
 				readSvgFile(file)
 			}
 		},

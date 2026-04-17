@@ -1,7 +1,7 @@
 {
 	"name": "widget",
 	"version": "0.0.0",
-	"private": false,
+	"private": true,
 	"type": "module",
 	"main": "dist/widget-bundle.js",
 	"scripts": {
