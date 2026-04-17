@@ -1,4 +1,4 @@
-import { ForbiddenError, NotFoundError } from "../../common/errors"
+import { NotFoundError, ValidationError } from "../../common/errors"
 import type { WidgetRepository } from "./widget.repository"
 
 export class WidgetService {
@@ -67,7 +67,7 @@ export class WidgetService {
 		rating: number,
 	) {
 		if (rating < 1 || rating > 5) {
-			throw new ForbiddenError("Rating must be between 1 and 5")
+			throw new ValidationError("Rating must be between 1 and 5")
 		}
 		const updated = await this.repo.rateConversation(
 			conversationId,

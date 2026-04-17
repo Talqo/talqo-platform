@@ -208,3 +208,21 @@ clean: ## Remove build artifacts, Docker images, and local volumes
 	rm -rf apps/api/dist apps/web/dist packages/shared/dist packages/widget/dist
 	$(COMPOSE) down -v --remove-orphans
 	docker rmi "$(API_IMAGE):$(IMAGE_TAG)" "$(WEB_IMAGE):$(IMAGE_TAG)" 2>/dev/null || true
+
+# NOTE: Widget deployment via Makefile is commented out for now.
+# The widget is served via GitHub raw URLs during development.
+# Uncomment and modify if MinIO/S3 deployment is needed in the future.
+#
+# # ── Widget Deployment ───────────────────────────────
+# WIDGET_BUCKET ?= widget-bucket
+# MINIO_ALIAS ?= minio
+# MINIO_ENDPOINT ?= http://localhost:9000
+#
+# .PHONY: deploy-widget
+# deploy-widget: ## Deploy widget bundle to MinIO (requires MINIO_ACCESS_KEY and MINIO_SECRET_KEY)
+#	@[ -n "$(MINIO_ACCESS_KEY)" ] || { echo "ERROR: MINIO_ACCESS_KEY is required"; exit 1; }
+#	@[ -n "$(MINIO_SECRET_KEY)" ] || { echo "ERROR: MINIO_SECRET_KEY is required"; exit 1; }
+#	mc alias set $(MINIO_ALIAS) $(MINIO_ENDPOINT) $(MINIO_ACCESS_KEY) $(MINIO_SECRET_KEY) 2>/dev/null || true
+#	mc mb $(MINIO_ALIAS)/$(WIDGET_BUCKET) 2>/dev/null || true
+#	mc cp packages/widget/dist/widget-bundle.js $(MINIO_ALIAS)/$(WIDGET_BUCKET)/
+#	@echo "Widget deployed to $(MINIO_ENDPOINT)/$(WIDGET_BUCKET)/widget-bundle.js"

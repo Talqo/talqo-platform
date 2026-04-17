@@ -15,6 +15,7 @@ export const clientResponseSchema = createSelectSchema(clients, {
 	status: z.string(),
 	lastActive: z.string().nullable(),
 	createdAt: z.string(),
+	widgetSetupDismissed: z.boolean(),
 }).omit({ passwordHash: true, widgetToken: true })
 
 export const clientInsertSchema = createInsertSchema(clients).omit({

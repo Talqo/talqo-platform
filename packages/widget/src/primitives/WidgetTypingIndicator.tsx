@@ -15,14 +15,16 @@ export function WidgetTypingIndicator(props: WidgetTypingIndicatorProps) {
 	return (
 		<div aria-live="polite" aria-atomic="true" {...divProps}>
 			<span className="sr-only">Assistant is typing</span>
-			{Array.from({ length: dotCount }, (_, i) => (
-				<div
-					// biome-ignore lint/suspicious/noArrayIndexKey: Constant 1-3 dots, order fixed
-					key={`dot-${i}`}
-					style={{ animationDelay: `${i * 0.15}s` }}
-					aria-hidden="true"
-				/>
-			))}
+			<div>
+				{Array.from({ length: dotCount }, (_, i) => (
+					<div
+						// biome-ignore lint/suspicious/noArrayIndexKey: Constant 1-3 dots, order fixed
+						key={`dot-${i}`}
+						style={{ animationDelay: `${i * 0.15}s` }}
+						aria-hidden="true"
+					/>
+				))}
+			</div>
 		</div>
 	)
 }
