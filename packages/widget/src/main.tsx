@@ -18,6 +18,10 @@ const DEFAULT_COLORS: WidgetColors = {
 	textPrimary: "hsl(220 14% 10%)", // Neutral dark (gray-900)
 	textSecondary: "hsl(220 9% 46%)", // Neutral gray (gray-500)
 	border: "hsl(220 13% 91%)", // Neutral border (gray-200)
+	headerTitleText: "#ffffff",
+	userMessageText: "#ffffff",
+	sendButtonIcon: "#ffffff",
+	footerText: "rgba(255, 255, 255, 0.8)",
 }
 
 function resolveColors(
@@ -30,6 +34,12 @@ function resolveColors(
 		textPrimary: userColors?.textPrimary ?? DEFAULT_COLORS.textPrimary,
 		textSecondary: userColors?.textSecondary ?? DEFAULT_COLORS.textSecondary,
 		border: userColors?.border ?? DEFAULT_COLORS.border,
+		headerTitleText:
+			userColors?.headerTitleText ?? DEFAULT_COLORS.headerTitleText,
+		userMessageText:
+			userColors?.userMessageText ?? DEFAULT_COLORS.userMessageText,
+		sendButtonIcon: userColors?.sendButtonIcon ?? DEFAULT_COLORS.sendButtonIcon,
+		footerText: userColors?.footerText ?? DEFAULT_COLORS.footerText,
 	}
 }
 
@@ -46,6 +56,13 @@ function resolveDarkColors(
 			textPrimary: userDarkColors.textPrimary ?? "hsl(0 0% 98%)",
 			textSecondary: userDarkColors.textSecondary ?? "hsl(240 5% 65%)",
 			border: userDarkColors.border ?? "hsl(240 4% 16%)",
+			headerTitleText:
+				userDarkColors.headerTitleText ?? lightColors.headerTitleText,
+			userMessageText:
+				userDarkColors.userMessageText ?? lightColors.userMessageText,
+			sendButtonIcon:
+				userDarkColors.sendButtonIcon ?? lightColors.sendButtonIcon,
+			footerText: userDarkColors.footerText ?? lightColors.footerText,
 		}
 	}
 
@@ -57,6 +74,10 @@ function resolveDarkColors(
 		textPrimary: "hsl(0 0% 98%)",
 		textSecondary: "hsl(240 5% 65%)",
 		border: "hsl(240 4% 16%)",
+		headerTitleText: lightColors.headerTitleText,
+		userMessageText: lightColors.userMessageText,
+		sendButtonIcon: lightColors.sendButtonIcon,
+		footerText: lightColors.footerText,
 	}
 }
 
@@ -113,6 +134,19 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	root.style.setProperty("--widget-text-primary", config.colors.textPrimary)
 	root.style.setProperty("--widget-text-secondary", config.colors.textSecondary)
 	root.style.setProperty("--widget-border", config.colors.border)
+	root.style.setProperty(
+		"--widget-header-title-text",
+		config.colors.headerTitleText,
+	)
+	root.style.setProperty(
+		"--widget-user-message-text",
+		config.colors.userMessageText,
+	)
+	root.style.setProperty(
+		"--widget-send-button-icon",
+		config.colors.sendButtonIcon,
+	)
+	root.style.setProperty("--widget-footer-text", config.colors.footerText)
 
 	// Dark mode colors - config.darkColors is always populated by resolveConfig
 	root.style.setProperty("--widget-dark-primary", config.darkColors.primary)
@@ -133,6 +167,22 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 		config.darkColors.textSecondary,
 	)
 	root.style.setProperty("--widget-dark-border", config.darkColors.border)
+	root.style.setProperty(
+		"--widget-dark-header-title-text",
+		config.darkColors.headerTitleText,
+	)
+	root.style.setProperty(
+		"--widget-dark-user-message-text",
+		config.darkColors.userMessageText,
+	)
+	root.style.setProperty(
+		"--widget-dark-send-button-icon",
+		config.darkColors.sendButtonIcon,
+	)
+	root.style.setProperty(
+		"--widget-dark-footer-text",
+		config.darkColors.footerText,
+	)
 
 	document.body.appendChild(root)
 	return root

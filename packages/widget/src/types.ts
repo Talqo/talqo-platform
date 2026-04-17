@@ -34,6 +34,14 @@ export interface WidgetColors {
 	textSecondary: string
 	/** Borders and dividers - default: #e2e8f0 */
 	border: string
+	/** Header title text color - default: #ffffff */
+	headerTitleText: string
+	/** User message text color - default: #ffffff */
+	userMessageText: string
+	/** Send button icon color - default: #ffffff */
+	sendButtonIcon: string
+	/** Footer text color - default: rgba(255, 255, 255, 0.8) */
+	footerText: string
 }
 
 export interface WidgetIcons {

@@ -46,7 +46,7 @@ export function WidgetPreview({
 	const themeColors = isDark ? colors.dark : colors.light
 
 	return (
-		<Card className="sticky top-6">
+		<Card>
 			<CardHeader className="flex flex-row items-center justify-between">
 				<CardTitle>Live Preview</CardTitle>
 				<Button
@@ -123,7 +123,10 @@ export function WidgetPreview({
 											className="h-4 w-4"
 										/>
 									</div>
-									<span className="font-semibold text-sm text-white">
+									<span
+										className="font-semibold text-sm"
+										style={{ color: themeColors.headerTitleText }}
+									>
 										{botName}
 									</span>
 								</div>
@@ -161,8 +164,11 @@ export function WidgetPreview({
 								{/* User message */}
 								<div className="flex flex-row-reverse gap-2">
 									<div
-										className="max-w-[80%] rounded-2xl rounded-tr-md px-3 py-2 text-sm text-white"
-										style={{ backgroundColor: themeColors.primary }}
+										className="max-w-[80%] rounded-2xl rounded-tr-md px-3 py-2 text-sm"
+										style={{
+											backgroundColor: themeColors.primary,
+											color: themeColors.userMessageText,
+										}}
 									>
 										Hello!
 									</div>
@@ -188,8 +194,11 @@ export function WidgetPreview({
 									Type a message...
 								</div>
 								<div
-									className="flex h-9 w-9 items-center justify-center rounded-lg text-white"
-									style={{ backgroundColor: themeColors.primary }}
+									className="flex h-9 w-9 items-center justify-center rounded-lg"
+									style={{
+										backgroundColor: themeColors.primary,
+										color: themeColors.sendButtonIcon,
+									}}
 								>
 									→
 								</div>
@@ -200,7 +209,7 @@ export function WidgetPreview({
 								className="py-2 text-center text-xs"
 								style={{
 									backgroundColor: themeColors.primary,
-									color: "rgba(255,255,255,0.8)",
+									color: themeColors.footerText,
 								}}
 							>
 								Powered by PagePal

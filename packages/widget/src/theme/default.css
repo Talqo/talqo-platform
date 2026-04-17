@@ -116,6 +116,10 @@
 	--widget-text-primary: var(--widget-dark-text-primary);
 	--widget-text-secondary: var(--widget-dark-text-secondary);
 	--widget-border: var(--widget-dark-border);
+	--widget-header-title-text: var(--widget-dark-header-title-text);
+	--widget-user-message-text: var(--widget-dark-user-message-text);
+	--widget-send-button-icon: var(--widget-dark-send-button-icon);
+	--widget-footer-text: var(--widget-dark-footer-text);
 }
 
 .aiw-root[data-theme="dark"] .aiw-panel {
@@ -155,7 +159,10 @@
 .aiw-header-title {
 	font-weight: 600;
 	font-size: 0.875rem;
-	color: var(--widget-primary-foreground, white);
+	color: var(
+		--widget-header-title-text,
+		var(--widget-primary-foreground, white)
+	);
 }
 
 .aiw-header-actions {
@@ -238,7 +245,10 @@
 
 .aiw-message[data-role="user"] .aiw-message-content {
 	background-color: var(--widget-primary);
-	color: var(--widget-primary-foreground, white);
+	color: var(
+		--widget-user-message-text,
+		var(--widget-primary-foreground, white)
+	);
 }
 
 .aiw-message[data-role="bot"] .aiw-message-content {
@@ -382,7 +392,10 @@
 	border-radius: 0.75rem;
 	border: none;
 	background-color: var(--widget-primary);
-	color: var(--widget-primary-foreground, white);
+	color: var(
+		--widget-send-button-icon,
+		var(--widget-primary-foreground, white)
+	);
 	cursor: pointer;
 }
 
@@ -411,12 +424,18 @@
 .aiw-footer {
 	text-align: center;
 	font-size: 0.625rem;
-	color: var(--widget-primary-foreground, rgba(255, 255, 255, 0.8));
+	color: var(
+		--widget-footer-text,
+		var(--widget-primary-foreground, rgba(255, 255, 255, 0.8))
+	);
 	padding: 0.5rem;
 	background-color: var(--widget-primary);
 }
 
 .aiw-root[data-theme="dark"] .aiw-footer {
 	background-color: var(--widget-primary);
-	color: var(--widget-primary-foreground, rgba(255, 255, 255, 0.8));
+	color: var(
+		--widget-footer-text,
+		var(--widget-primary-foreground, rgba(255, 255, 255, 0.8))
+	);
 }

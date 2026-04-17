@@ -73,12 +73,14 @@ export function WidgetSetup() {
 			</div>
 
 			{/* Preview Panel */}
-			<WidgetPreview
-				colors={colors}
-				icons={icons}
-				botName={botName}
-				position={position}
-			/>
+			<div className="lg:sticky lg:top-6 lg:self-start">
+				<WidgetPreview
+					colors={colors}
+					icons={icons}
+					botName={botName}
+					position={position}
+				/>
+			</div>
 		</div>
 	)
 }

@@ -145,6 +145,10 @@ const COLOR_LABELS: { key: keyof WidgetColors; label: string }[] = [
 	{ key: "textPrimary", label: "Text Color" },
 	{ key: "textSecondary", label: "Secondary Text" },
 	{ key: "border", label: "Border Color" },
+	{ key: "headerTitleText", label: "Header Title" },
+	{ key: "userMessageText", label: "User Message Text" },
+	{ key: "sendButtonIcon", label: "Send Button Icon" },
+	{ key: "footerText", label: "Footer Text" },
 ]
 
 export function AppearanceCard({
