@@ -73,7 +73,7 @@ export function WidgetSetup() {
 			</div>
 
 			{/* Preview Panel */}
-			<div className="lg:sticky lg:top-6">
+			<div className="lg:sticky lg:top-6 lg:h-fit">
 				<WidgetPreview
 					colors={colors}
 					icons={icons}
