@@ -11,7 +11,6 @@
 		"build": "tsc && vite build --mode production",
 		"build:watch": "vite build --watch --mode production",
 		"preview": "vite preview --port 5174 --strictPort",
-		"deploy": "bash scripts/deploy.sh",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
