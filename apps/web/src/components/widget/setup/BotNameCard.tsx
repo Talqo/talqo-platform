@@ -184,7 +184,7 @@ export function BotNameCard({
 			</CardHeader>
 			<CardContent className="space-y-6">
 				{/* Bot Name */}
-				<div className="space-y-2">
+				<div className="space-y-3">
 					<Label htmlFor="bot-name" className="font-medium">
 						Bot Name
 					</Label>
@@ -202,7 +202,7 @@ export function BotNameCard({
 				</div>
 
 				{/* Avatar Upload */}
-				<div className="space-y-2">
+				<div className="space-y-3">
 					<Label className="font-medium">Bot Avatar</Label>
 					{error && (
 						<div className="rounded-md bg-destructive/10 p-3 font-medium text-destructive text-sm">
