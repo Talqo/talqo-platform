@@ -1,3 +1,4 @@
+import DOMPurify from "isomorphic-dompurify"
 import { Bot, Upload, X } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,8 @@ interface BotNameCardProps {
 	onBotAvatarChange: (value: string) => void
 }
 
+const MAX_AVATAR_SIZE_BYTES = 50 * 1024 // 50KB max SVG size
+
 export function BotNameCard({
 	botName,
 	botAvatar,
@@ -19,23 +22,111 @@ export function BotNameCard({
 	onBotAvatarChange,
 }: BotNameCardProps) {
 	const [isDragging, setIsDragging] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const hasCustomAvatar = botAvatar && botAvatar !== "bot"
 
+	const sanitizeSvg = useCallback((svgContent: string): string | null => {
+		// Verify content starts with SVG tag (content-sniffing)
+		const trimmed = svgContent.trim().toLowerCase()
+		if (!trimmed.startsWith("<svg")) {
+			return null
+		}
+
+		// Sanitize with DOMPurify configured for SVG
+		const sanitized = DOMPurify.sanitize(svgContent, {
+			USE_PROFILES: { svg: true },
+			ALLOWED_TAGS: [
+				"svg",
+				"g",
+				"path",
+				"rect",
+				"circle",
+				"ellipse",
+				"line",
+				"polyline",
+				"polygon",
+				"text",
+				"tspan",
+				"defs",
+				"use",
+				"symbol",
+				"linearGradient",
+				"radialGradient",
+				"stop",
+				"title",
+				"desc",
+			],
+			ALLOWED_ATTR: [
+				"viewBox",
+				"xmlns",
+				"fill",
+				"stroke",
+				"stroke-width",
+				"stroke-linecap",
+				"stroke-linejoin",
+				"d",
+				"cx",
+				"cy",
+				"r",
+				"rx",
+				"ry",
+				"x",
+				"y",
+				"x1",
+				"y1",
+				"x2",
+				"y2",
+				"points",
+				"transform",
+				"class",
+				"id",
+				"href",
+				"xlink:href",
+			],
+		})
+
+		// Strip width/height attributes to allow scaling
+		return sanitized
+			.replace(/width="[^"]*"/g, "")
+			.replace(/height="[^"]*"/g, "")
+	}, [])
+
 	const readSvgFile = useCallback(
 		(file: File) => {
+			setError(null)
+
+			// Validate file size
+			if (file.size > MAX_AVATAR_SIZE_BYTES) {
+				setError(
+					`File too large. Maximum size is ${MAX_AVATAR_SIZE_BYTES / 1024}KB.`,
+				)
+				return
+			}
+
 			const reader = new FileReader()
+
 			reader.onload = (event) => {
 				const svgContent = event.target?.result as string
-				// Strip width/height attributes to allow scaling
-				const cleanedSvg = svgContent
-					.replace(/width="[^"]*"/g, "")
-					.replace(/height="[^"]*"/g, "")
-				onBotAvatarChange(cleanedSvg)
+				const sanitized = sanitizeSvg(svgContent)
+
+				if (!sanitized) {
+					setError(
+						"Invalid SVG file. File must start with <svg tag and contain valid SVG content.",
+					)
+					return
+				}
+
+				onBotAvatarChange(sanitized)
 			}
+
+			reader.onerror = () => {
+				setError("Failed to read file. Please try again.")
+			}
+
 			reader.readAsText(file)
 		},
-		[onBotAvatarChange],
+		[onBotAvatarChange, sanitizeSvg],
 	)
 
 	const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -72,6 +163,7 @@ export function BotNameCard({
 	)
 
 	const handleClearAvatar = () => {
+		setError(null)
 		onBotAvatarChange("bot")
 		if (fileInputRef.current) {
 			fileInputRef.current.value = ""
@@ -112,6 +204,11 @@ export function BotNameCard({
 				{/* Avatar Upload */}
 				<div className="space-y-2">
 					<Label className="font-medium">Bot Avatar</Label>
+					{error && (
+						<div className="rounded-md bg-destructive/10 p-3 font-medium text-destructive text-sm">
+							{error}
+						</div>
+					)}
 
 					{hasCustomAvatar ? (
 						<div className="flex items-center gap-4 rounded-lg border bg-muted/50 p-4">
