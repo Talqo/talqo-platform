@@ -18,5 +18,37 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Widget embed for development testing -->
+    <script type="module">
+      (() => {
+        // Only load widget in development - check BOTH hostname AND port
+        if (window.location.hostname === 'localhost' && window.location.port === '5173') {
+          // Use a test client ID for development
+          window.__AI_WIDGET_CONFIG__ = {
+            clientId: 'dev-test-client-id',
+            apiUrl: 'http://localhost:3000',
+            position: 'right',
+            colors: {
+              primary: 'hsl(142 76% 36%)',
+              bgPrimary: '#ffffff',
+              bgSecondary: 'hsl(240 5% 96%)',
+              textPrimary: 'hsl(240 6% 10%)',
+              textSecondary: 'hsl(240 4% 46%)',
+              border: 'hsl(240 6% 90%)'
+            }
+          };
+
+          // Load widget bundle from dev server - Vite preview serves from root
+          const scriptSrc = 'http://localhost:5174/widget-bundle.js';
+
+          const script = document.createElement('script');
+          script.src = scriptSrc;
+          script.async = true;
+          script.defer = true;
+          script.crossOrigin = 'anonymous';
+          document.body.appendChild(script);
+        }
+      })();
+    </script>
   </body>
 </html>

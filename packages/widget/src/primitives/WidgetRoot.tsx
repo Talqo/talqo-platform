@@ -42,3 +42,5 @@ export function WidgetRoot(props: WidgetRootProps) {
 		</WidgetContext.Provider>
 	)
 }
+
+export type { WidgetRootProps }

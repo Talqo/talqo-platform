@@ -12,6 +12,7 @@ erDiagram
         string status
         datetime last_active
         datetime created_at
+        boolean widget_setup_dismissed
     }
 
     BOT_CONFIG {
