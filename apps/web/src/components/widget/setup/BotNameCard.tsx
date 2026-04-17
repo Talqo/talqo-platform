@@ -34,10 +34,10 @@ export function BotNameCard({
 			return null
 		}
 
-		// Sanitize with DOMPurify configured for SVG
+		// Sanitize with DOMPurify configured for SVG using ADD_TAGS/ADD_ATTR
+		// Do not use USE_PROFILES as it overrides our allowlists
 		const sanitized = DOMPurify.sanitize(svgContent, {
-			USE_PROFILES: { svg: true },
-			ALLOWED_TAGS: [
+			ADD_TAGS: [
 				"svg",
 				"g",
 				"path",
@@ -58,7 +58,7 @@ export function BotNameCard({
 				"title",
 				"desc",
 			],
-			ALLOWED_ATTR: [
+			ADD_ATTR: [
 				"viewBox",
 				"xmlns",
 				"fill",
@@ -108,7 +108,13 @@ export function BotNameCard({
 			const reader = new FileReader()
 
 			reader.onload = (event) => {
-				const svgContent = event.target?.result as string
+				const result = event.target?.result
+				// Validate result is a string before sanitizing
+				if (typeof result !== "string") {
+					setError("Invalid file content. Expected text format.")
+					return
+				}
+				const svgContent = result
 				const sanitized = sanitizeSvg(svgContent)
 
 				if (!sanitized) {

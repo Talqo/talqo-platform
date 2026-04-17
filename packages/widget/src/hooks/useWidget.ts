@@ -56,6 +56,32 @@ export interface UseWidgetReturn {
 	clearMessages: () => void
 }
 
+// Namespaced localStorage key to avoid collisions with host pages
+const THEME_STORAGE_KEY = "pagepal:widget:theme"
+
+/**
+ * Safely get an item from localStorage with try/catch
+ */
+function safeGetItem(key: string): string | null {
+	try {
+		return localStorage.getItem(key)
+	} catch {
+		// localStorage may be unavailable in restricted environments
+		return null
+	}
+}
+
+/**
+ * Safely set an item in localStorage with try/catch
+ */
+function safeSetItem(key: string, value: string): void {
+	try {
+		localStorage.setItem(key, value)
+	} catch {
+		// localStorage may be unavailable in restricted environments
+	}
+}
+
 /**
  * Headless hook for managing widget state
  * Extracts all logic from the UI so consumers can build their own interface
@@ -86,7 +112,12 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 	const isDark = theme === "dark"
 
 	const toggleTheme = useCallback(() => {
-		setTheme((prev) => (prev === "light" ? "dark" : "light"))
+		setTheme((prev) => {
+			const next = prev === "light" ? "dark" : "light"
+			// Persist theme with namespaced key
+			safeSetItem(THEME_STORAGE_KEY, next)
+			return next
+		})
 	}, [])
 
 	const setIsOpen = useCallback(
@@ -176,4 +207,25 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		sendMessage,
 		clearMessages,
 	}
+}
+
+/**
+ * Get the initial theme from localStorage or system preference
+ * Uses namespaced key to avoid collisions with host pages
+ */
+export function getInitialTheme(): "light" | "dark" {
+	if (typeof window === "undefined") return "light"
+
+	// Check localStorage first (using namespaced key)
+	const savedTheme = safeGetItem(THEME_STORAGE_KEY)
+	if (savedTheme === "dark" || savedTheme === "light") {
+		return savedTheme
+	}
+
+	// Fall back to system preference
+	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+		return "dark"
+	}
+
+	return "light"
 }

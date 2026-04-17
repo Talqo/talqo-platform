@@ -198,7 +198,11 @@
 }
 
 .aiw-icon-btn:hover {
-	background-color: rgba(255, 255, 255, 0.2);
+	background-color: color-mix(
+		in srgb,
+		var(--widget-primary-foreground, white) 20%,
+		transparent
+	);
 	color: var(--widget-primary-foreground, white);
 }
 
@@ -214,10 +218,6 @@
 	padding: 1rem;
 	background-color: var(--widget-bg-primary);
 	min-height: 0;
-}
-
-.aiw-root[data-theme="dark"] .aiw-message-list {
-	background-color: var(--widget-bg-primary);
 }
 
 /* Messages */
@@ -304,7 +304,7 @@
 	border-radius: 1rem;
 	padding: 0.75rem 1rem;
 	background-color: var(--widget-bg-secondary);
-	border: 1px solid var(--widget-primary);
+	border: 1px solid var(--widget-border);
 }
 
 .aiw-typing > div > div {
@@ -350,11 +350,6 @@
 	border-top: 1px solid var(--widget-border);
 	padding: 1rem;
 	background-color: var(--widget-bg-primary);
-}
-
-.aiw-root[data-theme="dark"] .aiw-input-area {
-	background-color: var(--widget-bg-primary);
-	border-color: var(--widget-border);
 }
 
 .aiw-input {

@@ -1,5 +1,5 @@
 import { StrictMode } from "react"
-import { createRoot } from "react-dom/client"
+import { createRoot, type Root } from "react-dom/client"
 import { EmbeddedWidget } from "./EmbeddedWidget"
 import type { ResolvedWidgetConfig, WidgetColors, WidgetConfig } from "./types"
 import "./theme/default.css"
@@ -10,6 +10,9 @@ declare global {
 		__AI_WIDGET_CONFIG__?: WidgetConfig
 	}
 }
+
+// Module-level reference to track mounted root
+let mountedRoot: Root | null = null
 
 const DEFAULT_COLORS: WidgetColors = {
 	primary: "hsl(220 14% 46%)", // Neutral gray (neutral-600), must be provided by customer
@@ -189,11 +192,26 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 }
 
 function init(): void {
+	// Prevent double initialization if root already exists
+	if (mountedRoot) {
+		return
+	}
+
 	try {
 		const config = resolveConfig()
 		const container = injectCSSVariables(config)
 
+		// Check if React root already exists on container
+		if ((container as HTMLElement & { __aiWidgetRoot?: Root }).__aiWidgetRoot) {
+			return
+		}
+
 		const root = createRoot(container)
+		// Store reference to prevent double initialization
+		;(container as HTMLElement & { __aiWidgetRoot?: Root }).__aiWidgetRoot =
+			root
+		mountedRoot = root
+
 		root.render(
 			<StrictMode>
 				<EmbeddedWidget config={config} />

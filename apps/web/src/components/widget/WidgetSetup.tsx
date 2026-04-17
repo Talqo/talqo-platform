@@ -73,7 +73,7 @@ export function WidgetSetup() {
 			</div>
 
 			{/* Preview Panel - Fixed position to follow scroll */}
-			<div className="hidden lg:fixed lg:right-8 lg:top-24 lg:block lg:w-[28rem] lg:max-h-[calc(100vh-8rem)] lg:overflow-auto">
+			<div className="hidden lg:fixed lg:top-24 lg:right-8 lg:block lg:max-h-[calc(100vh-8rem)] lg:w-[28rem] lg:overflow-auto">
 				<WidgetPreview
 					colors={colors}
 					icons={icons}

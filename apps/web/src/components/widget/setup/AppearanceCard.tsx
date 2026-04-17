@@ -41,10 +41,12 @@ function ColorRow({
 
 	const handleLightChange = (e: ChangeEvent<HTMLInputElement>) => {
 		onLightChange(e.target.value)
+		setLightInvalid(null)
 	}
 
 	const handleDarkChange = (e: ChangeEvent<HTMLInputElement>) => {
 		onDarkChange(e.target.value)
+		setDarkInvalid(null)
 	}
 
 	// Factory function to create color text change handlers
@@ -114,6 +116,7 @@ function ColorRow({
 					onChange={handleLightTextChange}
 					className="h-8 font-mono text-xs"
 					placeholder="#ffffff"
+					aria-label={`${label} light mode hex value`}
 				/>
 			</div>
 
@@ -132,6 +135,7 @@ function ColorRow({
 					onChange={handleDarkTextChange}
 					className="h-8 font-mono text-xs"
 					placeholder="#000000"
+					aria-label={`${label} dark mode hex value`}
 				/>
 			</div>
 		</div>

@@ -1,3 +1,4 @@
+import { getInitialTheme } from "./hooks/useWidget"
 import {
 	WidgetHeader,
 	WidgetInput,
@@ -24,26 +25,6 @@ import type { ResolvedWidgetConfig } from "./types"
 
 interface EmbeddedWidgetProps {
 	config: ResolvedWidgetConfig
-}
-
-/**
- * Get the initial theme from localStorage or system preference
- */
-function getInitialTheme(): "light" | "dark" {
-	if (typeof window === "undefined") return "light"
-
-	// Check localStorage first
-	const savedTheme = localStorage.getItem("theme")
-	if (savedTheme === "dark" || savedTheme === "light") {
-		return savedTheme
-	}
-
-	// Fall back to system preference
-	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-		return "dark"
-	}
-
-	return "light"
 }
 
 /**
