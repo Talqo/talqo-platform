@@ -63,6 +63,9 @@ export const clients = pgTable("clients", {
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
+	widgetSetupDismissed: boolean("widget_setup_dismissed")
+		.notNull()
+		.default(false),
 })
 
 export const passwordResetTokens = pgTable("password_reset_tokens", {

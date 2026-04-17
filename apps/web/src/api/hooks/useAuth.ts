@@ -382,3 +382,41 @@ export function useUnifiedLogin() {
 		isTryingAdmin,
 	}
 }
+
+// Dismiss widget setup onboarding
+export function useDismissWidgetSetup() {
+	const queryClient = useQueryClient()
+
+	return useMutation<
+		{ success: true; data: { message: string } },
+		ApiError,
+		void
+	>({
+		mutationFn: async () => {
+			const { data, error } = await client.POST(
+				"/client/me/dismiss-widget-setup",
+			)
+			if (error) throw error
+			// Validate response shape - fail fast if data is invalid
+			if (
+				!data ||
+				typeof data !== "object" ||
+				Array.isArray(data) ||
+				Object.keys(data).length === 0
+			) {
+				throw {
+					success: false,
+					error: {
+						code: "INVALID_RESPONSE",
+						message:
+							"Invalid response: expected non-empty dismiss-widget-setup data object",
+					},
+				} satisfies ApiError
+			}
+			return data
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
+		},
+	})
+}
