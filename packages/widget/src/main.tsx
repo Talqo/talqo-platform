@@ -88,27 +88,6 @@ function resolveConfig(): ResolvedWidgetConfig {
 	}
 }
 
-function darkenColor(color: string, percent = 6): string {
-	// Simple hex darkening - assumes hex format or returns as-is
-	if (!color.startsWith("#")) return color
-
-	const hex = color.slice(1)
-	const r = Math.max(
-		0,
-		Number.parseInt(hex.substring(0, 2), 16) - percent * 2.55,
-	)
-	const g = Math.max(
-		0,
-		Number.parseInt(hex.substring(2, 4), 16) - percent * 2.55,
-	)
-	const b = Math.max(
-		0,
-		Number.parseInt(hex.substring(4, 6), 16) - percent * 2.55,
-	)
-
-	return `#${Math.round(r).toString(16).padStart(2, "0")}${Math.round(g).toString(16).padStart(2, "0")}${Math.round(b).toString(16).padStart(2, "0")}`
-}
-
 function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	const root = document.createElement("div")
 	root.id = "ai-widget-root"
@@ -120,10 +99,6 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	root.style.setProperty("--widget-text-primary", config.colors.textPrimary)
 	root.style.setProperty("--widget-text-secondary", config.colors.textSecondary)
 	root.style.setProperty("--widget-border", config.colors.border)
-	root.style.setProperty(
-		"--widget-primary-hover",
-		darkenColor(config.colors.primary),
-	)
 
 	// Dark mode colors - use resolved dark colors from config
 	const darkColors =
