@@ -1,5 +1,7 @@
+import { AlertCircle } from "lucide-react"
 import { useState } from "react"
 import { useCurrentUser } from "@/api/hooks"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { WidgetColors, WidgetColorsConfig, WidgetIcons } from "./setup"
 import {
 	AppearanceCard,
@@ -13,7 +15,7 @@ import {
 const DEFAULT_BOT_NAME = "AI Assistant"
 
 export function WidgetSetup() {
-	const { data: client, isLoading } = useCurrentUser()
+	const { data: client, isLoading, error } = useCurrentUser()
 	const [colors, setColors] = useState<WidgetColorsConfig>(defaultColors)
 	const [icons, setIcons] = useState<WidgetIcons>(defaultIcons)
 	const [botName, setBotName] = useState<string>(DEFAULT_BOT_NAME)
@@ -35,6 +37,16 @@ export function WidgetSetup() {
 		<div className="grid gap-6 lg:grid-cols-2">
 			{/* Configuration Panel */}
 			<div className="space-y-6">
+				{error && (
+					<Alert variant="destructive">
+						<AlertCircle className="h-4 w-4" />
+						<AlertTitle>Error loading client data</AlertTitle>
+						<AlertDescription>
+							{error.message ||
+								"Failed to load client information. Please try again."}
+						</AlertDescription>
+					</Alert>
+				)}
 				<BotNameCard
 					botName={botName}
 					botAvatar={icons.botAvatar}
