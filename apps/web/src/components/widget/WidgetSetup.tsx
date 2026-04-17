@@ -34,7 +34,7 @@ export function WidgetSetup() {
 	}
 
 	return (
-		<div className="grid gap-6 lg:grid-cols-2">
+		<div className="grid items-start gap-6 lg:grid-cols-2">
 			{/* Configuration Panel */}
 			<div className="space-y-6">
 				{error && (
@@ -73,7 +73,7 @@ export function WidgetSetup() {
 			</div>
 
 			{/* Preview Panel */}
-			<div className="lg:sticky lg:top-6 lg:self-start">
+			<div className="lg:sticky lg:top-6">
 				<WidgetPreview
 					colors={colors}
 					icons={icons}
