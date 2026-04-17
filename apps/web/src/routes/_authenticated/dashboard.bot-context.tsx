@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { AlertCircle } from "lucide-react"
 import {
 	useDeleteFile,
 	useFiles,
@@ -7,13 +8,14 @@ import {
 } from "@/api/hooks/useFiles"
 import { FileList } from "@/components/bot-context"
 import { PageContainer } from "@/components/layout"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export const Route = createFileRoute("/_authenticated/dashboard/bot-context")({
 	component: BotContextPage,
 })
 
 function BotContextPage() {
-	const { data: files = [], isLoading } = useFiles()
+	const { data: files = [], isLoading, isError, error } = useFiles()
 	const uploadFile = useUploadFile()
 	const deleteFile = useDeleteFile()
 	const renameFile = useRenameFile()
@@ -69,6 +71,18 @@ function BotContextPage() {
 					assistant.
 				</p>
 			</div>
+
+			{isError && (
+				<Alert variant="destructive">
+					<AlertCircle size={18} />
+					<AlertTitle>Failed to load files</AlertTitle>
+					<AlertDescription>
+						{error instanceof Error
+							? error.message
+							: "An unexpected error occurred. Please try again."}
+					</AlertDescription>
+				</Alert>
+			)}
 
 			<FileList
 				files={isLoading ? [] : files}
