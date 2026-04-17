@@ -171,6 +171,14 @@ export function createFilesRouter(service: FilesService) {
 				throw new ValidationError("Missing or invalid `file` field")
 			}
 
+			if (
+				file.name.includes("/") ||
+				file.name.includes("\\") ||
+				file.name.includes("..")
+			) {
+				throw new ValidationError("Invalid file name")
+			}
+
 			const key = `${dirKey}${file.name}`
 			await service.upload(key, file, { contentType: file.type || undefined })
 
