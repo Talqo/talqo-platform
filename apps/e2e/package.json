@@ -2,6 +2,7 @@
 	"name": "e2e",
 	"private": true,
 	"scripts": {
+		"pretest": "playwright install chromium",
 		"test": "playwright test",
 		"test:ui": "playwright test --ui",
 		"test:headed": "playwright test --headed",
