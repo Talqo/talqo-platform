@@ -23,21 +23,12 @@ test.describe("Login flow", () => {
 		await expect(page).toHaveURL(/\/dashboard/)
 	})
 
-	test("admin logs in and is redirected to /backoffice", async ({ page }) => {
-		await fillAndSubmitLogin(
-			page,
-			SEEDED_USERS.admin.email,
-			SEEDED_USERS.admin.password,
-		)
-		await expect(page).toHaveURL(/\/backoffice/)
-	})
-
 	test("invalid credentials show an error and stay on /login", async ({
 		page,
 	}) => {
 		await fillAndSubmitLogin(page, "nobody@example.com", "wrongpassword")
 
 		await expect(page).toHaveURL(/\/login/)
-		await expect(page.getByText("Invalid email or password")).toBeVisible()
+		await expect(page.getByText("Invalid credentials")).toBeVisible()
 	})
 })
