@@ -44,11 +44,9 @@ export function WidgetSetup() {
 
 				<AppearanceCard
 					colors={colors}
-					icons={icons}
 					position={position}
 					onLightColorChange={updateLightColor}
 					onDarkColorChange={updateDarkColor}
-					onIconChange={updateIcon}
 					onPositionChange={setPosition}
 				/>
 

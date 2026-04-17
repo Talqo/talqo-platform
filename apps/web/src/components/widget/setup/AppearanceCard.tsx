@@ -230,7 +230,7 @@ export function AppearanceCard({
 				</fieldset>
 
 				<div className="space-y-4">
-					<div className="grid grid-cols-[120px_1fr_1fr] gap-4 pb-2 border-b">
+					<div className="grid grid-cols-[120px_1fr_1fr] gap-4 border-b pb-2">
 						<span className="text-sm font-medium">Color</span>
 						<div className="flex items-center gap-2 text-sm font-medium">
 							<div className="h-4 w-4 rounded-full border border-gray-200 bg-white" />
