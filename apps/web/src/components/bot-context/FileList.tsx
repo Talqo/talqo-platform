@@ -14,7 +14,7 @@ interface FileListProps {
 	onRename: (
 		name: string,
 		newName: string,
-	) => Promise<{ success: boolean; error?: "duplicate" }>
+	) => Promise<{ success: boolean; error?: "duplicate" | "server" }>
 	onDelete: (name: string) => void
 	onFilesUploaded: (files: File[]) => Promise<void>
 }
@@ -112,6 +112,8 @@ export function FileList({
 			setRenameError(null)
 		} else if (result.error === "duplicate") {
 			setRenameError("A file with this name already exists")
+		} else {
+			setRenameError("Rename failed. Please try again.")
 		}
 	}, [editing, onRename])
 

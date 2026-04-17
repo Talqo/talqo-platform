@@ -31,7 +31,7 @@ function BotContextPage() {
 	const handleRename = async (
 		name: string,
 		newName: string,
-	): Promise<{ success: boolean; error?: "duplicate" }> => {
+	): Promise<{ success: boolean; error?: "duplicate" | "server" }> => {
 		const trimmedName = newName.trim()
 		if (!trimmedName) return { success: false }
 
@@ -56,7 +56,7 @@ function BotContextPage() {
 			await renameFile.mutateAsync({ from: name, to: newNameWithExt })
 			return { success: true }
 		} catch {
-			return { success: false }
+			return { success: false, error: "server" }
 		}
 	}
 
