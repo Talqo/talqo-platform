@@ -69,14 +69,18 @@ function resolveConfig(): ResolvedWidgetConfig {
 		)
 	}
 
+	const apiUrl = userConfig.apiUrl || import.meta.env.VITE_API_URL
+	if (!apiUrl) {
+		throw new Error(
+			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.apiUrl or VITE_API_URL environment variable",
+		)
+	}
+
 	const lightColors = resolveColors(userConfig.colors)
 
 	return {
 		clientId: userConfig.clientId,
-		apiUrl:
-			userConfig.apiUrl ||
-			import.meta.env.VITE_API_URL ||
-			"https://dev.pagepal.dyn.cloud.e-infra.cz/",
+		apiUrl,
 		colors: lightColors,
 		darkColors: resolveDarkColors(lightColors, userConfig.darkColors),
 		position: userConfig.position ?? "right",
