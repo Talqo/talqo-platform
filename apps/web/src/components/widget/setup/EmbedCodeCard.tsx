@@ -2,12 +2,14 @@ import { Check, Code, Copy } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { WidgetColorsConfig } from "./types"
+import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
 interface EmbedCodeCardProps {
 	clientId: string | undefined
 	position: "left" | "right"
 	colors: WidgetColorsConfig
+	icons: WidgetIcons
+	botName: string
 	isLoading: boolean
 }
 
@@ -15,6 +17,8 @@ export function EmbedCodeCard({
 	clientId,
 	position,
 	colors,
+	icons,
+	botName,
 	isLoading,
 }: EmbedCodeCardProps) {
 	const [copied, setCopied] = useState(false)
@@ -31,8 +35,10 @@ export function EmbedCodeCard({
 	const configObject = {
 		clientId: actualClientId,
 		position,
+		botName,
 		colors: colors.light,
 		darkColors: colors.dark,
+		icons,
 	}
 
 	// Escape script-sensitive sequences to prevent XSS

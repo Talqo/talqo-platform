@@ -1,16 +1,24 @@
-import { Moon, Sun } from "lucide-react"
+import { Bot, Moon, Sun } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import type { WidgetColorsConfig } from "./types"
+import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
 interface WidgetPreviewProps {
 	colors: WidgetColorsConfig
+	icons: WidgetIcons
+	botName: string
 	position: "left" | "right"
 }
 
-export function WidgetPreview({ colors, position }: WidgetPreviewProps) {
+export function WidgetPreview({
+	colors,
+	icons,
+	botName,
+	position,
+}: WidgetPreviewProps) {
+	const hasCustomAvatar = icons.botAvatar && icons.botAvatar !== "bot"
 	const [isDark, setIsDark] = useState(false)
 	const themeColors = isDark ? colors.dark : colors.light
 
@@ -85,11 +93,20 @@ export function WidgetPreview({ colors, position }: WidgetPreviewProps) {
 								style={{ backgroundColor: themeColors.primary }}
 							>
 								<div className="flex items-center gap-2">
-									<div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white text-xs">
-										AI
+									<div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white">
+										{hasCustomAvatar ? (
+											<div
+												className="h-4 w-4"
+												dangerouslySetInnerHTML={{
+													__html: icons.botAvatar,
+												}}
+											/>
+										) : (
+											<Bot size={16} />
+										)}
 									</div>
 									<span className="font-semibold text-sm text-white">
-										AI Assistant
+										{botName}
 									</span>
 								</div>
 							</div>
@@ -102,10 +119,19 @@ export function WidgetPreview({ colors, position }: WidgetPreviewProps) {
 								{/* Bot message */}
 								<div className="flex gap-2">
 									<div
-										className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-white text-xs"
+										className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-white"
 										style={{ backgroundColor: themeColors.primary }}
 									>
-										AI
+										{hasCustomAvatar ? (
+											<div
+												className="h-3.5 w-3.5"
+												dangerouslySetInnerHTML={{
+													__html: icons.botAvatar,
+												}}
+											/>
+										) : (
+											<Bot size={14} />
+										)}
 									</div>
 									<div
 										className="max-w-[80%] rounded-2xl rounded-tl-md px-3 py-2 text-sm"
@@ -173,7 +199,14 @@ export function WidgetPreview({ colors, position }: WidgetPreviewProps) {
 							className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg"
 							style={{ backgroundColor: themeColors.primary }}
 						>
-							AI
+							{hasCustomAvatar ? (
+								<div
+									className="h-7 w-7"
+									dangerouslySetInnerHTML={{ __html: icons.botAvatar }}
+								/>
+							) : (
+								<Bot size={28} />
+							)}
 						</div>
 					</div>
 				</div>
