@@ -19,13 +19,16 @@
 		"//#db:start": {
 			"cache": false
 		},
+		"//#minio:start": {
+			"cache": false
+		},
 		"//#db:logs": {
 			"dependsOn": ["//#db:start"],
 			"cache": false,
 			"persistent": true
 		},
 		"dev": {
-			"dependsOn": ["^build", "//#db:start"],
+			"dependsOn": ["^build", "//#db:start", "//#minio:start"],
 			"cache": false,
 			"persistent": true
 		},
