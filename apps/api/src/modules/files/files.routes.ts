@@ -91,7 +91,7 @@ export function createFilesRouter(service: FilesService) {
 						},
 					},
 				},
-				400: {
+				422: {
 					description: "Invalid path",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
@@ -152,7 +152,7 @@ export function createFilesRouter(service: FilesService) {
 						},
 					},
 				},
-				400: {
+				422: {
 					description: "Invalid path or missing file",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
@@ -219,7 +219,7 @@ export function createFilesRouter(service: FilesService) {
 						},
 					},
 				},
-				400: {
+				422: {
 					description: "Invalid path",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
@@ -258,7 +258,7 @@ export function createFilesRouter(service: FilesService) {
 						},
 					},
 				},
-				400: {
+				422: {
 					description: "Invalid path",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
@@ -308,7 +308,7 @@ export function createFilesRouter(service: FilesService) {
 						},
 					},
 				},
-				400: {
+				422: {
 					description: "Invalid path",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
@@ -359,7 +359,7 @@ export function createFilesRouter(service: FilesService) {
 						},
 					},
 				},
-				400: {
+				422: {
 					description: "Invalid path",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
