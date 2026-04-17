@@ -12,13 +12,35 @@ interface WidgetPreviewProps {
 	position: "left" | "right"
 }
 
+interface PreviewAvatarProps {
+	botAvatar: string
+	size: number
+	className?: string
+}
+
+// Extracted avatar component to reduce duplication across header, messages, and trigger
+function PreviewAvatar({ botAvatar, size, className }: PreviewAvatarProps) {
+	const hasCustomAvatar = botAvatar && botAvatar !== "bot"
+
+	if (hasCustomAvatar) {
+		return (
+			<div
+				className={className}
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
+				dangerouslySetInnerHTML={{ __html: botAvatar }}
+			/>
+		)
+	}
+
+	return <Bot size={size} />
+}
+
 export function WidgetPreview({
 	colors,
 	icons,
 	botName,
 	position,
 }: WidgetPreviewProps) {
-	const hasCustomAvatar = icons.botAvatar && icons.botAvatar !== "bot"
 	const [isDark, setIsDark] = useState(false)
 	const themeColors = isDark ? colors.dark : colors.light
 
@@ -94,17 +116,11 @@ export function WidgetPreview({
 							>
 								<div className="flex items-center gap-2">
 									<div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white">
-										{hasCustomAvatar ? (
-											<div
-												className="h-4 w-4"
-												// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
-												dangerouslySetInnerHTML={{
-													__html: icons.botAvatar,
-												}}
-											/>
-										) : (
-											<Bot size={16} />
-										)}
+										<PreviewAvatar
+											botAvatar={icons.botAvatar}
+											size={16}
+											className="h-4 w-4"
+										/>
 									</div>
 									<span className="font-semibold text-sm text-white">
 										{botName}
@@ -123,17 +139,11 @@ export function WidgetPreview({
 										className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-white"
 										style={{ backgroundColor: themeColors.primary }}
 									>
-										{hasCustomAvatar ? (
-											<div
-												className="h-3.5 w-3.5"
-												// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
-												dangerouslySetInnerHTML={{
-													__html: icons.botAvatar,
-												}}
-											/>
-										) : (
-											<Bot size={14} />
-										)}
+										<PreviewAvatar
+											botAvatar={icons.botAvatar}
+											size={14}
+											className="h-3.5 w-3.5"
+										/>
 									</div>
 									<div
 										className="max-w-[80%] rounded-2xl rounded-tl-md px-3 py-2 text-sm"
@@ -201,15 +211,11 @@ export function WidgetPreview({
 							className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg"
 							style={{ backgroundColor: themeColors.primary }}
 						>
-							{hasCustomAvatar ? (
-								<div
-									className="h-7 w-7"
-									// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
-									dangerouslySetInnerHTML={{ __html: icons.botAvatar }}
-								/>
-							) : (
-								<Bot size={28} />
-							)}
+							<PreviewAvatar
+								botAvatar={icons.botAvatar}
+								size={28}
+								className="h-7 w-7"
+							/>
 						</div>
 					</div>
 				</div>
