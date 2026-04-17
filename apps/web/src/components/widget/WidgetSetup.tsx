@@ -34,9 +34,9 @@ export function WidgetSetup() {
 	}
 
 	return (
-		<div className="grid items-start gap-6 lg:grid-cols-2">
+		<div className="relative">
 			{/* Configuration Panel */}
-			<div className="space-y-6">
+			<div className="space-y-6 lg:mr-[29rem]">
 				{error && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -72,8 +72,8 @@ export function WidgetSetup() {
 				/>
 			</div>
 
-			{/* Preview Panel */}
-			<div className="lg:sticky lg:top-6 lg:h-fit">
+			{/* Preview Panel - Fixed position to follow scroll */}
+			<div className="hidden lg:fixed lg:right-8 lg:top-24 lg:block lg:w-[28rem] lg:max-h-[calc(100vh-8rem)] lg:overflow-auto">
 				<WidgetPreview
 					colors={colors}
 					icons={icons}
