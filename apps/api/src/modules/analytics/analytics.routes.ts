@@ -38,7 +38,7 @@ clientAnalyticsRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const query = c.req.valid("query")
 		const data = await analyticsService.getTokenAnalytics(clientId, query)
-		return c.json({ success: true as const, data }, 200)
+		return c.json({  data }, 200)
 	},
 )
 
@@ -72,7 +72,7 @@ clientAnalyticsRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const query = c.req.valid("query")
 		const data = await analyticsService.getMessageAnalytics(clientId, query)
-		return c.json({ success: true as const, data }, 200)
+		return c.json({  data }, 200)
 	},
 )
 
@@ -107,6 +107,6 @@ adminAnalyticsRoutes.openapi(
 	}),
 	async (c) => {
 		const data = await analyticsService.getPlatformStats()
-		return c.json({ success: true as const, data }, 200)
+		return c.json({  data }, 200)
 	},
 )
