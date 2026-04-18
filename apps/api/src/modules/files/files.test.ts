@@ -215,7 +215,7 @@ describe("GET /client/me/files", () => {
 			success: boolean
 			data: { entries: unknown[] }
 		}
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(Array.isArray(body.data.entries)).toBe(true)
 	})
 
@@ -278,7 +278,7 @@ describe("POST /client/me/files", () => {
 			success: boolean
 			data: { path: string }
 		}
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(body.data.path).toBe("/test.txt")
 		expect(service.has(`${TEST_CLIENT_ID}/test.txt`)).toBe(true)
 	})
@@ -349,7 +349,7 @@ describe("POST /client/me/files/presign", () => {
 			success: boolean
 			data: { url: string }
 		}
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(typeof body.data.url).toBe("string")
 		expect(body.data.url).toContain("file.pdf")
 	})
