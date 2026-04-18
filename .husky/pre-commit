@@ -1,1 +1,2 @@
-bun run check
+#!/bin/sh
+bunx lint-staged

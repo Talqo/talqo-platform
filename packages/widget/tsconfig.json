@@ -1,13 +1,10 @@
 {
+	"extends": "../../tsconfig.json",
 	"compilerOptions": {
+		"rootDir": "./src",
 		"lib": ["ESNext", "DOM"],
 		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "bundler",
 		"jsx": "react-jsx",
-		"strict": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
 		"declaration": true,
 		"declarationDir": "./dist",
 		"emitDeclarationOnly": true,

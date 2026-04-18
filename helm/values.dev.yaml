@@ -1,0 +1,52 @@
+# Dev environment overrides.
+# Usage: helm upgrade --install pagepal ./helm -n pagepal-dev -f ./helm/values.dev.yaml
+
+api:
+  replicaCount: 1
+  image:
+    tag: ""
+    pullPolicy: "Always"
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+web:
+  replicaCount: 1
+  image:
+    tag: ""
+    pullPolicy: "Always"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "dev.pagepal.dyn.cloud.e-infra.cz"
+  tls: true
+  tlsSecretName: "pagepal-dev-tls"
+  clusterIssuer: "letsencrypt-prod"
+
+postgresql:
+  auth:
+    existingSecret: ""
+  primary:
+    persistence:
+      size: "1Gi"
+
+minio:
+  persistence:
+    size: "1Gi"
+  resources:
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+
+migration:
+  enabled: true
+  image:
+    tag: ""

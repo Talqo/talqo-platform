@@ -28,3 +28,7 @@ dist/
 
 # Private files for personal use
 /private/
+
+# Git worktrees
+.worktrees/
+.claude/worktrees/

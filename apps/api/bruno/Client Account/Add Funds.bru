@@ -1,0 +1,21 @@
+meta {
+  name: Add Funds
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/client/me/balance
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "amount": 10.00
+  }
+}

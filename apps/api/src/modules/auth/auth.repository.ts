@@ -1,0 +1,542 @@
+import { eq, sql } from "drizzle-orm"
+import {
+	AuthConflictError,
+	BadRequestError,
+	NotFoundError,
+} from "../../common/errors"
+import type { DB } from "../../db"
+import {
+	clients,
+	passwordResetTokens,
+	pendingRegistrations,
+} from "../../db/schema"
+
+// Matches the CLIENT entity in the ERD
+export type Client = {
+	id: string
+	name: string
+	email: string
+	passwordHash: string
+	balanceUsd: number
+	monthlyUsageLimit: number
+	lastActive: Date | null
+	createdAt: Date
+}
+
+// Not in the ERD — transient storage for unverified registrations.
+// A CLIENT record is only created after email verification, so no verified flag is needed.
+export type PendingRegistration = {
+	token: string
+	name: string
+	email: string
+	passwordHash: string
+	expiresAt: Date
+	consumedAt?: Date | null
+	consumedByClientId?: string | null
+}
+
+// Transient storage for password reset requests.
+// Tokens are single-use and expire after 1 hour.
+// Inferred from Drizzle schema - single source of truth
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
+
+export interface IAuthRepository {
+	findClientByEmail(email: string): Promise<Client | null>
+	findClientById(id: string): Promise<Client | null>
+	// Case-insensitive name lookup; normalizes input internally
+	findClientByName(name: string): Promise<Client | null>
+	// Check if a company name exists in pending registrations (case-insensitive)
+	findPendingByName(name: string): Promise<PendingRegistration | null>
+	// Find pending registration by email (case-insensitive)
+	findPendingByEmail(email: string): Promise<PendingRegistration | null>
+	// Find pending registration by token
+	findPendingByToken(token: string): Promise<PendingRegistration | null>
+	createClient(
+		data: Pick<Client, "name" | "email" | "passwordHash">,
+	): Promise<Client>
+	updateLastActive(clientId: string): Promise<void>
+	// Overwrites any existing pending registration for the same email
+	// Does NOT remove conflicting registrations by name; name conflicts should be
+	// rejected before calling this via findPendingByName() and throwing NAME_TAKEN
+	savePendingRegistration(record: PendingRegistration): Promise<void>
+	// Atomically verifies the token, creates the Client record, and deletes the pending
+	// registration in a single transaction (e.g. SELECT … FOR UPDATE in a DB impl).
+	// The deletion happens only after successful creation, so a failed creation leaves
+	// the token intact and the operation is retry-safe.
+	// Callers must NOT call createClient separately for this flow.
+	// Throws INVALID_TOKEN if no pending registration exists for the token.
+	// Throws TOKEN_EXPIRED if the registration has expired.
+	// Throws EMAIL_TAKEN if a client with this email already exists.
+	consumePendingRegistration(token: string): Promise<Client>
+	// Password reset token methods
+	findPasswordResetToken(token: string): Promise<PasswordResetToken | null>
+	savePasswordResetToken(record: PasswordResetToken): Promise<void>
+	consumePasswordResetToken(token: string): Promise<PasswordResetToken>
+	updateClientPassword(email: string, passwordHash: string): Promise<void>
+	// Atomically consume the token and update the client's password in a single transaction.
+	// Throws INVALID_TOKEN if token doesn't exist, TOKEN_EXPIRED if expired, or TOKEN_ALREADY_USED if consumed.
+	// Throws CLIENT_NOT_FOUND if the client for the token's email doesn't exist.
+	// Returns the clientId and email of the updated client.
+	consumeTokenAndUpdatePassword(
+		token: string,
+		passwordHash: string,
+	): Promise<{ clientId: string; email: string }>
+}
+
+export class InMemoryAuthRepository implements IAuthRepository {
+	private clients = new Map<string, Client>()
+	private pendingRegistrations = new Map<string, PendingRegistration>()
+	private passwordResetTokens = new Map<string, PasswordResetToken>()
+
+	async findClientByEmail(email: string): Promise<Client | null> {
+		for (const client of this.clients.values()) {
+			if (client.email === email) return client
+		}
+		return null
+	}
+
+	async findClientById(id: string): Promise<Client | null> {
+		return this.clients.get(id) ?? null
+	}
+
+	async findClientByName(name: string): Promise<Client | null> {
+		const normalizedName = name.toLowerCase()
+		for (const client of this.clients.values()) {
+			if (client.name.toLowerCase() === normalizedName) return client
+		}
+		return null
+	}
+
+	async findPendingByName(name: string): Promise<PendingRegistration | null> {
+		const normalizedName = name.toLowerCase()
+		for (const pending of this.pendingRegistrations.values()) {
+			if (pending.name.toLowerCase() === normalizedName) return pending
+		}
+		return null
+	}
+
+	async findPendingByEmail(email: string): Promise<PendingRegistration | null> {
+		const canonical = email.toLowerCase()
+		for (const pending of this.pendingRegistrations.values()) {
+			if (pending.email.toLowerCase() === canonical) return pending
+		}
+		return null
+	}
+
+	async findPendingByToken(token: string): Promise<PendingRegistration | null> {
+		return this.pendingRegistrations.get(token) ?? null
+	}
+
+	async createClient(
+		data: Pick<Client, "name" | "email" | "passwordHash">,
+	): Promise<Client> {
+		for (const client of this.clients.values()) {
+			if (client.email === data.email)
+				throw new AuthConflictError("EMAIL_TAKEN", "Email already registered")
+		}
+		const client: Client = {
+			...data,
+			id: crypto.randomUUID(),
+			balanceUsd: 0,
+			monthlyUsageLimit: 0,
+			lastActive: null,
+			createdAt: new Date(),
+		}
+		this.clients.set(client.id, client)
+		return client
+	}
+
+	async updateLastActive(clientId: string): Promise<void> {
+		const client = this.clients.get(clientId)
+		if (client)
+			this.clients.set(clientId, { ...client, lastActive: new Date() })
+	}
+
+	async savePendingRegistration(record: PendingRegistration): Promise<void> {
+		// Remove any existing pending entry for the same email before saving
+		// This supports legitimate re-registration flow
+		for (const [token, pending] of this.pendingRegistrations.entries()) {
+			if (pending.email === record.email) {
+				this.pendingRegistrations.delete(token)
+				break
+			}
+		}
+		this.pendingRegistrations.set(record.token, record)
+	}
+
+	async consumePendingRegistration(token: string): Promise<Client> {
+		const record = this.pendingRegistrations.get(token)
+		if (!record)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+		if (record.expiresAt < new Date())
+			throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+
+		// If already consumed, return the existing client (idempotent)
+		if (record.consumedAt && record.consumedByClientId) {
+			const existingClient = this.clients.get(record.consumedByClientId)
+			if (existingClient) return existingClient
+			// If client somehow missing, continue to recreate
+		}
+
+		// createClient throws EMAIL_TAKEN on duplicate; the token stays intact so
+		// the caller can detect the conflict and retry or surface an error.
+		const client = await this.createClient({
+			name: record.name,
+			email: record.email,
+			passwordHash: record.passwordHash,
+		})
+
+		// Mark as consumed instead of deleting (preserves token for idempotency)
+		record.consumedAt = new Date()
+		record.consumedByClientId = client.id
+		this.pendingRegistrations.set(token, record)
+
+		return client
+	}
+
+	// Password reset token methods
+	async findPasswordResetToken(
+		token: string,
+	): Promise<PasswordResetToken | null> {
+		return this.passwordResetTokens.get(token) ?? null
+	}
+
+	async savePasswordResetToken(record: PasswordResetToken): Promise<void> {
+		this.passwordResetTokens.set(record.token, record)
+	}
+
+	async consumePasswordResetToken(token: string): Promise<PasswordResetToken> {
+		const record = this.passwordResetTokens.get(token)
+		if (!record)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+		if (record.expiresAt < new Date())
+			throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+		if (record.consumedAt)
+			throw new BadRequestError(
+				"TOKEN_ALREADY_USED",
+				"Token has already been used",
+			)
+
+		record.consumedAt = new Date()
+		this.passwordResetTokens.set(token, record)
+		return record
+	}
+
+	async updateClientPassword(
+		email: string,
+		passwordHash: string,
+	): Promise<void> {
+		for (const client of this.clients.values()) {
+			if (client.email === email) {
+				client.passwordHash = passwordHash
+				return
+			}
+		}
+		throw new NotFoundError("Client not found")
+	}
+
+	async consumeTokenAndUpdatePassword(
+		token: string,
+		passwordHash: string,
+	): Promise<{ clientId: string; email: string }> {
+		// In-memory: this is inherently atomic
+		// First, find and validate the token without consuming it
+		const record = this.passwordResetTokens.get(token)
+		if (!record)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+		if (record.expiresAt < new Date())
+			throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+		if (record.consumedAt)
+			throw new BadRequestError(
+				"TOKEN_ALREADY_USED",
+				"Token has already been used",
+			)
+
+		// Find the client first to ensure they exist
+		const client = Array.from(this.clients.values()).find(
+			(c) => c.email === record.email,
+		)
+		if (!client)
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+
+		// Update password
+		await this.updateClientPassword(record.email, passwordHash)
+
+		// Only consume the token after successful password update
+		record.consumedAt = new Date()
+		this.passwordResetTokens.set(token, record)
+
+		return { clientId: client.id, email: record.email }
+	}
+}
+
+function mapClient(row: typeof clients.$inferSelect): Client {
+	return {
+		id: row.id,
+		name: row.name,
+		email: row.email,
+		passwordHash: row.passwordHash,
+		balanceUsd: Number(row.balanceUsd),
+		monthlyUsageLimit: Number(row.monthlyUsageLimit ?? 0),
+		lastActive: row.lastActive,
+		createdAt: row.createdAt,
+	}
+}
+
+export class DrizzleAuthRepository implements IAuthRepository {
+	constructor(private readonly db: DB) {}
+
+	async findClientByEmail(email: string): Promise<Client | null> {
+		const rows = await this.db
+			.select()
+			.from(clients)
+			.where(eq(clients.email, email))
+		return rows[0] ? mapClient(rows[0]) : null
+	}
+
+	async findClientById(id: string): Promise<Client | null> {
+		const rows = await this.db.select().from(clients).where(eq(clients.id, id))
+		return rows[0] ? mapClient(rows[0]) : null
+	}
+
+	async findClientByName(name: string): Promise<Client | null> {
+		// Self-normalizing: lowercase input for case-insensitive comparison
+		const normalizedName = name.toLowerCase()
+		const rows = await this.db
+			.select()
+			.from(clients)
+			.where(sql`LOWER(${clients.name}) = ${normalizedName}`)
+		return rows[0] ? mapClient(rows[0]) : null
+	}
+
+	async findPendingByName(name: string): Promise<PendingRegistration | null> {
+		const normalizedName = name.toLowerCase()
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(sql`LOWER(${pendingRegistrations.name}) = ${normalizedName}`)
+		return rows[0] ?? null
+	}
+
+	async findPendingByEmail(email: string): Promise<PendingRegistration | null> {
+		const canonical = email.toLowerCase()
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(sql`LOWER(${pendingRegistrations.email}) = ${canonical}`)
+		return rows[0] ?? null
+	}
+
+	async findPendingByToken(token: string): Promise<PendingRegistration | null> {
+		const rows = await this.db
+			.select()
+			.from(pendingRegistrations)
+			.where(eq(pendingRegistrations.token, token))
+		return rows[0] ?? null
+	}
+
+	async createClient(
+		data: Pick<Client, "name" | "email" | "passwordHash">,
+	): Promise<Client> {
+		try {
+			const rows = await this.db.insert(clients).values(data).returning()
+			// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
+			return mapClient(rows[0]!)
+		} catch (err) {
+			// postgres unique_violation code
+			if (isUniqueViolation(err))
+				throw new AuthConflictError("EMAIL_TAKEN", "Email already registered")
+			throw err
+		}
+	}
+
+	async updateLastActive(clientId: string): Promise<void> {
+		await this.db
+			.update(clients)
+			.set({ lastActive: new Date() })
+			.where(eq(clients.id, clientId))
+	}
+
+	async savePendingRegistration(record: PendingRegistration): Promise<void> {
+		// Insert or update pending registration
+		// onConflictDoUpdate handles same-email re-registration via email unique constraint
+		await this.db
+			.insert(pendingRegistrations)
+			.values(record)
+			.onConflictDoUpdate({
+				target: pendingRegistrations.email,
+				set: {
+					token: record.token,
+					name: record.name,
+					passwordHash: record.passwordHash,
+					expiresAt: record.expiresAt,
+				},
+			})
+	}
+
+	async consumePendingRegistration(token: string): Promise<Client> {
+		return this.db.transaction(async (tx) => {
+			const [pending] = await tx
+				.select()
+				.from(pendingRegistrations)
+				.where(eq(pendingRegistrations.token, token))
+
+			if (!pending)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+			if (pending.expiresAt < new Date())
+				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+
+			// If already consumed, return the existing client (idempotent)
+			if (pending.consumedAt && pending.consumedByClientId) {
+				const existingClient = await this.findClientById(
+					pending.consumedByClientId,
+				)
+				if (existingClient) return existingClient
+				// If client somehow missing, continue to create new one
+			}
+
+			let client: Client
+			try {
+				const rows = await tx
+					.insert(clients)
+					.values({
+						name: pending.name,
+						email: pending.email,
+						passwordHash: pending.passwordHash,
+					})
+					.returning()
+				// biome-ignore lint/style/noNonNullAssertion: insert always returns one row
+				client = mapClient(rows[0]!)
+			} catch (err) {
+				if (isUniqueViolation(err))
+					throw new AuthConflictError("EMAIL_TAKEN", "Email already registered")
+				throw err
+			}
+
+			// Mark as consumed instead of deleting (preserves token for idempotency)
+			await tx
+				.update(pendingRegistrations)
+				.set({
+					consumedAt: new Date(),
+					consumedByClientId: client.id,
+				})
+				.where(eq(pendingRegistrations.token, token))
+
+			return client
+		})
+	}
+
+	// Password reset token methods
+	async findPasswordResetToken(
+		token: string,
+	): Promise<PasswordResetToken | null> {
+		const rows = await this.db
+			.select()
+			.from(passwordResetTokens)
+			.where(eq(passwordResetTokens.token, token))
+		return rows[0] ?? null
+	}
+
+	async savePasswordResetToken(record: PasswordResetToken): Promise<void> {
+		await this.db.insert(passwordResetTokens).values(record)
+	}
+
+	async consumePasswordResetToken(token: string): Promise<PasswordResetToken> {
+		return this.db.transaction(async (tx) => {
+			const [record] = await tx
+				.select()
+				.from(passwordResetTokens)
+				.where(eq(passwordResetTokens.token, token))
+				.for("update")
+
+			if (!record)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+			if (record.expiresAt < new Date())
+				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+			if (record.consumedAt)
+				throw new BadRequestError(
+					"TOKEN_ALREADY_USED",
+					"Token has already been used",
+				)
+
+			const consumedAt = new Date()
+			await tx
+				.update(passwordResetTokens)
+				.set({ consumedAt })
+				.where(eq(passwordResetTokens.token, token))
+
+			// Return record with consumedAt set (consistent with InMemoryAuthRepository)
+			return { ...record, consumedAt }
+		})
+	}
+
+	async updateClientPassword(
+		email: string,
+		passwordHash: string,
+	): Promise<void> {
+		const rows = await this.db
+			.update(clients)
+			.set({ passwordHash })
+			.where(eq(clients.email, email))
+			.returning({ id: clients.id })
+		if (rows.length === 0) {
+			throw new NotFoundError("Client not found")
+		}
+	}
+
+	async consumeTokenAndUpdatePassword(
+		token: string,
+		passwordHash: string,
+	): Promise<{ clientId: string; email: string }> {
+		return this.db.transaction(async (tx) => {
+			// First, find and validate the token with FOR UPDATE lock (without consuming yet)
+			const [record] = await tx
+				.select({
+					email: passwordResetTokens.email,
+					expiresAt: passwordResetTokens.expiresAt,
+					consumedAt: passwordResetTokens.consumedAt,
+				})
+				.from(passwordResetTokens)
+				.where(eq(passwordResetTokens.token, token))
+				.for("update")
+
+			if (!record)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+			if (record.expiresAt < new Date())
+				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
+			if (record.consumedAt)
+				throw new BadRequestError(
+					"TOKEN_ALREADY_USED",
+					"Token has already been used",
+				)
+
+			// Update client password and get client info first
+			const [updated] = await tx
+				.update(clients)
+				.set({ passwordHash })
+				.where(eq(clients.email, record.email))
+				.returning({ id: clients.id })
+
+			// If no client found, treat as invalid token
+			if (!updated)
+				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
+
+			// Only consume the token after successful password update
+			await tx
+				.update(passwordResetTokens)
+				.set({ consumedAt: new Date() })
+				.where(eq(passwordResetTokens.token, token))
+
+			return { clientId: updated.id, email: record.email }
+		})
+	}
+}
+
+function isUniqueViolation(err: unknown): boolean {
+	return (
+		typeof err === "object" &&
+		err !== null &&
+		"code" in err &&
+		(err as { code: string }).code === "23505"
+	)
+}

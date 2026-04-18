@@ -1,0 +1,21 @@
+meta {
+  name: Update Client Status
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/admin/clients/{{clientId}}/status
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "status": "suspended"
+  }
+}

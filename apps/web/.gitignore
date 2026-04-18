@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Generated files
+*.gen.ts
+routeTree.gen.ts
+src/api/generated/openapi.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

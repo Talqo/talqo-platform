@@ -16,8 +16,19 @@
 			"outputs": ["dist/**"],
 			"env": ["NODE_ENV", "VITE_*"]
 		},
+		"//#db:start": {
+			"cache": false
+		},
+		"//#minio:start": {
+			"cache": false
+		},
+		"//#db:logs": {
+			"dependsOn": ["//#db:start"],
+			"cache": false,
+			"persistent": true
+		},
 		"dev": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "//#db:start", "//#minio:start"],
 			"cache": false,
 			"persistent": true
 		},
@@ -54,6 +65,9 @@
 			],
 			"outputs": ["coverage/**"],
 			"env": ["NODE_ENV", "CI"]
+		},
+		"generate-api": {
+			"cache": false
 		}
 	},
 	"globalDependencies": [

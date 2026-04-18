@@ -1,0 +1,111 @@
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "pagepal.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define "pagepal.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "pagepal.labels" -}}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{ include "pagepal.selectorLabels" . }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "pagepal.selectorLabels" -}}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+API selector labels
+*/}}
+{{- define "pagepal.api.selectorLabels" -}}
+{{ include "pagepal.selectorLabels" . }}
+app.kubernetes.io/name: {{ include "pagepal.name" . }}-api
+app.kubernetes.io/component: api
+{{- end }}
+
+{{/*
+Web selector labels
+*/}}
+{{- define "pagepal.web.selectorLabels" -}}
+{{ include "pagepal.selectorLabels" . }}
+app.kubernetes.io/name: {{ include "pagepal.name" . }}-web
+app.kubernetes.io/component: web
+{{- end }}
+
+{{/*
+DB secret name — use the postgresql subchart's secret.
+*/}}
+{{- define "pagepal.dbSecretName" -}}
+{{- include "pagepal.fullname" . }}-postgresql
+{{- end }}
+
+{{/*
+MinIO secret name — uses existingSecret when provided, otherwise the official MinIO subchart default.
+*/}}
+{{- define "pagepal.minioSecretName" -}}
+{{- if .Values.minio.existingSecret }}
+{{- .Values.minio.existingSecret }}
+{{- else }}
+{{- if not .Values.minio.rootPassword }}
+{{- fail "minio.rootPassword must be set when existingSecret is not provided — pass --set minio.rootPassword=<password>" }}
+{{- end }}
+{{- include "pagepal.fullname" . }}-minio
+{{- end }}
+{{- end }}
+
+{{/*
+JWT secret name — uses existingSecret when provided, otherwise the generated one.
+*/}}
+{{- define "pagepal.jwtSecretName" -}}
+{{- if .Values.jwt.existingSecret }}
+{{- .Values.jwt.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-jwt-secret
+{{- end }}
+{{- end }}
+
+{{/*
+Resend secret name — uses existingSecret when provided, otherwise the generated one.
+*/}}
+{{- define "pagepal.resendSecretName" -}}
+{{- if .Values.resend.existingSecret }}
+{{- .Values.resend.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-resend-secret
+{{- end }}
+{{- end }}
+
+{{/*
+Provider key secret name — uses existingSecret when provided, otherwise the generated one.
+*/}}
+{{- define "pagepal.providerKeySecretName" -}}
+{{- if .Values.providerKey.existingSecret }}
+{{- .Values.providerKey.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-provider-key-secret
+{{- end }}
+{{- end }}
