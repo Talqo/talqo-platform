@@ -9,6 +9,7 @@ GHCR_USER := pagepal-agent
 API_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-web
 VITE_API_URL ?= http://localhost:3000
+E2E_PORT     ?= 4173
 # Rancher project ID — namespaces must be annotated with this to appear in the right project
 RANCHER_PROJECT_ID := c-m-qvndqhf6:p-8rjpv
 
@@ -140,6 +141,23 @@ push: push-api push-web ## Build and push all Docker images
 .PHONY: test
 test: ## Run all tests
 	bun run test
+
+.PHONY: e2e
+e2e: db-up ## Run e2e tests (build, migrate, seed, start services, test, clean up)
+	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db
+	bun --env-file=.env.example packages/db/migrate.ts
+	bun --env-file=.env.example apps/api/src/db/seed.ts
+	@PIDS=""; \
+	bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
+	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
+	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
+		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
+	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
+		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
+	export BASE_URL=http://localhost:$(E2E_PORT); \
+	cd apps/e2e && bun run test; STATUS=$$?; \
+	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
+	exit $$STATUS
 
 .PHONY: lint
 lint: ## Lint all workspaces

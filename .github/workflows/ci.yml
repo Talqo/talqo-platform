@@ -106,7 +106,6 @@ jobs:
           echo "POSTGRES_HOST=postgres" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:4173" >> $GITHUB_ENV
           echo "BASE_URL=http://localhost:4173" >> $GITHUB_ENV
-          echo "PROVIDER_KEY_SECRET=0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20" >> $GITHUB_ENV
 
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
