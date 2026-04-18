@@ -1,7 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { cors } from "hono/cors"
-import type { ApiResponse } from "shared"
 import type { AppVariables } from "./common/jwt"
 import { logger } from "./common/logger"
 import { adminAuditLog } from "./common/middleware/admin-audit-log"
@@ -46,8 +45,7 @@ app.onError(errorHandler)
 app.get("/", (c) => c.text("PagePal API"))
 
 app.get("/health", (c) => {
-	const response: ApiResponse = { message: "OK", success: true }
-	return c.json(response, 200)
+	return c.json({ message: "OK" }, 200)
 })
 
 // ─── Client auth (unprotected) ────────────────────────────────────────────────
