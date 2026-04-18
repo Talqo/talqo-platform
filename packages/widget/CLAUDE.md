@@ -24,7 +24,7 @@ Required fields: `clientId`, `apiUrl`. See `src/types.ts` for the full `WidgetCo
 - Colors are injected as CSS custom properties on `#ai-widget-root` at init time (see `injectCSSVariables` in `src/main.tsx`).
 - Variable naming: `--widget-*` for light, `--widget-dark-*` for dark. Dark colors are auto-generated from light if not provided.
 - All class names use the `aiw-` prefix (e.g. `aiw-root`, `aiw-panel`, `aiw-trigger`) — never Tailwind in this package.
-- Host page z-index can be overridden via `--aiw-z-index` CSS variable (default: 999999).
+- Host page z-index can be overridden via `--aiw-z-index` CSS variable (default: 999999) — uses the `aiw-` prefix, not `--widget-*`, because it is a static CSS override hook rather than a JS-injected color variable.
 - Theme is persisted to `localStorage` under the namespaced key `pagepal:widget:theme`.
 
 ## Dev modes

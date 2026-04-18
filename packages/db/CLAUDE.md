@@ -32,7 +32,7 @@ migrate.ts       # Standalone migration runner (bun --env-file=../../.env migrat
 
 ## Migration workflow
 
-```
+```bash
 bun run db:generate   # drizzle-kit generate — creates SQL in drizzle/
 bun run db:migrate    # runs migrate.ts against DB from ../../.env
 bun run db:push       # schema push without migration files (dev only)

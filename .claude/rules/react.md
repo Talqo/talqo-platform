@@ -129,7 +129,7 @@ const useUserData = (userId: string) => {
 - ✅ **Always:** Keep styles maintainable and centralized (no large inline style objects)
 - ✅ **Always:** Error Boundaries for error handling
 - ✅ **Always:** All dependencies in `useEffect` arrays
-- ⚠️ **Ask:** Before writing tests (use RTL + Vitest or Jest depending on project setup)
+- ⚠️ **Ask:** Before introducing a new test framework or tool (use RTL + Vitest or Jest per existing project setup)
 - ⚠️ **Ask:** Before adding new dependencies
 - ⚠️ **Ask:** Before introducing external state-management or data-fetching libraries
 - 🚫 **Never:** Class components

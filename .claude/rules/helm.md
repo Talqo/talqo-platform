@@ -115,7 +115,7 @@ securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop:
-  - ALL
+      - ALL
 ```
 
 **RBAC:** Use least-privilege; avoid `cluster-admin` and `*` verbs.

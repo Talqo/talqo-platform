@@ -41,6 +41,7 @@ WORKDIR /app
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lockb ./
 RUN bun install --production --frozen-lockfile
 RUN chown -R appuser:appgroup /app
 USER appuser
@@ -116,7 +117,7 @@ volumes:
 - ✅ **Always:** Non-root user in final stage
 - ✅ **Always:** Pin base image versions (e.g., `oven/bun:1-alpine`, `postgres:18-alpine`)
 - ✅ **Always:** Maintain `.dockerignore` (exclude `.git`, `node_modules`, secrets)
-- ✅ **Always:** Exec form for `CMD`/`ENTRYPOINT` (`CMD ["node", "app.js"]`)
+- ✅ **Always:** Exec form for `CMD`/`ENTRYPOINT` (`CMD ["bun", "run", "start"]`)
 - ✅ **Always:** Define `HEALTHCHECK` instruction
 - ⚠️ **Ask:** Before choosing Alpine vs Debian/Ubuntu base
 - ⚠️ **Ask:** Before adding/dropping Linux capabilities
