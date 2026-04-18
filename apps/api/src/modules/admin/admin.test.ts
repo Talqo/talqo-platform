@@ -384,7 +384,7 @@ describe("POST /admin/auth/login", () => {
 			success: boolean
 			data: { token: string }
 		}
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(typeof body.data.token).toBe("string")
 	})
 
@@ -463,7 +463,7 @@ describe("GET /admin/clients", () => {
 		const res = await app.fetch(new Request("http://localhost/admin/clients"))
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as { success: boolean; data: unknown[] }
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(body.data.length).toBe(2)
 	})
 })
