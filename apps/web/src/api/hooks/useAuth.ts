@@ -326,7 +326,8 @@ export function useUnifiedLogin() {
 					options?.onSuccess?.("client")
 				},
 				onError: (clientError) => {
-					if (clientError?.error?.code === "INVALID_CREDENTIALS") {
+					// Try admin login on UNAUTHORIZED (client doesn't exist or wrong password)
+					if (clientError?.error?.code === "UNAUTHORIZED") {
 						// Set ref synchronously, then state for re-render
 						tryingAdminRef.current = true
 						setIsTryingAdmin(true)
