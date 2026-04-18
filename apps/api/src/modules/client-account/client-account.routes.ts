@@ -36,7 +36,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const profile = await clientAccountService.getProfile(clientId)
-		return c.json({ success: true as const, data: profile }, 200)
+		return c.json({  data: profile }, 200)
 	},
 )
 
@@ -77,7 +77,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const body = c.req.valid("json")
 		const result = await clientAccountService.updateProfile(clientId, body)
-		return c.json({ success: true as const, data: result }, 200)
+		return c.json({  data: result }, 200)
 	},
 )
 
@@ -117,7 +117,7 @@ router.openapi(
 		const body = c.req.valid("json")
 		await clientAccountService.changePassword(clientId, body)
 		return c.json(
-			{ success: true as const, data: { message: "Password changed" } },
+			{  data: { message: "Password changed" } },
 			200,
 		)
 	},
@@ -154,7 +154,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { amount } = c.req.valid("json")
 		const result = await clientAccountService.addFunds(clientId, amount)
-		return c.json({ success: true as const, data: result }, 200)
+		return c.json({  data: result }, 200)
 	},
 )
 
@@ -190,7 +190,7 @@ router.openapi(
 		const { limit } = c.req.valid("json")
 		await clientAccountService.setUsageLimit(clientId, limit)
 		return c.json(
-			{ success: true as const, data: { message: "Usage limit updated" } },
+			{  data: { message: "Usage limit updated" } },
 			200,
 		)
 	},
@@ -228,7 +228,7 @@ router.openapi(
 		const { thresholdUsd } = c.req.valid("json")
 		await clientAccountService.setUsageAlert(clientId, thresholdUsd)
 		return c.json(
-			{ success: true as const, data: { message: "Usage alert updated" } },
+			{  data: { message: "Usage alert updated" } },
 			200,
 		)
 	},
@@ -260,7 +260,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		await clientAccountService.dismissWidgetSetup(clientId)
 		return c.json(
-			{ success: true as const, data: { message: "Widget setup dismissed" } },
+			{  data: { message: "Widget setup dismissed" } },
 			200,
 		)
 	},
