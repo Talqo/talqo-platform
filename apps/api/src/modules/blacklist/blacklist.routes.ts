@@ -30,7 +30,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const words = await blacklistService.listWords(clientId)
-		return c.json({ success: true as const, data: words }, 200)
+		return c.json({  data: words }, 200)
 	},
 )
 
@@ -69,7 +69,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { word } = c.req.valid("json")
 		const result = await blacklistService.addWord(clientId, word)
-		return c.json({ success: true as const, data: result }, 201)
+		return c.json({  data: result }, 201)
 	},
 )
 
@@ -103,7 +103,7 @@ router.openapi(
 		const { wordId } = c.req.valid("param")
 		await blacklistService.removeWord(clientId, wordId)
 		return c.json(
-			{ success: true as const, data: { message: "Word removed" } },
+			{  data: { message: "Word removed" } },
 			200,
 		)
 	},
