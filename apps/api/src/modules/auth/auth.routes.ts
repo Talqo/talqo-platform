@@ -70,7 +70,6 @@ export function createAuthRouter(
 					})
 					return c.json(
 						{
-							success: false as const,
 							error: {
 								code: "EMAIL_FAILED",
 								message: "Failed to send verification email",
@@ -83,7 +82,7 @@ export function createAuthRouter(
 			}
 			return c.json(
 				{
-					success: true as const,
+					
 					data: { message: "Verification email sent" },
 				},
 				201,
@@ -126,7 +125,7 @@ export function createAuthRouter(
 			const jwtToken = await service.verifyEmail(token)
 			return c.json(
 				{
-					success: true as const,
+					
 					data: {
 						token: jwtToken,
 						message: "Email verified successfully",
@@ -170,7 +169,7 @@ export function createAuthRouter(
 		async (c) => {
 			const { email, password } = c.req.valid("json")
 			const token = await service.login(email, password)
-			return c.json({ success: true as const, data: { token } }, 200)
+			return c.json({  data: { token } }, 200)
 		},
 	)
 
@@ -219,7 +218,7 @@ export function createAuthRouter(
 			// Always return success to prevent user enumeration
 			return c.json(
 				{
-					success: true as const,
+					
 					data: {
 						message:
 							"If a registration exists, a verification email has been sent",
@@ -273,7 +272,7 @@ export function createAuthRouter(
 			// Always return success to prevent user enumeration
 			return c.json(
 				{
-					success: true as const,
+					
 					data: {
 						message:
 							"If an account exists with this email, a password reset link has been sent",
@@ -316,7 +315,7 @@ export function createAuthRouter(
 			if (!isValid) {
 				return c.json(
 					{
-						success: false as const,
+						
 						error: {
 							code: "INVALID_TOKEN",
 							message: "Invalid or expired token",
@@ -327,7 +326,7 @@ export function createAuthRouter(
 			}
 			return c.json(
 				{
-					success: true as const,
+					
 					data: { valid: true },
 				},
 				200,
@@ -370,7 +369,7 @@ export function createAuthRouter(
 			await service.resetPassword(token, password)
 			return c.json(
 				{
-					success: true as const,
+					
 					data: { message: "Password reset successful" },
 				},
 				200,
