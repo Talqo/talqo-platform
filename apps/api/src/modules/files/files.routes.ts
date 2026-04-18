@@ -118,7 +118,7 @@ export function createFilesRouter(service: FilesService) {
 				})),
 			]
 
-			return c.json({ success: true as const, data: { entries } }, 200)
+			return c.json({  data: { entries } }, 200)
 		},
 	)
 
@@ -184,7 +184,7 @@ export function createFilesRouter(service: FilesService) {
 
 			return c.json(
 				{
-					success: true as const,
+					
 					data: { path: `/${relativePath(clientId, key)}` },
 				},
 				201,
@@ -233,7 +233,7 @@ export function createFilesRouter(service: FilesService) {
 
 			const url = service.presign(key)
 
-			return c.json({ success: true as const, data: { url } }, 200)
+			return c.json({  data: { url } }, 200)
 		},
 	)
 
@@ -275,7 +275,7 @@ export function createFilesRouter(service: FilesService) {
 			await service.delete(key)
 
 			return c.json(
-				{ success: true as const, data: { message: "Deleted" } },
+				{  data: { message: "Deleted" } },
 				200,
 			)
 		},
@@ -326,7 +326,7 @@ export function createFilesRouter(service: FilesService) {
 			await service.upload(key, new Uint8Array(0))
 
 			return c.json(
-				{ success: true as const, data: { message: "Directory created" } },
+				{  data: { message: "Directory created" } },
 				201,
 			)
 		},
@@ -378,7 +378,7 @@ export function createFilesRouter(service: FilesService) {
 
 			await service.move(fromKey, toKey)
 
-			return c.json({ success: true as const, data: { message: "Moved" } }, 200)
+			return c.json({  data: { message: "Moved" } }, 200)
 		},
 	)
 
