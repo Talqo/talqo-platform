@@ -59,7 +59,7 @@ describe("POST /auth/register", () => {
 		)
 		expect(res.status).toBe(201)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(mockSend).toHaveBeenCalledTimes(1)
 		expect((mockSend.mock.calls[0] as unknown as [{ to: string }])[0].to).toBe(
 			validRegistration.email,
@@ -92,7 +92,7 @@ describe("POST /auth/register", () => {
 		)
 		expect(res.status).toBe(409)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(false)
+		expect(body.error).toBeDefined()
 		expect((body.error as { code: string }).code).toBe("EMAIL_TAKEN")
 	})
 
@@ -170,7 +170,7 @@ describe("GET /auth/verify-email", () => {
 			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(((await res.json()) as Record<string, unknown>).data).toBeDefined()
 	})
 
 	it("returns 400 for an unknown token", async () => {
@@ -221,8 +221,8 @@ describe("GET /auth/verify-email", () => {
 		}
 
 		// Both should return valid JWT tokens
-		expect(firstBody.success).toBe(true)
-		expect(secondBody.success).toBe(true)
+		expect(firstBody.data).toBeDefined()
+		expect(secondBody.data).toBeDefined()
 		expect(typeof firstBody.data.token).toBe("string")
 		expect(typeof secondBody.data.token).toBe("string")
 	})
@@ -277,7 +277,7 @@ describe("POST /auth/login", () => {
 			success: boolean
 			data: { token: string }
 		}
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(typeof body.data.token).toBe("string")
 	})
 
@@ -382,7 +382,7 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(((await res.json()) as Record<string, unknown>).data).toBeDefined()
 		expect(mockSend).toHaveBeenCalledTimes(2) // Once for register, once for resend
 	})
 
@@ -412,7 +412,7 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(((await res.json()) as Record<string, unknown>).data).toBeDefined()
 		expect(mockSend).not.toHaveBeenCalled() // No email sent for verified accounts
 	})
 
@@ -426,7 +426,7 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		expect(((await res.json()) as Record<string, unknown>).data).toBeDefined()
 		expect(mockSend).not.toHaveBeenCalled()
 	})
 
@@ -482,7 +482,7 @@ describe("POST /auth/forgot-password", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		// No additional email should be sent for non-existent email
 		expect(mockSend.mock.calls.length).toBe(sendCountBefore)
 	})
@@ -497,7 +497,7 @@ describe("POST /auth/forgot-password", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(mockSend).toHaveBeenCalledTimes(1)
 	})
 
@@ -598,7 +598,7 @@ describe("POST /auth/reset-password", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 
 		// Login with new password should work
 		const loginRes = await app.fetch(
@@ -613,7 +613,7 @@ describe("POST /auth/reset-password", () => {
 		)
 		expect(loginRes.status).toBe(200)
 		const loginBody = (await loginRes.json()) as { success: boolean }
-		expect(loginBody.success).toBe(true)
+		expect(loginBody.data).toBeDefined()
 	})
 
 	it("returns 400 when token is reused", async () => {
@@ -698,7 +698,7 @@ describe("GET /auth/verify-reset-token", () => {
 			success: boolean
 			data: { valid: boolean }
 		}
-		expect(body.success).toBe(true)
+		expect(body.data).toBeDefined()
 		expect(body.data.valid).toBe(true)
 	})
 
