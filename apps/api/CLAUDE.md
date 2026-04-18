@@ -1,62 +1,72 @@
-<overview>
-REST API built with Hono (https://hono.dev/llms.txt) running on Bun. Uses Drizzle ORM for data access and Zod for request/response validation.
-</overview>
+# API
 
-<structure>
-Feature-based organization — group by domain, not by layer.
+REST API built with Hono running on Bun. Uses `@hono/zod-openapi` (not plain Hono) — all routes are defined via `createRoute` + `OpenAPIHono` for auto-generated OpenAPI spec.
 
-Flow: `routes → service → repository → DB`
+## Structure
+
+Feature-based — group by domain, not by layer. Flow: `routes → service → repository → DB`.
 
 ```
 src/
-├── app.ts                              # Creates Hono app, mounts module routes, registers global middleware
-├── server.ts                           # Starts HTTP server (Bun native server interface)
-├── modules/                            # Feature modules grouped by domain
-│   └── <feature>/
-│       ├── <feature>.routes.ts         # Hono route handlers — parse request, validate with Zod, call service, return response
-│       ├── <feature>.service.ts        # Business logic — framework-agnostic, no direct DB or HTTP access
-│       ├── <feature>.repository.ts     # Data access — Drizzle queries, pagination, filtering
-│       ├── <feature>.test.ts           # Tests co-located with the feature
-│       └── index.ts                    # Barrel export (re-exports routes and types)
-└── common/
-    ├── logger.ts                       # Structured console logger (logger.info/warn/error)
-    ├── middleware/                     # Hono middleware (auth, error handling, logging)
-    │   └── request-logger.ts          # Logs every request: METHOD /path STATUS DURATIONms
-    └── config/                         # Environment parsing, app config
+├── app.ts          # Creates OpenAPIHono app, mounts all routes, global middleware
+├── index.ts        # Bun server entry — exports { port, fetch }
+├── common/
+│   ├── config.ts   # Env parsing via Zod — fails fast at startup if invalid
+│   ├── errors.ts   # AppError subclasses (throw, don't return JSON)
+│   ├── jwt.ts      # signToken / verifyToken — jose, HS256
+│   ├── crypto.ts   # AES-256-GCM encrypt/decrypt for provider API keys at rest
+│   ├── logger.ts   # Structured logger — never use console.*
+│   ├── schemas.ts  # successResponseSchema / errorResponseSchema helpers
+│   └── middleware/ # clientAuth, widgetAuth, adminAuth, requestLogger, errorHandler
+├── db/
+│   └── index.ts    # Local Drizzle client (re-exports schema from packages/db)
+└── modules/<feature>/
+    ├── <feature>.routes.ts     # createRoute + OpenAPIHono factory function
+    ├── <feature>.service.ts    # Business logic — no Hono context, no DB access
+    ├── <feature>.repository.ts # Drizzle queries; also exports InMemoryRepository for tests
+    ├── <feature>.test.ts       # Tests co-located with feature
+    └── index.ts                # Wires repo → service → router, exports named route const
 ```
-</structure>
 
-<conventions>
-- **No controller layer** — Hono has no controller pattern. The route handler IS the HTTP layer.
-- Services are framework-agnostic (no Hono context, no direct DB access).
-- Repositories encapsulate all Drizzle queries. Services call repositories, never run queries directly.
+## Key conventions
+
+- **Routes are factory functions** — `createAuthRouter(service)` — wired in `index.ts`, not directly imported.
+- **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts them to `{ success: false, error: { code, message } }`. Never build error JSON manually in routes.
+- **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs a code string).
+- **Response shape** — always use `successResponseSchema` / `errorResponseSchema` from `src/common/schemas.ts` for OpenAPI response definitions.
+- **Services are framework-agnostic** — no `c` (Hono context), no Drizzle imports.
+- **Repositories own all queries** — services never import Drizzle or run SQL.
+
+## Auth layers
+
+| Middleware | Header | Protects |
+|---|---|---|
+| `clientAuth` | `Authorization: Bearer <JWT>` | `/client/*` |
+| `widgetAuth` | `X-Widget-Token: <token>` | `/widget/*` |
+| `adminAuth` | `Authorization: Bearer <JWT>` | `/admin/*` (except `/admin/auth`) |
+
+- JWT payload: `{ sub, role: "client"|"admin", imp?: true }` — `imp` marks admin impersonation tokens.
+- `clientId` / `adminId` are set on Hono context by auth middleware; read via `c.get("clientId")`.
+- Per-request logger with `requestId` is injected globally: `c.get("logger")`.
+
+## Testing
+
 - Tests use `app.fetch()` directly — no real server needed.
-</conventions>
+- Repositories export an `InMemoryRepository` alongside the Drizzle implementation; tests wire the in-memory variant.
+- Mocks must be declared **before** dynamic `await import(...)` due to Bun module caching order.
+- Config auto-provides safe defaults in test env (`NODE_ENV=test` or `BUN_TEST=1`) — no `.env` required.
 
-<logging>
-Use `src/common/logger.ts` — never use `console.*` directly.
+## Logging
 
-```ts
-import { logger } from "../common/logger";
-logger.info("message");
-logger.warn("message", { key: "value" });
-logger.error("message", { key: "value" });
-```
+Use `src/common/logger.ts` (never `console.*`). Output is NDJSON. HTTP requests are logged automatically — don't log them in routes. Rethrow unhandled errors so `errorHandler` logs them.
 
-Levels: `info` = normal ops, `warn` = recoverable failures, `error` = unexpected failures. Output is NDJSON; metadata spreads at top level. `info`/`warn` → stdout, `error` → stderr.
+## OpenAPI / docs
 
-HTTP requests are logged automatically by `requestLogger` middleware — don't log them manually in routes.
+- Spec auto-generated at `GET /openapi.json`; Scalar UI at `GET /docs`.
+- Security schemes registered in `app.ts`: `bearerAuth` (JWT) and `widgetToken` (API key header).
 
-Only log errors you explicitly catch; let everything else propagate to `onError`:
-```ts
-} catch (err) {
-  if (err instanceof KnownError) {
-    logger.warn("Known error", { reason: err.message });
-    return c.json({ ... }, 400);
-  }
-  throw err; // onError logs it
-}
-```
+## AI / agent
 
-Never log passwords, tokens, secrets, or PII.
-</logging>
+- `src/modules/agent/` uses Vercel AI SDK (`ai` package) with `generateText`.
+- Provider API keys are stored AES-256-GCM encrypted (`src/common/crypto.ts`); `PROVIDER_KEY_SECRET` must be a 64-hex-char non-trivial value.
+- MCP server connections are opened per-request and closed in a `finally` block.
