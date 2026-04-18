@@ -6,9 +6,12 @@ import {
 	Moon,
 	ScrollText,
 	Sun,
+	User,
 } from "lucide-react"
+import { useAdminProfile } from "@/api/hooks/useAdmin"
 import { useAdminLogout } from "@/api/hooks/useAuth"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useTheme } from "@/lib/useTheme"
 import { cn } from "@/lib/utils"
 
@@ -20,6 +23,7 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 	const location = useLocation()
 	const logout = useAdminLogout()
 	const { theme, toggleTheme } = useTheme()
+	const { data: adminProfile, isLoading } = useAdminProfile()
 
 	const navItems = [
 		{ icon: Building2, label: "Tenants", href: "/backoffice" },
@@ -97,9 +101,24 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 			</aside>
 
 			{/* Main Content */}
-			<main className="flex-1 overflow-auto bg-background p-8">
-				{children ?? <Outlet />}
-			</main>
+			<div className="flex flex-1 flex-col">
+				{/* Top Header with Admin Info */}
+				<header className="flex h-16 items-center justify-end border-border border-b bg-card px-6">
+					<div className="flex items-center gap-2 text-sm">
+						<User size={16} className="text-muted-foreground" />
+						{isLoading ? (
+							<Skeleton className="h-4 w-32" />
+						) : (
+							<span className="font-medium text-card-foreground">
+								{adminProfile?.email || "Admin"}
+							</span>
+						)}
+					</div>
+				</header>
+				<main className="flex-1 overflow-auto bg-background p-8">
+					{children ?? <Outlet />}
+				</main>
+			</div>
 		</div>
 	)
 }
