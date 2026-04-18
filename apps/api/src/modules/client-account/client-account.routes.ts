@@ -36,7 +36,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const profile = await clientAccountService.getProfile(clientId)
-		return c.json({  data: profile }, 200)
+		return c.json({ data: profile }, 200)
 	},
 )
 
@@ -77,7 +77,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const body = c.req.valid("json")
 		const result = await clientAccountService.updateProfile(clientId, body)
-		return c.json({  data: result }, 200)
+		return c.json({ data: result }, 200)
 	},
 )
 
@@ -116,10 +116,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const body = c.req.valid("json")
 		await clientAccountService.changePassword(clientId, body)
-		return c.json(
-			{  data: { message: "Password changed" } },
-			200,
-		)
+		return c.json({ data: { message: "Password changed" } }, 200)
 	},
 )
 
@@ -154,7 +151,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { amount } = c.req.valid("json")
 		const result = await clientAccountService.addFunds(clientId, amount)
-		return c.json({  data: result }, 200)
+		return c.json({ data: result }, 200)
 	},
 )
 
@@ -189,10 +186,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { limit } = c.req.valid("json")
 		await clientAccountService.setUsageLimit(clientId, limit)
-		return c.json(
-			{  data: { message: "Usage limit updated" } },
-			200,
-		)
+		return c.json({ data: { message: "Usage limit updated" } }, 200)
 	},
 )
 
@@ -227,10 +221,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { thresholdUsd } = c.req.valid("json")
 		await clientAccountService.setUsageAlert(clientId, thresholdUsd)
-		return c.json(
-			{  data: { message: "Usage alert updated" } },
-			200,
-		)
+		return c.json({ data: { message: "Usage alert updated" } }, 200)
 	},
 )
 
@@ -259,10 +250,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		await clientAccountService.dismissWidgetSetup(clientId)
-		return c.json(
-			{  data: { message: "Widget setup dismissed" } },
-			200,
-		)
+		return c.json({ data: { message: "Widget setup dismissed" } }, 200)
 	},
 )
 

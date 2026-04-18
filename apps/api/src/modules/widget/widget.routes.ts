@@ -53,7 +53,7 @@ widgetSessionRoutes.openapi(
 			clientId,
 			browserSessionId,
 		)
-		return c.json({  data: session }, 200)
+		return c.json({ data: session }, 200)
 	},
 )
 
@@ -91,7 +91,7 @@ widgetConversationRoutes.openapi(
 			clientId,
 			sessionId,
 		)
-		return c.json({  data: conversation }, 201)
+		return c.json({ data: conversation }, 201)
 	},
 )
 
@@ -124,10 +124,7 @@ widgetConversationRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { conversationId } = c.req.valid("param")
 		await widgetService.resetConversation(clientId, conversationId)
-		return c.json(
-			{  data: { message: "Conversation reset" } },
-			200,
-		)
+		return c.json({ data: { message: "Conversation reset" } }, 200)
 	},
 )
 
@@ -172,7 +169,7 @@ widgetConversationRoutes.openapi(
 			conversationId,
 			rating,
 		)
-		return c.json({  data: updated }, 200)
+		return c.json({ data: updated }, 200)
 	},
 )
 
@@ -207,7 +204,7 @@ widgetMessageRoutes.openapi(
 		// conversationId is always defined when mounted at /.../conversations/:conversationId/messages
 		const conversationId = c.req.param("conversationId") as string
 		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
-		return c.json({  data: msgs }, 200)
+		return c.json({ data: msgs }, 200)
 	},
 )
 
@@ -256,6 +253,6 @@ widgetMessageRoutes.openapi(
 			conversationId,
 			content,
 		)
-		return c.json({  data: result }, 200)
+		return c.json({ data: result }, 200)
 	},
 )

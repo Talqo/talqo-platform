@@ -212,7 +212,6 @@ describe("GET /client/me/files", () => {
 		const res = await app.fetch(new Request("http://localhost/client/me/files"))
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			success: boolean
 			data: { entries: unknown[] }
 		}
 		expect(body.data).toBeDefined()
@@ -275,7 +274,6 @@ describe("POST /client/me/files", () => {
 		)
 		expect(res.status).toBe(201)
 		const body = (await res.json()) as {
-			success: boolean
 			data: { path: string }
 		}
 		expect(body.data).toBeDefined()
@@ -346,7 +344,6 @@ describe("POST /client/me/files/presign", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			success: boolean
 			data: { url: string }
 		}
 		expect(body.data).toBeDefined()

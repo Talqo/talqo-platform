@@ -206,7 +206,6 @@ describe("GET /auth/verify-email", () => {
 		)
 		expect(firstRes.status).toBe(200)
 		const firstBody = (await firstRes.json()) as {
-			success: boolean
 			data: { token: string }
 		}
 
@@ -216,7 +215,6 @@ describe("GET /auth/verify-email", () => {
 		)
 		expect(secondRes.status).toBe(200)
 		const secondBody = (await secondRes.json()) as {
-			success: boolean
 			data: { token: string }
 		}
 
@@ -274,7 +272,6 @@ describe("POST /auth/login", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			success: boolean
 			data: { token: string }
 		}
 		expect(body.data).toBeDefined()
@@ -612,7 +609,7 @@ describe("POST /auth/reset-password", () => {
 			}),
 		)
 		expect(loginRes.status).toBe(200)
-		const loginBody = (await loginRes.json()) as { success: boolean }
+		const loginBody = (await loginRes.json()) as { data: unknown }
 		expect(loginBody.data).toBeDefined()
 	})
 
@@ -695,7 +692,6 @@ describe("GET /auth/verify-reset-token", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			success: boolean
 			data: { valid: boolean }
 		}
 		expect(body.data).toBeDefined()

@@ -118,7 +118,7 @@ export function createFilesRouter(service: FilesService) {
 				})),
 			]
 
-			return c.json({  data: { entries } }, 200)
+			return c.json({ data: { entries } }, 200)
 		},
 	)
 
@@ -184,7 +184,6 @@ export function createFilesRouter(service: FilesService) {
 
 			return c.json(
 				{
-					
 					data: { path: `/${relativePath(clientId, key)}` },
 				},
 				201,
@@ -233,7 +232,7 @@ export function createFilesRouter(service: FilesService) {
 
 			const url = service.presign(key)
 
-			return c.json({  data: { url } }, 200)
+			return c.json({ data: { url } }, 200)
 		},
 	)
 
@@ -274,10 +273,7 @@ export function createFilesRouter(service: FilesService) {
 
 			await service.delete(key)
 
-			return c.json(
-				{  data: { message: "Deleted" } },
-				200,
-			)
+			return c.json({ data: { message: "Deleted" } }, 200)
 		},
 	)
 
@@ -325,10 +321,7 @@ export function createFilesRouter(service: FilesService) {
 			// Zero-byte marker with trailing slash — S3 convention for directories
 			await service.upload(key, new Uint8Array(0))
 
-			return c.json(
-				{  data: { message: "Directory created" } },
-				201,
-			)
+			return c.json({ data: { message: "Directory created" } }, 201)
 		},
 	)
 
@@ -378,7 +371,7 @@ export function createFilesRouter(service: FilesService) {
 
 			await service.move(fromKey, toKey)
 
-			return c.json({  data: { message: "Moved" } }, 200)
+			return c.json({ data: { message: "Moved" } }, 200)
 		},
 	)
 

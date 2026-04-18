@@ -381,7 +381,6 @@ describe("POST /admin/auth/login", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			success: boolean
 			data: { token: string }
 		}
 		expect(body.data).toBeDefined()
@@ -462,7 +461,7 @@ describe("GET /admin/clients", () => {
 		repo.addClient({ name: "Client B", email: "b@example.com" })
 		const res = await app.fetch(new Request("http://localhost/admin/clients"))
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { success: boolean; data: unknown[] }
+		const body = (await res.json()) as { data: unknown[] }
 		expect(body.data).toBeDefined()
 		expect(body.data.length).toBe(2)
 	})
