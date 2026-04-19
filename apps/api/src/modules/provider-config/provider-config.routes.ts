@@ -32,7 +32,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const config = await providerConfigService.getConfig(clientId)
-		return c.json({ data: config }, 200)
+		return c.json(config, 200)
 	},
 )
 
@@ -72,7 +72,7 @@ router.openapi(
 			model: body.model,
 			baseUrl: "baseUrl" in body ? body.baseUrl : undefined,
 		})
-		return c.json({ data: config }, 200)
+		return c.json(config, 200)
 	},
 )
 
@@ -105,7 +105,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		await providerConfigService.deleteConfig(clientId)
-		return c.json({ data: { deleted: true as const } }, 200)
+		return c.json({ deleted: true as const }, 200)
 	},
 )
 

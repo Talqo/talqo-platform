@@ -33,7 +33,7 @@ clientMcpRoutes.openapi(
 	}),
 	async (c) => {
 		const servers = await mcpService.listPreMadeServers()
-		return c.json({ data: servers }, 200)
+		return c.json(servers, 200)
 	},
 )
 
@@ -58,7 +58,7 @@ clientMcpRoutes.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const servers = await mcpService.listEnabledPreMade(clientId)
-		return c.json({ data: servers }, 200)
+		return c.json(servers, 200)
 	},
 )
 
@@ -89,7 +89,7 @@ clientMcpRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { serverId } = c.req.valid("param")
 		await mcpService.enablePreMade(clientId, serverId)
-		return c.json({ data: { message: "Server enabled" } }, 200)
+		return c.json({ message: "Server enabled" }, 200)
 	},
 )
 
@@ -120,7 +120,7 @@ clientMcpRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { serverId } = c.req.valid("param")
 		await mcpService.disablePreMade(clientId, serverId)
-		return c.json({ data: { message: "Server disabled" } }, 200)
+		return c.json({ message: "Server disabled" }, 200)
 	},
 )
 
@@ -145,7 +145,7 @@ clientMcpRoutes.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const servers = await mcpService.listCustomServers(clientId)
-		return c.json({ data: servers }, 200)
+		return c.json(servers, 200)
 	},
 )
 
@@ -180,7 +180,7 @@ clientMcpRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { mcpConfig } = c.req.valid("json")
 		const server = await mcpService.createCustomServer(clientId, mcpConfig)
-		return c.json({ data: server }, 201)
+		return c.json(server, 201)
 	},
 )
 
@@ -225,7 +225,7 @@ clientMcpRoutes.openapi(
 			serverId,
 			mcpConfig,
 		)
-		return c.json({ data: server }, 200)
+		return c.json(server, 200)
 	},
 )
 
@@ -256,7 +256,7 @@ clientMcpRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { serverId } = c.req.valid("param")
 		await mcpService.deleteCustomServer(clientId, serverId)
-		return c.json({ data: { message: "Server deleted" } }, 200)
+		return c.json({ message: "Server deleted" }, 200)
 	},
 )
 
@@ -284,7 +284,7 @@ adminMcpRoutes.openapi(
 	}),
 	async (c) => {
 		const servers = await mcpService.listPreMadeServers()
-		return c.json({ data: servers }, 200)
+		return c.json(servers, 200)
 	},
 )
 
@@ -318,7 +318,7 @@ adminMcpRoutes.openapi(
 	async (c) => {
 		const { mcpConfig } = c.req.valid("json")
 		const server = await mcpService.createPreMadeServer(mcpConfig)
-		return c.json({ data: server }, 201)
+		return c.json(server, 201)
 	},
 )
 
@@ -358,7 +358,7 @@ adminMcpRoutes.openapi(
 		const { serverId } = c.req.valid("param")
 		const { mcpConfig } = c.req.valid("json")
 		const server = await mcpService.updatePreMadeServer(serverId, mcpConfig)
-		return c.json({ data: server }, 200)
+		return c.json(server, 200)
 	},
 )
 
@@ -388,6 +388,6 @@ adminMcpRoutes.openapi(
 	async (c) => {
 		const { serverId } = c.req.valid("param")
 		await mcpService.deletePreMadeServer(serverId)
-		return c.json({ data: { message: "Server deleted" } }, 200)
+		return c.json({ message: "Server deleted" }, 200)
 	},
 )

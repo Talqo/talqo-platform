@@ -55,7 +55,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const body = c.req.valid("json")
 			const result = await service.login(body)
-			return c.json({ data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
@@ -77,7 +77,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			return c.json({ data: { message: "Logged out" } }, 200)
+			return c.json({ message: "Logged out" }, 200)
 		},
 	)
 
@@ -134,9 +134,7 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 				)
 			}
 			return c.json(
-				{
-					data: { id: admin.id, email: admin.email, role: "admin" as const },
-				},
+				{ id: admin.id, email: admin.email, role: "admin" as const },
 				200,
 			)
 		},
@@ -172,7 +170,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { limit, offset } = c.req.valid("query")
 			const clients = await service.listClients(limit, offset)
-			return c.json({ data: clients }, 200)
+			return c.json(clients, 200)
 		},
 	)
 
@@ -210,7 +208,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const client = await service.getClient(clientId)
-			return c.json({ data: client }, 200)
+			return c.json(client, 200)
 		},
 	)
 
@@ -252,7 +250,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			const { clientId } = c.req.valid("param")
 			const { status } = c.req.valid("json")
 			const updated = await service.updateClientStatus(clientId, status)
-			return c.json({ data: updated }, 200)
+			return c.json(updated, 200)
 		},
 	)
 
@@ -284,7 +282,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const result = await service.impersonate(clientId)
-			return c.json({ data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 

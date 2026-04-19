@@ -80,12 +80,7 @@ export function createAuthRouter(
 				}
 				throw err
 			}
-			return c.json(
-				{
-					data: { message: "Verification email sent" },
-				},
-				201,
-			)
+			return c.json({ message: "Verification email sent" }, 201)
 		},
 	)
 
@@ -124,10 +119,8 @@ export function createAuthRouter(
 			const jwtToken = await service.verifyEmail(token)
 			return c.json(
 				{
-					data: {
-						token: jwtToken,
-						message: "Email verified successfully",
-					},
+					token: jwtToken,
+					message: "Email verified successfully",
 				},
 				200,
 			)
@@ -167,7 +160,7 @@ export function createAuthRouter(
 		async (c) => {
 			const { email, password } = c.req.valid("json")
 			const token = await service.login(email, password)
-			return c.json({ data: { token } }, 200)
+			return c.json({ token }, 200)
 		},
 	)
 
@@ -216,10 +209,8 @@ export function createAuthRouter(
 			// Always return success to prevent user enumeration
 			return c.json(
 				{
-					data: {
-						message:
-							"If a registration exists, a verification email has been sent",
-					},
+					message:
+						"If a registration exists, a verification email has been sent",
 				},
 				200,
 			)
@@ -269,10 +260,8 @@ export function createAuthRouter(
 			// Always return success to prevent user enumeration
 			return c.json(
 				{
-					data: {
-						message:
-							"If an account exists with this email, a password reset link has been sent",
-					},
+					message:
+						"If an account exists with this email, a password reset link has been sent",
 				},
 				200,
 			)
@@ -294,7 +283,7 @@ export function createAuthRouter(
 					content: {
 						"application/json": {
 							schema: successResponseSchema(
-								z.object({ valid: z.boolean(), email: z.string().optional() }),
+								z.object({ valid: z.literal(true) }),
 							),
 						},
 					},
@@ -319,12 +308,7 @@ export function createAuthRouter(
 					400,
 				)
 			}
-			return c.json(
-				{
-					data: { valid: true },
-				},
-				200,
-			)
+			return c.json({ valid: true }, 200)
 		},
 	)
 
@@ -361,12 +345,7 @@ export function createAuthRouter(
 		async (c) => {
 			const { token, password } = c.req.valid("json")
 			await service.resetPassword(token, password)
-			return c.json(
-				{
-					data: { message: "Password reset successful" },
-				},
-				200,
-			)
+			return c.json({ message: "Password reset successful" }, 200)
 		},
 	)
 

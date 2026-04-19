@@ -380,11 +380,10 @@ describe("POST /admin/auth/login", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			data: { token: string }
-		}
-		expect(body.data).toBeDefined()
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(body.token).toBeDefined()
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 401 for wrong password", async () => {
@@ -430,9 +429,9 @@ describe("POST /admin/auth/login", () => {
 				}),
 			}),
 		)
-		const b1 = (await res1.json()) as { message: string }
-		const b2 = (await res2.json()) as { message: string }
-		expect(b1.message).toBe(b2.message)
+		const b1 = (await res1.json()) as { error: { message: string } }
+		const b2 = (await res2.json()) as { error: { message: string } }
+		expect(b1.error.message).toBe(b2.error.message)
 	})
 
 	it("returns 400 for invalid request body", async () => {
@@ -461,9 +460,10 @@ describe("GET /admin/clients", () => {
 		repo.addClient({ name: "Client B", email: "b@example.com" })
 		const res = await app.fetch(new Request("http://localhost/admin/clients"))
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: unknown[] }
-		expect(body.data).toBeDefined()
-		expect(body.data.length).toBe(2)
+		const body = (await res.json()) as unknown[]
+		expect(Array.isArray(body)).toBe(true)
+		expect(body).toHaveLength(2)
+		expect(body).not.toHaveProperty("success")
 	})
 })
 
@@ -486,8 +486,9 @@ describe("PATCH /admin/clients/:clientId/status", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { status: string } }
-		expect(body.data.status).toBe("suspended")
+		const body = (await res.json()) as { status: string }
+		expect(body.status).toBe("suspended")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 404 when client does not exist", async () => {
@@ -522,8 +523,9 @@ describe("POST /admin/clients/:clientId/impersonate", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { token: string } }
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 404 when client does not exist", async () => {

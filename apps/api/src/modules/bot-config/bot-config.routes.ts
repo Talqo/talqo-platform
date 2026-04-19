@@ -27,7 +27,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const config = await botConfigService.getConfig(clientId)
-		return c.json({ data: config }, 200)
+		return c.json(config, 200)
 	},
 )
 
@@ -58,7 +58,7 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const body = c.req.valid("json")
 		const config = await botConfigService.updateConfig(clientId, body)
-		return c.json({ data: config }, 200)
+		return c.json(config, 200)
 	},
 )
 

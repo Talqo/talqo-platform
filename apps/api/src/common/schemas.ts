@@ -8,7 +8,5 @@ export const errorResponseSchema = z.object({
 })
 
 export function successResponseSchema<T extends z.ZodTypeAny>(dataSchema: T) {
-	return z.object({
-		data: dataSchema,
-	})
+	return dataSchema
 }
