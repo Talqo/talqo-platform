@@ -68,14 +68,10 @@ export function createAuthRouter(
 						error: err.message,
 						email,
 					})
-					return c.json(
-						{
-							error: {
-								code: "EMAIL_FAILED",
-								message: "Failed to send verification email",
-							},
-						},
+					throw new AppError(
 						500,
+						"EMAIL_FAILED",
+						"Failed to send verification email",
 					)
 				}
 				throw err
@@ -298,15 +294,7 @@ export function createAuthRouter(
 			const { token } = c.req.valid("query")
 			const isValid = await service.verifyResetToken(token)
 			if (!isValid) {
-				return c.json(
-					{
-						error: {
-							code: "INVALID_TOKEN",
-							message: "Invalid or expired token",
-						},
-					},
-					400,
-				)
+				throw new AppError(400, "INVALID_TOKEN", "Invalid or expired token")
 			}
 			return c.json({ valid: true }, 200)
 		},

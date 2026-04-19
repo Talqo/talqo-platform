@@ -463,7 +463,6 @@ describe("GET /admin/clients", () => {
 		const body = (await res.json()) as unknown[]
 		expect(Array.isArray(body)).toBe(true)
 		expect(body).toHaveLength(2)
-		expect(body).not.toHaveProperty("success")
 	})
 })
 
