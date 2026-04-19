@@ -33,9 +33,9 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.1 | Client can register a new account | High | Approved | In progress |
-| FR-2.2 | Client can log in and log out of the dashboard | High | Approved | In progress |
-| FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved | In progress |
+| FR-2.1 | Client can register a new account | High | Approved | Done |
+| FR-2.2 | Client can log in and log out of the dashboard | High | Approved | Done |
+| FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved | Done |
 | FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved | Done |
 | FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Not started |
 
