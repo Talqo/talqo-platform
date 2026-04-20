@@ -1,3 +1,4 @@
+import { useClientProfile } from "@/api/hooks/useClientAccount"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -8,8 +9,11 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function AccountSettingsTab() {
+	const { data: profile, isLoading } = useClientProfile()
+
 	return (
 		<Card>
 			<CardHeader>
@@ -18,7 +22,11 @@ export function AccountSettingsTab() {
 			<CardContent className="space-y-4">
 				<div className="space-y-2">
 					<Label htmlFor="account-email">Email</Label>
-					<Input id="account-email" defaultValue="admin@acme.com" />
+					{isLoading ? (
+						<Skeleton className="h-10 w-full" />
+					) : (
+						<Input id="account-email" value={profile?.email ?? ""} readOnly />
+					)}
 				</div>
 				<div className="space-y-2">
 					<Label htmlFor="account-api-key">API Key</Label>
