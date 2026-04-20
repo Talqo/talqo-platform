@@ -3,13 +3,11 @@ import { z } from "zod"
 export const botConfigFieldsSchema = z.object({
 	systemPrompt: z
 		.string()
-		.max(4000, "System prompt must be less than 4000 characters"),
+		.max(4000, "System prompt must be at most 4000 characters"),
 	defaultRole: z
 		.string()
-		.max(200, "Default role must be less than 200 characters"),
-	toneStyle: z
-		.string()
-		.max(200, "Tone & style must be less than 200 characters"),
+		.max(200, "Default role must be at most 200 characters"),
+	toneStyle: z.string().max(200, "Tone & style must be at most 200 characters"),
 	internetSearchEnabled: z.boolean(),
 })
 
