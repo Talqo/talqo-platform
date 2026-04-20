@@ -1,19 +1,19 @@
 import { Check, FileText, Pencil, Trash2, X } from "lucide-react"
+import type { FileEntry } from "@/api/hooks/useFiles"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { formatBytes } from "@/lib/formatBytes"
 import { cn } from "@/lib/utils"
-import type { ContextFile } from "./types"
 
 interface FileListItemProps {
-	file: ContextFile
+	file: FileEntry
 	isEditing: boolean
 	editValue: string
 	error: string | null
-	onStartEditing: (file: ContextFile) => void
+	onStartEditing: (file: FileEntry) => void
 	onConfirmEditing: () => void
 	onCancelEditing: () => void
-	onDelete: (id: string) => void
+	onDelete: (name: string) => void
 	onEditChange: (value: string) => void
 	onEditKeyDown: (event: React.KeyboardEvent) => void
 }
@@ -72,7 +72,10 @@ export function FileListItem({
 					<div className="min-w-0 flex-1">
 						<p className="truncate font-medium text-sm">{file.name}</p>
 						<p className="text-muted-foreground text-xs">
-							{formatBytes(file.size)} • {file.updatedAt.toLocaleDateString()}
+							{formatBytes(file.size ?? 0)} •{" "}
+							{file.lastModified
+								? new Date(file.lastModified).toLocaleDateString()
+								: "—"}
 						</p>
 					</div>
 				)}
@@ -91,7 +94,7 @@ export function FileListItem({
 					<Button
 						variant="ghost"
 						size="sm"
-						onClick={() => onDelete(file.id)}
+						onClick={() => onDelete(file.name)}
 						className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
 						aria-label="Delete file"
 					>

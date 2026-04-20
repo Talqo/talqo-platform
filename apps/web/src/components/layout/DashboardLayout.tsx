@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router"
 import {
 	Bot,
+	Code,
 	FileText,
 	LayoutDashboard,
 	LogOut,
@@ -24,6 +25,7 @@ export function DashboardLayout() {
 		{ icon: FileText, label: "Bot Context", href: "/dashboard/bot-context" },
 		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
 		{ icon: Wrench, label: "Tools MCP", href: "/dashboard/tools" },
+		{ icon: Code, label: "Widget Setup", href: "/dashboard/widget-setup" },
 		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
 	]
 

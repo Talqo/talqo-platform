@@ -1,3 +1,4 @@
+import DOMPurify from "isomorphic-dompurify"
 import BotIconSvg from "../../assets/bot-icon.svg?react"
 import ClearIconSvg from "../../assets/clear-icon.svg?react"
 import CloseIconSvg from "../../assets/close-icon.svg?react"
@@ -11,6 +12,54 @@ import XLargeIconSvg from "../../assets/x-large-icon.svg?react"
 interface IconProps {
 	size?: number
 	className?: string
+}
+
+interface AvatarIconProps extends IconProps {
+	/** SVG string for custom icon, or "bot" for default */
+	iconSvg?: string
+}
+
+// Default avatar sentinel value - must match EmbedCodeCard and BotNameCard
+export const DEFAULT_BOT_AVATAR = "bot"
+
+export function AvatarIcon({
+	size = 24,
+	className = "",
+	iconSvg,
+}: AvatarIconProps) {
+	// If custom SVG is provided, render it with sanitization
+	if (iconSvg && iconSvg !== DEFAULT_BOT_AVATAR) {
+		// Sanitize SVG to prevent XSS attacks
+		const sanitizedSvg = DOMPurify.sanitize(iconSvg, {
+			USE_PROFILES: { svg: true },
+		})
+
+		return (
+			<span
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG is sanitized with DOMPurify above
+				dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
+				className={className}
+				style={{
+					width: size,
+					height: size,
+					display: "inline-flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+				aria-hidden="true"
+			/>
+		)
+	}
+
+	// Default bot icon
+	return (
+		<BotIconSvg
+			width={size}
+			height={size}
+			className={className}
+			aria-hidden="true"
+		/>
+	)
 }
 
 export function SendIcon({ size = 16, className = "" }: IconProps) {

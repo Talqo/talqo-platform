@@ -23,6 +23,7 @@ import { authRoutes } from "./modules/auth"
 import { blacklistRoutes } from "./modules/blacklist"
 import { botConfigRoutes } from "./modules/bot-config"
 import { clientAccountRoutes } from "./modules/client-account"
+import { filesRoutes } from "./modules/files"
 import { adminMcpRoutes, clientMcpRoutes } from "./modules/mcp"
 import { providerConfigRoutes } from "./modules/provider-config"
 import {
@@ -59,6 +60,7 @@ app.route("/client/me/blacklist", blacklistRoutes)
 app.route("/client/me/mcp", clientMcpRoutes)
 app.route("/client/me/analytics", clientAnalyticsRoutes)
 app.route("/client/me/provider-config", providerConfigRoutes)
+app.route("/client/me/files", filesRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 app.use("/widget/*", widgetAuth)
@@ -111,6 +113,7 @@ app.doc("/openapi.json", {
 		{ name: "MCP", description: "MCP server management" },
 		{ name: "Analytics", description: "Usage analytics" },
 		{ name: "Provider Config", description: "AI provider configuration" },
+		{ name: "Files", description: "File management" },
 		{ name: "Widget", description: "End-user chat widget" },
 		{ name: "Admin", description: "Platform administration" },
 	],

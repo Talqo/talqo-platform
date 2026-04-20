@@ -7,6 +7,7 @@ import {
 	VerifyEmailSchema,
 	VerifyResetTokenSchema,
 } from "shared"
+import { AppError } from "../../common/errors"
 import type { AppVariables } from "../../common/jwt"
 import {
 	errorResponseSchema,
@@ -58,36 +59,10 @@ export function createAuthRouter(
 			try {
 				await service.register(name, email, password)
 			} catch (err) {
-				if (err instanceof Error && err.message === "NAME_TAKEN") {
-					c.get("logger").warn("Registration attempted with taken name")
-					return c.json(
-						{
-							success: false as const,
-							error: {
-								code: "NAME_TAKEN",
-								message: "This name is already taken",
-							},
-						},
-						409,
-					)
-				}
-				if (err instanceof Error && err.message === "EMAIL_TAKEN") {
-					c.get("logger").warn("Registration attempted with taken email", {
-						email,
-					})
-					return c.json(
-						{
-							success: false as const,
-							error: {
-								code: "EMAIL_TAKEN",
-								message: "This email is already registered",
-							},
-						},
-						409,
-					)
-				}
-				// Re-throw email errors so user knows registration failed
-				if (err instanceof Error) {
+				// Let AppError propagate to errorHandler
+				if (err instanceof AppError) throw err
+				// Email sending failures should return 500
+				if (err instanceof Error && err.message.includes("email")) {
 					c.get("logger").error("Registration error", {
 						error: err.message,
 						email,
@@ -103,6 +78,7 @@ export function createAuthRouter(
 						500,
 					)
 				}
+				throw err
 			}
 			return c.json(
 				{
@@ -146,56 +122,17 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { token } = c.req.valid("query")
-			try {
-				const jwtToken = await service.verifyEmail(token)
-				return c.json(
-					{
-						success: true as const,
-						data: {
-							token: jwtToken,
-							message: "Email verified successfully",
-						},
+			const jwtToken = await service.verifyEmail(token)
+			return c.json(
+				{
+					success: true as const,
+					data: {
+						token: jwtToken,
+						message: "Email verified successfully",
 					},
-					200,
-				)
-			} catch (err) {
-				if (err instanceof Error) {
-					if (
-						err.message === "INVALID_TOKEN" ||
-						err.message === "TOKEN_EXPIRED"
-					) {
-						c.get("logger").warn("Email verification failed", {
-							reason: err.message,
-						})
-						return c.json(
-							{
-								success: false as const,
-								error: {
-									code: err.message,
-									message: "Invalid or expired token",
-								},
-							},
-							400,
-						)
-					}
-					if (err.message === "EMAIL_ALREADY_VERIFIED") {
-						c.get("logger").warn("Email verification failed", {
-							reason: err.message,
-						})
-						return c.json(
-							{
-								success: false as const,
-								error: {
-									code: "EMAIL_ALREADY_VERIFIED",
-									message: "Email already verified",
-								},
-							},
-							409,
-						)
-					}
-				}
-				throw err
-			}
+				},
+				200,
+			)
 		},
 	)
 
@@ -231,25 +168,8 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { email, password } = c.req.valid("json")
-			try {
-				const token = await service.login(email, password)
-				return c.json({ success: true as const, data: { token } }, 200)
-			} catch (err) {
-				if (err instanceof Error && err.message === "INVALID_CREDENTIALS") {
-					c.get("logger").warn("Login failed", { reason: err.message })
-					return c.json(
-						{
-							success: false as const,
-							error: {
-								code: "INVALID_CREDENTIALS",
-								message: "Invalid credentials",
-							},
-						},
-						401,
-					)
-				}
-				throw err
-			}
+			const token = await service.login(email, password)
+			return c.json({ success: true as const, data: { token } }, 200)
 		},
 	)
 
@@ -446,53 +366,14 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { token, password } = c.req.valid("json")
-			try {
-				await service.resetPassword(token, password)
-				return c.json(
-					{
-						success: true as const,
-						data: { message: "Password reset successful" },
-					},
-					200,
-				)
-			} catch (err) {
-				if (err instanceof Error) {
-					if (
-						err.message === "INVALID_TOKEN" ||
-						err.message === "TOKEN_EXPIRED"
-					) {
-						c.get("logger").warn("Password reset failed", {
-							reason: err.message,
-						})
-						return c.json(
-							{
-								success: false as const,
-								error: {
-									code: err.message,
-									message: "Invalid or expired token",
-								},
-							},
-							400,
-						)
-					}
-					if (err.message === "TOKEN_ALREADY_USED") {
-						c.get("logger").warn("Password reset failed", {
-							reason: err.message,
-						})
-						return c.json(
-							{
-								success: false as const,
-								error: {
-									code: "TOKEN_ALREADY_USED",
-									message: "This link has already been used",
-								},
-							},
-							400,
-						)
-					}
-				}
-				throw err
-			}
+			await service.resetPassword(token, password)
+			return c.json(
+				{
+					success: true as const,
+					data: { message: "Password reset successful" },
+				},
+				200,
+			)
 		},
 	)
 

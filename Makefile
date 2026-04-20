@@ -9,6 +9,7 @@ GHCR_USER := pagepal-agent
 API_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-web
 VITE_API_URL ?= http://localhost:3000
+E2E_PORT     ?= 4173
 # Rancher project ID — namespaces must be annotated with this to appear in the right project
 RANCHER_PROJECT_ID := c-m-qvndqhf6:p-8rjpv
 
@@ -141,6 +142,23 @@ push: push-api push-web ## Build and push all Docker images
 test: ## Run all tests
 	bun run test
 
+.PHONY: e2e
+e2e: db-up ## Run e2e tests (build, migrate, seed, start services, test, clean up)
+	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db
+	bun --env-file=.env.example packages/db/migrate.ts
+	bun --env-file=.env.example apps/api/src/db/seed.ts
+	@PIDS=""; \
+	APP_URL=http://localhost:$(E2E_PORT) bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
+	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
+	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
+		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
+	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
+		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
+	export BASE_URL=http://localhost:$(E2E_PORT); \
+	cd apps/e2e && bun run test; STATUS=$$?; \
+	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
+	exit $$STATUS
+
 .PHONY: lint
 lint: ## Lint all workspaces
 	bun run lint
@@ -208,3 +226,21 @@ clean: ## Remove build artifacts, Docker images, and local volumes
 	rm -rf apps/api/dist apps/web/dist packages/shared/dist packages/widget/dist
 	$(COMPOSE) down -v --remove-orphans
 	docker rmi "$(API_IMAGE):$(IMAGE_TAG)" "$(WEB_IMAGE):$(IMAGE_TAG)" 2>/dev/null || true
+
+# NOTE: Widget deployment via Makefile is commented out for now.
+# The widget is served via GitHub raw URLs during development.
+# Uncomment and modify if MinIO/S3 deployment is needed in the future.
+#
+# # ── Widget Deployment ───────────────────────────────
+# WIDGET_BUCKET ?= widget-bucket
+# MINIO_ALIAS ?= minio
+# MINIO_ENDPOINT ?= http://localhost:9000
+#
+# .PHONY: deploy-widget
+# deploy-widget: ## Deploy widget bundle to MinIO (requires MINIO_ACCESS_KEY and MINIO_SECRET_KEY)
+#	@[ -n "$(MINIO_ACCESS_KEY)" ] || { echo "ERROR: MINIO_ACCESS_KEY is required"; exit 1; }
+#	@[ -n "$(MINIO_SECRET_KEY)" ] || { echo "ERROR: MINIO_SECRET_KEY is required"; exit 1; }
+#	mc alias set $(MINIO_ALIAS) $(MINIO_ENDPOINT) $(MINIO_ACCESS_KEY) $(MINIO_SECRET_KEY) 2>/dev/null || true
+#	mc mb $(MINIO_ALIAS)/$(WIDGET_BUCKET) 2>/dev/null || true
+#	mc cp packages/widget/dist/widget-bundle.js $(MINIO_ALIAS)/$(WIDGET_BUCKET)/
+#	@echo "Widget deployed to $(MINIO_ENDPOINT)/$(WIDGET_BUCKET)/widget-bundle.js"

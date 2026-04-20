@@ -70,4 +70,12 @@ export class ClientAccountService {
 			thresholdUsd !== null ? thresholdUsd.toFixed(4) : null,
 		)
 	}
+
+	async dismissWidgetSetup(clientId: string) {
+		const updated = await this.repo.updateClient(clientId, {
+			widgetSetupDismissed: true,
+		})
+		if (!updated) throw new NotFoundError("Client not found")
+		return updated
+	}
 }

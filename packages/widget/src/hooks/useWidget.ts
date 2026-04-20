@@ -15,6 +15,8 @@ export interface UseWidgetOptions {
 	initialMessages?: Message[]
 	/** Position of the widget */
 	position?: "left" | "right"
+	/** Initial theme (defaults to light) */
+	defaultTheme?: WidgetTheme
 	/** Callback when message is sent */
 	onMessageSend?: (message: string) => void | Promise<void>
 	/** Callback when widget is toggled */
@@ -34,18 +36,50 @@ export interface UseWidgetReturn {
 	isTyping: boolean
 	/** Whether position is on the right side */
 	isRightPosition: boolean
+	/** Current theme */
+	theme: WidgetTheme
+	/** Whether current theme is dark */
+	isDark: boolean
 	/** Toggle the chat panel open/closed */
 	toggleOpen: () => void
 	/** Set whether panel is open */
 	setIsOpen: (value: boolean) => void
 	/** Toggle expanded state */
 	toggleExpanded: () => void
+	/** Toggle theme between light and dark */
+	toggleTheme: () => void
 	/** Update input value */
 	setInputValue: (value: string) => void
 	/** Send the current message */
 	sendMessage: () => void
 	/** Clear all messages */
 	clearMessages: () => void
+}
+
+// Namespaced localStorage key to avoid collisions with host pages
+const THEME_STORAGE_KEY = "pagepal:widget:theme"
+
+/**
+ * Safely get an item from localStorage with try/catch
+ */
+function safeGetItem(key: string): string | null {
+	try {
+		return localStorage.getItem(key)
+	} catch {
+		// localStorage may be unavailable in restricted environments
+		return null
+	}
+}
+
+/**
+ * Safely set an item in localStorage with try/catch
+ */
+function safeSetItem(key: string, value: string): void {
+	try {
+		localStorage.setItem(key, value)
+	} catch {
+		// localStorage may be unavailable in restricted environments
+	}
 }
 
 /**
@@ -63,6 +97,7 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 			},
 		],
 		position = "right",
+		defaultTheme = "light",
 		onOpenChange,
 	} = options
 
@@ -71,8 +106,19 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 	const [inputValue, setInputValue] = useState("")
 	const [messages, setMessages] = useState<Message[]>(initialMessages)
 	const [isTyping, setIsTyping] = useState(false)
+	const [theme, setTheme] = useState<WidgetTheme>(defaultTheme)
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const isRightPosition = position === "right"
+	const isDark = theme === "dark"
+
+	const toggleTheme = useCallback(() => {
+		setTheme((prev) => {
+			const next = prev === "light" ? "dark" : "light"
+			// Persist theme with namespaced key
+			safeSetItem(THEME_STORAGE_KEY, next)
+			return next
+		})
+	}, [])
 
 	const setIsOpen = useCallback(
 		(value: boolean) => {
@@ -151,11 +197,35 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		messages,
 		isTyping,
 		isRightPosition,
+		theme,
+		isDark,
 		toggleOpen,
 		setIsOpen,
 		toggleExpanded,
+		toggleTheme,
 		setInputValue,
 		sendMessage,
 		clearMessages,
 	}
+}
+
+/**
+ * Get the initial theme from localStorage or system preference
+ * Uses namespaced key to avoid collisions with host pages
+ */
+export function getInitialTheme(): "light" | "dark" {
+	if (typeof window === "undefined") return "light"
+
+	// Check localStorage first (using namespaced key)
+	const savedTheme = safeGetItem(THEME_STORAGE_KEY)
+	if (savedTheme === "dark" || savedTheme === "light") {
+		return savedTheme
+	}
+
+	// Fall back to system preference
+	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+		return "dark"
+	}
+
+	return "light"
 }
