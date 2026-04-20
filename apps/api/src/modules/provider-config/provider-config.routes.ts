@@ -1,6 +1,6 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { aiProviderConfigMaskedResponseSchema } from "db/dto"
 import { upsertProviderConfigBodySchema } from "shared"
-import { z } from "zod"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -8,23 +8,6 @@ import {
 import { providerConfigService } from "./index"
 
 const router = new OpenAPIHono()
-
-const providerConfigResponseSchema = z
-	.object({
-		id: z.string().uuid(),
-		clientId: z.string().uuid(),
-		providerType: z.enum([
-			"openai",
-			"openai_compatible",
-			"google",
-			"anthropic",
-		]),
-		apiKeyMasked: z.string(),
-		model: z.string(),
-		baseUrl: z.string().nullable(),
-		updatedAt: z.string(),
-	})
-	.nullable()
 
 router.openapi(
 	createRoute({
@@ -38,7 +21,9 @@ router.openapi(
 				description: "Provider config or null (platform default)",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(providerConfigResponseSchema),
+						schema: successResponseSchema(
+							aiProviderConfigMaskedResponseSchema.nullable(),
+						),
 					},
 				},
 			},
@@ -70,7 +55,9 @@ router.openapi(
 				description: "Upserted provider config",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(providerConfigResponseSchema),
+						schema: successResponseSchema(
+							aiProviderConfigMaskedResponseSchema.nullable(),
+						),
 					},
 				},
 			},
