@@ -18,7 +18,13 @@ export function HeroSection() {
 					<Link to="/register">Start for free</Link>
 				</Button>
 				<Button variant="outline-primary" size="lg" asChild>
-					<Link to="/login">View Demo Dashboard</Link>
+					<a
+						href="https://github.com/PagePal-Agent/pagepal/tree/main/docs"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						View Documentation
+					</a>
 				</Button>
 			</div>
 		</section>
