@@ -4,18 +4,23 @@ paths:
   - "**/makefile"
   - "**/*.mk"
 ---
-<context>
+## Context
+
 Essential Makefile patterns for build automation. Focus on correct syntax, proper variable usage, and common patterns.
-</context>
-<best_practices>
-<syntax>
+
+## Best Practices
+
+### Syntax
+
 **Recipes MUST use TAB (not spaces):**
+
 ```makefile
 target: prereq
 	command    # TAB before this line
 ```
 
-### Variable Assignment
+#### Variable Assignment
+
 ```makefile
 VAR := value    # Simple (evaluate once) - PREFER
 VAR = value     # Recursive (evaluate each use)
@@ -23,37 +28,43 @@ VAR ?= value    # Set only if undefined
 VAR += value    # Append
 ```
 
-### Automatic Variables
-| Var | Meaning |
+#### Automatic Variables
+
+|Var|Meaning|
 |-----|---------|
-| `$@` | Target name |
-| `$<` | First prerequisite |
-| `$^` | All prerequisites |
-| `$?` | Newer prerequisites |
+|`$@`|Target name|
+|`$<`|First prerequisite|
+|`$^`|All prerequisites|
+|`$?`|Newer prerequisites|
 
 ```makefile
 %.o: %.c
 	$(CC) -c $< -o $@
 ```
-</syntax>
-<patterns>
-### .PHONY Targets
+
+### Patterns
+
+#### .PHONY Targets
+
 Always declare non-file targets:
+
 ```makefile
 .PHONY: all build clean test help
 ```
 
-### Help Target (Required)
+#### Help Target (Required)
+
 ```makefile
 .PHONY: help
 help: ## Show help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 .DEFAULT_GOAL := help
 ```
 
-### Error Handling
+#### Error Handling
+
 ```makefile
 clean:
 	rm -rf build/ || true    # Continue on error
@@ -63,16 +74,18 @@ deploy:
 	./deploy.sh $(ENV)
 ```
 
-### Multi-line Commands
+#### Multi-line Commands
+
 ```makefile
 deploy:
 	docker run \
-		-e ENV=prod \
-		-v $(PWD):/app \
-		image
+  -e ENV=prod \
+  -v $(PWD):/app \
+  image
 ```
-</patterns>
-<security>
+
+### Security
+
 ```makefile
 # NEVER hardcode secrets
 ifndef API_KEY
@@ -87,8 +100,9 @@ SHELL := /bin/sh
 backup:
 	tar czf "backup-$$(date +%Y%m%d).tar.gz" "$(DIR)"
 ```
-</security>
-<template>
+
+### Template
+
 ```makefile
 SHELL := /bin/sh
 .DEFAULT_GOAL := help
@@ -99,7 +113,7 @@ IMAGE := $(shell yq .image $(CONFIG))
 .PHONY: help
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: build
 build: ## Build project
@@ -113,18 +127,19 @@ test: ## Run tests
 clean: ## Clean artifacts
 	rm -rf build/ || true
 ```
-</template>
-<anti_patterns>
-| Wrong | Right |
+
+### Anti-Patterns
+
+|Wrong|Right|
 |-------|-------|
-| Spaces for indent | TAB character |
-| `VAR = $(shell ...)` | `VAR := $(shell ...)` |
-| Missing `.PHONY` | `.PHONY: clean test` |
-| `rm file` (fails) | `rm file \|\| true` |
-| Shell var `$files` | `$$files` in recipes |
-</anti_patterns>
-</best_practices>
-<boundaries>
+|Spaces for indent|TAB character|
+|`VAR = $(shell ...)`|`VAR := $(shell ...)`|
+|Missing `.PHONY`|`.PHONY: clean test`|
+|`rm file` (fails)|`rm file \|\|true`|
+|Shell var `$files`|`$$files` in recipes|
+
+## Boundaries
+
 - ✅ **Always:** Use TAB for recipe indentation
 - ✅ **Always:** Declare `.PHONY` for non-file targets
 - ✅ **Always:** Include a `help` target
@@ -133,4 +148,3 @@ clean: ## Clean artifacts
 - 🚫 **Never:** Hardcode secrets
 - 🚫 **Never:** Use spaces instead of TABs
 - 🚫 **Never:** Forget `$$` for shell variables in recipes
-</boundaries>
