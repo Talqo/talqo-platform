@@ -27,3 +27,16 @@ pagepal/
 ## Biome formatting (auto-enforced, don't override)
 
 Tabs, double quotes, no semicolons, trailing commas, line width 80. `components/ui/` and `*.gen.ts` files are excluded from linting.
+
+## Requirements tracking
+
+`docs/requirements.md` is the source of truth for what this project must do. Every requirement has a `Completion` column with one of three values: `Not started`, `In progress`, `Done`.
+
+**Rules for every session that touches feature code or bug fixes:**
+
+1. Read `docs/requirements.md` at the start of the session.
+2. After finishing work, identify which requirement IDs were affected. Update their `Completion` field:
+   - `In progress` — feature partially implemented or not yet reachable end-to-end.
+   - `Done` — full behaviour is implemented and reachable by an end user; do not use this for partial work.
+3. If the code implements something not covered by any existing requirement, tell the developer: _"This appears to be a new feature not tracked in `docs/requirements.md`. Add it as a new requirement before or after implementing it."_
+4. Never silently skip the requirements update — it is part of the definition of done for every task.
