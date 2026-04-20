@@ -183,7 +183,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 	router.openapi(
 		createRoute({
 			method: "get",
-			path: "/:clientId",
+			path: "/{clientId}",
 			tags: ["Admin"],
 			summary: "Get client details",
 			security: [{ bearerAuth: [] }],
@@ -221,7 +221,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 	router.openapi(
 		createRoute({
 			method: "patch",
-			path: "/:clientId/status",
+			path: "/{clientId}/status",
 			tags: ["Admin"],
 			summary: "Suspend or re-enable a client",
 			security: [{ bearerAuth: [] }],
@@ -263,7 +263,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 	router.openapi(
 		createRoute({
 			method: "post",
-			path: "/:clientId/impersonate",
+			path: "/{clientId}/impersonate",
 			tags: ["Admin"],
 			summary: "Issue an impersonation token for a client",
 			security: [{ bearerAuth: [] }],
@@ -349,7 +349,7 @@ export function createAdminConversationRouter(
 	router.openapi(
 		createRoute({
 			method: "get",
-			path: "/:conversationId",
+			path: "/{conversationId}",
 			tags: ["Admin"],
 			summary: "Get conversation with messages",
 			security: [{ bearerAuth: [] }],

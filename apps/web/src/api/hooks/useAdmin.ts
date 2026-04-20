@@ -20,7 +20,7 @@ export function useAdminClient(clientId: string) {
 	return useQuery({
 		queryKey: ["admin", "clients", clientId],
 		queryFn: async () => {
-			const { data, error } = await client.GET("/admin/clients/:clientId", {
+			const { data, error } = await client.GET("/admin/clients/{clientId}", {
 				params: { path: { clientId } },
 			})
 			if (error) throw error
@@ -40,7 +40,7 @@ export function useUpdateClientStatus() {
 			status: "active" | "suspended"
 		}) => {
 			const { data, error } = await client.PATCH(
-				"/admin/clients/:clientId/status",
+				"/admin/clients/{clientId}/status",
 				{ params: { path: { clientId } }, body: { status } },
 			)
 			if (error) throw error
@@ -57,7 +57,7 @@ export function useImpersonateClient() {
 	return useMutation({
 		mutationFn: async (clientId: string) => {
 			const { data, error } = await client.POST(
-				"/admin/clients/:clientId/impersonate",
+				"/admin/clients/{clientId}/impersonate",
 				{ params: { path: { clientId } } },
 			)
 			if (error) throw error
@@ -99,7 +99,7 @@ export function useAdminConversation(conversationId: string) {
 		queryKey: ["admin", "conversations", conversationId],
 		queryFn: async () => {
 			const { data, error } = await client.GET(
-				"/admin/conversations/:conversationId",
+				"/admin/conversations/{conversationId}",
 				{ params: { path: { conversationId } } },
 			)
 			if (error) throw error
@@ -148,7 +148,7 @@ export function useAdminUpdatePreMadeServer() {
 			mcpConfig: unknown
 		}) => {
 			const { data, error } = await client.PATCH(
-				"/admin/mcp/pre-made/:serverId",
+				"/admin/mcp/pre-made/{serverId}",
 				{ params: { path: { serverId } }, body: { mcpConfig } },
 			)
 			if (error) throw error
@@ -164,7 +164,7 @@ export function useAdminDeletePreMadeServer() {
 	return useMutation({
 		mutationFn: async (serverId: string) => {
 			const { data, error } = await client.DELETE(
-				"/admin/mcp/pre-made/:serverId",
+				"/admin/mcp/pre-made/{serverId}",
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error

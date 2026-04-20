@@ -1815,7 +1815,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/{clientId}/sessions/{sessionId}/conversations/:conversationId": {
+    "/widget/{clientId}/sessions/{sessionId}/conversations/{conversationId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2308,7 +2308,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/clients/:clientId": {
+    "/admin/clients/{clientId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2378,7 +2378,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/clients/:clientId/status": {
+    "/admin/clients/{clientId}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -2446,7 +2446,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/clients/:clientId/impersonate": {
+    "/admin/clients/{clientId}/impersonate": {
         parameters: {
             query?: never;
             header?: never;
@@ -2605,7 +2605,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/conversations/:conversationId": {
+    "/admin/conversations/{conversationId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2761,7 +2761,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/mcp/pre-made/:serverId": {
+    "/admin/mcp/pre-made/{serverId}": {
         parameters: {
             query?: never;
             header?: never;
