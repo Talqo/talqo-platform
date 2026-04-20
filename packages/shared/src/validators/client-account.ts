@@ -21,3 +21,13 @@ export const usageLimitBodySchema = z.object({
 export const usageAlertBodySchema = z.object({
 	thresholdUsd: z.number().nonnegative().nullable(),
 })
+
+export const billingSettingsSchema = z.object({
+	monthlyLimit: z
+		.number()
+		.min(1, "Limit must be at least $1")
+		.max(10000, "Limit cannot exceed $10,000"),
+	usageAlerts: z.boolean(),
+})
+
+export type BillingSettingsInput = z.infer<typeof billingSettingsSchema>
