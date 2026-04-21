@@ -1,19 +1,10 @@
+import type { ConversationSummary } from "shared"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 
-interface ConversationSummary {
-	id: string
-	clientId: string
-	clientName: string | null
-	clientEmail: string | null
-	startedAt: string
-	satisfactionRating: number | null
-	messageCount: number
-}
-
-interface ConversationsTableProps {
+type ConversationsTableProps = {
 	conversations?: ConversationSummary[]
 	selectedId?: string
 	onSelect: (id: string) => void
