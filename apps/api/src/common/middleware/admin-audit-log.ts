@@ -13,15 +13,24 @@ export const adminAuditLog: MiddlewareHandler = async (c, next) => {
 
 	const method = c.req.method
 	if (!MUTATING_METHODS.includes(method)) return
+	if (c.res.status >= 400) return
 
 	const adminId = c.get("adminId" as never) as string
 	if (!adminId) return
 
 	const clientId = c.req.path.match(UUID_PATTERN)?.[0]
+	const actionType = `${method} ${c.req.path}`
 
-	await db.insert(adminAccessLogs).values({
-		adminId,
-		clientId,
-		actionType: `${method} ${c.req.path}`,
-	})
+	try {
+		await db.insert(adminAccessLogs).values({ adminId, clientId, actionType })
+	} catch (err) {
+		const logger = c.get("logger" as never) as import("../logger").Logger
+		logger.error("Failed to write admin audit log", {
+			adminId,
+			clientId,
+			actionType,
+			error: err,
+		})
+		throw err
+	}
 }
