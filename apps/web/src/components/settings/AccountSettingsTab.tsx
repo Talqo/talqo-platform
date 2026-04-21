@@ -106,10 +106,10 @@ export function AccountSettingsTab() {
 								readOnly
 								className="flex-1"
 							/>
-							<Button variant="outline" size="sm">
+							<Button type="button" variant="outline" size="sm">
 								Copy
 							</Button>
-							<Button variant="outline" size="sm">
+							<Button type="button" variant="outline" size="sm">
 								Regenerate
 							</Button>
 						</div>
