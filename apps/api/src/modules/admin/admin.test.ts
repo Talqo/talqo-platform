@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import type { adminUsers, clients, conversations, messages } from "db/schema"
 import type { AdminRepository } from "./admin.repository"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -22,42 +23,10 @@ const { errorHandler } = await import("../../common/middleware/error-handler")
 
 // ─── In-memory repository ─────────────────────────────────────────────────────
 
-type AdminUser = {
-	id: string
-	email: string
-	passwordHash: string
-	createdAt: Date
-	isDeleted: boolean
-	deletedAt: Date | null
-}
-
-type ClientRecord = {
-	id: string
-	name: string
-	email: string
-	balanceUsd: string
-	monthlyUsageLimit: string | null
-	usageAlertThresholdUsd: string | null
-	status: string
-	lastActive: Date | null
-	createdAt: Date
-}
-
-type ConversationRecord = {
-	id: string
-	clientId: string
-	startedAt: Date
-	satisfactionRating: number | null
-}
-
-type MessageRecord = {
-	id: string
-	conversationId: string
-	role: "user" | "assistant" | "system"
-	content: string
-	tokenCount: number
-	createdAt: Date
-}
+type AdminUser = typeof adminUsers.$inferSelect
+type ClientRecord = typeof clients.$inferSelect
+type ConversationRecord = typeof conversations.$inferSelect
+type MessageRecord = typeof messages.$inferSelect
 
 class InMemoryAdminRepository
 	implements
@@ -130,12 +99,15 @@ class InMemoryAdminRepository
 			id: crypto.randomUUID(),
 			name: "Test Client",
 			email: "client@example.com",
+			passwordHash: "hashed",
 			balanceUsd: "100.00",
 			monthlyUsageLimit: null,
 			usageAlertThresholdUsd: null,
+			widgetToken: crypto.randomUUID(),
 			status: "active",
 			lastActive: null,
 			createdAt: new Date(),
+			widgetSetupDismissed: false,
 			...overrides,
 		}
 		this.clientsMap.set(client.id, client)
@@ -148,6 +120,7 @@ class InMemoryAdminRepository
 	): ConversationRecord {
 		const conv: ConversationRecord = {
 			id: crypto.randomUUID(),
+			sessionId: crypto.randomUUID(),
 			clientId,
 			startedAt: new Date(),
 			satisfactionRating: null,
@@ -190,14 +163,15 @@ class InMemoryAdminRepository
 
 		return convs.map((conv) => {
 			const client = this.clientsMap.get(conv.clientId)
+			if (!client) throw new Error(`Client ${conv.clientId} not found`)
 			const messageCount = [...this.messagesMap.values()].filter(
 				(m) => m.conversationId === conv.id,
 			).length
 			return {
 				id: conv.id,
 				clientId: conv.clientId,
-				clientName: client?.name ?? null,
-				clientEmail: client?.email ?? null,
+				clientName: client.name,
+				clientEmail: client.email,
 				startedAt: conv.startedAt,
 				satisfactionRating: conv.satisfactionRating,
 				messageCount,
@@ -209,14 +183,15 @@ class InMemoryAdminRepository
 		const conv = this.conversationsMap.get(conversationId)
 		if (!conv) return null
 		const client = this.clientsMap.get(conv.clientId)
+		if (!client) throw new Error(`Client ${conv.clientId} not found`)
 		const msgs = [...this.messagesMap.values()]
 			.filter((m) => m.conversationId === conversationId)
 			.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
 		return {
 			id: conv.id,
 			clientId: conv.clientId,
-			clientName: client?.name ?? null,
-			clientEmail: client?.email ?? null,
+			clientName: client.name,
+			clientEmail: client.email,
 			startedAt: conv.startedAt,
 			satisfactionRating: conv.satisfactionRating,
 			messages: msgs,
