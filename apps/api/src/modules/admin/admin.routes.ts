@@ -2,6 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { clientSummarySchema, messageResponseSchema } from "db/dto"
 import {
 	clientStatusUpdateSchema,
+	conversationSummarySchema,
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
@@ -296,16 +297,6 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 }
 
 // ─── Admin conversation viewer (protected) ────────────────────────────────────
-
-const conversationSummarySchema = z.object({
-	id: z.string().uuid(),
-	clientId: z.string().uuid(),
-	clientName: z.string().nullable(),
-	clientEmail: z.string().nullable(),
-	startedAt: z.string(),
-	satisfactionRating: z.number().int().min(1).max(5).nullable(),
-	messageCount: z.number().int(),
-})
 
 export function createAdminConversationRouter(
 	service: AdminService,
