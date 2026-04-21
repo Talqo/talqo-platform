@@ -29,6 +29,6 @@ test.describe("Login flow", () => {
 		await fillAndSubmitLogin(page, "nobody@example.com", "wrongpassword")
 
 		await expect(page).toHaveURL(/\/login/)
-		await expect(page.getByText("Invalid credentials")).toBeVisible()
+		await expect(page.getByText("Invalid email or password")).toBeVisible()
 	})
 })
