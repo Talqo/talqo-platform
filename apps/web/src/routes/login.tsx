@@ -122,7 +122,7 @@ function LoginPage() {
 	// Determine error message - unified hook only shows error after both attempts fail
 	let errorMessage: string | null = null
 	if (error) {
-		if (error.error?.code === "INVALID_CREDENTIALS") {
+		if (error.error?.code === "UNAUTHORIZED") {
 			errorMessage = "Invalid email or password. Please try again."
 		} else {
 			errorMessage = error.error?.message || "Login failed. Please try again."

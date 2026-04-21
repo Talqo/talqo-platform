@@ -40,7 +40,7 @@ src/
 ## Auth
 
 - Tokens stored in `localStorage`: `token` (client) and `admin_token` (admin). Keys are in `src/lib/constants.ts` as `AUTH.TOKEN_KEY` / `AUTH.ADMIN_TOKEN_KEY`.
-- `useUnifiedLogin` tries client login first, falls back to admin login on `INVALID_CREDENTIALS` — do not duplicate this logic.
+- `useUnifiedLogin` tries client login first, falls back to admin login on `UNAUTHORIZED` — do not duplicate this logic.
 - `useGuardedAuth` validates the token via an API call on every protected route mount (5 s timeout; network errors do not clear the token).
 
 ## Key Conventions

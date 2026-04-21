@@ -38,9 +38,14 @@ export const VerifyResetTokenSchema = z.object({
 	token: z.string().uuid("Invalid reset token format"),
 })
 
+export const ResendVerificationSchema = z.object({
+	email: z.string().trim().email("Please enter a valid email address"),
+})
+
 export type RegisterInput = z.infer<typeof RegisterSchema>
 export type LoginInput = z.infer<typeof LoginSchema>
 export type VerifyEmailInput = z.infer<typeof VerifyEmailSchema>
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>
 export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>
 export type VerifyResetTokenInput = z.infer<typeof VerifyResetTokenSchema>
+export type ResendVerificationInput = z.infer<typeof ResendVerificationSchema>

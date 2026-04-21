@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import {
+	type BotConfigFields as BotConfigSchema,
+	botConfigFieldsSchema,
+} from "shared"
 import { useBotConfig, useUpdateBotConfig } from "@/api/hooks/useBotConfig"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -15,7 +19,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useForm } from "@/lib/useForm"
-import { type BotConfigSchema, botConfigSchema } from "@/schemas/bot"
+
+const botConfigSchema = botConfigFieldsSchema
 
 type Feedback = { type: "success" | "error"; message: string }
 
