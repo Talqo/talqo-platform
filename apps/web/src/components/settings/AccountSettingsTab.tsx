@@ -17,20 +17,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useForm } from "@/lib/useForm"
-import { passwordChangeSchema } from "@/schemas"
+import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas"
 
-type PasswordFormData = Record<string, string> & {
-	currentPassword: string
-	newPassword: string
-	confirmNewPassword: string
-}
-
-const validatePasswordForm = (values: PasswordFormData) => {
+const validatePasswordForm = (values: PasswordChangeSchema) => {
 	const result = passwordChangeSchema.safeParse(values)
 	if (result.success) return {}
-	const errors: Partial<Record<keyof PasswordFormData, string>> = {}
+	const errors: Partial<Record<keyof PasswordChangeSchema, string>> = {}
 	for (const issue of result.error.issues) {
-		const path = issue.path[0] as keyof PasswordFormData
+		const path = issue.path[0] as keyof PasswordChangeSchema
 		errors[path] = issue.message
 	}
 	return errors
@@ -50,7 +44,7 @@ export function AccountSettingsTab() {
 		handleBlur,
 		handleSubmit,
 		reset,
-	} = useForm<PasswordFormData>({
+	} = useForm<PasswordChangeSchema>({
 		initialValues: {
 			currentPassword: "",
 			newPassword: "",
