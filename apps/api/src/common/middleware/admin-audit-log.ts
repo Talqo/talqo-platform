@@ -2,8 +2,8 @@ import type { MiddlewareHandler } from "hono"
 import { db } from "../../db"
 import { adminAccessLogs } from "../../db/schema"
 
-const UUID_PATTERN =
-	/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+const CLIENT_ID_PATTERN =
+	/\/admin\/clients\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
 
 const MUTATING_METHODS = ["POST", "PATCH", "PUT", "DELETE"]
 
@@ -18,7 +18,7 @@ export const adminAuditLog: MiddlewareHandler = async (c, next) => {
 	const adminId = c.get("adminId" as never) as string
 	if (!adminId) return
 
-	const clientId = c.req.path.match(UUID_PATTERN)?.[0]
+	const clientId = c.req.path.match(CLIENT_ID_PATTERN)?.[1]
 	const actionType = `${method} ${c.req.path}`
 
 	try {
