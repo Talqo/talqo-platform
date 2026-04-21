@@ -16,14 +16,14 @@
 
 > The embeddable chat widget rendered on the client's website for end users.
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-1.1 | End user can send text messages to the bot and receive AI-generated responses | High | Approved |
-| FR-1.2 | Conversation history is persisted in the end user's browser so the context survives page reloads | High | Approved |
-| FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved |
-| FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved |
-| FR-1.5 | End user can clear / reset the current conversation | Low | Approved |
-| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-1.1 | End user can send text messages to the bot and receive AI-generated responses | High | Approved | In progress |
+| FR-1.2 | Conversation history is persisted in the end user's browser so the context survives page reloads | High | Approved | In progress |
+| FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved | Done |
+| FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved | Done |
+| FR-1.5 | End user can clear / reset the current conversation | Low | Approved | Done |
+| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved | In progress |
 
 ### FR-2: Client Dashboard
 
@@ -31,75 +31,75 @@
 
 #### FR-2a: Account management
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-2.1 | Client can register a new account | High | Approved |
-| FR-2.2 | Client can log in and log out of the dashboard | High | Approved |
-| FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved |
-| FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved |
-| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-2.1 | Client can register a new account | High | Approved | Done |
+| FR-2.2 | Client can log in and log out of the dashboard | High | Approved | Done |
+| FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved | Done |
+| FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved | Done |
+| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Not started |
 
 #### FR-2b: API configuration
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-2.6 | Client can use platform's default API endpoint | High | Approved |
-| FR-2.7 | Client can configure a custom API endpoint and API key | Medium | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-2.6 | Client can use platform's default API endpoint | High | Approved | In progress |
+| FR-2.7 | Client can configure a custom API endpoint and API key | Medium | Approved | Done |
 
 #### FR-2c: Usage and billing
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-2.8 | Client can add funds to their account | Medium | Approved |
-| FR-2.9 | Client can set a monthly limit (in USD) for API usage | Low | Approved |
-| FR-2.10 | Client can configure email notifications when a usage threshold is reached | Low | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-2.8 | Client can add funds to their account | Medium | Approved | Done |
+| FR-2.9 | Client can set a monthly limit (in USD) for API usage | Low | Approved | In progress |
+| FR-2.10 | Client can configure email notifications when a usage threshold is reached | Low | Approved | In progress |
 
 #### FR-2d: Bot configuration
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-2.11 | Client can set a system prompt / context that scopes the bot's knowledge to their domain | High | Approved |
-| FR-2.12 | Client can assign a default role to the bot (e.g. "customer support agent for Acme Shop") | High | Approved |
-| FR-2.13 | Client can customise the bot's tone and communication style (e.g. formal / informal address) | Medium | Approved |
-| FR-2.14 | Client can maintain a word blacklist; the bot must not use or engage with blacklisted terms | Medium | Approved |
-| FR-2.15 | Client can toggle whether the bot is allowed to search the internet for answers | Medium | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-2.11 | Client can set a system prompt / context that scopes the bot's knowledge to their domain | High | Approved | In progress |
+| FR-2.12 | Client can assign a default role to the bot (e.g. "customer support agent for Acme Shop") | High | Approved | In progress |
+| FR-2.13 | Client can customise the bot's tone and communication style (e.g. formal / informal address) | Medium | Approved | In progress |
+| FR-2.14 | Client can maintain a word blacklist; the bot must not use or engage with blacklisted terms | Medium | Approved | In progress |
+| FR-2.15 | Client can toggle whether the bot is allowed to search the internet for answers | Medium | Approved | In progress |
 
 #### FR-2e: Knowledge & integrations (MCP)
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved |
-| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | In progress |
+| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | In progress |
 
 #### FR-2f: Analytics & appearance
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-2.18 | Dashboard displays graphs of token consumption over time | Medium | Approved |
-| FR-2.19 | Dashboard displays the total number of end-user questions over time | Medium | Approved |
-| FR-2.20 | Dashboard supports light and dark mode | High | Approved |
-| FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved |
-| FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved |
-| FR-2.23 | Dashboard displays conversion metrics | Low | Approved |
-| FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved |
-| FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-2.18 | Dashboard displays graphs of token consumption over time | Medium | Approved | Done |
+| FR-2.19 | Dashboard displays the total number of end-user questions over time | Medium | Approved | Done |
+| FR-2.20 | Dashboard supports light and dark mode | High | Approved | Done |
+| FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved | Not started |
+| FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved | Not started |
+| FR-2.23 | Dashboard displays conversion metrics | Low | Approved | Not started |
+| FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved | Not started |
+| FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved | Not started |
 
 ### FR-3: Back-office
 
 > The internal tool used by platform admins to manage tenants and platform health.
 
-| ID | Requirement | Priority | Status |
-|----|-------------|----------|--------|
-| FR-3.1 | Platform admin can view a list of all clients with key status indicators (token consumption, API key type, active/suspended) | High | Approved |
-| FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved |
-| FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved |
-| FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved |
-| FR-3.5.1 | Platform admin can view total registered client count | Low | Approved |
-| FR-3.5.2 | Platform admin can view the number of active tenants (clients with at least one conversation in the past 30 days) | Low | Approved |
-| FR-3.5.3 | Platform admin can view platform-wide error rates (percentage of failed API and MCP requests) | Low | Approved |
-| FR-3.6 | Platform admin can view a graph of official (platform) API key usage over time | Low | Approved |
-| FR-3.7 | Platform admin can view a graph of total conversation count across all tenants over time | Low | Approved |
-| FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all tenants | Low | Approved |
+| ID | Requirement | Priority | Status | Completion |
+|----|-------------|----------|--------|------------|
+| FR-3.1 | Platform admin can view a list of all clients with key status indicators (token consumption, API key type, active/suspended) | High | Approved | Done |
+| FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | In progress |
+| FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved | In progress |
+| FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
+| FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |
+| FR-3.5.2 | Platform admin can view the number of active tenants (clients with at least one conversation in the past 30 days) | Low | Approved | Not started |
+| FR-3.5.3 | Platform admin can view platform-wide error rates (percentage of failed API and MCP requests) | Low | Approved | Not started |
+| FR-3.6 | Platform admin can view a graph of official (platform) API key usage over time | Low | Approved | Not started |
+| FR-3.7 | Platform admin can view a graph of total conversation count across all tenants over time | Low | Approved | Not started |
+| FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all tenants | Low | Approved | Not started |
 
 ---
 

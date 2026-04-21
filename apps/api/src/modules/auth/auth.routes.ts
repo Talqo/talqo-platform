@@ -3,6 +3,7 @@ import {
 	ForgotPasswordSchema,
 	LoginSchema,
 	RegisterSchema,
+	ResendVerificationSchema,
 	ResetPasswordSchema,
 	VerifyEmailSchema,
 	VerifyResetTokenSchema,
@@ -183,7 +184,7 @@ export function createAuthRouter(
 				body: {
 					content: {
 						"application/json": {
-							schema: z.object({ email: z.string().email() }),
+							schema: ResendVerificationSchema,
 						},
 					},
 				},
