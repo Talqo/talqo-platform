@@ -16,7 +16,7 @@ src/
 │   ├── hooks/            # Custom TanStack Query hooks per domain (useAuth, useFiles, etc.)
 │   └── generated/        # Auto-generated from OpenAPI spec — do not edit
 ├── hooks/                # Shared custom hooks (useGuardedAuth, useAnimationTimeout)
-├── lib/                  # queryClient, utils (cn), useForm, useTheme, auth utils, constants
+├── lib/                  # queryClient, utils (cn), useTheme, auth utils, constants
 ├── schemas/              # Frontend-only Zod form schemas (extend shared schemas)
 ├── data/                 # Static/seed data for UI (charts, tools, landing copy)
 └── assets/               # Static assets
@@ -47,7 +47,7 @@ src/
 
 - **`@` alias** maps to `src/` — always use `@/` for internal imports.
 - **shadcn components**: add via `bunx shadcn@latest add <component>`, never edit `src/components/ui/` by hand.
-- **Form handling**: use `src/lib/useForm.ts` (custom hook with Zod-compatible validation). Frontend schemas live in `src/schemas/` and extend `shared` schemas.
+- **Form handling**: use `react-hook-form` with `zodResolver` from `@hookform/resolvers/zod`. Wrap fields with shadcn `Form`/`FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage`. Frontend schemas live in `src/schemas/` and extend `shared` schemas.
 - **No tests** — `bun run test` is a no-op placeholder.
 - **`VITE_API_URL`** env var sets the API base URL (defaults to `http://localhost:3000`).
 - **`queryClient`** defaults: `staleTime: 60 s`, `retry: 1`.

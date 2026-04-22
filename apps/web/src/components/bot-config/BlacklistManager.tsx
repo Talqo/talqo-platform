@@ -1,5 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { X } from "lucide-react"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import type { AddWordInput } from "shared"
+import { addWordBodySchema } from "shared"
 import {
 	useAddBlacklistWord,
 	useBlacklist,
@@ -9,6 +13,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -16,42 +28,59 @@ export function BlacklistManager() {
 	const { data: words, isLoading, isError } = useBlacklist()
 	const addWord = useAddBlacklistWord()
 	const removeWord = useRemoveBlacklistWord()
-	const [newWord, setNewWord] = useState("")
-	const [addError, setAddError] = useState<string | null>(null)
+	const [listError, setListError] = useState<string | null>(null)
 
-	const handleAdd = async () => {
-		const trimmed = newWord.trim()
-		if (!trimmed) return
+	const form = useForm<AddWordInput>({
+		resolver: zodResolver(addWordBodySchema),
+		defaultValues: { word: "" },
+		mode: "onBlur",
+	})
 
-		const isDuplicate = words?.some(
-			(w) => w.word.toLowerCase() === trimmed.toLowerCase(),
-		)
-		if (isDuplicate) {
-			setAddError(`"${trimmed}" is already in the blacklist.`)
+	const onSubmit = async (values: AddWordInput) => {
+		if (!words) {
+			form.setError("word", {
+				message: "Blacklist not loaded yet — please wait",
+			})
 			return
 		}
 
-		setAddError(null)
+		const trimmed = values.word.trim()
+		if (trimmed.length === 0) {
+			form.setError("word", {
+				message: "Please enter a non-empty word.",
+			})
+			return
+		}
+
+		const isDuplicate = words.some(
+			(w) => w.word.toLowerCase() === trimmed.toLowerCase(),
+		)
+		if (isDuplicate) {
+			form.setError("word", {
+				message: `"${trimmed}" is already in the blacklist.`,
+			})
+			return
+		}
+
 		try {
 			await addWord.mutateAsync({ word: trimmed })
-			setNewWord("")
-		} catch {
-			setAddError("Failed to add word. Please try again.")
-		}
-	}
-
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter") {
-			e.preventDefault()
-			handleAdd()
+			form.reset()
+			setListError(null)
+		} catch (err) {
+			console.error("Failed to add word:", err)
+			form.setError("word", {
+				message: "Failed to add word. Please try again.",
+			})
 		}
 	}
 
 	const handleRemove = async (wordId: string) => {
 		try {
 			await removeWord.mutateAsync(wordId)
-		} catch {
-			setAddError("Failed to remove word. Please try again.")
+			setListError(null)
+		} catch (err) {
+			console.error("Failed to remove word:", err)
+			setListError("Failed to remove word. Please try again.")
 		}
 	}
 
@@ -65,32 +94,36 @@ export function BlacklistManager() {
 					The bot will not use or engage with blacklisted terms.
 				</p>
 
-				{addError && (
-					<Alert variant="destructive">
-						<AlertDescription>{addError}</AlertDescription>
-					</Alert>
-				)}
-
-				<div className="flex gap-2">
-					<Input
-						value={newWord}
-						onChange={(e) => {
-							setNewWord(e.target.value)
-							if (addError) setAddError(null)
-						}}
-						onKeyDown={handleKeyDown}
-						placeholder="Type a word and press Enter or Add..."
-						disabled={addWord.isPending}
-					/>
-					<Button
-						type="button"
-						variant="outline"
-						onClick={handleAdd}
-						disabled={addWord.isPending || !newWord.trim()}
-					>
-						{addWord.isPending ? "Adding..." : "Add"}
-					</Button>
-				</div>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<FormField
+							control={form.control}
+							name="word"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="sr-only">Word</FormLabel>
+									<div className="flex gap-2">
+										<FormControl>
+											<Input
+												placeholder="Type a word and press Enter or Add..."
+												disabled={addWord.isPending}
+												{...field}
+											/>
+										</FormControl>
+										<Button
+											type="submit"
+											variant="outline"
+											disabled={addWord.isPending || isLoading || !words}
+										>
+											{addWord.isPending ? "Adding..." : "Add"}
+										</Button>
+									</div>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</form>
+				</Form>
 
 				{isLoading ? (
 					<div className="flex flex-wrap gap-2">
@@ -104,6 +137,10 @@ export function BlacklistManager() {
 						<AlertDescription>
 							Failed to load blacklist. Please refresh the page.
 						</AlertDescription>
+					</Alert>
+				) : listError ? (
+					<Alert variant="destructive">
+						<AlertDescription>{listError}</AlertDescription>
 					</Alert>
 				) : words && words.length > 0 ? (
 					<div className="flex flex-wrap gap-2">
