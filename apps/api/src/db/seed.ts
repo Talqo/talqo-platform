@@ -1,3 +1,4 @@
+import { inArray, sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
@@ -32,11 +33,11 @@ if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_DB) {
 	process.exit(1)
 }
 
-const sql = postgres(
+const pgClient = postgres(
 	`postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`,
 	{ max: 1 },
 )
-const db = drizzle(sql, { schema })
+const db = drizzle(pgClient, { schema })
 
 // Fixed UUIDs make the seed fully idempotent — re-running never creates duplicates.
 // Uses version 4 (4xxx) + variant 1 (8xxx) to satisfy RFC 4122 UUID validation.
@@ -92,6 +93,12 @@ const ID = {
 async function seed() {
 	console.log("Seeding database...")
 
+	// Clean up any existing clients with our seed emails to ensure fixed UUIDs work
+	// This is necessary because onConflictDoUpdate doesn't change the primary key ID
+	await db
+		.delete(clients)
+		.where(inArray(clients.email, ["acme@pagepal.dev", "tech@pagepal.dev"]))
+
 	// ── Admin users ────────────────────────────────────────────────────────────
 	await db
 		.insert(adminUsers)
@@ -101,7 +108,7 @@ async function seed() {
 			passwordHash: await Bun.password.hash("admin123"),
 		})
 		.onConflictDoUpdate({
-			target: adminUsers.id,
+			target: adminUsers.email,
 			set: { passwordHash: await Bun.password.hash("admin123") },
 		})
 	console.log("  ✓ admin users")
@@ -131,7 +138,18 @@ async function seed() {
 				status: "active",
 			},
 		])
-		.onConflictDoNothing()
+		.onConflictDoUpdate({
+			target: clients.email,
+			set: {
+				name: sql`excluded.name`,
+				passwordHash: sql`excluded.password_hash`,
+				balanceUsd: sql`excluded.balance_usd`,
+				monthlyUsageLimit: sql`excluded.monthly_usage_limit`,
+				usageAlertThresholdUsd: sql`excluded.usage_alert_threshold_usd`,
+				widgetToken: sql`excluded.widget_token`,
+				status: sql`excluded.status`,
+			},
+		})
 	console.log("  ✓ clients")
 
 	// ── Bot configs ────────────────────────────────────────────────────────────
@@ -413,7 +431,7 @@ async function seed() {
 	console.log("  ✓ usage records")
 
 	console.log("Done.")
-	await sql.end()
+	await pgClient.end()
 }
 
 seed().catch((err) => {
