@@ -5,13 +5,15 @@ export const requestLogger = createMiddleware<{ Variables: AppVariables }>(
 	async (c, next) => {
 		const start = Date.now()
 
-		await next()
-
-		c.get("logger").info("HTTP request", {
-			method: c.req.method,
-			path: c.req.path,
-			status: c.res.status,
-			durationMs: Date.now() - start,
-		})
+		try {
+			await next()
+		} finally {
+			c.get("logger").info("HTTP request", {
+				method: c.req.method,
+				path: c.req.path,
+				status: c.res.status,
+				durationMs: Date.now() - start,
+			})
+		}
 	},
 )

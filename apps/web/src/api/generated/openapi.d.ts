@@ -2228,7 +2228,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/{clientId}/sessions/{sessionId}/conversations/:conversationId": {
+    "/widget/{clientId}/sessions/{sessionId}/conversations/{conversationId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2721,7 +2721,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/clients/:clientId": {
+    "/admin/clients/{clientId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2791,7 +2791,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/clients/:clientId/status": {
+    "/admin/clients/{clientId}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -2859,7 +2859,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/clients/:clientId/impersonate": {
+    "/admin/clients/{clientId}/impersonate": {
         parameters: {
             query?: never;
             header?: never;
@@ -2964,6 +2964,138 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all conversations */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number | null;
+                    clientId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversations list */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                clientId: string;
+                                clientName: string | null;
+                                clientEmail: string | null;
+                                startedAt: string;
+                                satisfactionRating: number | null;
+                                messageCount: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get conversation with messages */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    conversationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversation detail with messages */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: true;
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                clientId: string;
+                                clientName: string | null;
+                                clientEmail: string | null;
+                                startedAt: string;
+                                satisfactionRating: number | null;
+                                messages: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    /** Format: uuid */
+                                    conversationId: string;
+                                    /** @enum {string} */
+                                    role: "user" | "assistant" | "system";
+                                    content: string;
+                                    tokenCount: number;
+                                    createdAt: string;
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /** @description Conversation not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            success: false;
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/mcp/pre-made": {
         parameters: {
             query?: never;
@@ -3042,7 +3174,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/mcp/pre-made/:serverId": {
+    "/admin/mcp/pre-made/{serverId}": {
         parameters: {
             query?: never;
             header?: never;

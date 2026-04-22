@@ -334,7 +334,7 @@ adminMcpRoutes.openapi(
 adminMcpRoutes.openapi(
 	createRoute({
 		method: "patch",
-		path: "/:serverId",
+		path: "/{serverId}",
 		tags: ["Admin"],
 		summary: "Update a pre-made MCP server",
 		security: [{ bearerAuth: [] }],
@@ -374,7 +374,7 @@ adminMcpRoutes.openapi(
 adminMcpRoutes.openapi(
 	createRoute({
 		method: "delete",
-		path: "/:serverId",
+		path: "/{serverId}",
 		tags: ["Admin"],
 		summary: "Delete a pre-made MCP server",
 		security: [{ bearerAuth: [] }],

@@ -4,6 +4,7 @@ import { cors } from "hono/cors"
 import type { ApiResponse } from "shared"
 import type { AppVariables } from "./common/jwt"
 import { logger } from "./common/logger"
+import { adminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
@@ -12,6 +13,7 @@ import { widgetAuth } from "./common/middleware/widget-auth"
 import {
 	adminAuthRoutes,
 	adminClientRoutes,
+	adminConversationRoutes,
 	adminMeRoutes,
 } from "./modules/admin"
 import {
@@ -78,9 +80,11 @@ app.route("/admin/auth", adminAuthRoutes)
 
 // ─── Admin dashboard (protected) ─────────────────────────────────────────────
 app.use("/admin/*", adminAuth)
+app.use("/admin/*", adminAuditLog)
 app.route("/admin/me", adminMeRoutes)
 app.route("/admin/clients", adminClientRoutes)
 app.route("/admin/analytics", adminAnalyticsRoutes)
+app.route("/admin/conversations", adminConversationRoutes)
 app.route("/admin/mcp/pre-made", adminMcpRoutes)
 
 // ─── Security scheme definitions ─────────────────────────────────────────────

@@ -6,9 +6,19 @@ import type { Tenant } from "@/data/backoffice"
 
 interface TenantsTableProps {
 	tenants?: Tenant[]
+	onSuspend?: (id: string) => void
+	onReEnable?: (id: string) => void
+	onImpersonate?: (id: string) => void
+	pendingId?: string
 }
 
-export function TenantsTable({ tenants }: TenantsTableProps) {
+export function TenantsTable({
+	tenants,
+	onSuspend,
+	onReEnable,
+	onImpersonate,
+	pendingId,
+}: TenantsTableProps) {
 	return (
 		<Card className="overflow-hidden dark:border-zinc-800 dark:bg-zinc-900">
 			<div className="overflow-x-auto">
@@ -81,10 +91,12 @@ export function TenantsTable({ tenants }: TenantsTableProps) {
 										<Button
 											variant="outline"
 											size="sm"
-											disabled
-											title="Not implemented"
-											aria-disabled="true"
+											disabled={pendingId === tenant.id}
+											onClick={() => onImpersonate?.(tenant.id)}
 										>
+											{pendingId === tenant.id ? (
+												<Spinner size="sm" className="mr-1" />
+											) : null}
 											Impersonate
 										</Button>
 										{tenant.status === "active" ? (
@@ -92,9 +104,8 @@ export function TenantsTable({ tenants }: TenantsTableProps) {
 												variant="outline"
 												size="sm"
 												className="text-red-600 hover:text-red-700 dark:text-red-500"
-												disabled
-												title="Not implemented"
-												aria-disabled="true"
+												disabled={pendingId === tenant.id}
+												onClick={() => onSuspend?.(tenant.id)}
 											>
 												Suspend
 											</Button>
@@ -103,9 +114,8 @@ export function TenantsTable({ tenants }: TenantsTableProps) {
 												variant="outline"
 												size="sm"
 												className="text-green-600 hover:text-green-700 dark:text-green-500"
-												disabled
-												title="Not implemented"
-												aria-disabled="true"
+												disabled={pendingId === tenant.id}
+												onClick={() => onReEnable?.(tenant.id)}
 											>
 												Re-enable
 											</Button>

@@ -37,9 +37,9 @@ export const adminAccessLogs = pgTable("admin_access_logs", {
 	adminId: uuid("admin_id")
 		.notNull()
 		.references(() => adminUsers.id, { onDelete: "restrict" }),
-	clientId: uuid("client_id")
-		.notNull()
-		.references(() => clients.id, { onDelete: "cascade" }),
+	clientId: uuid("client_id").references(() => clients.id, {
+		onDelete: "set null",
+	}),
 	actionType: varchar("action_type", { length: 255 }).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()

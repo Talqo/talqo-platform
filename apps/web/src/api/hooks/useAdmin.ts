@@ -1,30 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
 
-export function useAdminLogin() {
-	return useMutation({
-		mutationFn: async (body: { email: string; password: string }) => {
-			const { data, error } = await client.POST("/admin/auth/login", { body })
-			if (error) throw error
-			return data.data
-		},
-		onSuccess: ({ token }) => {
-			localStorage.setItem("token", token)
-		},
-	})
-}
-
-export function useAdminLogout() {
-	return useMutation({
-		mutationFn: async () => {
-			const { data, error } = await client.POST("/admin/auth/logout", {})
-			if (error) throw error
-			localStorage.removeItem("token")
-			return data.data
-		},
-	})
-}
-
 export function useAdminClients(
 	params: { limit?: number; offset?: number } = {},
 ) {
@@ -44,7 +20,7 @@ export function useAdminClient(clientId: string) {
 	return useQuery({
 		queryKey: ["admin", "clients", clientId],
 		queryFn: async () => {
-			const { data, error } = await client.GET("/admin/clients/:clientId", {
+			const { data, error } = await client.GET("/admin/clients/{clientId}", {
 				params: { path: { clientId } },
 			})
 			if (error) throw error
@@ -64,7 +40,7 @@ export function useUpdateClientStatus() {
 			status: "active" | "suspended"
 		}) => {
 			const { data, error } = await client.PATCH(
-				"/admin/clients/:clientId/status",
+				"/admin/clients/{clientId}/status",
 				{ params: { path: { clientId } }, body: { status } },
 			)
 			if (error) throw error
@@ -81,7 +57,7 @@ export function useImpersonateClient() {
 	return useMutation({
 		mutationFn: async (clientId: string) => {
 			const { data, error } = await client.POST(
-				"/admin/clients/:clientId/impersonate",
+				"/admin/clients/{clientId}/impersonate",
 				{ params: { path: { clientId } } },
 			)
 			if (error) throw error
@@ -98,6 +74,38 @@ export function useAdminPlatformStats() {
 			if (error) throw error
 			return data.data
 		},
+	})
+}
+
+// ─── Admin Conversations ───────────────────────────────────────────────────────
+
+export function useAdminConversations(
+	params: { clientId?: string; limit?: number; offset?: number } = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "conversations", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/conversations", {
+				params: { query: params },
+			})
+			if (error) throw error
+			return data.data
+		},
+	})
+}
+
+export function useAdminConversation(conversationId: string) {
+	return useQuery({
+		queryKey: ["admin", "conversations", conversationId],
+		queryFn: async () => {
+			const { data, error } = await client.GET(
+				"/admin/conversations/{conversationId}",
+				{ params: { path: { conversationId } } },
+			)
+			if (error) throw error
+			return data.data
+		},
+		enabled: !!conversationId,
 	})
 }
 
@@ -140,7 +148,7 @@ export function useAdminUpdatePreMadeServer() {
 			mcpConfig: unknown
 		}) => {
 			const { data, error } = await client.PATCH(
-				"/admin/mcp/pre-made/:serverId",
+				"/admin/mcp/pre-made/{serverId}",
 				{ params: { path: { serverId } }, body: { mcpConfig } },
 			)
 			if (error) throw error
@@ -156,7 +164,7 @@ export function useAdminDeletePreMadeServer() {
 	return useMutation({
 		mutationFn: async (serverId: string) => {
 			const { data, error } = await client.DELETE(
-				"/admin/mcp/pre-made/:serverId",
+				"/admin/mcp/pre-made/{serverId}",
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error

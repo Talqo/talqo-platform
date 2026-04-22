@@ -98,7 +98,7 @@ widgetConversationRoutes.openapi(
 widgetConversationRoutes.openapi(
 	createRoute({
 		method: "delete",
-		path: "/:conversationId",
+		path: "/{conversationId}",
 		tags: ["Widget"],
 		summary: "Reset (delete) a conversation",
 		security: [{ widgetToken: [] }],
@@ -134,7 +134,7 @@ widgetConversationRoutes.openapi(
 widgetConversationRoutes.openapi(
 	createRoute({
 		method: "patch",
-		path: "/:conversationId",
+		path: "/{conversationId}",
 		tags: ["Widget"],
 		summary: "Submit satisfaction rating",
 		security: [{ widgetToken: [] }],
