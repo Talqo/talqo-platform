@@ -163,7 +163,6 @@ async function seed() {
 					"You are a helpful shopping assistant for Acme Corp. Help customers find products, answer questions about availability, and guide them through the purchase process.",
 				defaultRole: "Shopping Assistant",
 				toneStyle: "friendly",
-				internetSearchEnabled: false,
 			},
 			{
 				id: ID.botConfig2,
@@ -172,7 +171,6 @@ async function seed() {
 					"You are a technical support specialist for TechStartup. Help users troubleshoot issues, explain features, and escalate complex problems when needed.",
 				defaultRole: "Support Agent",
 				toneStyle: "professional",
-				internetSearchEnabled: true,
 			},
 		])
 		.onConflictDoNothing()

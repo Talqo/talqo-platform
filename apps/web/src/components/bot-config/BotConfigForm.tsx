@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useForm } from "@/lib/useForm"
 
@@ -82,7 +81,6 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 					systemPrompt: toApi(vals.systemPrompt),
 					defaultRole: toApi(vals.defaultRole),
 					toneStyle: toApi(vals.toneStyle),
-					internetSearchEnabled: vals.internetSearchEnabled,
 				})
 				setFeedback({ type: "success", message: "Configuration saved." })
 				clearFeedback()
@@ -161,22 +159,6 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 							<p className="text-destructive text-sm">{errors.toneStyle}</p>
 						)}
 					</div>
-
-					<div className="flex items-center justify-between gap-4 pt-2">
-						<div>
-							<Label htmlFor="internetSearchEnabled">Internet Search</Label>
-							<p className="text-muted-foreground text-sm">
-								Allow the bot to search the internet for answers.
-							</p>
-						</div>
-						<Switch
-							id="internetSearchEnabled"
-							checked={values.internetSearchEnabled}
-							onCheckedChange={(checked) =>
-								handleChange("internetSearchEnabled")(checked)
-							}
-						/>
-					</div>
 				</CardContent>
 				<CardFooter className="flex justify-end">
 					<Button type="submit" disabled={isSubmitting}>
@@ -207,10 +189,6 @@ function BotConfigFormSkeleton() {
 					<Skeleton className="h-4 w-32" />
 					<Skeleton className="h-10 w-full" />
 				</div>
-				<div className="flex items-center justify-between pt-2">
-					<Skeleton className="h-4 w-40" />
-					<Skeleton className="h-6 w-11 rounded-full" />
-				</div>
 			</CardContent>
 			<CardFooter className="flex justify-end">
 				<Skeleton className="h-10 w-36" />
@@ -232,7 +210,6 @@ export function BotConfigForm() {
 				systemPrompt: fromApi(data.systemPrompt),
 				defaultRole: fromApi(data.defaultRole),
 				toneStyle: fromApi(data.toneStyle),
-				internetSearchEnabled: data.internetSearchEnabled,
 			})
 		}
 	}, [data, initialValues])

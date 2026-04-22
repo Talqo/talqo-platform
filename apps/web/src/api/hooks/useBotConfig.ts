@@ -19,7 +19,6 @@ export function useUpdateBotConfig() {
 			systemPrompt?: string | null
 			defaultRole?: string | null
 			toneStyle?: string | null
-			internetSearchEnabled?: boolean
 		}) => {
 			const { data, error } = await client.PATCH("/client/me/bot-config", {
 				body,

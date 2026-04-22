@@ -892,7 +892,6 @@ export interface paths {
                                 systemPrompt: string | null;
                                 defaultRole: string | null;
                                 toneStyle: string | null;
-                                internetSearchEnabled: boolean;
                                 updatedAt: string;
                             };
                         };
@@ -919,7 +918,6 @@ export interface paths {
                         systemPrompt?: string | null;
                         defaultRole?: string | null;
                         toneStyle?: string | null;
-                        internetSearchEnabled?: boolean;
                     };
                 };
             };
@@ -941,7 +939,6 @@ export interface paths {
                                 systemPrompt: string | null;
                                 defaultRole: string | null;
                                 toneStyle: string | null;
-                                internetSearchEnabled: boolean;
                                 updatedAt: string;
                             };
                         };
