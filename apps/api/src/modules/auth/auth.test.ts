@@ -58,8 +58,9 @@ describe("POST /auth/register", () => {
 			}),
 		)
 		expect(res.status).toBe(201)
-		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		const body = (await res.json()) as { message: string }
+		expect(body.message).toBe("Verification email sent")
+		expect(body).not.toHaveProperty("success")
 		expect(mockSend).toHaveBeenCalledTimes(1)
 		expect((mockSend.mock.calls[0] as unknown as [{ to: string }])[0].to).toBe(
 			validRegistration.email,
@@ -92,7 +93,7 @@ describe("POST /auth/register", () => {
 		)
 		expect(res.status).toBe(409)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(false)
+		expect(body.error).toBeDefined()
 		expect((body.error as { code: string }).code).toBe("EMAIL_TAKEN")
 	})
 
@@ -170,7 +171,10 @@ describe("GET /auth/verify-email", () => {
 			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		const body = (await res.json()) as { token: string; message: string }
+		expect(body.token).toBeDefined()
+		expect(body.message).toBe("Email verified successfully")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 400 for an unknown token", async () => {
@@ -205,26 +209,20 @@ describe("GET /auth/verify-email", () => {
 			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(firstRes.status).toBe(200)
-		const firstBody = (await firstRes.json()) as {
-			success: boolean
-			data: { token: string }
-		}
+		const firstBody = (await firstRes.json()) as { token: string }
 
 		// Second verification with same token should also succeed (idempotent)
 		const secondRes = await app.fetch(
 			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
 		)
 		expect(secondRes.status).toBe(200)
-		const secondBody = (await secondRes.json()) as {
-			success: boolean
-			data: { token: string }
-		}
+		const secondBody = (await secondRes.json()) as { token: string }
 
 		// Both should return valid JWT tokens
-		expect(firstBody.success).toBe(true)
-		expect(secondBody.success).toBe(true)
-		expect(typeof firstBody.data.token).toBe("string")
-		expect(typeof secondBody.data.token).toBe("string")
+		expect(firstBody.token).toBeDefined()
+		expect(secondBody.token).toBeDefined()
+		expect(typeof firstBody.token).toBe("string")
+		expect(typeof secondBody.token).toBe("string")
 	})
 })
 
@@ -273,12 +271,10 @@ describe("POST /auth/login", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { token: string }
-		}
-		expect(body.success).toBe(true)
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(body.token).toBeDefined()
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 401 for wrong password", async () => {
@@ -382,7 +378,9 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		const body1 = (await res.json()) as { message: string }
+		expect(body1.message).toBeDefined()
+		expect(body1).not.toHaveProperty("success")
 		expect(mockSend).toHaveBeenCalledTimes(2) // Once for register, once for resend
 	})
 
@@ -412,7 +410,9 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		const body2 = (await res.json()) as { message: string }
+		expect(body2.message).toBeDefined()
+		expect(body2).not.toHaveProperty("success")
 		expect(mockSend).not.toHaveBeenCalled() // No email sent for verified accounts
 	})
 
@@ -426,7 +426,9 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		expect(res.status).toBe(200)
-		expect(((await res.json()) as Record<string, unknown>).success).toBe(true)
+		const body3 = (await res.json()) as { message: string }
+		expect(body3.message).toBeDefined()
+		expect(body3).not.toHaveProperty("success")
 		expect(mockSend).not.toHaveBeenCalled()
 	})
 
@@ -481,8 +483,9 @@ describe("POST /auth/forgot-password", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		const body4 = (await res.json()) as { message: string }
+		expect(body4.message).toBeDefined()
+		expect(body4).not.toHaveProperty("success")
 		// No additional email should be sent for non-existent email
 		expect(mockSend.mock.calls.length).toBe(sendCountBefore)
 	})
@@ -496,8 +499,9 @@ describe("POST /auth/forgot-password", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		const body5 = (await res.json()) as { message: string }
+		expect(body5.message).toBeDefined()
+		expect(body5).not.toHaveProperty("success")
 		expect(mockSend).toHaveBeenCalledTimes(1)
 	})
 
@@ -597,8 +601,9 @@ describe("POST /auth/reset-password", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as Record<string, unknown>
-		expect(body.success).toBe(true)
+		const body = (await res.json()) as { message: string }
+		expect(body.message).toBe("Password reset successful")
+		expect(body).not.toHaveProperty("success")
 
 		// Login with new password should work
 		const loginRes = await app.fetch(
@@ -612,8 +617,9 @@ describe("POST /auth/reset-password", () => {
 			}),
 		)
 		expect(loginRes.status).toBe(200)
-		const loginBody = (await loginRes.json()) as { success: boolean }
-		expect(loginBody.success).toBe(true)
+		const loginBody = (await loginRes.json()) as { token: string }
+		expect(loginBody.token).toBeDefined()
+		expect(loginBody).not.toHaveProperty("success")
 	})
 
 	it("returns 400 when token is reused", async () => {
@@ -694,12 +700,9 @@ describe("GET /auth/verify-reset-token", () => {
 			),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { valid: boolean }
-		}
-		expect(body.success).toBe(true)
-		expect(body.data.valid).toBe(true)
+		const body = (await res.json()) as { valid: boolean }
+		expect(body.valid).toBe(true)
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 400 for invalid token", async () => {

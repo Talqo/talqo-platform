@@ -23,7 +23,7 @@ export function useProviderConfig() {
 			if (error) throw error
 			// Type assertion needed because generated types have optional fields
 			// but backend always returns complete objects
-			return (data.data as ProviderConfigResponse | null) ?? null
+			return (data as ProviderConfigResponse | null) ?? null
 		},
 	})
 }
@@ -36,7 +36,7 @@ export function useUpsertProviderConfig() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY }),
 	})

@@ -6,6 +6,7 @@ import {
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
+import { NotFoundError } from "../../common/errors"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -55,7 +56,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const body = c.req.valid("json")
 			const result = await service.login(body)
-			return c.json({ success: true as const, data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
@@ -77,10 +78,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			return c.json(
-				{ success: true as const, data: { message: "Logged out" } },
-				200,
-			)
+			return c.json({ message: "Logged out" }, 200)
 		},
 	)
 
@@ -129,19 +127,10 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 			const adminId = c.get("adminId" as never) as string
 			const admin = await service.getAdminById(adminId)
 			if (!admin) {
-				return c.json(
-					{
-						success: false as const,
-						error: { code: "NOT_FOUND", message: "Admin not found" },
-					},
-					404,
-				)
+				throw new NotFoundError("Admin not found")
 			}
 			return c.json(
-				{
-					success: true as const,
-					data: { id: admin.id, email: admin.email, role: "admin" as const },
-				},
+				{ id: admin.id, email: admin.email, role: "admin" as const },
 				200,
 			)
 		},
@@ -177,7 +166,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { limit, offset } = c.req.valid("query")
 			const clients = await service.listClients(limit, offset)
-			return c.json({ success: true as const, data: clients }, 200)
+			return c.json(clients, 200)
 		},
 	)
 
@@ -215,7 +204,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const client = await service.getClient(clientId)
-			return c.json({ success: true as const, data: client }, 200)
+			return c.json(client, 200)
 		},
 	)
 
@@ -257,7 +246,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			const { clientId } = c.req.valid("param")
 			const { status } = c.req.valid("json")
 			const updated = await service.updateClientStatus(clientId, status)
-			return c.json({ success: true as const, data: updated }, 200)
+			return c.json(updated, 200)
 		},
 	)
 
@@ -289,7 +278,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const result = await service.impersonate(clientId)
-			return c.json({ success: true as const, data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
@@ -333,7 +322,7 @@ export function createAdminConversationRouter(
 				limit,
 				offset,
 			})
-			return c.json({ success: true as const, data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
@@ -369,7 +358,7 @@ export function createAdminConversationRouter(
 		async (c) => {
 			const { conversationId } = c.req.valid("param")
 			const result = await service.getConversation(conversationId)
-			return c.json({ success: true as const, data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
