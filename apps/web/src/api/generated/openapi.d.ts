@@ -2712,20 +2712,16 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                clientName: string | null;
-                                clientEmail: string | null;
-                                startedAt: string;
-                                satisfactionRating: number | null;
-                                messageCount: number;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            clientName: string | null;
+                            clientEmail: string | null;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messageCount: number;
+                        }[];
                     };
                 };
             };
@@ -2764,29 +2760,25 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            clientName: string | null;
+                            clientEmail: string | null;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messages: {
                                 /** Format: uuid */
                                 id: string;
                                 /** Format: uuid */
-                                clientId: string;
-                                clientName: string | null;
-                                clientEmail: string | null;
-                                startedAt: string;
-                                satisfactionRating: number | null;
-                                messages: {
-                                    /** Format: uuid */
-                                    id: string;
-                                    /** Format: uuid */
-                                    conversationId: string;
-                                    /** @enum {string} */
-                                    role: "user" | "assistant" | "system";
-                                    content: string;
-                                    tokenCount: number;
-                                    createdAt: string;
-                                }[];
-                            };
+                                conversationId: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "system";
+                                content: string;
+                                tokenCount: number;
+                                createdAt: string;
+                            }[];
                         };
                     };
                 };

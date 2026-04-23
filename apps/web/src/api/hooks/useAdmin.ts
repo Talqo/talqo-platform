@@ -89,7 +89,7 @@ export function useAdminConversations(
 				params: { query: params },
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -103,7 +103,7 @@ export function useAdminConversation(conversationId: string) {
 				{ params: { path: { conversationId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		enabled: !!conversationId,
 	})

@@ -668,9 +668,8 @@ describe("GET /admin/conversations", () => {
 			new Request("http://localhost/admin/conversations"),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { success: boolean; data: unknown[] }
-		expect(body.success).toBe(true)
-		expect(body.data.length).toBe(2)
+		const body = (await res.json()) as { id: string }[]
+		expect(body.length).toBe(2)
 	})
 
 	it("filters by clientId query param", async () => {
@@ -682,11 +681,9 @@ describe("GET /admin/conversations", () => {
 			new Request(`http://localhost/admin/conversations?clientId=${c1.id}`),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			data: { clientId: string }[]
-		}
-		expect(body.data.length).toBe(1)
-		expect(body.data[0].clientId).toBe(c1.id)
+		const body = (await res.json()) as { clientId: string }[]
+		expect(body.length).toBe(1)
+		expect(body[0].clientId).toBe(c1.id)
 	})
 
 	it("returns 200 with empty array when no conversations exist", async () => {
@@ -694,8 +691,8 @@ describe("GET /admin/conversations", () => {
 			new Request("http://localhost/admin/conversations"),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: unknown[] }
-		expect(body.data).toEqual([])
+		const body = (await res.json()) as unknown[]
+		expect(body).toEqual([])
 	})
 
 	it("returns 400 for invalid clientId (not a UUID)", async () => {
@@ -726,18 +723,16 @@ describe("GET /admin/conversations/:conversationId", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			data: {
-				id: string
-				clientName: string
-				satisfactionRating: number
-				messages: { content: string }[]
-			}
+			id: string
+			clientName: string
+			satisfactionRating: number
+			messages: { content: string }[]
 		}
-		expect(body.data.id).toBe(conv.id)
-		expect(body.data.clientName).toBe("Alice")
-		expect(body.data.satisfactionRating).toBe(3)
-		expect(body.data.messages.length).toBe(1)
-		expect(body.data.messages[0].content).toBe("Hello")
+		expect(body.id).toBe(conv.id)
+		expect(body.clientName).toBe("Alice")
+		expect(body.satisfactionRating).toBe(3)
+		expect(body.messages.length).toBe(1)
+		expect(body.messages[0].content).toBe("Hello")
 	})
 
 	it("returns 200 with empty messages array when conversation has none", async () => {
@@ -747,8 +742,8 @@ describe("GET /admin/conversations/:conversationId", () => {
 			new Request(`http://localhost/admin/conversations/${conv.id}`),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { messages: unknown[] } }
-		expect(body.data.messages).toEqual([])
+		const body = (await res.json()) as { messages: unknown[] }
+		expect(body.messages).toEqual([])
 	})
 
 	it("returns 404 when conversation does not exist", async () => {

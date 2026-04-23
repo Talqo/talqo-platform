@@ -313,7 +313,7 @@ export function createAdminConversationRouter(
 					description: "Conversations list",
 					content: {
 						"application/json": {
-							schema: successResponseSchema(z.array(conversationSummarySchema)),
+							schema: z.array(conversationSummarySchema),
 						},
 					},
 				},
@@ -326,7 +326,7 @@ export function createAdminConversationRouter(
 				limit,
 				offset,
 			})
-			return c.json({ success: true as const, data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
@@ -345,11 +345,9 @@ export function createAdminConversationRouter(
 					description: "Conversation detail with messages",
 					content: {
 						"application/json": {
-							schema: successResponseSchema(
-								conversationSummarySchema
-									.omit({ messageCount: true })
-									.extend({ messages: z.array(messageResponseSchema) }),
-							),
+							schema: conversationSummarySchema
+								.omit({ messageCount: true })
+								.extend({ messages: z.array(messageResponseSchema) }),
 						},
 					},
 				},
@@ -362,7 +360,7 @@ export function createAdminConversationRouter(
 		async (c) => {
 			const { conversationId } = c.req.valid("param")
 			const result = await service.getConversation(conversationId)
-			return c.json({ success: true as const, data: result }, 200)
+			return c.json(result, 200)
 		},
 	)
 
