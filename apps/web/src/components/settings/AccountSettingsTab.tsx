@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { UpdateProfileInput } from "shared"
 import { updateProfileBodySchema } from "shared"
@@ -8,6 +8,7 @@ import {
 	useClientProfile,
 	useUpdateClientProfile,
 } from "@/api/hooks"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -28,10 +29,26 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas/auth"
 
+type Feedback = { type: "success" | "error"; message: string }
+
 export function AccountSettingsTab() {
 	const { data: accountData } = useClientProfile()
 	const updateProfile = useUpdateClientProfile()
 	const changePassword = useChangePassword()
+
+	const [pwFeedback, setPwFeedback] = useState<Feedback | null>(null)
+	const pwFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+	const clearPwFeedback = useCallback(() => {
+		if (pwFeedbackTimerRef.current) clearTimeout(pwFeedbackTimerRef.current)
+		pwFeedbackTimerRef.current = setTimeout(() => setPwFeedback(null), 5000)
+	}, [])
+
+	useEffect(() => {
+		return () => {
+			if (pwFeedbackTimerRef.current) clearTimeout(pwFeedbackTimerRef.current)
+		}
+	}, [])
 
 	const profileForm = useForm<UpdateProfileInput>({
 		resolver: zodResolver(updateProfileBodySchema),
@@ -145,12 +162,34 @@ export function AccountSettingsTab() {
 							{
 								onSuccess: () => {
 									passwordForm.reset()
+									setPwFeedback({
+										type: "success",
+										message: "Password changed successfully",
+									})
+									clearPwFeedback()
+								},
+								onError: () => {
+									setPwFeedback({
+										type: "error",
+										message:
+											"Failed to change password. Please check your current password and try again.",
+									})
+									clearPwFeedback()
 								},
 							},
 						),
 					)}
 				>
 					<CardContent className="space-y-4 pt-4">
+						{pwFeedback && (
+							<Alert
+								variant={
+									pwFeedback.type === "error" ? "destructive" : "default"
+								}
+							>
+								<AlertDescription>{pwFeedback.message}</AlertDescription>
+							</Alert>
+						)}
 						<FormField
 							control={passwordForm.control}
 							name="currentPassword"
