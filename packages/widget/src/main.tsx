@@ -2,6 +2,7 @@ import { StrictMode } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { EmbeddedWidget } from "./EmbeddedWidget"
 import type { ResolvedWidgetConfig, WidgetColors, WidgetConfig } from "./types"
+import "./i18n"
 import "./theme/default.css"
 
 // Global config type augmentation

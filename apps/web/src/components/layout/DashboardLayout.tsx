@@ -14,6 +14,7 @@ import {
 import { useLogout } from "@/api/hooks/useAuth"
 import { useClientProfile } from "@/api/hooks/useClientAccount"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useTheme } from "@/lib/useTheme"
 import { cn } from "@/lib/utils"
@@ -102,19 +103,25 @@ export function DashboardLayout() {
 			<div className="flex flex-1 flex-col">
 				{/* Top Header with User Info */}
 				<header className="flex h-16 items-center justify-end border-border border-b bg-card px-6">
-					<div className="flex items-center gap-2 text-sm">
-						<Building2 size={16} className="text-muted-foreground" />
-						{isLoading ? (
-							<Skeleton className="h-4 w-32" />
-						) : isError ? (
-							<span className="text-destructive text-xs" title={error?.message}>
-								Failed to load
-							</span>
-						) : (
-							<span className="font-medium text-card-foreground">
-								{profile?.name || "Unknown Company"}
-							</span>
-						)}
+					<div className="flex items-center gap-4">
+						<LanguageSwitcher />
+						<div className="flex items-center gap-2 text-sm">
+							<Building2 size={16} className="text-muted-foreground" />
+							{isLoading ? (
+								<Skeleton className="h-4 w-32" />
+							) : isError ? (
+								<span
+									className="text-destructive text-xs"
+									title={error?.message}
+								>
+									Failed to load
+								</span>
+							) : (
+								<span className="font-medium text-card-foreground">
+									{profile?.name || "Unknown Company"}
+								</span>
+							)}
+						</div>
 					</div>
 				</header>
 				<main className="flex-1 overflow-auto bg-background p-8">
