@@ -1,6 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
 
+export function useAdminProfile() {
+	return useQuery({
+		queryKey: ["admin", "profile"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/me")
+			if (error) throw error
+			return data
+		},
+	})
+}
+
 export function useAdminClients(
 	params: { limit?: number; offset?: number } = {},
 ) {
