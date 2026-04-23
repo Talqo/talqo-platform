@@ -80,7 +80,7 @@
 | FR-2.20 | Dashboard supports light and dark mode | High | Approved | Done |
 | FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved | Not started |
 | FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved | Not started |
-| FR-2.23 | Dashboard displays conversion metrics | Low | Approved | Not started |
+| FR-2.23 | Dashboard displays conversion metrics | Low | Approved | Out of scope |
 | FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved | Done |
 | FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved | Done |
 
@@ -155,6 +155,7 @@
 - Real-time human handoff / live agent chat (listed as a bonus sidequest, not a core deliverable)
 - Multi-language UI localisation (beyond what the client configures via system prompt)
 - Payment processing integration (subscription billing is assumed to be handled externally)
+- **FR-2.23 — Conversion metrics**: "Conversion" is undefined for a generic chat widget — whether a conversation led to a purchase, signup, or resolved ticket depends entirely on the client's own backend. Tracking it would require each client to send conversion events back to the platform via a webhook or JS SDK, which is infrastructure that was never scoped. Without a contract for what constitutes a conversion and a mechanism to receive that signal, the metric cannot be computed.
 
 ---
 
