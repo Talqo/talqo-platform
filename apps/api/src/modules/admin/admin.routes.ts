@@ -6,6 +6,7 @@ import {
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
+import { NotFoundError } from "../../common/errors"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -126,12 +127,7 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 			const adminId = c.get("adminId" as never) as string
 			const admin = await service.getAdminById(adminId)
 			if (!admin) {
-				return c.json(
-					{
-						error: { code: "NOT_FOUND", message: "Admin not found" },
-					},
-					404,
-				)
+				throw new NotFoundError("Admin not found")
 			}
 			return c.json(
 				{ id: admin.id, email: admin.email, role: "admin" as const },
@@ -313,7 +309,7 @@ export function createAdminConversationRouter(
 					description: "Conversations list",
 					content: {
 						"application/json": {
-							schema: z.array(conversationSummarySchema),
+							schema: successResponseSchema(z.array(conversationSummarySchema)),
 						},
 					},
 				},
@@ -345,9 +341,11 @@ export function createAdminConversationRouter(
 					description: "Conversation detail with messages",
 					content: {
 						"application/json": {
-							schema: conversationSummarySchema
-								.omit({ messageCount: true })
-								.extend({ messages: z.array(messageResponseSchema) }),
+							schema: successResponseSchema(
+								conversationSummarySchema
+									.omit({ messageCount: true })
+									.extend({ messages: z.array(messageResponseSchema) }),
+							),
 						},
 					},
 				},
