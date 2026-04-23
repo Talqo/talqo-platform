@@ -122,8 +122,8 @@ function VerifyEmailPage() {
 			.mutateAsync({ token })
 			.then((data) => {
 				setState({ status: "success" })
-				if (data.data.token) {
-					localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
+				if (data.token) {
+					localStorage.setItem(AUTH.TOKEN_KEY, data.token)
 				}
 				// Navigate after 2 seconds
 				setTimeout(() => {

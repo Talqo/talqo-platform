@@ -296,7 +296,7 @@ export function createAuthRouter(
 			if (!isValid) {
 				throw new AppError(400, "INVALID_TOKEN", "Invalid or expired token")
 			}
-			return c.json({ valid: true }, 200)
+			return c.json({ valid: true as const }, 200)
 		},
 	)
 
