@@ -22,7 +22,7 @@ export function DashboardLayout() {
 	const location = useLocation()
 	const logout = useLogout()
 	const { theme, toggleTheme } = useTheme()
-	const { data: profile, isLoading } = useClientProfile()
+	const { data: profile, isLoading, isError, error } = useClientProfile()
 
 	const navItems = [
 		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
@@ -106,6 +106,10 @@ export function DashboardLayout() {
 						<Building2 size={16} className="text-muted-foreground" />
 						{isLoading ? (
 							<Skeleton className="h-4 w-32" />
+						) : isError ? (
+							<span className="text-destructive text-xs" title={error?.message}>
+								Failed to load
+							</span>
 						) : (
 							<span className="font-medium text-card-foreground">
 								{profile?.name || "Unknown Company"}

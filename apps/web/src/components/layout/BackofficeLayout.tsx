@@ -6,7 +6,6 @@ import {
 	Moon,
 	ScrollText,
 	Sun,
-	User,
 } from "lucide-react"
 import { useAdminProfile } from "@/api/hooks/useAdmin"
 import { useAdminLogout } from "@/api/hooks/useAuth"
@@ -23,7 +22,7 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 	const location = useLocation()
 	const logout = useAdminLogout()
 	const { theme, toggleTheme } = useTheme()
-	const { data: adminProfile, isLoading } = useAdminProfile()
+	const { data: adminProfile, isLoading, isError, error } = useAdminProfile()
 
 	const navItems = [
 		{ icon: Building2, label: "Tenants", href: "/backoffice" },
@@ -105,9 +104,12 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 				{/* Top Header with Admin Info */}
 				<header className="flex h-16 items-center justify-end border-border border-b bg-card px-6">
 					<div className="flex items-center gap-2 text-sm">
-						<User size={16} className="text-muted-foreground" />
 						{isLoading ? (
 							<Skeleton className="h-4 w-32" />
+						) : isError ? (
+							<span className="text-destructive text-xs" title={error?.message}>
+								Failed to load
+							</span>
 						) : (
 							<span className="font-medium text-card-foreground">
 								{adminProfile?.email || "Admin"}
