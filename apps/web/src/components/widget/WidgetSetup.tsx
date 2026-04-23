@@ -64,6 +64,7 @@ export function WidgetSetup() {
 
 				<EmbedCodeCard
 					clientId={client?.id}
+					widgetToken={client?.widgetToken}
 					position={position}
 					colors={colors}
 					icons={icons}

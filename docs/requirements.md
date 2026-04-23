@@ -81,8 +81,8 @@
 | FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved | Not started |
 | FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved | Not started |
 | FR-2.23 | Dashboard displays conversion metrics | Low | Approved | Not started |
-| FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved | Not started |
-| FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved | Not started |
+| FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved | Done |
+| FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved | Done |
 
 ### FR-3: Back-office
 

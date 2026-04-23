@@ -5,6 +5,8 @@
 export interface WidgetConfig {
 	/** Client ID for API authentication */
 	clientId: string
+	/** Widget token for authenticating API requests (X-Widget-Token header) */
+	widgetToken?: string
 	/** API base URL for widget requests */
 	apiUrl: string
 	/** Theme colors - omit to use defaults */
@@ -52,13 +54,17 @@ export interface WidgetIcons {
 /** Validated config with defaults applied */
 export interface ResolvedWidgetConfig
 	extends Required<
-		Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
+		Omit<
+			WidgetConfig,
+			"colors" | "darkColors" | "icons" | "botName" | "widgetToken"
+		>
 	> {
 	colors: WidgetColors
 	/** Dark mode colors - always populated by resolveConfig */
 	darkColors: WidgetColors
 	icons: WidgetIcons
 	botName: string
+	widgetToken?: string
 }
 
 export type WidgetTheme = "light" | "dark"

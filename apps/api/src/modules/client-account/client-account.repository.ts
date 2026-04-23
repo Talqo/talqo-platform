@@ -14,6 +14,7 @@ export class ClientAccountRepository {
 				balanceUsd: clients.balanceUsd,
 				monthlyUsageLimit: clients.monthlyUsageLimit,
 				usageAlertThresholdUsd: clients.usageAlertThresholdUsd,
+				widgetToken: clients.widgetToken,
 				status: clients.status,
 				lastActive: clients.lastActive,
 				createdAt: clients.createdAt,

@@ -472,6 +472,7 @@ export interface paths {
                             balanceUsd: string;
                             monthlyUsageLimit: string | null;
                             usageAlertThresholdUsd: string | null;
+                            widgetToken: string;
                             status: string;
                             lastActive: string | null;
                             createdAt: string;
@@ -1442,6 +1443,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/me/analytics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Client engagement and satisfaction summary */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Engagement and satisfaction totals */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            totalConversations: number;
+                            uniqueUsers: number;
+                            totalTokens: number;
+                            totalUserMessages: number;
+                            avgSatisfactionRating: number | null;
+                            totalPageviewSessions: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/client/me/provider-config": {
         parameters: {
             query?: never;
@@ -1472,10 +1516,10 @@ export interface paths {
                             clientId: string;
                             /** @enum {string} */
                             providerType: "openai" | "openai_compatible" | "google" | "anthropic";
-                            apiKeyMasked: string;
                             model: string;
                             baseUrl: string | null;
                             updatedAt: string;
+                            apiKeyMasked: string;
                         } | null;
                     };
                 };
@@ -1536,10 +1580,10 @@ export interface paths {
                             clientId: string;
                             /** @enum {string} */
                             providerType: "openai" | "openai_compatible" | "google" | "anthropic";
-                            apiKeyMasked: string;
                             model: string;
                             baseUrl: string | null;
                             updatedAt: string;
+                            apiKeyMasked: string;
                         } | null;
                     };
                 };
@@ -2789,8 +2833,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
