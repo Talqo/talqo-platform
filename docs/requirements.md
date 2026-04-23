@@ -93,7 +93,7 @@
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
 | FR-3.1 | Platform admin can view a list of all clients with key status indicators (token consumption, API key type, active/suspended) | High | Approved | Done |
-| FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | In progress |
+| FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | Done |
 | FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved | In progress |
 | FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
 | FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |
@@ -155,7 +155,7 @@
 ## Out of Scope
 
 - Real-time human handoff / live agent chat (listed as a bonus sidequest, not a core deliverable)
-- Multi-language UI localisation (beyond what the client configures via system prompt)
+- Multi-language UI localisation (implemented as SCRUM-96, not formally tracked)
 - Payment processing integration (subscription billing is assumed to be handled externally)
 - **FR-2.23 — Conversion metrics**: "Conversion" is undefined for a generic chat widget — whether a conversation led to a purchase, signup, or resolved ticket depends entirely on the client's own backend. Tracking it would require each client to send conversion events back to the platform via a webhook or JS SDK, which is infrastructure that was never scoped. Without a contract for what constitutes a conversion and a mechanism to receive that signal, the metric cannot be computed.
 
