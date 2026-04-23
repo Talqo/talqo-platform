@@ -380,12 +380,10 @@ describe("POST /admin/auth/login", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { token: string }
-		}
-		expect(body.success).toBe(true)
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(body.token).toBeDefined()
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 401 for wrong password", async () => {
@@ -431,9 +429,9 @@ describe("POST /admin/auth/login", () => {
 				}),
 			}),
 		)
-		const b1 = (await res1.json()) as { message: string }
-		const b2 = (await res2.json()) as { message: string }
-		expect(b1.message).toBe(b2.message)
+		const b1 = (await res1.json()) as { error: { message: string } }
+		const b2 = (await res2.json()) as { error: { message: string } }
+		expect(b1.error.message).toBe(b2.error.message)
 	})
 
 	it("returns 400 for invalid request body", async () => {
@@ -462,9 +460,9 @@ describe("GET /admin/clients", () => {
 		repo.addClient({ name: "Client B", email: "b@example.com" })
 		const res = await app.fetch(new Request("http://localhost/admin/clients"))
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { success: boolean; data: unknown[] }
-		expect(body.success).toBe(true)
-		expect(body.data.length).toBe(2)
+		const body = (await res.json()) as unknown[]
+		expect(Array.isArray(body)).toBe(true)
+		expect(body).toHaveLength(2)
 	})
 })
 
@@ -487,8 +485,9 @@ describe("PATCH /admin/clients/:clientId/status", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { status: string } }
-		expect(body.data.status).toBe("suspended")
+		const body = (await res.json()) as { status: string }
+		expect(body.status).toBe("suspended")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 404 when client does not exist", async () => {
@@ -523,8 +522,9 @@ describe("POST /admin/clients/:clientId/impersonate", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { token: string } }
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 404 when client does not exist", async () => {
@@ -668,9 +668,8 @@ describe("GET /admin/conversations", () => {
 			new Request("http://localhost/admin/conversations"),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { success: boolean; data: unknown[] }
-		expect(body.success).toBe(true)
-		expect(body.data.length).toBe(2)
+		const body = (await res.json()) as { id: string }[]
+		expect(body.length).toBe(2)
 	})
 
 	it("filters by clientId query param", async () => {
@@ -682,11 +681,9 @@ describe("GET /admin/conversations", () => {
 			new Request(`http://localhost/admin/conversations?clientId=${c1.id}`),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			data: { clientId: string }[]
-		}
-		expect(body.data.length).toBe(1)
-		expect(body.data[0].clientId).toBe(c1.id)
+		const body = (await res.json()) as { clientId: string }[]
+		expect(body.length).toBe(1)
+		expect(body[0].clientId).toBe(c1.id)
 	})
 
 	it("returns 200 with empty array when no conversations exist", async () => {
@@ -694,8 +691,8 @@ describe("GET /admin/conversations", () => {
 			new Request("http://localhost/admin/conversations"),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: unknown[] }
-		expect(body.data).toEqual([])
+		const body = (await res.json()) as unknown[]
+		expect(body).toEqual([])
 	})
 
 	it("returns 400 for invalid clientId (not a UUID)", async () => {
@@ -726,18 +723,16 @@ describe("GET /admin/conversations/:conversationId", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			data: {
-				id: string
-				clientName: string
-				satisfactionRating: number
-				messages: { content: string }[]
-			}
+			id: string
+			clientName: string
+			satisfactionRating: number
+			messages: { content: string }[]
 		}
-		expect(body.data.id).toBe(conv.id)
-		expect(body.data.clientName).toBe("Alice")
-		expect(body.data.satisfactionRating).toBe(3)
-		expect(body.data.messages.length).toBe(1)
-		expect(body.data.messages[0].content).toBe("Hello")
+		expect(body.id).toBe(conv.id)
+		expect(body.clientName).toBe("Alice")
+		expect(body.satisfactionRating).toBe(3)
+		expect(body.messages.length).toBe(1)
+		expect(body.messages[0].content).toBe("Hello")
 	})
 
 	it("returns 200 with empty messages array when conversation has none", async () => {
@@ -747,8 +742,8 @@ describe("GET /admin/conversations/:conversationId", () => {
 			new Request(`http://localhost/admin/conversations/${conv.id}`),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { messages: unknown[] } }
-		expect(body.data.messages).toEqual([])
+		const body = (await res.json()) as { messages: unknown[] }
+		expect(body.messages).toEqual([])
 	})
 
 	it("returns 404 when conversation does not exist", async () => {

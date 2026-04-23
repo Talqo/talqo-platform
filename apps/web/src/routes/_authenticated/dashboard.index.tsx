@@ -18,7 +18,7 @@ function AdminDashboard() {
 	const [showPopup, setShowPopup] = useState(false)
 
 	useEffect(() => {
-		if (isSuccess && client?.data?.widgetSetupDismissed === false) {
+		if (isSuccess && client?.widgetSetupDismissed === false) {
 			setShowPopup(true)
 		}
 	}, [isSuccess, client])

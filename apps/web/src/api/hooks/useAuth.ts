@@ -16,15 +16,11 @@ interface RegisterRequest {
 }
 
 interface AuthResponse {
-	success: boolean
-	data: {
-		token?: string
-		message?: string
-	}
+	token?: string
+	message?: string
 }
 
 export interface ApiError {
-	success: false
 	error: {
 		code: string
 		message: string
@@ -44,8 +40,8 @@ export function useLogin() {
 			return data as AuthResponse
 		},
 		onSuccess: (data) => {
-			if (data.data.token) {
-				localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
+			if (data.token) {
+				localStorage.setItem(AUTH.TOKEN_KEY, data.token)
 				// Invalidate any existing auth queries
 				queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
 			}
@@ -73,24 +69,13 @@ export function useRegister() {
 export function useVerifyEmail() {
 	return useMutation<AuthResponse, ApiError, { token: string }>({
 		mutationFn: async ({ token }) => {
-			console.log("[useAuth] mutationFn starting with token:", token)
-			try {
-				const { data, error } = await client.GET("/auth/verify-email", {
-					params: {
-						query: { token },
-					},
-				})
-				console.log("[useAuth] client.GET returned:", { data, error })
-				if (error) {
-					console.log("[useAuth] throwing error:", error)
-					throw error
-				}
-				console.log("[useAuth] returning data:", data)
-				return data as AuthResponse
-			} catch (e) {
-				console.log("[useAuth] caught exception:", e)
-				throw e
-			}
+			const { data, error } = await client.GET("/auth/verify-email", {
+				params: {
+					query: { token },
+				},
+			})
+			if (error) throw error
+			return data as AuthResponse
 		},
 	})
 }
@@ -160,13 +145,12 @@ export function useResetPassword() {
 
 // Verify reset token query
 export function useVerifyResetTokenQuery(token: string | undefined) {
-	return useQuery<{ success: boolean; data?: { valid: boolean } }, ApiError>({
+	return useQuery<{ valid: boolean }, ApiError>({
 		queryKey: ["auth", "verify-reset-token", token],
 		queryFn: async () => {
 			// Guard against undefined token (shouldn't happen due to enabled check, but satisfies type safety)
 			if (!token) {
 				throw {
-					success: false,
 					error: { code: "MISSING_TOKEN", message: "Token is required" },
 				}
 			}
@@ -176,7 +160,7 @@ export function useVerifyResetTokenQuery(token: string | undefined) {
 				},
 			})
 			if (error) throw error
-			return data
+			return data as { valid: boolean }
 		},
 		enabled: !!token,
 	})
@@ -195,8 +179,8 @@ export function useAdminLogin() {
 			return data as AuthResponse
 		},
 		onSuccess: (data) => {
-			if (data.data.token) {
-				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.data.token)
+			if (data.token) {
+				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.token)
 				queryClient.invalidateQueries({ queryKey: ["admin", "me"] })
 			}
 		},
@@ -262,7 +246,7 @@ export function useCurrentAdmin() {
 				throw new Error("Failed to fetch admin profile")
 			}
 			const result = await response.json()
-			return result.data as AdminProfile
+			return result as AdminProfile
 		},
 		enabled: !!localStorage.getItem(AUTH.ADMIN_TOKEN_KEY),
 	})
@@ -285,8 +269,8 @@ export function useUnifiedLogin() {
 			return data as AuthResponse
 		},
 		onSuccess: (data) => {
-			if (data.data.token) {
-				localStorage.setItem(AUTH.TOKEN_KEY, data.data.token)
+			if (data.token) {
+				localStorage.setItem(AUTH.TOKEN_KEY, data.token)
 				queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
 			}
 		},
@@ -301,8 +285,8 @@ export function useUnifiedLogin() {
 			return data as AuthResponse
 		},
 		onSuccess: (data) => {
-			if (data.data.token) {
-				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.data.token)
+			if (data.token) {
+				localStorage.setItem(AUTH.ADMIN_TOKEN_KEY, data.token)
 				queryClient.invalidateQueries({ queryKey: ["admin", "me"] })
 			}
 		},
@@ -388,11 +372,7 @@ export function useUnifiedLogin() {
 export function useDismissWidgetSetup() {
 	const queryClient = useQueryClient()
 
-	return useMutation<
-		{ success: true; data: { message: string } },
-		ApiError,
-		void
-	>({
+	return useMutation<{ message: string }, ApiError, void>({
 		mutationFn: async () => {
 			const { data, error } = await client.POST(
 				"/client/me/dismiss-widget-setup",
@@ -403,10 +383,10 @@ export function useDismissWidgetSetup() {
 				!data ||
 				typeof data !== "object" ||
 				Array.isArray(data) ||
-				Object.keys(data).length === 0
+				typeof (data as { message?: string }).message !== "string" ||
+				((data as { message?: string }).message ?? "").trim().length === 0
 			) {
 				throw {
-					success: false,
 					error: {
 						code: "INVALID_RESPONSE",
 						message:
@@ -414,7 +394,8 @@ export function useDismissWidgetSetup() {
 					},
 				} satisfies ApiError
 			}
-			return data
+			const responseData = data as { message: string }
+			return { message: responseData.message }
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["auth", "me"] })

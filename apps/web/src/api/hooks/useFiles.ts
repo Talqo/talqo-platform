@@ -22,7 +22,7 @@ export function useFiles() {
 				params: { query: { path: "/" } },
 			})
 			if (error) throw error
-			const entries = data.data.entries as FileEntry[]
+			const entries = data.entries as FileEntry[]
 			return entries.filter(
 				(e): e is FileEntry & { type: "file" } => e.type === "file",
 			)
