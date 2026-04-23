@@ -7,7 +7,7 @@ export function useAdminProfile() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/admin/me")
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
