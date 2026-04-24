@@ -53,7 +53,7 @@ widgetSessionRoutes.openapi(
 			clientId,
 			browserSessionId,
 		)
-		return c.json({ success: true as const, data: session }, 200)
+		return c.json(session, 200)
 	},
 )
 
@@ -91,14 +91,14 @@ widgetConversationRoutes.openapi(
 			clientId,
 			sessionId,
 		)
-		return c.json({ success: true as const, data: conversation }, 201)
+		return c.json(conversation, 201)
 	},
 )
 
 widgetConversationRoutes.openapi(
 	createRoute({
 		method: "delete",
-		path: "/:conversationId",
+		path: "/{conversationId}",
 		tags: ["Widget"],
 		summary: "Reset (delete) a conversation",
 		security: [{ widgetToken: [] }],
@@ -124,17 +124,14 @@ widgetConversationRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { conversationId } = c.req.valid("param")
 		await widgetService.resetConversation(clientId, conversationId)
-		return c.json(
-			{ success: true as const, data: { message: "Conversation reset" } },
-			200,
-		)
+		return c.json({ message: "Conversation reset" }, 200)
 	},
 )
 
 widgetConversationRoutes.openapi(
 	createRoute({
 		method: "patch",
-		path: "/:conversationId",
+		path: "/{conversationId}",
 		tags: ["Widget"],
 		summary: "Submit satisfaction rating",
 		security: [{ widgetToken: [] }],
@@ -172,7 +169,7 @@ widgetConversationRoutes.openapi(
 			conversationId,
 			rating,
 		)
-		return c.json({ success: true as const, data: updated }, 200)
+		return c.json(updated, 200)
 	},
 )
 
@@ -207,7 +204,7 @@ widgetMessageRoutes.openapi(
 		// conversationId is always defined when mounted at /.../conversations/:conversationId/messages
 		const conversationId = c.req.param("conversationId") as string
 		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
-		return c.json({ success: true as const, data: msgs }, 200)
+		return c.json(msgs, 200)
 	},
 )
 
@@ -256,6 +253,6 @@ widgetMessageRoutes.openapi(
 			conversationId,
 			content,
 		)
-		return c.json({ success: true as const, data: result }, 200)
+		return c.json(result, 200)
 	},
 )

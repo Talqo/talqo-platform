@@ -38,6 +38,7 @@ mock.module("../jwt", () => ({
 
 // Dynamically import after mocks are registered
 const { adminAuth } = await import("./admin-auth")
+const { adminAuditLog } = await import("./admin-audit-log")
 const { errorHandler } = await import("./error-handler")
 
 // ─── Test app ─────────────────────────────────────────────────────────────────
@@ -133,6 +134,7 @@ describe("adminAuth middleware", () => {
 
 		const app = new Hono()
 		app.use("/*", adminAuth)
+		app.use("/*", adminAuditLog)
 		app.post("/admin/clients/:clientId/status", (c) => c.json({ ok: true }))
 
 		await app.fetch(

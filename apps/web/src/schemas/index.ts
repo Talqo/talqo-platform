@@ -1,5 +1,4 @@
 export {
-	type LoginFormType,
 	loginSchema,
 	type PasswordChangeSchema,
 	passwordChangeSchema,

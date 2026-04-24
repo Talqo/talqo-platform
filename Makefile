@@ -53,7 +53,7 @@ help: ## Show this help
 .PHONY: setup
 setup: ## Install deps, start database, run migrations and seed
 	bun install
-	$(COMPOSE) up -d db --wait
+	$(COMPOSE) --env-file=.env.example up -d db --wait
 	cd apps/api && bun run db:migrate
 	cd apps/api && bun run db:seed
 	@echo "Setup complete. Run 'make dev' to start development."
@@ -72,7 +72,7 @@ dev-web: ## Start web only
 
 .PHONY: db-up
 db-up: ## Start PostgreSQL (waits until healthy)
-	$(COMPOSE) up -d db --wait
+	$(COMPOSE) --env-file=.env.example up -d db --wait
 
 .PHONY: db-down
 db-down: ## Stop database services
@@ -81,7 +81,7 @@ db-down: ## Stop database services
 .PHONY: db-reset
 db-reset: ## Reset database (destroy volume, recreate, migrate and seed)
 	$(COMPOSE) down -v
-	$(COMPOSE) up -d db --wait
+	$(COMPOSE) --env-file=.env.example up -d db --wait
 	cd apps/api && bun run db:migrate
 	cd apps/api && bun run db:seed
 
@@ -155,7 +155,7 @@ e2e: db-up ## Run e2e tests (build, migrate, seed, start services, test, clean u
 	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
 	export BASE_URL=http://localhost:$(E2E_PORT); \
-	cd apps/e2e && bun run test; STATUS=$$?; \
+	cd apps/e2e && bun run test:run; STATUS=$$?; \
 	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
 	exit $$STATUS
 

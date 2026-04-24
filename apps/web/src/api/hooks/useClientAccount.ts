@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
+import type { ApiError } from "./useAuth"
 
 export function useClientProfile() {
 	return useQuery({
@@ -7,7 +8,7 @@ export function useClientProfile() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me")
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -18,23 +19,24 @@ export function useUpdateClientProfile() {
 		mutationFn: async (body: { name?: string; email?: string }) => {
 			const { data, error } = await client.PATCH("/client/me", { body })
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
 }
 
 export function useChangePassword() {
-	return useMutation({
-		mutationFn: async (body: {
-			currentPassword: string
-			newPassword: string
-		}) => {
+	return useMutation<
+		{ message: string },
+		ApiError,
+		{ currentPassword: string; newPassword: string }
+	>({
+		mutationFn: async (body) => {
 			const { data, error } = await client.PATCH("/client/me/password", {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -45,7 +47,7 @@ export function useAddFunds() {
 		mutationFn: async (body: { amount: number }) => {
 			const { data, error } = await client.POST("/client/me/balance", { body })
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
@@ -58,7 +60,7 @@ export function useSetUsageLimit() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -70,7 +72,7 @@ export function useSetUsageAlert() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }

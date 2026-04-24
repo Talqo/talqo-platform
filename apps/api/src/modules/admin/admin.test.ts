@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import type { adminUsers, clients, conversations, messages } from "db/schema"
 import type { AdminRepository } from "./admin.repository"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -13,33 +14,19 @@ mock.module("../../common/jwt", () => ({
 
 // Dynamic imports after mocks are registered
 const { AdminService } = await import("./admin.service")
-const { createAdminAuthRouter, createAdminClientRouter } = await import(
-	"./admin.routes"
-)
+const {
+	createAdminAuthRouter,
+	createAdminClientRouter,
+	createAdminConversationRouter,
+} = await import("./admin.routes")
 const { errorHandler } = await import("../../common/middleware/error-handler")
 
 // ─── In-memory repository ─────────────────────────────────────────────────────
 
-type AdminUser = {
-	id: string
-	email: string
-	passwordHash: string
-	createdAt: Date
-	isDeleted: boolean
-	deletedAt: Date | null
-}
-
-type ClientRecord = {
-	id: string
-	name: string
-	email: string
-	balanceUsd: string
-	monthlyUsageLimit: string | null
-	usageAlertThresholdUsd: string | null
-	status: string
-	lastActive: Date | null
-	createdAt: Date
-}
+type AdminUser = typeof adminUsers.$inferSelect
+type ClientRecord = typeof clients.$inferSelect
+type ConversationRecord = typeof conversations.$inferSelect
+type MessageRecord = typeof messages.$inferSelect
 
 class InMemoryAdminRepository
 	implements
@@ -50,10 +37,14 @@ class InMemoryAdminRepository
 			| "listClients"
 			| "getClientDetail"
 			| "updateClientStatus"
+			| "listConversations"
+			| "getConversationWithMessages"
 		>
 {
 	private admins = new Map<string, AdminUser>()
 	private clientsMap = new Map<string, ClientRecord>()
+	private conversationsMap = new Map<string, ConversationRecord>()
+	private messagesMap = new Map<string, MessageRecord>()
 
 	async findAdminByEmail(email: string) {
 		for (const admin of this.admins.values()) {
@@ -108,16 +99,103 @@ class InMemoryAdminRepository
 			id: crypto.randomUUID(),
 			name: "Test Client",
 			email: "client@example.com",
+			passwordHash: "hashed",
 			balanceUsd: "100.00",
 			monthlyUsageLimit: null,
 			usageAlertThresholdUsd: null,
+			widgetToken: crypto.randomUUID(),
 			status: "active",
 			lastActive: null,
 			createdAt: new Date(),
+			widgetSetupDismissed: false,
 			...overrides,
 		}
 		this.clientsMap.set(client.id, client)
 		return client
+	}
+
+	addConversation(
+		clientId: string,
+		overrides: Partial<ConversationRecord> = {},
+	): ConversationRecord {
+		const conv: ConversationRecord = {
+			id: crypto.randomUUID(),
+			sessionId: crypto.randomUUID(),
+			clientId,
+			startedAt: new Date(),
+			satisfactionRating: null,
+			...overrides,
+		}
+		this.conversationsMap.set(conv.id, conv)
+		return conv
+	}
+
+	addMessage(
+		conversationId: string,
+		overrides: Partial<MessageRecord> = {},
+	): MessageRecord {
+		const msg: MessageRecord = {
+			id: crypto.randomUUID(),
+			conversationId,
+			role: "user",
+			content: "Hello",
+			tokenCount: 5,
+			createdAt: new Date(),
+			...overrides,
+		}
+		this.messagesMap.set(msg.id, msg)
+		return msg
+	}
+
+	async listConversations({
+		clientId,
+		limit,
+		offset,
+	}: {
+		clientId?: string
+		limit: number
+		offset: number
+	}) {
+		const convs = [...this.conversationsMap.values()]
+			.filter((c) => (clientId ? c.clientId === clientId : true))
+			.sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())
+			.slice(offset, offset + limit)
+
+		return convs.map((conv) => {
+			const client = this.clientsMap.get(conv.clientId)
+			if (!client) throw new Error(`Client ${conv.clientId} not found`)
+			const messageCount = [...this.messagesMap.values()].filter(
+				(m) => m.conversationId === conv.id,
+			).length
+			return {
+				id: conv.id,
+				clientId: conv.clientId,
+				clientName: client.name,
+				clientEmail: client.email,
+				startedAt: conv.startedAt,
+				satisfactionRating: conv.satisfactionRating,
+				messageCount,
+			}
+		})
+	}
+
+	async getConversationWithMessages(conversationId: string) {
+		const conv = this.conversationsMap.get(conversationId)
+		if (!conv) return null
+		const client = this.clientsMap.get(conv.clientId)
+		if (!client) throw new Error(`Client ${conv.clientId} not found`)
+		const msgs = [...this.messagesMap.values()]
+			.filter((m) => m.conversationId === conversationId)
+			.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+		return {
+			id: conv.id,
+			clientId: conv.clientId,
+			clientName: client.name,
+			clientEmail: client.email,
+			startedAt: conv.startedAt,
+			satisfactionRating: conv.satisfactionRating,
+			messages: msgs,
+		}
 	}
 }
 
@@ -139,6 +217,7 @@ function buildApp(repo: InMemoryAdminRepository) {
 	app.onError(errorHandler)
 	app.route("/admin/auth", createAdminAuthRouter(service))
 	app.route("/admin/clients", createAdminClientRouter(service))
+	app.route("/admin/conversations", createAdminConversationRouter(service))
 	return { app, service }
 }
 
@@ -301,12 +380,10 @@ describe("POST /admin/auth/login", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { token: string }
-		}
-		expect(body.success).toBe(true)
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(body.token).toBeDefined()
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 401 for wrong password", async () => {
@@ -352,9 +429,9 @@ describe("POST /admin/auth/login", () => {
 				}),
 			}),
 		)
-		const b1 = (await res1.json()) as { message: string }
-		const b2 = (await res2.json()) as { message: string }
-		expect(b1.message).toBe(b2.message)
+		const b1 = (await res1.json()) as { error: { message: string } }
+		const b2 = (await res2.json()) as { error: { message: string } }
+		expect(b1.error.message).toBe(b2.error.message)
 	})
 
 	it("returns 400 for invalid request body", async () => {
@@ -383,9 +460,9 @@ describe("GET /admin/clients", () => {
 		repo.addClient({ name: "Client B", email: "b@example.com" })
 		const res = await app.fetch(new Request("http://localhost/admin/clients"))
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { success: boolean; data: unknown[] }
-		expect(body.success).toBe(true)
-		expect(body.data.length).toBe(2)
+		const body = (await res.json()) as unknown[]
+		expect(Array.isArray(body)).toBe(true)
+		expect(body).toHaveLength(2)
 	})
 })
 
@@ -408,8 +485,9 @@ describe("PATCH /admin/clients/:clientId/status", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { status: string } }
-		expect(body.data.status).toBe("suspended")
+		const body = (await res.json()) as { status: string }
+		expect(body.status).toBe("suspended")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 404 when client does not exist", async () => {
@@ -444,8 +522,9 @@ describe("POST /admin/clients/:clientId/impersonate", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as { data: { token: string } }
-		expect(typeof body.data.token).toBe("string")
+		const body = (await res.json()) as { token: string }
+		expect(typeof body.token).toBe("string")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 404 when client does not exist", async () => {
@@ -456,5 +535,230 @@ describe("POST /admin/clients/:clientId/impersonate", () => {
 			),
 		)
 		expect(res.status).toBe(404)
+	})
+})
+
+// ─── AdminService.listConversations() ─────────────────────────────────────────
+
+describe("AdminService.listConversations()", () => {
+	let repo: InMemoryAdminRepository
+
+	beforeEach(async () => {
+		repo = await setupRepo()
+	})
+
+	it("returns all conversations when no clientId filter is given", async () => {
+		const c1 = repo.addClient({ name: "Alice" })
+		const c2 = repo.addClient({ name: "Bob", email: "bob@example.com" })
+		repo.addConversation(c1.id)
+		repo.addConversation(c2.id)
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const result = await service.listConversations({ limit: 10, offset: 0 })
+		expect(result.length).toBe(2)
+	})
+
+	it("filters conversations by clientId", async () => {
+		const c1 = repo.addClient({ name: "Alice" })
+		const c2 = repo.addClient({ name: "Bob", email: "bob@example.com" })
+		repo.addConversation(c1.id)
+		repo.addConversation(c2.id)
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const result = await service.listConversations({
+			clientId: c1.id,
+			limit: 10,
+			offset: 0,
+		})
+		expect(result.length).toBe(1)
+		expect(result[0].clientId).toBe(c1.id)
+	})
+
+	it("includes clientName, clientEmail, and messageCount", async () => {
+		const client = repo.addClient({ name: "Alice", email: "alice@example.com" })
+		const conv = repo.addConversation(client.id)
+		repo.addMessage(conv.id)
+		repo.addMessage(conv.id)
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const result = await service.listConversations({ limit: 10, offset: 0 })
+		expect(result[0].clientName).toBe("Alice")
+		expect(result[0].clientEmail).toBe("alice@example.com")
+		expect(result[0].messageCount).toBe(2)
+	})
+
+	it("respects limit and offset", async () => {
+		const client = repo.addClient()
+		repo.addConversation(client.id, {
+			startedAt: new Date("2024-01-01"),
+		})
+		repo.addConversation(client.id, {
+			startedAt: new Date("2024-01-02"),
+		})
+		repo.addConversation(client.id, {
+			startedAt: new Date("2024-01-03"),
+		})
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const page1 = await service.listConversations({ limit: 2, offset: 0 })
+		const page2 = await service.listConversations({ limit: 2, offset: 2 })
+		expect(page1.length).toBe(2)
+		expect(page2.length).toBe(1)
+	})
+
+	it("returns empty array when no conversations exist", async () => {
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const result = await service.listConversations({ limit: 10, offset: 0 })
+		expect(result).toEqual([])
+	})
+})
+
+// ─── AdminService.getConversation() ───────────────────────────────────────────
+
+describe("AdminService.getConversation()", () => {
+	let repo: InMemoryAdminRepository
+
+	beforeEach(async () => {
+		repo = await setupRepo()
+	})
+
+	it("returns conversation with messages when found", async () => {
+		const client = repo.addClient({ name: "Alice" })
+		const conv = repo.addConversation(client.id, { satisfactionRating: 4 })
+		repo.addMessage(conv.id, { role: "user", content: "Hi" })
+		repo.addMessage(conv.id, { role: "assistant", content: "Hello!" })
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const result = await service.getConversation(conv.id)
+		expect(result.id).toBe(conv.id)
+		expect(result.clientName).toBe("Alice")
+		expect(result.satisfactionRating).toBe(4)
+		expect(result.messages.length).toBe(2)
+		expect(result.messages[0].content).toBe("Hi")
+		expect(result.messages[1].content).toBe("Hello!")
+	})
+
+	it("returns empty messages array for a conversation with no messages", async () => {
+		const client = repo.addClient()
+		const conv = repo.addConversation(client.id)
+		const service = new AdminService(repo as unknown as AdminRepository)
+		const result = await service.getConversation(conv.id)
+		expect(result.messages).toEqual([])
+	})
+
+	it("throws NotFoundError when conversation does not exist", async () => {
+		const service = new AdminService(repo as unknown as AdminRepository)
+		await expect(service.getConversation(crypto.randomUUID())).rejects.toThrow(
+			"Conversation not found",
+		)
+	})
+})
+
+// ─── GET /admin/conversations ─────────────────────────────────────────────────
+
+describe("GET /admin/conversations", () => {
+	let app: OpenAPIHono
+	let repo: InMemoryAdminRepository
+
+	beforeEach(async () => {
+		repo = await setupRepo()
+		;({ app } = buildApp(repo))
+	})
+
+	it("returns 200 with conversation list", async () => {
+		const client = repo.addClient()
+		repo.addConversation(client.id)
+		repo.addConversation(client.id)
+		const res = await app.fetch(
+			new Request("http://localhost/admin/conversations"),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as { id: string }[]
+		expect(body.length).toBe(2)
+	})
+
+	it("filters by clientId query param", async () => {
+		const c1 = repo.addClient()
+		const c2 = repo.addClient({ email: "other@example.com" })
+		repo.addConversation(c1.id)
+		repo.addConversation(c2.id)
+		const res = await app.fetch(
+			new Request(`http://localhost/admin/conversations?clientId=${c1.id}`),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as { clientId: string }[]
+		expect(body.length).toBe(1)
+		expect(body[0].clientId).toBe(c1.id)
+	})
+
+	it("returns 200 with empty array when no conversations exist", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/admin/conversations"),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as unknown[]
+		expect(body).toEqual([])
+	})
+
+	it("returns 400 for invalid clientId (not a UUID)", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/admin/conversations?clientId=not-a-uuid"),
+		)
+		expect(res.status).toBe(400)
+	})
+})
+
+// ─── GET /admin/conversations/:conversationId ─────────────────────────────────
+
+describe("GET /admin/conversations/:conversationId", () => {
+	let app: OpenAPIHono
+	let repo: InMemoryAdminRepository
+
+	beforeEach(async () => {
+		repo = await setupRepo()
+		;({ app } = buildApp(repo))
+	})
+
+	it("returns 200 with conversation and messages", async () => {
+		const client = repo.addClient({ name: "Alice" })
+		const conv = repo.addConversation(client.id, { satisfactionRating: 3 })
+		repo.addMessage(conv.id, { role: "user", content: "Hello" })
+		const res = await app.fetch(
+			new Request(`http://localhost/admin/conversations/${conv.id}`),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as {
+			id: string
+			clientName: string
+			satisfactionRating: number
+			messages: { content: string }[]
+		}
+		expect(body.id).toBe(conv.id)
+		expect(body.clientName).toBe("Alice")
+		expect(body.satisfactionRating).toBe(3)
+		expect(body.messages.length).toBe(1)
+		expect(body.messages[0].content).toBe("Hello")
+	})
+
+	it("returns 200 with empty messages array when conversation has none", async () => {
+		const client = repo.addClient()
+		const conv = repo.addConversation(client.id)
+		const res = await app.fetch(
+			new Request(`http://localhost/admin/conversations/${conv.id}`),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as { messages: unknown[] }
+		expect(body.messages).toEqual([])
+	})
+
+	it("returns 404 when conversation does not exist", async () => {
+		const res = await app.fetch(
+			new Request(
+				`http://localhost/admin/conversations/${crypto.randomUUID()}`,
+			),
+		)
+		expect(res.status).toBe(404)
+	})
+
+	it("returns 400 for invalid conversationId (not a UUID)", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/admin/conversations/not-a-uuid"),
+		)
+		expect(res.status).toBe(400)
 	})
 })

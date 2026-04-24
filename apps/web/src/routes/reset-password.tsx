@@ -26,7 +26,6 @@ type ResetState =
 function ResetPasswordPage() {
 	const { token } = Route.useSearch()
 	const navigate = useNavigate()
-	const [password, setPassword] = useState("")
 	const [state, setState] = useState<ResetState>({ status: "loading" })
 	const processedRef = useRef(false)
 	const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -79,9 +78,8 @@ function ResetPasswordPage() {
 		}
 	}, [])
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!token || !password) return
+	const handleSubmit = (password: string) => {
+		if (!token) return
 
 		resetPassword.mutate(
 			{ token, password },
@@ -125,8 +123,6 @@ function ResetPasswordPage() {
 			case "error":
 				return (
 					<ResetPasswordForm
-						password={password}
-						onPasswordChange={setPassword}
 						onSubmit={handleSubmit}
 						isPending={resetPassword.isPending}
 						error={state.status === "error" ? state.message : null}

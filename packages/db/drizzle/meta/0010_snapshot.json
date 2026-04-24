@@ -1,6 +1,6 @@
 {
-	"id": "00a3824a-b030-4071-8271-0f4cd92a14a2",
-	"prevId": "bf66143b-6f13-45e9-8f47-11f3048021f1",
+	"id": "fc8c6826-3740-4a76-b428-53b6b471f3b8",
+	"prevId": "00a3824a-b030-4071-8271-0f4cd92a14a2",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -25,7 +25,7 @@
 					"name": "client_id",
 					"type": "uuid",
 					"primaryKey": false,
-					"notNull": true
+					"notNull": false
 				},
 				"action_type": {
 					"name": "action_type",
@@ -58,7 +58,7 @@
 					"tableTo": "clients",
 					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onDelete": "cascade",
+					"onDelete": "set null",
 					"onUpdate": "no action"
 				}
 			},
@@ -122,55 +122,6 @@
 					"columns": ["email"]
 				}
 			},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.blacklist_words": {
-			"name": "blacklist_words",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "uuid",
-					"primaryKey": true,
-					"notNull": true,
-					"default": "gen_random_uuid()"
-				},
-				"client_id": {
-					"name": "client_id",
-					"type": "uuid",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"word": {
-					"name": "word",
-					"type": "varchar(255)",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"created_at": {
-					"name": "created_at",
-					"type": "timestamp with time zone",
-					"primaryKey": false,
-					"notNull": true,
-					"default": "now()"
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {
-				"blacklist_words_client_id_clients_id_fk": {
-					"name": "blacklist_words_client_id_clients_id_fk",
-					"tableFrom": "blacklist_words",
-					"tableTo": "clients",
-					"columnsFrom": ["client_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
@@ -249,6 +200,55 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
+		"public.blacklist_words": {
+			"name": "blacklist_words",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"word": {
+					"name": "word",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"blacklist_words_client_id_clients_id_fk": {
+					"name": "blacklist_words_client_id_clients_id_fk",
+					"tableFrom": "blacklist_words",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
 		"public.bot_configs": {
 			"name": "bot_configs",
 			"schema": "",
@@ -319,6 +319,55 @@
 					"columns": ["client_id"]
 				}
 			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_pre_made_mcp": {
+			"name": "client_pre_made_mcp",
+			"schema": "",
+			"columns": {
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"pre_made_mcp_id": {
+					"name": "pre_made_mcp_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_pre_made_mcp_client_id_clients_id_fk": {
+					"name": "client_pre_made_mcp_client_id_clients_id_fk",
+					"tableFrom": "client_pre_made_mcp",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk": {
+					"name": "client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk",
+					"tableFrom": "client_pre_made_mcp",
+					"tableTo": "pre_made_mcp_servers",
+					"columnsFrom": ["pre_made_mcp_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"client_pre_made_mcp_client_id_pre_made_mcp_id_pk": {
+					"name": "client_pre_made_mcp_client_id_pre_made_mcp_id_pk",
+					"columns": ["client_id", "pre_made_mcp_id"]
+				}
+			},
+			"uniqueConstraints": {},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
@@ -425,233 +474,6 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
-		"public.password_reset_tokens": {
-			"name": "password_reset_tokens",
-			"schema": "",
-			"columns": {
-				"token": {
-					"name": "token",
-					"type": "uuid",
-					"primaryKey": true,
-					"notNull": true,
-					"default": "gen_random_uuid()"
-				},
-				"email": {
-					"name": "email",
-					"type": "varchar(255)",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"expires_at": {
-					"name": "expires_at",
-					"type": "timestamp with time zone",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"consumed_at": {
-					"name": "consumed_at",
-					"type": "timestamp with time zone",
-					"primaryKey": false,
-					"notNull": false
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.pending_registrations": {
-			"name": "pending_registrations",
-			"schema": "",
-			"columns": {
-				"token": {
-					"name": "token",
-					"type": "uuid",
-					"primaryKey": true,
-					"notNull": true,
-					"default": "gen_random_uuid()"
-				},
-				"name": {
-					"name": "name",
-					"type": "varchar(255)",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"email": {
-					"name": "email",
-					"type": "varchar(255)",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"password_hash": {
-					"name": "password_hash",
-					"type": "varchar(255)",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"expires_at": {
-					"name": "expires_at",
-					"type": "timestamp with time zone",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"consumed_at": {
-					"name": "consumed_at",
-					"type": "timestamp with time zone",
-					"primaryKey": false,
-					"notNull": false
-				},
-				"consumed_by_client_id": {
-					"name": "consumed_by_client_id",
-					"type": "uuid",
-					"primaryKey": false,
-					"notNull": false
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {
-				"pending_registrations_consumed_by_client_id_clients_id_fk": {
-					"name": "pending_registrations_consumed_by_client_id_clients_id_fk",
-					"tableFrom": "pending_registrations",
-					"tableTo": "clients",
-					"columnsFrom": ["consumed_by_client_id"],
-					"columnsTo": ["id"],
-					"onDelete": "no action",
-					"onUpdate": "no action"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {
-				"pending_registrations_email_unique": {
-					"name": "pending_registrations_email_unique",
-					"nullsNotDistinct": false,
-					"columns": ["email"]
-				}
-			},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.client_pre_made_mcp": {
-			"name": "client_pre_made_mcp",
-			"schema": "",
-			"columns": {
-				"client_id": {
-					"name": "client_id",
-					"type": "uuid",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"pre_made_mcp_id": {
-					"name": "pre_made_mcp_id",
-					"type": "uuid",
-					"primaryKey": false,
-					"notNull": true
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {
-				"client_pre_made_mcp_client_id_clients_id_fk": {
-					"name": "client_pre_made_mcp_client_id_clients_id_fk",
-					"tableFrom": "client_pre_made_mcp",
-					"tableTo": "clients",
-					"columnsFrom": ["client_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
-				},
-				"client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk": {
-					"name": "client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk",
-					"tableFrom": "client_pre_made_mcp",
-					"tableTo": "pre_made_mcp_servers",
-					"columnsFrom": ["pre_made_mcp_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
-				}
-			},
-			"compositePrimaryKeys": {
-				"client_pre_made_mcp_client_id_pre_made_mcp_id_pk": {
-					"name": "client_pre_made_mcp_client_id_pre_made_mcp_id_pk",
-					"columns": ["client_id", "pre_made_mcp_id"]
-				}
-			},
-			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.custom_mcp_servers": {
-			"name": "custom_mcp_servers",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "uuid",
-					"primaryKey": true,
-					"notNull": true,
-					"default": "gen_random_uuid()"
-				},
-				"client_id": {
-					"name": "client_id",
-					"type": "uuid",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"mcp_config": {
-					"name": "mcp_config",
-					"type": "jsonb",
-					"primaryKey": false,
-					"notNull": true
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {
-				"custom_mcp_servers_client_id_clients_id_fk": {
-					"name": "custom_mcp_servers_client_id_clients_id_fk",
-					"tableFrom": "custom_mcp_servers",
-					"tableTo": "clients",
-					"columnsFrom": ["client_id"],
-					"columnsTo": ["id"],
-					"onDelete": "cascade",
-					"onUpdate": "no action"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
-		"public.pre_made_mcp_servers": {
-			"name": "pre_made_mcp_servers",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "uuid",
-					"primaryKey": true,
-					"notNull": true,
-					"default": "gen_random_uuid()"
-				},
-				"mcp_config": {
-					"name": "mcp_config",
-					"type": "jsonb",
-					"primaryKey": false,
-					"notNull": true
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
 		"public.conversations": {
 			"name": "conversations",
 			"schema": "",
@@ -719,6 +541,48 @@
 					"value": "\"conversations\".\"satisfaction_rating\" >= 1 AND \"conversations\".\"satisfaction_rating\" <= 5"
 				}
 			},
+			"isRLSEnabled": false
+		},
+		"public.custom_mcp_servers": {
+			"name": "custom_mcp_servers",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"mcp_config": {
+					"name": "mcp_config",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"custom_mcp_servers_client_id_clients_id_fk": {
+					"name": "custom_mcp_servers_client_id_clients_id_fk",
+					"tableFrom": "custom_mcp_servers",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
 		"public.end_user_sessions": {
@@ -840,6 +704,142 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
+		"public.password_reset_tokens": {
+			"name": "password_reset_tokens",
+			"schema": "",
+			"columns": {
+				"token": {
+					"name": "token",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"consumed_at": {
+					"name": "consumed_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.pending_registrations": {
+			"name": "pending_registrations",
+			"schema": "",
+			"columns": {
+				"token": {
+					"name": "token",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"consumed_at": {
+					"name": "consumed_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"consumed_by_client_id": {
+					"name": "consumed_by_client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"pending_registrations_consumed_by_client_id_clients_id_fk": {
+					"name": "pending_registrations_consumed_by_client_id_clients_id_fk",
+					"tableFrom": "pending_registrations",
+					"tableTo": "clients",
+					"columnsFrom": ["consumed_by_client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"pending_registrations_email_unique": {
+					"name": "pending_registrations_email_unique",
+					"nullsNotDistinct": false,
+					"columns": ["email"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.pre_made_mcp_servers": {
+			"name": "pre_made_mcp_servers",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"mcp_config": {
+					"name": "mcp_config",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
 		"public.usage_records": {
 			"name": "usage_records",
 			"schema": "",
@@ -912,15 +912,15 @@
 		}
 	},
 	"enums": {
-		"public.provider_type": {
-			"name": "provider_type",
-			"schema": "public",
-			"values": ["openai", "openai_compatible", "google", "anthropic"]
-		},
 		"public.message_role": {
 			"name": "message_role",
 			"schema": "public",
 			"values": ["user", "assistant", "system"]
+		},
+		"public.provider_type": {
+			"name": "provider_type",
+			"schema": "public",
+			"values": ["openai", "openai_compatible", "google", "anthropic"]
 		}
 	},
 	"schemas": {},

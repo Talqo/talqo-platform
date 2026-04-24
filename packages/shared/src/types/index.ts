@@ -1,8 +1,3 @@
-export type ApiResponse = {
-	message: string
-	success: boolean
-}
-
 export type {
 	AiProviderConfig,
 	McpHttpConfig,
