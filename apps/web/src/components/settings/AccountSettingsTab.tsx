@@ -1,10 +1,13 @@
-import { Loader2 } from "lucide-react"
-import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import type { UpdateProfileInput } from "shared"
+import { updateProfileBodySchema } from "shared"
 import {
 	useChangePassword,
 	useClientProfile,
-} from "@/api/hooks/useClientAccount"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+	useUpdateClientProfile,
+} from "@/api/hooks"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -13,174 +16,192 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useForm } from "@/lib/useForm"
-import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas"
-
-const validatePasswordForm = (values: PasswordChangeSchema) => {
-	const result = passwordChangeSchema.safeParse(values)
-	if (result.success) return {}
-	const errors: Partial<Record<keyof PasswordChangeSchema, string>> = {}
-	for (const issue of result.error.issues) {
-		const path = issue.path[0] as keyof PasswordChangeSchema
-		errors[path] = issue.message
-	}
-	return errors
-}
+import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas/auth"
 
 export function AccountSettingsTab() {
-	const { data: profile, isLoading } = useClientProfile()
-	const { mutate: changePassword, isPending } = useChangePassword()
-	const [successMessage, setSuccessMessage] = useState<string | null>(null)
-	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const { data: accountData } = useClientProfile()
+	const updateProfile = useUpdateClientProfile()
+	const changePassword = useChangePassword()
 
-	const {
-		values,
-		errors,
-		touched,
-		handleChange,
-		handleBlur,
-		handleSubmit,
-		reset,
-	} = useForm<PasswordChangeSchema>({
-		initialValues: {
+	const profileForm = useForm<UpdateProfileInput>({
+		resolver: zodResolver(updateProfileBodySchema),
+		defaultValues: { email: "", name: "" },
+		mode: "onBlur",
+	})
+
+	const passwordForm = useForm<PasswordChangeSchema>({
+		resolver: zodResolver(passwordChangeSchema),
+		defaultValues: {
 			currentPassword: "",
 			newPassword: "",
 			confirmNewPassword: "",
 		},
-		validate: validatePasswordForm,
-		onSubmit: async () => {
-			setSuccessMessage(null)
-			setErrorMessage(null)
-			changePassword(
-				{
-					currentPassword: values.currentPassword,
-					newPassword: values.newPassword,
-				},
-				{
-					onSuccess: () => {
-						setSuccessMessage("Password changed successfully.")
-						reset()
-					},
-					onError: (err) => {
-						setErrorMessage(
-							err.error?.message ??
-								"Failed to change password. Please try again.",
-						)
-					},
-				},
-			)
-		},
+		mode: "onBlur",
 	})
+
+	useEffect(() => {
+		if (accountData) {
+			profileForm.reset(
+				{
+					email: accountData.email ?? "",
+					name: accountData.name ?? "",
+				},
+				{ keepDirtyValues: true },
+			)
+		}
+	}, [accountData, profileForm])
 
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle>Account Details</CardTitle>
 			</CardHeader>
-			<form onSubmit={handleSubmit} noValidate>
-				<CardContent className="space-y-4">
-					<div className="space-y-2">
-						<Label htmlFor="account-email">Email</Label>
-						{isLoading ? (
-							<Skeleton className="h-10 w-full" />
-						) : (
-							<Input id="account-email" value={profile?.email ?? ""} readOnly />
-						)}
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="account-api-key">API Key</Label>
-						<div className="flex gap-2">
-							<Input
-								id="account-api-key"
-								type="password"
-								placeholder="••••••••••••••••"
-								readOnly
-								className="flex-1"
-							/>
-							<Button type="button" variant="outline" size="sm">
-								Copy
-							</Button>
-							<Button type="button" variant="outline" size="sm">
-								Regenerate
-							</Button>
+			<Form {...profileForm}>
+				<form
+					onSubmit={profileForm.handleSubmit((values) =>
+						updateProfile.mutate(values),
+					)}
+				>
+					<CardContent className="space-y-4">
+						<FormField
+							control={profileForm.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Email</FormLabel>
+									<FormControl>
+										<Input
+											type="email"
+											placeholder="you@example.com"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={profileForm.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input type="text" placeholder="Your name" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<div className="space-y-2">
+							<Label>API Key</Label>
+							<div className="flex gap-2">
+								<Input
+									type="password"
+									placeholder="••••••••••••••••"
+									readOnly
+									className="flex-1"
+								/>
+								<Button variant="outline" size="sm" type="button" disabled>
+									Copy
+								</Button>
+								<Button variant="outline" size="sm" type="button" disabled>
+									Regenerate
+								</Button>
+							</div>
+							<p className="text-muted-foreground text-sm">
+								Use this key to authenticate API requests.
+							</p>
 						</div>
-						<p className="text-muted-foreground text-sm">
-							Use this key to authenticate API requests.
-						</p>
-					</div>
-					<hr className="my-4 border-border border-t-2" />
-					{successMessage && (
-						<Alert>
-							<AlertDescription>{successMessage}</AlertDescription>
-						</Alert>
+					</CardContent>
+					<CardFooter className="flex justify-end">
+						<Button type="submit" disabled={updateProfile.isPending}>
+							{updateProfile.isPending ? "Saving..." : "Save Profile"}
+						</Button>
+					</CardFooter>
+				</form>
+			</Form>
+
+			<hr className="mx-6 border-border border-t-2" />
+
+			<Form {...passwordForm}>
+				<form
+					onSubmit={passwordForm.handleSubmit((values) =>
+						changePassword.mutate(
+							{
+								currentPassword: values.currentPassword,
+								newPassword: values.newPassword,
+							},
+							{
+								onSuccess: () => {
+									passwordForm.reset()
+								},
+							},
+						),
 					)}
-					{errorMessage && (
-						<Alert variant="destructive">
-							<AlertDescription>{errorMessage}</AlertDescription>
-						</Alert>
-					)}
-					<div className="space-y-2">
-						<Label htmlFor="current-password">Current Password</Label>
-						<Input
-							id="current-password"
-							type="password"
-							value={values.currentPassword}
-							onChange={(e) => handleChange("currentPassword")(e.target.value)}
-							onBlur={handleBlur("currentPassword")}
+				>
+					<CardContent className="space-y-4 pt-4">
+						<FormField
+							control={passwordForm.control}
+							name="currentPassword"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Current Password</FormLabel>
+									<FormControl>
+										<Input type="password" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{touched.currentPassword && errors.currentPassword && (
-							<p className="text-destructive text-sm">
-								{errors.currentPassword}
-							</p>
-						)}
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="new-password">New Password</Label>
-						<Input
-							id="new-password"
-							type="password"
-							value={values.newPassword}
-							onChange={(e) => handleChange("newPassword")(e.target.value)}
-							onBlur={handleBlur("newPassword")}
+						<FormField
+							control={passwordForm.control}
+							name="newPassword"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>New Password</FormLabel>
+									<FormControl>
+										<Input type="password" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{touched.newPassword && errors.newPassword && (
-							<p className="text-destructive text-sm">{errors.newPassword}</p>
-						)}
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="confirm-password">Confirm New Password</Label>
-						<Input
-							id="confirm-password"
-							type="password"
-							value={values.confirmNewPassword}
-							onChange={(e) =>
-								handleChange("confirmNewPassword")(e.target.value)
-							}
-							onBlur={handleBlur("confirmNewPassword")}
+						<FormField
+							control={passwordForm.control}
+							name="confirmNewPassword"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Confirm New Password</FormLabel>
+									<FormControl>
+										<Input type="password" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{touched.confirmNewPassword && errors.confirmNewPassword && (
-							<p className="text-destructive text-sm">
-								{errors.confirmNewPassword}
-							</p>
-						)}
-					</div>
-				</CardContent>
-				<CardFooter className="flex justify-end">
-					<Button variant="default" type="submit" disabled={isPending}>
-						{isPending ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Changing...
-							</>
-						) : (
-							"Change Password"
-						)}
-					</Button>
-				</CardFooter>
-			</form>
+					</CardContent>
+					<CardFooter className="flex justify-end">
+						<Button
+							type="submit"
+							variant="default"
+							disabled={changePassword.isPending}
+						>
+							{changePassword.isPending ? "Changing..." : "Change Password"}
+						</Button>
+					</CardFooter>
+				</form>
+			</Form>
 		</Card>
 	)
 }
