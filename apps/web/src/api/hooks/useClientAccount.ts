@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
+import type { ApiError } from "./useAuth"
 
 export function useClientProfile() {
 	return useQuery({
@@ -25,11 +26,12 @@ export function useUpdateClientProfile() {
 }
 
 export function useChangePassword() {
-	return useMutation({
-		mutationFn: async (body: {
-			currentPassword: string
-			newPassword: string
-		}) => {
+	return useMutation<
+		{ message: string },
+		ApiError,
+		{ currentPassword: string; newPassword: string }
+	>({
+		mutationFn: async (body) => {
 			const { data, error } = await client.PATCH("/client/me/password", {
 				body,
 			})
