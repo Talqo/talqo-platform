@@ -8,7 +8,7 @@ export function useClientProfile() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me")
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -19,7 +19,7 @@ export function useUpdateClientProfile() {
 		mutationFn: async (body: { name?: string; email?: string }) => {
 			const { data, error } = await client.PATCH("/client/me", { body })
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
@@ -36,7 +36,7 @@ export function useChangePassword() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -47,7 +47,7 @@ export function useAddFunds() {
 		mutationFn: async (body: { amount: number }) => {
 			const { data, error } = await client.POST("/client/me/balance", { body })
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
@@ -60,7 +60,7 @@ export function useSetUsageLimit() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -72,7 +72,7 @@ export function useSetUsageAlert() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }

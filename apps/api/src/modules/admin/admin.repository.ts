@@ -1,9 +1,10 @@
-import { and, count, eq, sum } from "drizzle-orm"
+import { and, count, desc, eq, sum } from "drizzle-orm"
 import type { DB } from "../../db"
 import {
 	adminUsers,
 	clients,
 	conversations,
+	messages,
 	usageRecords,
 } from "../../db/schema"
 
@@ -90,5 +91,67 @@ export class AdminRepository {
 			.where(eq(clients.id, clientId))
 			.returning({ id: clients.id, status: clients.status })
 		return rows.at(0) ?? null
+	}
+
+	async listConversations({
+		clientId,
+		limit,
+		offset,
+	}: {
+		clientId?: string
+		limit: number
+		offset: number
+	}) {
+		return this.db
+			.select({
+				id: conversations.id,
+				clientId: conversations.clientId,
+				clientName: clients.name,
+				clientEmail: clients.email,
+				startedAt: conversations.startedAt,
+				satisfactionRating: conversations.satisfactionRating,
+				messageCount: count(messages.id),
+			})
+			.from(conversations)
+			.innerJoin(clients, eq(conversations.clientId, clients.id))
+			.leftJoin(messages, eq(messages.conversationId, conversations.id))
+			.where(clientId ? eq(conversations.clientId, clientId) : undefined)
+			.groupBy(
+				conversations.id,
+				conversations.clientId,
+				conversations.startedAt,
+				conversations.satisfactionRating,
+				clients.name,
+				clients.email,
+			)
+			.orderBy(desc(conversations.startedAt))
+			.limit(limit)
+			.offset(offset)
+	}
+
+	async getConversationWithMessages(conversationId: string) {
+		const row = await this.db
+			.select({
+				id: conversations.id,
+				clientId: conversations.clientId,
+				clientName: clients.name,
+				clientEmail: clients.email,
+				startedAt: conversations.startedAt,
+				satisfactionRating: conversations.satisfactionRating,
+			})
+			.from(conversations)
+			.innerJoin(clients, eq(conversations.clientId, clients.id))
+			.where(eq(conversations.id, conversationId))
+			.then((rows) => rows.at(0) ?? null)
+
+		if (!row) return null
+
+		const msgs = await this.db
+			.select()
+			.from(messages)
+			.where(eq(messages.conversationId, conversationId))
+			.orderBy(messages.createdAt)
+
+		return { ...row, messages: msgs }
 	}
 }

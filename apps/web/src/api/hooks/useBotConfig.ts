@@ -7,7 +7,7 @@ export function useBotConfig() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/bot-config", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -25,7 +25,7 @@ export function useUpdateBotConfig() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["bot-config"] }),
 	})

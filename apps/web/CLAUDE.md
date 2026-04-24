@@ -12,11 +12,10 @@ src/
 │   └── <feature>/        # Feature-specific composed components
 ├── api/
 │   ├── client.ts         # openapi-fetch typed client (uses VITE_API_URL)
-│   ├── auth.client.ts    # Manual fetch wrappers for auth routes absent from OpenAPI spec
 │   ├── hooks/            # Custom TanStack Query hooks per domain (useAuth, useFiles, etc.)
 │   └── generated/        # Auto-generated from OpenAPI spec — do not edit
 ├── hooks/                # Shared custom hooks (useGuardedAuth, useAnimationTimeout)
-├── lib/                  # queryClient, utils (cn), useForm, useTheme, auth utils, constants
+├── lib/                  # queryClient, utils (cn), useTheme, auth utils, constants
 ├── schemas/              # Frontend-only Zod form schemas (extend shared schemas)
 ├── data/                 # Static/seed data for UI (charts, tools, landing copy)
 └── assets/               # Static assets
@@ -33,8 +32,7 @@ src/
 
 ## API Client
 
-- `src/api/client.ts` — typed via `openapi-fetch` + generated `paths`. Add auth header from `localStorage` automatically via middleware; admin requests (URLs containing `/admin`) use `ADMIN_TOKEN_KEY`, others use `TOKEN_KEY`.
-- `src/api/auth.client.ts` — plain `fetch` wrappers kept for historical reasons; prefer `client` from `client.ts` for new code since auth routes are now in the OpenAPI spec.
+- `src/api/client.ts` — typed via `openapi-fetch` + generated `paths`. Auth header is added from `localStorage` automatically via middleware; admin requests (URLs containing `/admin`) use `ADMIN_TOKEN_KEY`, others use `TOKEN_KEY`.
 - **To regenerate types:** `bun run generate-api` — starts the API if not running, fetches `/openapi.json`, runs `openapi-typescript`, then stops it.
 
 ## Auth
@@ -47,7 +45,7 @@ src/
 
 - **`@` alias** maps to `src/` — always use `@/` for internal imports.
 - **shadcn components**: add via `bunx shadcn@latest add <component>`, never edit `src/components/ui/` by hand.
-- **Form handling**: use `src/lib/useForm.ts` (custom hook with Zod-compatible validation). Frontend schemas live in `src/schemas/` and extend `shared` schemas.
+- **Form handling**: use `react-hook-form` with `zodResolver` from `@hookform/resolvers/zod`. Wrap fields with shadcn `Form`/`FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage`. Frontend schemas live in `src/schemas/` and extend `shared` schemas.
 - **No tests** — `bun run test` is a no-op placeholder.
 - **`VITE_API_URL`** env var sets the API base URL (defaults to `http://localhost:3000`).
 - **`queryClient`** defaults: `staleTime: 60 s`, `retry: 1`.

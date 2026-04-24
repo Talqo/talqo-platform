@@ -9,7 +9,7 @@ export function usePreMadeServers() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/mcp/pre-made", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -23,7 +23,7 @@ export function useEnabledPreMadeServers() {
 				{},
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -37,7 +37,7 @@ export function useEnablePreMadeServer() {
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "pre-made"] }),
 	})
@@ -52,7 +52,7 @@ export function useDisablePreMadeServer() {
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "pre-made"] }),
 	})
@@ -66,7 +66,7 @@ export function useCustomServers() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/mcp/custom", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -79,7 +79,7 @@ export function useCreateCustomServer() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "custom"] }),
 	})
@@ -100,7 +100,7 @@ export function useUpdateCustomServer() {
 				{ params: { path: { serverId } }, body: { mcpConfig } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "custom"] }),
 	})
@@ -115,7 +115,7 @@ export function useDeleteCustomServer() {
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "custom"] }),
 	})

@@ -1,3 +1,4 @@
+import { inArray, sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
@@ -32,64 +33,78 @@ if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_DB) {
 	process.exit(1)
 }
 
-const sql = postgres(
+const pgClient = postgres(
 	`postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`,
 	{ max: 1 },
 )
-const db = drizzle(sql, { schema })
+const db = drizzle(pgClient, { schema })
 
-// Fixed UUIDs make the seed fully idempotent — re-running never creates duplicates
+// Fixed UUIDs make the seed fully idempotent — re-running never creates duplicates.
+// Uses version 4 (4xxx) + variant 1 (8xxx) to satisfy RFC 4122 UUID validation.
 const ID = {
 	// Admin
-	admin: "00000000-0000-0000-0000-000000000001",
+	admin: "00000000-0000-4000-8000-000000000001",
 	// Clients
-	client1: "00000000-0000-0000-0000-000000000010",
-	client2: "00000000-0000-0000-0000-000000000011",
+	client1: "00000000-0000-4000-8000-000000000010",
+	client2: "00000000-0000-4000-8000-000000000011",
 	// Bot configs
-	botConfig1: "00000000-0000-0000-0000-000000000020",
-	botConfig2: "00000000-0000-0000-0000-000000000021",
+	botConfig1: "00000000-0000-4000-8000-000000000020",
+	botConfig2: "00000000-0000-4000-8000-000000000021",
 	// MCP servers
-	preMadeMcp1: "00000000-0000-0000-0000-000000000030",
-	preMadeMcp2: "00000000-0000-0000-0000-000000000031",
-	customMcp1: "00000000-0000-0000-0000-000000000032",
+	preMadeMcp1: "00000000-0000-4000-8000-000000000030",
+	preMadeMcp2: "00000000-0000-4000-8000-000000000031",
+	customMcp1: "00000000-0000-4000-8000-000000000032",
 	// Blacklist words
-	blacklist1: "00000000-0000-0000-0000-000000000040",
-	blacklist2: "00000000-0000-0000-0000-000000000041",
-	blacklist3: "00000000-0000-0000-0000-000000000042",
-	blacklist4: "00000000-0000-0000-0000-000000000043",
+	blacklist1: "00000000-0000-4000-8000-000000000040",
+	blacklist2: "00000000-0000-4000-8000-000000000041",
+	blacklist3: "00000000-0000-4000-8000-000000000042",
+	blacklist4: "00000000-0000-4000-8000-000000000043",
 	// Admin access logs
-	accessLog1: "00000000-0000-0000-0000-000000000050",
-	accessLog2: "00000000-0000-0000-0000-000000000051",
-	accessLog3: "00000000-0000-0000-0000-000000000052",
+	accessLog1: "00000000-0000-4000-8000-000000000050",
+	accessLog2: "00000000-0000-4000-8000-000000000051",
+	accessLog3: "00000000-0000-4000-8000-000000000052",
 	// End user sessions
-	session1: "00000000-0000-0000-0000-000000000060",
-	session2: "00000000-0000-0000-0000-000000000061",
-	session3: "00000000-0000-0000-0000-000000000062",
+	session1: "00000000-0000-4000-8000-000000000060",
+	session2: "00000000-0000-4000-8000-000000000061",
+	session3: "00000000-0000-4000-8000-000000000062",
 	// Conversations
-	conv1: "00000000-0000-0000-0000-000000000070",
-	conv2: "00000000-0000-0000-0000-000000000071",
-	conv3: "00000000-0000-0000-0000-000000000072",
+	conv1: "00000000-0000-4000-8000-000000000070",
+	conv2: "00000000-0000-4000-8000-000000000071",
+	conv3: "00000000-0000-4000-8000-000000000072",
 	// Messages
-	msg1: "00000000-0000-0000-0000-000000000080",
-	msg2: "00000000-0000-0000-0000-000000000081",
-	msg3: "00000000-0000-0000-0000-000000000082",
-	msg4: "00000000-0000-0000-0000-000000000083",
-	msg5: "00000000-0000-0000-0000-000000000084",
-	msg6: "00000000-0000-0000-0000-000000000085",
-	msg7: "00000000-0000-0000-0000-000000000086",
-	msg8: "00000000-0000-0000-0000-000000000087",
+	msg1: "00000000-0000-4000-8000-000000000080",
+	msg2: "00000000-0000-4000-8000-000000000081",
+	msg3: "00000000-0000-4000-8000-000000000082",
+	msg4: "00000000-0000-4000-8000-000000000083",
+	msg5: "00000000-0000-4000-8000-000000000084",
+	msg6: "00000000-0000-4000-8000-000000000085",
+	msg7: "00000000-0000-4000-8000-000000000086",
+	msg8: "00000000-0000-4000-8000-000000000087",
 	// Usage records (one per assistant message)
-	usage1: "00000000-0000-0000-0000-000000000090",
-	usage2: "00000000-0000-0000-0000-000000000091",
-	usage3: "00000000-0000-0000-0000-000000000092",
-	usage4: "00000000-0000-0000-0000-000000000093",
+	usage1: "00000000-0000-4000-8000-000000000090",
+	usage2: "00000000-0000-4000-8000-000000000091",
+	usage3: "00000000-0000-4000-8000-000000000092",
+	usage4: "00000000-0000-4000-8000-000000000093",
 	// Widget tokens
-	widgetToken1: "00000000-0000-0000-0001-000000000010",
-	widgetToken2: "00000000-0000-0000-0001-000000000011",
+	widgetToken1: "00000000-0000-4000-8001-000000000010",
+	widgetToken2: "00000000-0000-4000-8001-000000000011",
 } as const
 
 async function seed() {
 	console.log("Seeding database...")
+
+	// Clean up any existing rows where our fixed UUIDs won't match, to prevent
+	// foreign-key failures. onConflictDoUpdate updates non-PK columns but keeps
+	// the existing UUID, so later inserts referencing our fixed UUIDs would fail.
+	await db.execute(
+		sql`delete from admin_access_logs where admin_id in (select id from admin_users where email = 'admin@pagepal.dev')`,
+	)
+	await db
+		.delete(adminUsers)
+		.where(inArray(adminUsers.email, ["admin@pagepal.dev"]))
+	await db
+		.delete(clients)
+		.where(inArray(clients.email, ["acme@pagepal.dev", "tech@pagepal.dev"]))
 
 	// ── Admin users ────────────────────────────────────────────────────────────
 	await db
@@ -100,7 +115,7 @@ async function seed() {
 			passwordHash: await Bun.password.hash("admin123"),
 		})
 		.onConflictDoUpdate({
-			target: adminUsers.id,
+			target: adminUsers.email,
 			set: { passwordHash: await Bun.password.hash("admin123") },
 		})
 	console.log("  ✓ admin users")
@@ -130,7 +145,18 @@ async function seed() {
 				status: "active",
 			},
 		])
-		.onConflictDoNothing()
+		.onConflictDoUpdate({
+			target: clients.email,
+			set: {
+				name: sql`excluded.name`,
+				passwordHash: sql`excluded.password_hash`,
+				balanceUsd: sql`excluded.balance_usd`,
+				monthlyUsageLimit: sql`excluded.monthly_usage_limit`,
+				usageAlertThresholdUsd: sql`excluded.usage_alert_threshold_usd`,
+				widgetToken: sql`excluded.widget_token`,
+				status: sql`excluded.status`,
+			},
+		})
 	console.log("  ✓ clients")
 
 	// ── Bot configs ────────────────────────────────────────────────────────────
@@ -412,7 +438,7 @@ async function seed() {
 	console.log("  ✓ usage records")
 
 	console.log("Done.")
-	await sql.end()
+	await pgClient.end()
 }
 
 seed().catch((err) => {
