@@ -95,7 +95,9 @@ async function seed() {
 
 	// Wipe all data so the seed is always a clean re-insert regardless of prior state.
 	// CASCADE handles FK ordering automatically.
-	await sql`TRUNCATE admin_users, clients, pre_made_mcp_servers CASCADE`
+	await db.execute(
+		sql`TRUNCATE admin_users, clients, pre_made_mcp_servers CASCADE`,
+	)
 
 	// ── Admin users ────────────────────────────────────────────────────────────
 	await db
