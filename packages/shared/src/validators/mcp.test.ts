@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
+import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "./mcp"
 
 // ─── Client schema (remote only) ──────────────────────────────────────────────
 
