@@ -170,13 +170,12 @@ export function AccountSettingsTab() {
 									schedulePwFeedbackClear()
 								},
 								onError: (error: ApiError) => {
-									const code = error.error?.code ?? "UNKNOWN_ERROR"
 									const msg =
 										error.error?.message ??
-										"Failed to change password. Please check your current password and try again."
+										"Failed to change password. Please try again."
 									setPwFeedback({
 										type: "error",
-										message: `${msg} (${code})`,
+										message: msg,
 									})
 									schedulePwFeedbackClear()
 								},

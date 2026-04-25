@@ -1,12 +1,19 @@
 import { expect, test } from "@playwright/test"
 import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
 
+const NEW_PASSWORD = "newpass123"
+
 test.describe.configure({ mode: "serial" })
 
 test.describe("Change password flow", () => {
 	test.afterEach(async ({ page }) => {
+		// Only revert if the settings form is mounted; otherwise the test
+		// failed earlier and there is nothing to clean up.
+		const onSettingsForm = await page.getByLabel("Current Password").isVisible()
+		if (!onSettingsForm) return
+
 		// Revert password to the seeded value so the test stays idempotent
-		await page.getByLabel("Current Password").fill("newpass123")
+		await page.getByLabel("Current Password").fill(NEW_PASSWORD)
 		await page
 			.getByLabel("New Password", { exact: true })
 			.fill(SEEDED_USERS.client.password)
@@ -42,8 +49,8 @@ test.describe("Change password flow", () => {
 		).toBeVisible()
 
 		await page.getByLabel("Current Password").fill(SEEDED_USERS.client.password)
-		await page.getByLabel("New Password", { exact: true }).fill("newpass123")
-		await page.getByLabel("Confirm New Password").fill("newpass123")
+		await page.getByLabel("New Password", { exact: true }).fill(NEW_PASSWORD)
+		await page.getByLabel("Confirm New Password").fill(NEW_PASSWORD)
 
 		await page.getByRole("button", { name: "Change Password" }).click()
 
