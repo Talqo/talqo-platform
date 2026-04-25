@@ -1,10 +1,11 @@
 ---
-paths: 
+paths:
   - "**/helm/**"
 ---
+
 ## Context
 
-Apply these rules when creating or modifying Helm charts. Focus on naming conventions, security, and proper templating.
+Rules for creating or modifying Helm charts. Naming, security, templating.
 
 ## Best Practices
 
@@ -24,7 +25,7 @@ Apply these rules when creating or modifying Helm charts. Focus on naming conven
 
 **Versioning:**
 
-- SemVer 2 format: `1.2.3`
+- SemVer 2: `1.2.3`
 - `version`: Chart version
 - `appVersion`: Application version (quoted)
 
@@ -71,7 +72,7 @@ enabled: false  # Booleans: no quotes
 **Documentation:**
 
 ```yaml
-# replicaCount is the number of pod replicas
+# replicaCount is number of pod replicas
 replicaCount: 3
 ```
 
@@ -118,7 +119,7 @@ securityContext:
       - ALL
 ```
 
-**RBAC:** Use least-privilege; avoid `cluster-admin` and `*` verbs.
+**RBAC:** Least-privilege. No `cluster-admin` or `*` verbs.
 
 ### Resources
 
@@ -155,15 +156,15 @@ helm test <release-name>
 
 ## Boundaries
 
-- ✅ **Always:** Use `lowercase-with-hyphens` for chart names
-- ✅ **Always:** Use `camelCase` for values
-- ✅ **Always:** Quote all strings in values.yaml (exception: numeric fields such as ports, replica counts, and resource quantities must be unquoted integers)
+- ✅ **Always:** `lowercase-with-hyphens` for chart names
+- ✅ **Always:** `camelCase` for values
+- ✅ **Always:** Quote strings in values.yaml. Exception: numeric fields (ports, replica counts, resource quantities) = unquoted integers
 - ✅ **Always:** Namespace template names with chart prefix
-- ✅ **Always:** Include resource limits and health checks
+- ✅ **Always:** Resource limits + health checks
 - ✅ **Always:** Document every value with comments
-- ✅ **Always:** Use `required` for mandatory values
+- ✅ **Always:** `required` for mandatory values
 - ⚠️ **Ask:** Before using `cluster-admin` RBAC
 - 🚫 **Never:** Hardcode secrets in values or templates
 - 🚫 **Never:** Provide default passwords
 - 🚫 **Never:** Run containers as root
-- 🚫 **Never:** Use overly permissive RBAC (`*` verbs)
+- 🚫 **Never:** Overly permissive RBAC (`*` verbs)
