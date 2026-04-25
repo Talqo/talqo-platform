@@ -23,7 +23,7 @@ import {
 import { useWidgetContext } from "./primitives/WidgetRoot"
 import type { ResolvedWidgetConfig } from "./types"
 
-interface EmbeddedWidgetProps {
+type EmbeddedWidgetProps = {
 	config: ResolvedWidgetConfig
 }
 

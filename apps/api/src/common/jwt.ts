@@ -11,7 +11,7 @@ export type AppVariables = {
 	logger: Logger
 }
 
-export interface TokenPayload {
+export type TokenPayload = {
 	sub: string
 	role: TokenRole
 	/** Marks an impersonation token issued by admin */

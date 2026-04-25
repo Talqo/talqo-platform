@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { formatBytes } from "@/lib/formatBytes"
 import { cn } from "@/lib/utils"
 
-interface FileListItemProps {
+type FileListItemProps = {
 	file: FileEntry
 	isEditing: boolean
 	editValue: string

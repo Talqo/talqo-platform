@@ -9,7 +9,7 @@ import { type UploadError, UploadErrorAlert } from "./UploadErrorAlert"
 import { useDragAndDrop } from "./useDragAndDrop"
 import { useFileValidation } from "./useFileValidation"
 
-interface FileListProps {
+type FileListProps = {
 	files: FileEntry[]
 	onRename: (
 		name: string,
@@ -19,7 +19,7 @@ interface FileListProps {
 	onFilesUploaded: (files: File[]) => Promise<void>
 }
 
-interface EditingState {
+type EditingState = {
 	name: string
 	editValue: string
 }

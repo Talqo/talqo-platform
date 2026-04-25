@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-interface ForgotPasswordFormProps {
+type ForgotPasswordFormProps = {
 	onSubmit: (email: string) => void
 	isPending: boolean
 	error: ApiError | null

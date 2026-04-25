@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
-interface EmbedCodeCardProps {
+type EmbedCodeCardProps = {
 	clientId: string | undefined
 	position: "left" | "right"
 	colors: WidgetColorsConfig

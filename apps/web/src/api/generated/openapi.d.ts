@@ -809,7 +809,6 @@ export interface paths {
                             systemPrompt: string | null;
                             defaultRole: string | null;
                             toneStyle: string | null;
-                            internetSearchEnabled: boolean;
                             updatedAt: string;
                         };
                     };
@@ -835,7 +834,6 @@ export interface paths {
                         systemPrompt?: string | null;
                         defaultRole?: string | null;
                         toneStyle?: string | null;
-                        internetSearchEnabled?: boolean;
                     };
                 };
             };
@@ -854,7 +852,6 @@ export interface paths {
                             systemPrompt: string | null;
                             defaultRole: string | null;
                             toneStyle: string | null;
-                            internetSearchEnabled: boolean;
                             updatedAt: string;
                         };
                     };
@@ -1472,10 +1469,10 @@ export interface paths {
                             clientId: string;
                             /** @enum {string} */
                             providerType: "openai" | "openai_compatible" | "google" | "anthropic";
-                            apiKeyMasked: string;
                             model: string;
                             baseUrl: string | null;
                             updatedAt: string;
+                            apiKeyMasked: string;
                         } | null;
                     };
                 };
@@ -1536,10 +1533,10 @@ export interface paths {
                             clientId: string;
                             /** @enum {string} */
                             providerType: "openai" | "openai_compatible" | "google" | "anthropic";
-                            apiKeyMasked: string;
                             model: string;
                             baseUrl: string | null;
                             updatedAt: string;
+                            apiKeyMasked: string;
                         } | null;
                     };
                 };
@@ -2789,8 +2786,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;

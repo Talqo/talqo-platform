@@ -12,7 +12,7 @@ const TEST_CLIENT_ID = "00000000-0000-0000-0000-000000000001"
 // ─── In-memory FilesService ───────────────────────────────────────────────────
 // Implements the same interface as FilesService without needing a real S3 client.
 
-interface StoredEntry {
+type StoredEntry = {
 	size: number
 	lastModified: Date
 	contentType?: string

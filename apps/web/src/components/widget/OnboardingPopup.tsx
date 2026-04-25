@@ -11,7 +11,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog"
 
-interface OnboardingPopupProps {
+type OnboardingPopupProps = {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 }

@@ -62,7 +62,6 @@
 | FR-2.12 | Client can assign a default role to the bot (e.g. "customer support agent for Acme Shop") | High | Approved | In progress |
 | FR-2.13 | Client can customise the bot's tone and communication style (e.g. formal / informal address) | Medium | Approved | In progress |
 | FR-2.14 | Client can maintain a word blacklist; the bot must not use or engage with blacklisted terms | Medium | Approved | In progress |
-| FR-2.15 | Client can toggle whether the bot is allowed to search the internet for answers | Medium | Approved | In progress |
 
 #### FR-2e: Knowledge & integrations (MCP)
 

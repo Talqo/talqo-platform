@@ -6,6 +6,7 @@ import "./theme/default.css"
 
 // Global config type augmentation
 declare global {
+	// biome-ignore lint/style/useConsistentTypeDefinitions: intentional use of declaration merging
 	interface Window {
 		__AI_WIDGET_CONFIG__?: WidgetConfig
 	}
