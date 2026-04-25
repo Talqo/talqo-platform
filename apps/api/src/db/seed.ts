@@ -93,8 +93,15 @@ const ID = {
 async function seed() {
 	console.log("Seeding database...")
 
-	// Clean up any existing clients with our seed emails to ensure fixed UUIDs work
-	// This is necessary because onConflictDoUpdate doesn't change the primary key ID
+	// Clean up any existing rows where our fixed UUIDs won't match, to prevent
+	// foreign-key failures. onConflictDoUpdate updates non-PK columns but keeps
+	// the existing UUID, so later inserts referencing our fixed UUIDs would fail.
+	await db.execute(
+		sql`delete from admin_access_logs where admin_id in (select id from admin_users where email = 'admin@pagepal.dev')`,
+	)
+	await db
+		.delete(adminUsers)
+		.where(inArray(adminUsers.email, ["admin@pagepal.dev"]))
 	await db
 		.delete(clients)
 		.where(inArray(clients.email, ["acme@pagepal.dev", "tech@pagepal.dev"]))

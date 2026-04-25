@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react"
 
-interface DragOverlayProps {
+type DragOverlayProps = {
 	isVisible: boolean
 }
 

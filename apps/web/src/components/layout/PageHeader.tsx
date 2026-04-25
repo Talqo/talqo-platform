@@ -1,4 +1,4 @@
-interface PageHeaderProps {
+type PageHeaderProps = {
 	title: string
 	subtitle?: string
 }

@@ -1,7 +1,7 @@
 import type { StatCardData, StatIcon } from "@/data/charts"
 import { StatCard } from "./StatCard"
 
-interface StatsGridProps {
+type StatsGridProps = {
 	stats: StatCardData[]
 }
 

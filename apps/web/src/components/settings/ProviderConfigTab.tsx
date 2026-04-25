@@ -1,5 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Plug } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
 import type { ProviderType } from "shared"
 import {
 	type ProviderConfigResponse,
@@ -18,8 +20,15 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
 	Select,
 	SelectContent,
@@ -27,6 +36,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
+import {
+	type ProviderConfigFormValues,
+	providerConfigFormSchema,
+} from "@/schemas/provider-config"
 
 const PROVIDER_LABELS: Record<ProviderType, string> = {
 	openai: "OpenAI",
@@ -178,153 +191,212 @@ function ProviderConfigForm({
 	showCancel: boolean
 }) {
 	const upsert = useUpsertProviderConfig()
-	const [providerType, setProviderType] = useState<ProviderType>(
-		config?.providerType ?? "openai",
-	)
-	const [apiKey, setApiKey] = useState("")
-	const [model, setModel] = useState(config?.model ?? "")
-	const [baseUrl, setBaseUrl] = useState(config?.baseUrl ?? "")
 
-	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-		e.preventDefault()
+	const form = useForm<ProviderConfigFormValues>({
+		resolver: zodResolver(providerConfigFormSchema),
+		defaultValues: {
+			providerType: config?.providerType ?? "openai",
+			apiKey: "",
+			model: config?.model ?? "",
+			baseUrl: config?.baseUrl ?? "",
+		},
+		mode: "onBlur",
+	})
+
+	useEffect(() => {
+		if (config) {
+			form.reset({
+				providerType: config.providerType,
+				apiKey: "",
+				model: config.model,
+				baseUrl: config.baseUrl ?? "",
+			})
+		}
+	}, [config, form])
+
+	const providerType = form.watch("providerType")
+
+	const onSubmit = async (values: ProviderConfigFormValues) => {
 		try {
-			await upsert.mutateAsync(
-				providerType === "openai_compatible"
-					? { providerType, apiKey, model, baseUrl }
-					: { providerType, apiKey, model, ...(baseUrl ? { baseUrl } : {}) },
-			)
+			// TypeScript discriminated union requires explicit ternary to narrow types
+			const payload =
+				values.providerType === "openai_compatible"
+					? {
+							providerType: values.providerType,
+							apiKey: values.apiKey,
+							model: values.model,
+							baseUrl: values.baseUrl,
+						}
+					: {
+							providerType: values.providerType,
+							apiKey: values.apiKey,
+							model: values.model,
+							...(values.baseUrl ? { baseUrl: values.baseUrl } : {}),
+						}
+			await upsert.mutateAsync(payload)
 			onSaved()
 		} catch {
-			// error is captured in upsert.error and displayed below the form
+			// Error is displayed via upsert.error below the form
 		}
 	}
 
 	return (
-		<form onSubmit={handleSubmit} className="space-y-5">
-			<div className="space-y-2">
-				<Label htmlFor="provider-type">Provider</Label>
-				<Select
-					value={providerType}
-					onValueChange={(v) => {
-						const newType = v as ProviderType
-						setProviderType(newType)
-						if (newType !== "openai_compatible") setBaseUrl("")
-					}}
-				>
-					<SelectTrigger id="provider-type" className="w-full">
-						<SelectValue placeholder="Select provider" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="openai">
-							<span className="flex items-center gap-2">
-								<img
-									src={openaiIcon}
-									alt=""
-									width={16}
-									height={16}
-									className="dark:invert"
-								/>
-								OpenAI
-							</span>
-						</SelectItem>
-						<SelectItem value="openai_compatible">
-							<span className="flex items-center gap-2">
-								<Plug size={16} />
-								OpenAI Compatible
-							</span>
-						</SelectItem>
-						<SelectItem value="google">
-							<span className="flex items-center gap-2">
-								<img
-									src={googleIcon}
-									alt=""
-									width={16}
-									height={16}
-									className="dark:invert"
-								/>
-								Google Gemini
-							</span>
-						</SelectItem>
-						<SelectItem value="anthropic">
-							<span className="flex items-center gap-2">
-								<img
-									src={anthropicIcon}
-									alt=""
-									width={16}
-									height={16}
-									className="dark:invert"
-								/>
-								Anthropic
-							</span>
-						</SelectItem>
-					</SelectContent>
-				</Select>
-			</div>
-
-			<div className="space-y-2">
-				<Label htmlFor="api-key">API Key</Label>
-				<Input
-					id="api-key"
-					type="password"
-					autoComplete="new-password"
-					placeholder="Paste your API key"
-					value={apiKey}
-					onChange={(e) => setApiKey(e.target.value)}
-					required
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+				<FormField
+					control={form.control}
+					name="providerType"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Provider</FormLabel>
+							<Select
+								value={field.value}
+								onValueChange={(v) => {
+									field.onChange(v)
+									if (v !== "openai_compatible") {
+										form.setValue("baseUrl", "")
+									}
+								}}
+							>
+								<FormControl>
+									<SelectTrigger id="provider-type" className="w-full">
+										<SelectValue placeholder="Select provider" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="openai">
+										<span className="flex items-center gap-2">
+											<img
+												src={openaiIcon}
+												alt=""
+												width={16}
+												height={16}
+												className="dark:invert"
+											/>
+											OpenAI
+										</span>
+									</SelectItem>
+									<SelectItem value="openai_compatible">
+										<span className="flex items-center gap-2">
+											<Plug size={16} />
+											OpenAI Compatible
+										</span>
+									</SelectItem>
+									<SelectItem value="google">
+										<span className="flex items-center gap-2">
+											<img
+												src={googleIcon}
+												alt=""
+												width={16}
+												height={16}
+												className="dark:invert"
+											/>
+											Google Gemini
+										</span>
+									</SelectItem>
+									<SelectItem value="anthropic">
+										<span className="flex items-center gap-2">
+											<img
+												src={anthropicIcon}
+												alt=""
+												width={16}
+												height={16}
+												className="dark:invert"
+											/>
+											Anthropic
+										</span>
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
 				/>
-				<p className="text-muted-foreground text-xs">
-					Stored encrypted. Only the last 4 characters are shown after saving.
-				</p>
-			</div>
 
-			<div className="space-y-2">
-				<Label htmlFor="model">Model</Label>
-				<Input
-					id="model"
-					type="text"
-					placeholder={MODEL_PLACEHOLDERS[providerType]}
-					value={model}
-					onChange={(e) => setModel(e.target.value)}
-					required
+				<FormField
+					control={form.control}
+					name="apiKey"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>API Key</FormLabel>
+							<FormControl>
+								<Input
+									type="password"
+									autoComplete="new-password"
+									placeholder="Paste your API key"
+									{...field}
+								/>
+							</FormControl>
+							<p className="text-muted-foreground text-xs">
+								Stored encrypted. Only the last 4 characters are shown after
+								saving.
+							</p>
+							<FormMessage />
+						</FormItem>
+					)}
 				/>
-			</div>
 
-			{providerType === "openai_compatible" && (
-				<div className="space-y-2">
-					<Label htmlFor="base-url">
-						Base URL{" "}
-						<span className="text-destructive" aria-hidden="true">
-							*
-						</span>
-					</Label>
-					<Input
-						id="base-url"
-						type="url"
-						placeholder="https://my.host/v1"
-						value={baseUrl}
-						onChange={(e) => setBaseUrl(e.target.value)}
-						required
+				<FormField
+					control={form.control}
+					name="model"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Model</FormLabel>
+							<FormControl>
+								<Input
+									type="text"
+									placeholder={MODEL_PLACEHOLDERS[providerType]}
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				{providerType === "openai_compatible" && (
+					<FormField
+						control={form.control}
+						name="baseUrl"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>
+									Base URL{" "}
+									<span className="text-destructive" aria-hidden="true">
+										*
+									</span>
+								</FormLabel>
+								<FormControl>
+									<Input
+										type="url"
+										placeholder="https://my.host/v1"
+										{...field}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
 					/>
-				</div>
-			)}
-
-			{upsert.error && (
-				<p className="text-destructive text-sm">
-					Failed to save. Please try again.
-				</p>
-			)}
-
-			<div className="flex gap-2 pt-1">
-				<Button type="submit" disabled={upsert.isPending}>
-					{upsert.isPending ? "Saving…" : "Save provider"}
-				</Button>
-				{showCancel && onCancel && (
-					<Button type="button" variant="ghost" onClick={onCancel}>
-						Cancel
-					</Button>
 				)}
-			</div>
-		</form>
+
+				{upsert.error && (
+					<p className="text-destructive text-sm">
+						Failed to save. Please try again.
+					</p>
+				)}
+
+				<div className="flex gap-2 pt-1">
+					<Button type="submit" disabled={upsert.isPending}>
+						{upsert.isPending ? "Saving…" : "Save provider"}
+					</Button>
+					{showCancel && onCancel && (
+						<Button type="button" variant="ghost" onClick={onCancel}>
+							Cancel
+						</Button>
+					)}
+				</div>
+			</form>
+		</Form>
 	)
 }
 

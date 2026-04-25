@@ -1,8 +1,7 @@
-import { changePasswordBodySchema, LoginSchema, RegisterSchema } from "shared"
+import { LoginSchema, RegisterSchema } from "shared"
 import { z } from "zod"
 
 export const loginSchema = LoginSchema
-export type LoginFormType = z.infer<typeof loginSchema>
 
 export const registerSchema = RegisterSchema.extend({
 	confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -12,8 +11,16 @@ export const registerSchema = RegisterSchema.extend({
 })
 export type RegisterFormType = z.infer<typeof registerSchema>
 
-export const passwordChangeSchema = changePasswordBodySchema
-	.extend({
+export const resetPasswordFormSchema = z.object({
+	password: z.string().min(8, "Must be at least 8 characters"),
+})
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
+
+export const passwordChangeSchema = z
+	.object({
+		currentPassword: z.string().min(1, "Current password is required"),
+		newPassword: z.string().min(8, "Password must be at least 8 characters"),
 		confirmNewPassword: z.string().min(1, "Please confirm your new password"),
 	})
 	.refine((data) => data.newPassword === data.confirmNewPassword, {

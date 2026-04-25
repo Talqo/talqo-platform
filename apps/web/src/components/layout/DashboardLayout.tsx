@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router"
 import {
 	Bot,
+	Building2,
 	Code,
 	FileText,
 	LayoutDashboard,
@@ -11,7 +12,9 @@ import {
 	Wrench,
 } from "lucide-react"
 import { useLogout } from "@/api/hooks/useAuth"
+import { useClientProfile } from "@/api/hooks/useClientAccount"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useTheme } from "@/lib/useTheme"
 import { cn } from "@/lib/utils"
 
@@ -19,6 +22,7 @@ export function DashboardLayout() {
 	const location = useLocation()
 	const logout = useLogout()
 	const { theme, toggleTheme } = useTheme()
+	const { data: profile, isLoading, isError, error } = useClientProfile()
 
 	const navItems = [
 		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
@@ -38,7 +42,7 @@ export function DashboardLayout() {
 			{/* Sidebar */}
 			<aside className="sticky top-0 flex h-screen w-64 flex-col overflow-y-auto border-border border-r bg-card">
 				<Link
-					to="/"
+					to="/dashboard"
 					className="flex h-16 items-center gap-2 border-border border-b px-6 transition-colors hover:bg-muted/50"
 				>
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -95,9 +99,28 @@ export function DashboardLayout() {
 			</aside>
 
 			{/* Main Content */}
-			<main className="flex-1 overflow-auto bg-background p-8">
-				<Outlet />
-			</main>
+			<div className="flex flex-1 flex-col">
+				{/* Top Header with User Info */}
+				<header className="flex h-16 items-center justify-end border-border border-b bg-card px-6">
+					<div className="flex items-center gap-2 text-sm">
+						<Building2 size={16} className="text-muted-foreground" />
+						{isLoading ? (
+							<Skeleton className="h-4 w-32" />
+						) : isError ? (
+							<span className="text-destructive text-xs" title={error?.message}>
+								Failed to load
+							</span>
+						) : (
+							<span className="font-medium text-card-foreground">
+								{profile?.name || "Unknown Company"}
+							</span>
+						)}
+					</div>
+				</header>
+				<main className="flex-1 overflow-auto bg-background p-8">
+					<Outlet />
+				</main>
+			</div>
 		</div>
 	)
 }

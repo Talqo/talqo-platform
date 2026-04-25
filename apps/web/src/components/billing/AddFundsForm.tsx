@@ -1,6 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
-import { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useAddFunds } from "@/api/hooks"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -11,8 +12,16 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { type AddFundsFormValues, addFundsFormSchema } from "@/schemas/billing"
 
 function formatCardNumber(value: string) {
 	return value
@@ -32,36 +41,30 @@ export function AddFundsForm() {
 	const navigate = useNavigate()
 	const addFunds = useAddFunds()
 
-	const [amount, setAmount] = useState("")
-	const [cardNumber, setCardNumber] = useState("")
-	const [expiry, setExpiry] = useState("")
-	const [cvv, setCvv] = useState("")
-	const [nameOnCard, setNameOnCard] = useState("")
-	const [success, setSuccess] = useState(false)
+	const form = useForm<AddFundsFormValues>({
+		resolver: zodResolver(addFundsFormSchema),
+		defaultValues: {
+			amount: 0,
+			cardNumber: "",
+			expiry: "",
+			cvv: "",
+			nameOnCard: "",
+		},
+		mode: "onBlur",
+	})
 
-	const amountValue = Number.parseFloat(amount)
-	const isAmountValid = !Number.isNaN(amountValue) && amountValue > 0
-	const isCardValid =
-		cardNumber.replace(/\s/g, "").length === 16 &&
-		/^\d{2}\/\d{2}$/.test(expiry) &&
-		/^\d{3}$/.test(cvv) &&
-		nameOnCard.trim().length > 0
-	const canSubmit = isAmountValid && isCardValid && !addFunds.isPending
-
-	async function handleSubmit(e: React.FormEvent) {
-		e.preventDefault()
-		if (!canSubmit) return
-
+	const onSubmit = (values: AddFundsFormValues) => {
 		addFunds.mutate(
-			{ amount: amountValue },
+			{ amount: values.amount },
 			{
 				onSuccess: () => {
-					setSuccess(true)
 					setTimeout(() => navigate({ to: "/dashboard" }), 1500)
 				},
 			},
 		)
 	}
+
+	const amountValue = form.watch("amount")
 
 	return (
 		<Card className="mx-auto w-full max-w-md">
@@ -72,104 +75,159 @@ export function AddFundsForm() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<form onSubmit={handleSubmit} className="space-y-4">
-					<div className="space-y-2">
-						<Label htmlFor="amount">Amount (USD)</Label>
-						<div className="relative">
-							<span className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">
-								$
-							</span>
-							<Input
-								id="amount"
-								type="number"
-								min="0.01"
-								step="0.01"
-								placeholder="0.00"
-								value={amount}
-								onChange={(e) => setAmount(e.target.value)}
-								className="pl-7"
-							/>
-						</div>
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="card-number">Card Number</Label>
-						<Input
-							id="card-number"
-							inputMode="numeric"
-							placeholder="1234 5678 9012 3456"
-							value={cardNumber}
-							onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-							autoComplete="cc-number"
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<FormField
+							control={form.control}
+							name="amount"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Amount (USD)</FormLabel>
+									<FormControl>
+										<div className="relative">
+											<span className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">
+												$
+											</span>
+											<Input
+												type="number"
+												min="0.01"
+												step="0.01"
+												placeholder="0.00"
+												className="pl-7"
+												{...field}
+												onChange={(e) =>
+													field.onChange(e.target.valueAsNumber || 0)
+												}
+											/>
+										</div>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-					</div>
 
-					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-2">
-							<Label htmlFor="expiry">Expiry</Label>
-							<Input
-								id="expiry"
-								inputMode="numeric"
-								placeholder="MM/YY"
-								value={expiry}
-								onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-								autoComplete="cc-exp"
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="cvv">CVV</Label>
-							<Input
-								id="cvv"
-								inputMode="numeric"
-								placeholder="123"
-								maxLength={3}
-								value={cvv}
-								onChange={(e) =>
-									setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))
-								}
-								autoComplete="cc-csc"
-							/>
-						</div>
-					</div>
-
-					<div className="space-y-2">
-						<Label htmlFor="name-on-card">Name on Card</Label>
-						<Input
-							id="name-on-card"
-							placeholder="Jane Smith"
-							value={nameOnCard}
-							onChange={(e) => setNameOnCard(e.target.value)}
-							autoComplete="cc-name"
+						<FormField
+							control={form.control}
+							name="cardNumber"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Card Number</FormLabel>
+									<FormControl>
+										<Input
+											inputMode="numeric"
+											placeholder="1234 5678 9012 3456"
+											autoComplete="cc-number"
+											value={field.value}
+											onBlur={field.onBlur}
+											onChange={(e) =>
+												field.onChange(formatCardNumber(e.target.value))
+											}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-					</div>
 
-					{addFunds.isError && (
-						<Alert variant="destructive">
-							<AlertDescription>
-								Failed to add funds. Please try again.
-							</AlertDescription>
-						</Alert>
-					)}
+						<div className="grid grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="expiry"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Expiry</FormLabel>
+										<FormControl>
+											<Input
+												inputMode="numeric"
+												placeholder="MM/YY"
+												autoComplete="cc-exp"
+												value={field.value}
+												onBlur={field.onBlur}
+												onChange={(e) =>
+													field.onChange(formatExpiry(e.target.value))
+												}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="cvv"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>CVV</FormLabel>
+										<FormControl>
+											<Input
+												inputMode="numeric"
+												placeholder="123"
+												maxLength={3}
+												autoComplete="cc-csc"
+												{...field}
+												onChange={(e) =>
+													field.onChange(
+														e.target.value.replace(/\D/g, "").slice(0, 3),
+													)
+												}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
-					{success && (
-						<Alert>
-							<AlertDescription>
-								Funds added successfully! Redirecting...
-							</AlertDescription>
-						</Alert>
-					)}
+						<FormField
+							control={form.control}
+							name="nameOnCard"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name on Card</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="Jane Smith"
+											autoComplete="cc-name"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-					<Button type="submit" className="w-full" disabled={!canSubmit}>
-						{addFunds.isPending ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Processing...
-							</>
-						) : (
-							`Pay $${isAmountValid ? amountValue.toFixed(2) : "0.00"}`
+						{addFunds.isError && (
+							<Alert variant="destructive">
+								<AlertDescription>
+									Failed to add funds. Please try again.
+								</AlertDescription>
+							</Alert>
 						)}
-					</Button>
-				</form>
+
+						{addFunds.isSuccess && (
+							<Alert>
+								<AlertDescription>
+									Funds added successfully! Redirecting...
+								</AlertDescription>
+							</Alert>
+						)}
+
+						<Button
+							type="submit"
+							className="w-full"
+							disabled={addFunds.isPending}
+						>
+							{addFunds.isPending ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Processing...
+								</>
+							) : (
+								`Pay $${amountValue > 0 ? Number(amountValue).toFixed(2) : "0.00"}`
+							)}
+						</Button>
+					</form>
+				</Form>
 			</CardContent>
 		</Card>
 	)

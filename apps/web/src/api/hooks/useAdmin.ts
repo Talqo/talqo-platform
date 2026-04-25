@@ -1,6 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
 
+export function useAdminProfile() {
+	return useQuery({
+		queryKey: ["admin", "profile"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/me")
+			if (error) throw error
+			return data
+		},
+	})
+}
+
 export function useAdminClients(
 	params: { limit?: number; offset?: number } = {},
 ) {
@@ -11,7 +22,7 @@ export function useAdminClients(
 				params: { query: params },
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -24,7 +35,7 @@ export function useAdminClient(clientId: string) {
 				params: { path: { clientId } },
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -44,7 +55,7 @@ export function useUpdateClientStatus() {
 				{ params: { path: { clientId } }, body: { status } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: (_result, { clientId }) => {
 			qc.invalidateQueries({ queryKey: ["admin", "clients", clientId] })
@@ -61,7 +72,7 @@ export function useImpersonateClient() {
 				{ params: { path: { clientId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -72,7 +83,7 @@ export function useAdminPlatformStats() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/admin/analytics", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -89,7 +100,7 @@ export function useAdminConversations(
 				params: { query: params },
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -103,7 +114,7 @@ export function useAdminConversation(conversationId: string) {
 				{ params: { path: { conversationId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		enabled: !!conversationId,
 	})
@@ -117,7 +128,7 @@ export function useAdminPreMadeServers() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/admin/mcp/pre-made", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -130,7 +141,7 @@ export function useAdminCreatePreMadeServer() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () =>
 			qc.invalidateQueries({ queryKey: ["admin", "mcp", "pre-made"] }),
@@ -152,7 +163,7 @@ export function useAdminUpdatePreMadeServer() {
 				{ params: { path: { serverId } }, body: { mcpConfig } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () =>
 			qc.invalidateQueries({ queryKey: ["admin", "mcp", "pre-made"] }),
@@ -168,7 +179,7 @@ export function useAdminDeletePreMadeServer() {
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () =>
 			qc.invalidateQueries({ queryKey: ["admin", "mcp", "pre-made"] }),

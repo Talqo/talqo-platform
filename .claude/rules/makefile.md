@@ -1,12 +1,13 @@
 ---
-paths: 
+paths:
   - "**/Makefile"
   - "**/makefile"
   - "**/*.mk"
 ---
+
 ## Context
 
-Essential Makefile patterns for build automation. Focus on correct syntax, proper variable usage, and common patterns.
+Makefile patterns for build automation. Correct syntax, proper variables, common patterns
 
 ## Best Practices
 
@@ -92,8 +93,8 @@ ifndef API_KEY
 $(error API_KEY not set)
 endif
 
-# Use POSIX shell by default for portability (Alpine, minimal CI).
-# Switch to /bin/bash only if recipes use bash-specific syntax (arrays, [[ ]], etc.).
+# Use POSIX shell by default for portability (Alpine, minimal CI)
+# Switch to /bin/bash only if recipes use bash-specific syntax (arrays, [[ ]], etc.)
 SHELL := /bin/sh
 
 # Quote variables in shell
@@ -135,15 +136,15 @@ clean: ## Clean artifacts
 |Spaces for indent|TAB character|
 |`VAR = $(shell ...)`|`VAR := $(shell ...)`|
 |Missing `.PHONY`|`.PHONY: clean test`|
-|`rm file` (fails)|`rm file \|\|true`|
+|`rm file` (fails)|`rm file \|\| true`|
 |Shell var `$files`|`$$files` in recipes|
 
 ## Boundaries
 
-- ✅ **Always:** Use TAB for recipe indentation
+- ✅ **Always:** TAB for recipe indentation
 - ✅ **Always:** Declare `.PHONY` for non-file targets
-- ✅ **Always:** Include a `help` target
-- ✅ **Always:** Use `:=` for shell commands
+- ✅ **Always:** Include `help` target
+- ✅ **Always:** `:=` for shell commands
 - ✅ **Always:** Quote variables in shell commands
 - 🚫 **Never:** Hardcode secrets
 - 🚫 **Never:** Use spaces instead of TABs

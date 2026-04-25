@@ -4,7 +4,7 @@
  */
 import { STORAGE_KEYS } from "./constants"
 
-export interface TokenValidationResult {
+export type TokenValidationResult = {
 	valid: boolean
 	shouldClear: boolean
 }

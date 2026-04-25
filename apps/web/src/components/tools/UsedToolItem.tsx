@@ -4,7 +4,7 @@ import type { Tool } from "@/data/tools"
 import { getToolDescription } from "@/data/tools"
 import { ToolIcon } from "./ToolIcon"
 
-interface UsedToolItemProps {
+type UsedToolItemProps = {
 	tool: Tool
 }
 

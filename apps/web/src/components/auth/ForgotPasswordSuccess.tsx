@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 
-interface ForgotPasswordSuccessProps {
+type ForgotPasswordSuccessProps = {
 	email: string
 }
 

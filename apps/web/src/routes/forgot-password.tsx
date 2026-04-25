@@ -13,23 +13,13 @@ export const Route = createFileRoute("/forgot-password")({
 })
 
 function ForgotPasswordPage() {
-	const [email, setEmail] = useState("")
+	const [submittedEmail, setSubmittedEmail] = useState("")
 	const [isSubmitted, setIsSubmitted] = useState(false)
 	const forgotPassword = useForgotPassword()
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault()
-		const normalized = email.trim()
-		if (!normalized) return
-
-		forgotPassword.mutate(
-			{ email: normalized },
-			{
-				onSuccess: () => {
-					setIsSubmitted(true)
-				},
-			},
-		)
+	const handleSubmit = (email: string) => {
+		setSubmittedEmail(email)
+		forgotPassword.mutate({ email }, { onSuccess: () => setIsSubmitted(true) })
 	}
 
 	return (
@@ -37,11 +27,9 @@ function ForgotPasswordPage() {
 			<div className="w-full max-w-sm">
 				<AuthHeader />
 				{isSubmitted ? (
-					<ForgotPasswordSuccess email={email} />
+					<ForgotPasswordSuccess email={submittedEmail} />
 				) : (
 					<ForgotPasswordForm
-						email={email}
-						onEmailChange={setEmail}
 						onSubmit={handleSubmit}
 						isPending={forgotPassword.isPending}
 						error={forgotPassword.error}

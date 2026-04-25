@@ -12,7 +12,7 @@ const TEST_CLIENT_ID = "00000000-0000-0000-0000-000000000001"
 // ─── In-memory FilesService ───────────────────────────────────────────────────
 // Implements the same interface as FilesService without needing a real S3 client.
 
-interface StoredEntry {
+type StoredEntry = {
 	size: number
 	lastModified: Date
 	contentType?: string
@@ -211,20 +211,18 @@ describe("GET /client/me/files", () => {
 	it("returns 200 with entries at root", async () => {
 		const res = await app.fetch(new Request("http://localhost/client/me/files"))
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { entries: unknown[] }
-		}
-		expect(body.success).toBe(true)
-		expect(Array.isArray(body.data.entries)).toBe(true)
+		const body = (await res.json()) as { entries: unknown[] }
+		expect(body.entries).toBeDefined()
+		expect(Array.isArray(body.entries)).toBe(true)
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("includes direct files and directory entries at root level", async () => {
 		const res = await app.fetch(new Request("http://localhost/client/me/files"))
 		const body = (await res.json()) as {
-			data: { entries: Array<{ name: string; type: string }> }
+			entries: Array<{ name: string; type: string }>
 		}
-		const names = body.data.entries.map((e) => e.name)
+		const names = body.entries.map((e) => e.name)
 		expect(names).toContain("readme.txt")
 		expect(names).toContain("docs/")
 	})
@@ -234,10 +232,8 @@ describe("GET /client/me/files", () => {
 			new Request("http://localhost/client/me/files?path=/docs"),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			data: { entries: Array<{ name: string }> }
-		}
-		const names = body.data.entries.map((e) => e.name)
+		const body = (await res.json()) as { entries: Array<{ name: string }> }
+		const names = body.entries.map((e) => e.name)
 		expect(names).toContain("docs/report.pdf")
 	})
 
@@ -274,12 +270,9 @@ describe("POST /client/me/files", () => {
 			}),
 		)
 		expect(res.status).toBe(201)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { path: string }
-		}
-		expect(body.success).toBe(true)
-		expect(body.data.path).toBe("/test.txt")
+		const body = (await res.json()) as { path: string }
+		expect(body.path).toBe("/test.txt")
+		expect(body).not.toHaveProperty("success")
 		expect(service.has(`${TEST_CLIENT_ID}/test.txt`)).toBe(true)
 	})
 
@@ -345,13 +338,11 @@ describe("POST /client/me/files/presign", () => {
 			}),
 		)
 		expect(res.status).toBe(200)
-		const body = (await res.json()) as {
-			success: boolean
-			data: { url: string }
-		}
-		expect(body.success).toBe(true)
-		expect(typeof body.data.url).toBe("string")
-		expect(body.data.url).toContain("file.pdf")
+		const body = (await res.json()) as { url: string }
+		expect(body.url).toBeDefined()
+		expect(typeof body.url).toBe("string")
+		expect(body.url).toContain("file.pdf")
+		expect(body).not.toHaveProperty("success")
 	})
 
 	it("returns 400 for a directory path", async () => {

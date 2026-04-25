@@ -3,13 +3,13 @@ import type { S3Client, S3File } from "bun"
 type UploadData = string | Uint8Array | ArrayBuffer | Blob | Response
 type WriteOptions = { contentType?: string }
 
-export interface FileEntry {
+export type FileEntry = {
 	key: string
 	size: number
 	lastModified: Date
 }
 
-export interface DirectoryListing {
+export type DirectoryListing = {
 	files: FileEntry[]
 	/** S3 key prefixes representing subdirectories at this level */
 	directories: string[]

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import type { Tool } from "@/data/tools"
 import { ToolIcon } from "./ToolIcon"
 
-interface ToolCardProps {
+type ToolCardProps = {
 	tool: Tool
 	isAdded: boolean
 	onAdd: (tool: Tool, event: React.MouseEvent) => void

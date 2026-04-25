@@ -17,6 +17,6 @@ export async function fillAndSubmitLogin(
 ) {
 	await page.goto("/login")
 	await page.getByLabel("Email").fill(email)
-	await page.locator("#password").fill(password)
+	await page.getByLabel("Password").fill(password)
 	await page.getByRole("button", { name: "Log in" }).click()
 }

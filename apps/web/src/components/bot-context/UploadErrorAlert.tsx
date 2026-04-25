@@ -1,12 +1,12 @@
 import { AlertCircle, X } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-export interface UploadError {
+export type UploadError = {
 	fileName: string
 	reason: "duplicate" | "invalid"
 }
 
-interface UploadErrorAlertProps {
+type UploadErrorAlertProps = {
 	errors: UploadError[]
 	onDismiss: () => void
 }

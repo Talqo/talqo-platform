@@ -2,13 +2,13 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 export type WidgetTheme = "light" | "dark"
 
-export interface Message {
+export type Message = {
 	id: string
 	role: "user" | "bot"
 	content: string
 }
 
-export interface UseWidgetOptions {
+export type UseWidgetOptions = {
 	/** Initial open state */
 	defaultOpen?: boolean
 	/** Initial messages */
@@ -23,7 +23,7 @@ export interface UseWidgetOptions {
 	onOpenChange?: (isOpen: boolean) => void
 }
 
-export interface UseWidgetReturn {
+export type UseWidgetReturn = {
 	/** Whether the chat panel is currently open */
 	isOpen: boolean
 	/** Whether the chat panel is expanded */

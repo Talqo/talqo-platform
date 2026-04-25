@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { normalizeHex, tryHslToHex } from "./colorUtils"
 import type { WidgetColors, WidgetColorsConfig } from "./types"
 
-interface AppearanceCardProps {
+type AppearanceCardProps = {
 	colors: WidgetColorsConfig
 	position: "left" | "right"
 	onLightColorChange: (key: keyof WidgetColors, value: string) => void
@@ -16,7 +16,7 @@ interface AppearanceCardProps {
 	onPositionChange: (position: "left" | "right") => void
 }
 
-interface ColorRowProps {
+type ColorRowProps = {
 	label: string
 	lightValue: string
 	darkValue: string

@@ -6,7 +6,7 @@ import "./theme/default.css"
 
 // Global config type augmentation
 declare global {
-	interface Window {
+	type Window = {
 		__AI_WIDGET_CONFIG__?: WidgetConfig
 	}
 }

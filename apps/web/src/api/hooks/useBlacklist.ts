@@ -7,7 +7,7 @@ export function useBlacklist() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/blacklist", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -20,7 +20,7 @@ export function useAddBlacklistWord() {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["blacklist"] }),
 	})
@@ -35,7 +35,7 @@ export function useRemoveBlacklistWord() {
 				{ params: { path: { wordId } } },
 			)
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["blacklist"] }),
 	})
