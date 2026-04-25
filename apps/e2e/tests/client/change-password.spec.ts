@@ -1,7 +1,29 @@
 import { expect, test } from "@playwright/test"
 import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
 
+test.describe.configure({ mode: "serial" })
+
 test.describe("Change password flow", () => {
+	test.afterEach(async ({ page }) => {
+		// Revert password to the seeded value so the test stays idempotent
+		await page.getByLabel("Current Password").fill("newpass123")
+		await page
+			.getByLabel("New Password", { exact: true })
+			.fill(SEEDED_USERS.client.password)
+		await page
+			.getByLabel("Confirm New Password")
+			.fill(SEEDED_USERS.client.password)
+
+		await page.getByRole("button", { name: "Change Password" }).click()
+
+		// Wait for the revert mutation to finish (button exits pending state)
+		await expect(
+			page.getByRole("button", { name: "Change Password" }),
+		).toBeEnabled()
+
+		await expect(page.getByText("Password changed successfully")).toBeVisible()
+	})
+
 	test("client logs in, navigates to settings, and changes password", async ({
 		page,
 	}) => {
@@ -32,18 +54,5 @@ test.describe("Change password flow", () => {
 			"",
 		)
 		await expect(page.getByLabel("Confirm New Password")).toHaveValue("")
-
-		// Revert password so the test is idempotent
-		await page.getByLabel("Current Password").fill("newpass123")
-		await page
-			.getByLabel("New Password", { exact: true })
-			.fill(SEEDED_USERS.client.password)
-		await page
-			.getByLabel("Confirm New Password")
-			.fill(SEEDED_USERS.client.password)
-
-		await page.getByRole("button", { name: "Change Password" }).click()
-
-		await expect(page.getByText("Password changed successfully")).toBeVisible()
 	})
 })
