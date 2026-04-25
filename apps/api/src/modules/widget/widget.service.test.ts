@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 
-// ─── Mock config/crypto ──────────────────────────────────────────────────────
-// AgentPort will be injected directly via constructor, so no internal module mocking is needed
+// --- Mock config/crypto ---
 mock.module("../../common/config", () => ({
 	config: { WIDGET_CONVERSATION_MAX_MESSAGES: 50 },
 	getDefaultProviderConfig: mock(() => null),
@@ -11,34 +10,31 @@ mock.module("../../common/crypto", () => ({
 	decrypt: mock((s: string) => s),
 }))
 
-// ─── Post-hoc imports ────────────────────────────────────────────────────────
+// --- Post-hoc imports ---
 
 import { NotFoundError } from "../../common/errors"
 import { PLATFORM_SYSTEM_PROMPT } from "../agent/agent.platform-prompt"
-import type { AgentPort } from "../agent/agent.port"
 import { WidgetService } from "./widget.service"
 
-function createMockAgentPort(chunks: string[]): AgentPort {
-	return {
-		generateResponse: mock(async () => ({
-			message: "Hello from AI",
-			tokensUsed: { input: 5, output: 10 },
-			blocked: false,
-		})),
-		streamResponse: mock(async () => {
-			let i = 0
-			const stream = new ReadableStream<string>({
-				pull(controller) {
-					if (i >= chunks.length) {
-						controller.close()
-						return
-					}
-					controller.enqueue(chunks[i++])
-				},
-			})
-			return { stream, usage: Promise.resolve({ input: 5, output: 10 }) }
-		}),
-	}
+type StreamResponseFn =
+	import("./widget.service").WidgetServiceDeps["streamResponse"]
+
+let mockStreamResponse: ReturnType<typeof mock<StreamResponseFn>>
+
+function createMockStreamResponse(chunks: string[]) {
+	return mock(async (_input: unknown) => {
+		let i = 0
+		const stream = new ReadableStream<string>({
+			pull(controller) {
+				if (i >= chunks.length) {
+					controller.close()
+					return
+				}
+				controller.enqueue(chunks[i++])
+			},
+		})
+		return { stream, usage: Promise.resolve({ input: 5, output: 10 }) }
+	})
 }
 
 function createMockRepo() {
@@ -138,7 +134,6 @@ describe("WidgetService", () => {
 	let botConfigRepo: ReturnType<typeof createMockBotConfigRepo>
 	let providerConfigRepo: ReturnType<typeof createMockProviderConfigRepo>
 	let mcpRepo: ReturnType<typeof createMockMcpRepo>
-	let mockAgent: ReturnType<typeof createMockAgentPort>
 
 	beforeEach(() => {
 		repo = createMockRepo()
@@ -153,14 +148,14 @@ describe("WidgetService", () => {
 			baseUrl: null,
 		})
 		mcpRepo = createMockMcpRepo()
-		mockAgent = createMockAgentPort(["Hello", " AI"])
+		mockStreamResponse = createMockStreamResponse(["Hello", " AI"])
 
 		widgetService = new WidgetService({
 			widgetRepository: repo,
 			botConfigRepository: botConfigRepo,
 			providerConfigRepository: providerConfigRepo,
 			mcpRepository: mcpRepo,
-			agentPort: mockAgent,
+			streamResponse: mockStreamResponse,
 		})
 	})
 
@@ -173,6 +168,7 @@ describe("WidgetService", () => {
 		repo.getMessageCount.mockClear?.()
 		repo.createMessage.mockClear?.()
 		repo.recordUsage.mockClear?.()
+		mockStreamResponse.mockClear()
 	})
 
 	describe("createOrResumeSession", () => {
@@ -251,13 +247,13 @@ describe("WidgetService", () => {
 				chunks.push(value)
 			}
 			expect(chunks).toEqual(["Hello", " AI"])
-			expect(mockAgent.streamResponse).toHaveBeenCalled()
+			expect(mockStreamResponse).toHaveBeenCalled()
 		})
 
 		it("passes history to streamResponse", async () => {
 			await widgetService.sendMessage("client-1", "conv-1", "Hello bot")
 
-			const inputs = mockAgent.streamResponse.mock.calls[0][0]
+			const inputs = mockStreamResponse.mock.calls[0][0]
 			expect(inputs.history).toBeDefined()
 			expect(inputs.history).toHaveLength(1)
 			expect(inputs.history[0].role).toBe("user")
@@ -267,7 +263,7 @@ describe("WidgetService", () => {
 		it("always prepends the platform system prompt before client context", async () => {
 			await widgetService.sendMessage("client-1", "conv-1", "Hello bot")
 
-			const inputs = mockAgent.streamResponse.mock.calls[0][0]
+			const inputs = mockStreamResponse.mock.calls[0][0]
 			expect(inputs.context.startsWith(PLATFORM_SYSTEM_PROMPT)).toBe(true)
 			expect(inputs.context).toContain("You are a test bot")
 		})
@@ -302,6 +298,7 @@ describe("WidgetService", () => {
 				botConfigRepository: botConfigRepo,
 				providerConfigRepository: providerConfigRepo,
 				mcpRepository: mcpRepo,
+				streamResponse: mockStreamResponse,
 			})
 			await expect(
 				widgetService.sendMessage("client-1", "conv-1", "Hello"),
@@ -333,7 +330,7 @@ describe("WidgetService", () => {
 				botConfigRepository: botConfigRepo,
 				providerConfigRepository: providerConfigRepo,
 				mcpRepository: mcpRepo,
-				agentPort: mockAgent,
+				streamResponse: mockStreamResponse,
 			})
 
 			const { isExternalProvider } = await widgetService.sendMessage(

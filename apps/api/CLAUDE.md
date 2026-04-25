@@ -17,7 +17,7 @@ src/
 │   ├── crypto.ts   # AES-256-GCM encrypt/decrypt for provider API keys at rest
 │   ├── logger.ts   # Structured logger — never use console.*
 │   ├── schemas.ts  # successResponseSchema / errorResponseSchema helpers
-│   └── middleware/ # clientAuth, widgetAuth, adminAuth, requestLogger, errorHandler
+│   └── middleware/ # clientAuth, widgetAuth, adminAuth, requestLogger, errorHandler, widgetRateLimit, adminAuditLog
 ├── db/
 │   └── index.ts    # Local Drizzle client (re-exports schema from packages/db)
 └── modules/<feature>/
@@ -31,7 +31,7 @@ src/
 ## Key conventions
 
 - **Routes are factory functions** — `createAuthRouter(service)` — wired in `index.ts`, not directly imported
-- **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts to `{ success: false, error: { code, message } }`. Never build error JSON manually in routes
+- **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts to `{ error: { code, message } }`. Never build error JSON manually in routes
 - **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs code string), `TooManyRequestsError` (429)
 - **Response shape** — always use `successResponseSchema` / `errorResponseSchema` from `src/common/schemas.ts` for OpenAPI response definitions
 - **Services are framework-agnostic** — no `c` (Hono context), no Drizzle imports
@@ -67,6 +67,6 @@ Use `src/common/logger.ts` (never `console.*`). Output is NDJSON. HTTP requests 
 
 ## AI / agent
 
-- `src/modules/agent/` uses Vercel AI SDK (`ai` package) with `generateText`
+- `src/modules/agent/` uses Vercel AI SDK (`ai` package) with `generateText` and `streamText` for synchronous and streaming responses
 - Provider API keys stored AES-256-GCM encrypted (`src/common/crypto.ts`); `PROVIDER_KEY_SECRET` must be 64-hex-char non-trivial value
 - MCP server connections opened per-request and closed in `finally` block

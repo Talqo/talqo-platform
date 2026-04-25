@@ -9,8 +9,7 @@ import {
 	ValidationError,
 } from "../../common/errors"
 import { PLATFORM_SYSTEM_PROMPT } from "../agent/agent.platform-prompt"
-import type { AgentPort } from "../agent/agent.port"
-import { defaultAgentPort } from "../agent/agent.port"
+import { streamResponse } from "../agent/agent.service"
 import type { BotConfigRepository } from "../bot-config/bot-config.repository"
 import type { McpRepository } from "../mcp/mcp.repository"
 import type { ProviderConfigRepository } from "../provider-config/provider-config.repository"
@@ -53,12 +52,14 @@ const providerConfigSchema = z.discriminatedUnion("type", [
 	}),
 ])
 
+type StreamResponse = typeof streamResponse
+
 type WidgetServiceDeps = {
 	widgetRepository: WidgetRepository
 	botConfigRepository: BotConfigRepository
 	providerConfigRepository: ProviderConfigRepository
 	mcpRepository: McpRepository
-	agentPort?: AgentPort
+	streamResponse?: StreamResponse
 }
 
 export class WidgetService {
@@ -66,14 +67,14 @@ export class WidgetService {
 	private readonly botConfigRepo: BotConfigRepository
 	private readonly providerConfigRepo: ProviderConfigRepository
 	private readonly mcpRepo: McpRepository
-	private readonly agent: AgentPort
+	private readonly streamResponse: StreamResponse
 
 	constructor(deps: WidgetServiceDeps) {
 		this.repo = deps.widgetRepository
 		this.botConfigRepo = deps.botConfigRepository
 		this.providerConfigRepo = deps.providerConfigRepository
 		this.mcpRepo = deps.mcpRepository
-		this.agent = deps.agentPort ?? defaultAgentPort
+		this.streamResponse = deps.streamResponse ?? streamResponse
 	}
 
 	async createOrResumeSession(clientId: string, browserSessionId: string) {
@@ -130,7 +131,7 @@ export class WidgetService {
 			content,
 		)
 
-		const { stream, usage } = await this.agent.streamResponse({
+		const { stream, usage } = await this.streamResponse({
 			userMessage: content,
 			history,
 			context,
