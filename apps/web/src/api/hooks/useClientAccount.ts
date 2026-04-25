@@ -27,7 +27,11 @@ export function useUpdateClientProfile() {
 
 export function useChangePassword() {
 	return useMutation<
+<<<<<<< HEAD
 		{ message: string },
+=======
+		unknown,
+>>>>>>> 460caae (feat(settings): surface API error details in password change feedback)
 		ApiError,
 		{ currentPassword: string; newPassword: string }
 	>({

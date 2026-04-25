@@ -8,6 +8,7 @@ import {
 	useClientProfile,
 	useUpdateClientProfile,
 } from "@/api/hooks"
+import type { ApiError } from "@/api/hooks/useAuth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,7 +40,7 @@ export function AccountSettingsTab() {
 	const [pwFeedback, setPwFeedback] = useState<Feedback | null>(null)
 	const pwFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-	const clearPwFeedback = useCallback(() => {
+	const schedulePwFeedbackClear = useCallback(() => {
 		if (pwFeedbackTimerRef.current) clearTimeout(pwFeedbackTimerRef.current)
 		pwFeedbackTimerRef.current = setTimeout(() => setPwFeedback(null), 5000)
 	}, [])
@@ -166,15 +167,18 @@ export function AccountSettingsTab() {
 										type: "success",
 										message: "Password changed successfully",
 									})
-									clearPwFeedback()
+									schedulePwFeedbackClear()
 								},
-								onError: () => {
+								onError: (error: ApiError) => {
+									const code = error.error?.code ?? "UNKNOWN_ERROR"
+									const msg =
+										error.error?.message ??
+										"Failed to change password. Please check your current password and try again."
 									setPwFeedback({
 										type: "error",
-										message:
-											"Failed to change password. Please check your current password and try again.",
+										message: `${msg} (${code})`,
 									})
-									clearPwFeedback()
+									schedulePwFeedbackClear()
 								},
 							},
 						),
