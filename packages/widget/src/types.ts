@@ -3,8 +3,8 @@
  * Customers set this via window.__AI_WIDGET_CONFIG__
  */
 export type WidgetConfig = {
-	/** Client ID for API authentication */
-	clientId: string
+	/** Widget token for API authentication */
+	widgetToken: string
 	/** API base URL for widget requests */
 	apiUrl: string
 	/** Theme colors - omit to use defaults */

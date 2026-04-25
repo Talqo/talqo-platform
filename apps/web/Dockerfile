@@ -1,8 +1,8 @@
-# Stage 1: Prune monorepo to only what the web app needs
+# Stage 1: Prune monorepo to only what the web app and widget need
 FROM oven/bun:1-alpine AS pruner
 WORKDIR /app
 COPY . .
-RUN bunx turbo prune web --docker
+RUN bunx turbo prune web widget --docker
 
 # Stage 2: Build web and all its dependencies
 FROM oven/bun:1-alpine AS builder
@@ -14,6 +14,11 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/tsconfig.json ./
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
+# Build widget bundle with API URL baked in
+RUN cd packages/widget && bun run build
+# Copy widget bundle to web public so Vite copies it to dist
+RUN mkdir -p apps/web/public && cp packages/widget/dist/widget-bundle.js apps/web/public/
+# Build web app
 RUN bunx turbo run build --filter=web... --log-order=stream
 
 # Stage 3: Serve with nginx

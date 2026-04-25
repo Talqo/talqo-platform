@@ -10,37 +10,39 @@ Add this snippet to your website's HTML, just before the closing `</body>` tag:
 <!-- AI Widget Configuration -->
 <script>
   window.__AI_WIDGET_CONFIG__ = {
-    clientId: "YOUR_CLIENT_ID", // Required: Get this from your dashboard
-    position: "right",          // Optional: "left" or "right" (default: right)
-    defaultOpen: false,         // Optional: Start open or closed (default: false)
-    botName: "AI Assistant",    // Optional: Name shown in widget header
-    colors: {                   // Optional: Customize light mode colors
-      primary: "#16a34a",       // Buttons, user messages (default: green)
-      bgPrimary: "#ffffff",     // Chat background (default: white)
-      bgSecondary: "#f3f4f6",   // Header, bot messages (default: light gray)
-      textPrimary: "#111827",   // Main text (default: dark gray)
-      textSecondary: "#6b7280", // Footer, placeholders (default: medium gray)
-      border: "#e5e7eb"         // Borders (default: light gray)
+    widgetToken: "YOUR_WIDGET_TOKEN", // Required: Get this from your dashboard
+    position: "right",                // Optional: "left" or "right" (default: right)
+    defaultOpen: false,               // Optional: Start open or closed (default: false)
+    botName: "AI Assistant",          // Optional: Name shown in widget header
+    colors: {                         // Optional: Customize light mode colors
+      primary: "#16a34a",             // Buttons, user messages (default: green)
+      bgPrimary: "#ffffff",           // Chat background (default: white)
+      bgSecondary: "#f3f4f6",         // Header, bot messages (default: light gray)
+      textPrimary: "#111827",         // Main text (default: dark gray)
+      textSecondary: "#6b7280",       // Footer, placeholders (default: medium gray)
+      border: "#e5e7eb"               // Borders (default: light gray)
     },
-    darkColors: {               // Optional: Customize dark mode colors
-      primary: "#16a34a",       // Buttons, user messages (default: green)
-      bgPrimary: "#09090b",     // Chat background (default: black)
-      bgSecondary: "#27272a",   // Header, bot messages (default: dark gray)
-      textPrimary: "#fafafa",   // Main text (default: white)
-      textSecondary: "#a1a1aa", // Footer, placeholders (default: light gray)
-      border: "#27272a"         // Borders (default: dark gray)
+    darkColors: {                     // Optional: Customize dark mode colors
+      primary: "#16a34a",             // Buttons, user messages (default: green)
+      bgPrimary: "#09090b",           // Chat background (default: black)
+      bgSecondary: "#27272a",         // Header, bot messages (default: dark gray)
+      textPrimary: "#fafafa",         // Main text (default: white)
+      textSecondary: "#a1a1aa",       // Footer, placeholders (default: medium gray)
+      border: "#27272a"               // Borders (default: dark gray)
     },
-    icons: {                    // Optional: Custom SVG icon for bot avatar
-      botAvatar: "bot"          // Default "bot" icon, or use custom SVG string
+    icons: {                          // Optional: Custom SVG icon for bot avatar
+      botAvatar: "bot"                // Default "bot" icon, or use custom SVG string
     }
   };
 </script>
 
-<!-- Load Widget from GitHub raw URL -->
-<script async defer src="https://raw.githubusercontent.com/yourorg/pagepal/main/packages/widget/dist/widget-bundle.js"></script>
+<!-- Load Widget from PagePal -->
+<script async defer crossorigin="anonymous" src="https://pagepal.dyn.cloud.e-infra.cz/widget-bundle.js"></script>
 ```
 
-Replace `YOUR_CLIENT_ID` with your actual client ID from the dashboard.
+Replace `YOUR_WIDGET_TOKEN` with your actual widget token from the dashboard.
+
+**Note:** When testing on your own domain, configure the allowed origins for your widget token in the dashboard to prevent unauthorized use.
 
 ## Configuration Options
 
@@ -48,7 +50,7 @@ Replace `YOUR_CLIENT_ID` with your actual client ID from the dashboard.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `clientId` | `string` | Your unique client identifier from the dashboard |
+| `widgetToken` | `string` | Your unique widget token from the dashboard |
 
 ### Optional Fields
 
@@ -124,8 +126,9 @@ If `darkColors` is not specified, the widget will auto-generate appropriate dark
 ### Widget doesn't appear
 
 1. Check the browser console for errors
-2. Verify your `clientId` is correct
+2. Verify your `widgetToken` is correct
 3. Ensure the script URL is correct and accessible
+4. Check that your domain is allowed in the widget token configuration
 
 ### Styles look wrong
 
@@ -134,4 +137,4 @@ If `darkColors` is not specified, the widget will auto-generate appropriate dark
 
 ### CORS errors
 
-GitHub raw URLs serve content with appropriate CORS headers. If you see CORS errors, try refreshing the page or use a different hosting solution for production.
+If you see CORS errors, verify that the `widget-bundle.js` URL is correct and the PagePal domain is accessible.

@@ -1,5 +1,6 @@
 import { readdir, readFile, realpath } from "node:fs/promises"
 import { normalize, resolve, sep } from "node:path"
+import type { ToolSet } from "ai"
 import { tool } from "ai"
 import { z } from "zod"
 
@@ -29,7 +30,10 @@ async function createSafePath(rootDir: string) {
 	}
 }
 
-export async function createContextTools(contextDirectory: string) {
+export async function createContextTools(
+	contextDirectory: string,
+): Promise<ToolSet> {
+	if (!contextDirectory) return {}
 	const safePath = await createSafePath(contextDirectory)
 
 	return {

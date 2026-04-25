@@ -399,7 +399,7 @@ async function seed() {
 	console.log("  ✓ messages")
 
 	// ── Usage records (one per assistant message) ──────────────────────────────
-	// Cost approximation: $0.000003 per token (roughly Haiku-tier pricing)
+	// Costs approximated at platform rates: $0.10/1M input, $0.20/1M output
 	await db
 		.insert(usageRecords)
 		.values([
@@ -408,28 +408,28 @@ async function seed() {
 				clientId: ID.client1,
 				messageId: ID.msg2,
 				tokensUsed: 45,
-				costUsd: "0.000135",
+				costUsd: "0.000006",
 			},
 			{
 				id: ID.usage2,
 				clientId: ID.client1,
 				messageId: ID.msg4,
 				tokensUsed: 38,
-				costUsd: "0.000114",
+				costUsd: "0.000005",
 			},
 			{
 				id: ID.usage3,
 				clientId: ID.client1,
 				messageId: ID.msg6,
 				tokensUsed: 35,
-				costUsd: "0.000105",
+				costUsd: "0.000005",
 			},
 			{
 				id: ID.usage4,
 				clientId: ID.client2,
 				messageId: ID.msg8,
 				tokensUsed: 52,
-				costUsd: "0.000156",
+				costUsd: "0.000007",
 			},
 		])
 		.onConflictDoNothing()

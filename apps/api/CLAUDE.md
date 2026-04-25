@@ -32,7 +32,7 @@ src/
 
 - **Routes are factory functions** — `createAuthRouter(service)` — wired in `index.ts`, not directly imported
 - **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts to `{ success: false, error: { code, message } }`. Never build error JSON manually in routes
-- **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs code string)
+- **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs code string), `TooManyRequestsError` (429)
 - **Response shape** — always use `successResponseSchema` / `errorResponseSchema` from `src/common/schemas.ts` for OpenAPI response definitions
 - **Services are framework-agnostic** — no `c` (Hono context), no Drizzle imports
 - **Repositories own all queries** — services never import Drizzle or run SQL

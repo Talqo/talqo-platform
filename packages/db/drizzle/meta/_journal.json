@@ -85,6 +85,13 @@
 			"when": 1776888053747,
 			"tag": "0012_lying_bastion",
 			"breakpoints": true
+		},
+		{
+			"idx": 12,
+			"version": "7",
+			"when": 1776940177206,
+			"tag": "0013_cool_white_tiger",
+			"breakpoints": true
 		}
 	]
 }

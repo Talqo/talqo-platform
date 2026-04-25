@@ -476,6 +476,7 @@ export interface paths {
                             lastActive: string | null;
                             createdAt: string;
                             widgetSetupDismissed: boolean;
+                            widgetToken: string;
                         };
                     };
                 };

@@ -139,7 +139,7 @@ push: push-api push-web ## Build and push all Docker images
 
 # ── Test / Lint ────────────────────────────────────
 .PHONY: test
-test: ## Run all tests
+test: ## Run all unit tests (excludes e2e tests)
 	bun run test
 
 .PHONY: e2e
