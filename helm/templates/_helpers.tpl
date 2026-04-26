@@ -109,3 +109,14 @@ Provider key secret name — uses existingSecret when provided, otherwise the ge
 {{- include "pagepal.fullname" . }}-provider-key-secret
 {{- end }}
 {{- end }}
+
+{{/*
+Default LLM secret name — uses existingSecret when provided, otherwise the generated one.
+*/}}
+{{- define "pagepal.defaultLlmSecretName" -}}
+{{- if .Values.api.defaultLlm.existingSecret }}
+{{- .Values.api.defaultLlm.existingSecret }}
+{{- else }}
+{{- include "pagepal.fullname" . }}-default-llm-secret
+{{- end }}
+{{- end }}

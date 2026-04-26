@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DEFAULT_BOT_AVATAR } from "./constants"
 
-interface BotNameCardProps {
+type BotNameCardProps = {
 	botName: string
 	botAvatar: string
 	onBotNameChange: (value: string) => void

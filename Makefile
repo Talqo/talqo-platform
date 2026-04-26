@@ -110,6 +110,20 @@ _require-tag:
 		exit 1; \
 	}
 
+.PHONY: _require-resend-api-key
+_require-resend-api-key:
+	@[ -n "$$RESEND_API_KEY" ] || { \
+		echo "ERROR: RESEND_API_KEY env var is required for deployment."; \
+		exit 1; \
+	}
+
+.PHONY: _require-default-llm
+_require-default-llm:
+	@[ -n "$$DEFAULT_LLM_PROVIDER_TYPE" ] && [ -n "$$DEFAULT_LLM_API_KEY" ] && [ -n "$$DEFAULT_LLM_MODEL" ] || { \
+		echo "ERROR: DEFAULT_LLM_PROVIDER_TYPE, DEFAULT_LLM_API_KEY, and DEFAULT_LLM_MODEL are required."; \
+		exit 1; \
+	}
+
 .PHONY: build-api
 build-api: _require-tag ## Build API Docker image
 	docker build -f apps/api/Dockerfile -t "$(API_IMAGE):$(IMAGE_TAG)" .
@@ -139,7 +153,7 @@ push: push-api push-web ## Build and push all Docker images
 
 # ── Test / Lint ────────────────────────────────────
 .PHONY: test
-test: ## Run all tests
+test: ## Run all unit tests (excludes e2e tests)
 	bun run test
 
 .PHONY: e2e
@@ -202,7 +216,7 @@ helm-lint: ## Lint Helm chart
 	helm lint "$(HELM_CHART)"
 
 .PHONY: deploy
-deploy: ns-create helm-deps _require-tag ## Deploy to cluster (env based on git branch)
+deploy: ns-create helm-deps _require-tag _require-resend-api-key _require-default-llm ## Deploy to cluster (env based on git branch)
 	@echo "Deploying $(IMAGE_TAG) to $(NAMESPACE) (branch: $(BRANCH), env: $(ENV))"
 	@MINIO_PASS=$$(kubectl get secret "$(HELM_RELEASE)-minio" -n "$(NAMESPACE)" \
 		-o jsonpath='{.data.rootPassword}' 2>/dev/null | base64 -d); \
@@ -214,7 +228,11 @@ deploy: ns-create helm-deps _require-tag ## Deploy to cluster (env based on git 
 		--set web.image.tag="$(IMAGE_TAG)" \
 		--set migration.image.tag="$(IMAGE_TAG)" \
 		--set minio.rootPassword="$$MINIO_PASS" \
-		$${RESEND_API_KEY:+--set resend.apiKey="$$RESEND_API_KEY"}
+		--set resend.apiKey="$$RESEND_API_KEY" \
+		--set api.defaultLlm.providerType="$$DEFAULT_LLM_PROVIDER_TYPE" \
+		--set api.defaultLlm.apiKey="$$DEFAULT_LLM_API_KEY" \
+		--set api.defaultLlm.model="$$DEFAULT_LLM_MODEL" \
+		--set api.defaultLlm.baseUrl="$$DEFAULT_LLM_BASE_URL"
 
 .PHONY: undeploy
 undeploy: ## Uninstall from cluster (env based on git branch)

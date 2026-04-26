@@ -10,7 +10,7 @@ const iconMap = {
 	card: CreditCard,
 }
 
-interface StatCardProps {
+type StatCardProps = {
 	title: string
 	value: string
 	subtitle: string

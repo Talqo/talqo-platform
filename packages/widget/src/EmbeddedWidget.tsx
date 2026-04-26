@@ -23,7 +23,7 @@ import {
 import { useWidgetContext } from "./primitives/WidgetRoot"
 import type { ResolvedWidgetConfig } from "./types"
 
-interface EmbeddedWidgetProps {
+type EmbeddedWidgetProps = {
 	config: ResolvedWidgetConfig
 }
 
@@ -104,7 +104,7 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 							role={msg.role}
 							className={"aiw-message"}
 						>
-							{msg.role === "bot" && (
+							{msg.role === "assistant" && (
 								<div className={"aiw-message-avatar"}>
 									<AvatarIcon size={20} iconSvg={botAvatarSvg} />
 								</div>
@@ -116,6 +116,12 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 						<WidgetTypingIndicator className={"aiw-typing"} />
 					)}
 				</WidgetMessageList>
+
+				{widget.error && (
+					<div className={"aiw-error"} role="alert">
+						{widget.error}
+					</div>
+				)}
 
 				<div className={"aiw-input-area"}>
 					<WidgetInput
@@ -145,6 +151,7 @@ export function EmbeddedWidget({ config }: EmbeddedWidgetProps) {
 			defaultOpen={config.defaultOpen}
 			position={config.position}
 			defaultTheme={getInitialTheme()}
+			apiConfig={{ widgetToken: config.widgetToken, apiUrl: config.apiUrl }}
 		>
 			<EmbeddedWidgetInner config={config} />
 		</WidgetRoot>

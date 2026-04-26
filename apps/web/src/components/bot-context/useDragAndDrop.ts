@@ -1,10 +1,10 @@
 import { useCallback, useRef, useState } from "react"
 
-interface UseDragAndDropOptions {
+type UseDragAndDropOptions = {
 	onDrop: (files: File[]) => void
 }
 
-interface UseDragAndDropReturn {
+type UseDragAndDropReturn = {
 	isDragging: boolean
 	bindDragEvents: {
 		onDragEnter: (event: React.DragEvent) => void

@@ -1,4 +1,4 @@
-export interface Tool {
+export type Tool = {
 	id: string
 	name: string
 	description?: string
@@ -18,12 +18,6 @@ export const DEFAULT_USED_TOOLS: Tool[] = [
 		name: "Custom Knowledge Base",
 		color: "green",
 		icon: "JSON",
-	},
-	{
-		id: "3",
-		name: "Internet Search",
-		color: "purple",
-		icon: "WEB",
 	},
 ]
 
@@ -61,7 +55,6 @@ export const PRECONFIGURED_TOOLS: Tool[] = [
 export function getToolDescription(name: string): string {
 	if (name.includes("Database")) return "Read-only connector"
 	if (name.includes("Knowledge")) return "Static fallback info"
-	if (name.includes("Search")) return "Web search capabilities"
 	return "Tool connector"
 }
 

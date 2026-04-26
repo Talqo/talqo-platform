@@ -56,6 +56,10 @@ export class AnalyticsService {
 		return this.repo.getMessageCounts(clientId, from, to, granularity)
 	}
 
+	async getClientSummary(clientId: string) {
+		return this.repo.getClientSummary(clientId)
+	}
+
 	async getPlatformStats() {
 		return this.repo.getPlatformStats()
 	}

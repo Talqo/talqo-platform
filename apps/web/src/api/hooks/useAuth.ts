@@ -4,23 +4,23 @@ import { AUTH } from "@/lib/constants"
 import { client } from "../client"
 
 // Types from OpenAPI spec
-interface LoginRequest {
+type LoginRequest = {
 	email: string
 	password: string
 }
 
-interface RegisterRequest {
+type RegisterRequest = {
 	name: string
 	email: string
 	password: string
 }
 
-interface AuthResponse {
+type AuthResponse = {
 	token?: string
 	message?: string
 }
 
-export interface ApiError {
+export type ApiError = {
 	error: {
 		code: string
 		message: string
@@ -224,7 +224,7 @@ export function useCurrentUser() {
 }
 
 // Get current admin (for admin dashboard)
-interface AdminProfile {
+type AdminProfile = {
 	id: string
 	email: string
 	role: "admin"

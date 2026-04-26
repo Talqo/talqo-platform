@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import type { Tenant } from "@/data/backoffice"
 
-interface TenantsTableProps {
+type TenantsTableProps = {
 	tenants?: Tenant[]
 	onSuspend?: (id: string) => void
 	onReEnable?: (id: string) => void

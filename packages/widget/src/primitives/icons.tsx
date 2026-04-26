@@ -9,7 +9,7 @@ import SendIconSvg from "../../assets/send-icon.svg?react"
 import SunIconSvg from "../../assets/sun-icon.svg?react"
 import XLargeIconSvg from "../../assets/x-large-icon.svg?react"
 
-interface IconProps {
+type IconProps = {
 	size?: number
 	className?: string
 }

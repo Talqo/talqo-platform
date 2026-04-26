@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import type { AuthValidationEndpoint } from "@/lib/auth"
 import { validateToken } from "@/lib/auth"
 
-interface UseGuardedAuthOptions {
+type UseGuardedAuthOptions = {
 	/** Function to get the token from storage */
 	getToken: () => string | null
 	/** Validation endpoint to use */
@@ -11,7 +11,7 @@ interface UseGuardedAuthOptions {
 	clearToken: () => void
 }
 
-interface UseGuardedAuthResult {
+type UseGuardedAuthResult = {
 	/** Whether auth check is in progress */
 	isLoading: boolean
 	/** Whether the token is valid */
