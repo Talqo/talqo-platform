@@ -18,7 +18,7 @@ import {
 	usageRecords,
 } from "../../db/schema"
 
-type Granularity = "day" | "week" | "month"
+export type Granularity = "day" | "week" | "month"
 
 export class AnalyticsRepository {
 	constructor(private readonly db: DB) {}
@@ -149,5 +149,89 @@ export class AnalyticsRepository {
 			activeClients: clientStats?.activeClients ?? 0,
 			totalConversations: convStats?.totalConversations ?? 0,
 		}
+	}
+}
+
+type TokenUsageRow = {
+	period: string
+	tokensUsed: number
+	costUsd: string | null
+}
+type MessageCountRow = { period: string; messageCount: number }
+type ClientSummary = Awaited<
+	ReturnType<AnalyticsRepository["getClientSummary"]>
+>
+type PlatformStats = Awaited<
+	ReturnType<AnalyticsRepository["getPlatformStats"]>
+>
+
+export class InMemoryAnalyticsRepository
+	implements
+		Pick<
+			AnalyticsRepository,
+			| "getTokenUsage"
+			| "getMessageCounts"
+			| "getClientSummary"
+			| "getPlatformStats"
+		>
+{
+	tokenUsage: TokenUsageRow[] = []
+	messageCounts: MessageCountRow[] = []
+	clientSummary: ClientSummary = {
+		totalConversations: 0,
+		uniqueUsers: 0,
+		avgSatisfactionRating: 0,
+		totalUserMessages: 0,
+		totalTokens: 0,
+		totalPageviewSessions: 0,
+	}
+	platformStats: PlatformStats = {
+		totalTokens: 0,
+		totalCostUsd: "0",
+		activeClients: 0,
+		totalConversations: 0,
+	}
+
+	lastTokenUsageArgs?: {
+		clientId: string
+		from: Date
+		to: Date
+		granularity: string
+	}
+	lastMessageCountArgs?: {
+		clientId: string
+		from: Date
+		to: Date
+		granularity: string
+	}
+	lastClientSummaryClientId?: string
+
+	async getTokenUsage(
+		clientId: string,
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	) {
+		this.lastTokenUsageArgs = { clientId, from, to, granularity }
+		return this.tokenUsage
+	}
+
+	async getMessageCounts(
+		clientId: string,
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	) {
+		this.lastMessageCountArgs = { clientId, from, to, granularity }
+		return this.messageCounts
+	}
+
+	async getClientSummary(clientId: string) {
+		this.lastClientSummaryClientId = clientId
+		return this.clientSummary
+	}
+
+	async getPlatformStats() {
+		return this.platformStats
 	}
 }
