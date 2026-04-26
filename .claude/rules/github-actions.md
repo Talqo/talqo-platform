@@ -1,17 +1,18 @@
 ---
-paths: 
+paths:
   - "**/.github/workflows/*.yml"
   - "**/.github/workflows/*.yaml"
 ---
+
 ## Context
 
-Guidelines for building reliable GitHub Actions workflows with proper security, caching, testing, and deployment strategies.
+Guidelines for building reliable GitHub Actions workflows. Security, caching, testing, deployment.
 
 ## Best Practices
 
 ### Workflow Structure
 
-- Descriptive `name` and specific triggers (`on: push`, `pull_request`, `workflow_dispatch`)
+- Descriptive `name`, specific triggers (`on: push`, `pull_request`, `workflow_dispatch`)
 - `concurrency` to prevent race conditions
 - `permissions` with least privilege (default `contents: read`)
 - `workflow_call` for reusable workflows
@@ -30,7 +31,7 @@ jobs:
         with:
           name: build-artifact
           path: ${{ steps.package.outputs.path }}
-  
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -135,11 +136,11 @@ environment:
 
 ## Boundaries
 
-- ✅ **Always:** Pin actions to a specific major version tag or commit SHA (never `@main` or `@latest`)
-- ✅ **Always:** Set `permissions: contents: read` by default
-- ✅ **Always:** Use `${{ secrets.NAME }}` for sensitive data
-- ✅ **Always:** Use `fetch-depth: 1` for checkout unless full history is required (e.g., semantic-release, conventional-changelog, `git describe`)
-- ✅ **Always:** Use `hashFiles()` for cache keys
+- ✅ **Always:** Pin actions to specific major version tag or commit SHA (never `@main` or `@latest`)
+- ✅ **Always:** `permissions: contents: read` by default
+- ✅ **Always:** `${{ secrets.NAME }}` for sensitive data
+- ✅ **Always:** `fetch-depth: 1` for checkout unless full history needed (semantic-release, conventional-changelog, `git describe`)
+- ✅ **Always:** `hashFiles()` for cache keys
 - ⚠️ **Ask:** Before adding self-hosted runners
 - ⚠️ **Ask:** Before adding new workflow triggers
 - 🚫 **Never:** Hardcode secrets in workflow files

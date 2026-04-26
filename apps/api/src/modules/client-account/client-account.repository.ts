@@ -84,6 +84,15 @@ export class ClientAccountRepository {
 			.where(eq(clients.id, id))
 	}
 
+	async setWidgetToken(id: string, widgetToken: string) {
+		const [updated] = await this.db
+			.update(clients)
+			.set({ widgetToken })
+			.where(eq(clients.id, id))
+			.returning({ widgetToken: clients.widgetToken })
+		return updated ?? null
+	}
+
 	async findByEmail(email: string) {
 		return this.db
 			.select({ id: clients.id })

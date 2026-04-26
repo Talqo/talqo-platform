@@ -12,7 +12,8 @@
 		"type-check": "tsgo --noEmit",
 		"test": "bun test",
 		"db:migrate": "cd ../../packages/db && bun --env-file=../../.env run drizzle-kit migrate",
-		"db:seed": "bun --env-file=../../.env run src/db/seed.ts"
+		"db:seed": "bun --env-file=../../.env run src/db/seed.ts",
+		"db:check": "cd ../../packages/db && bun --env-file=../../.env run drizzle-kit check"
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^3.0.69",

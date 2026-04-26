@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils"
 import { DEFAULT_BOT_AVATAR } from "./constants"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
-interface WidgetPreviewProps {
+type WidgetPreviewProps = {
 	colors: WidgetColorsConfig
 	icons: WidgetIcons
 	botName: string
 	position: "left" | "right"
 }
 
-interface PreviewAvatarProps {
+type PreviewAvatarProps = {
 	botAvatar: string
 	size: number
 	className?: string

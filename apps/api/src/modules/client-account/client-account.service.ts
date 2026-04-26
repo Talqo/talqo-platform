@@ -78,4 +78,11 @@ export class ClientAccountService {
 		if (!updated) throw new NotFoundError("Client not found")
 		return updated
 	}
+
+	async rotateWidgetToken(clientId: string) {
+		const token = crypto.randomUUID()
+		const updated = await this.repo.setWidgetToken(clientId, token)
+		if (!updated) throw new NotFoundError("Client not found")
+		return updated.widgetToken
+	}
 }

@@ -6,6 +6,7 @@ import "./theme/default.css"
 
 // Global config type augmentation
 declare global {
+	// biome-ignore lint/style/useConsistentTypeDefinitions: declaration merging required for global Window augmentation
 	interface Window {
 		__AI_WIDGET_CONFIG__?: WidgetConfig
 	}
@@ -87,9 +88,9 @@ function resolveDarkColors(
 function resolveConfig(): ResolvedWidgetConfig {
 	const userConfig = window.__AI_WIDGET_CONFIG__
 
-	if (!userConfig?.clientId) {
+	if (!userConfig?.widgetToken) {
 		throw new Error(
-			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.clientId",
+			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.widgetToken",
 		)
 	}
 
@@ -107,7 +108,6 @@ function resolveConfig(): ResolvedWidgetConfig {
 	)
 
 	return {
-		clientId: userConfig.clientId,
 		widgetToken: userConfig.widgetToken,
 		apiUrl,
 		colors: lightColors,
@@ -210,7 +210,7 @@ function trackPageview(config: ResolvedWidgetConfig): void {
 	if (!config.widgetToken) return
 	const browserSessionId = getOrCreateBrowserSessionId()
 	if (!browserSessionId) return
-	fetch(`${config.apiUrl}/widget/${config.clientId}/sessions`, {
+	fetch(`${config.apiUrl}/widget/sessions`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",

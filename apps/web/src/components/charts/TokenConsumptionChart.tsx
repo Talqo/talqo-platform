@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/card"
 import type { ChartDataPoint } from "@/data/charts"
 
-interface TokenConsumptionChartProps {
+type TokenConsumptionChartProps = {
 	data: ChartDataPoint[]
 }
 

@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react"
 import { AlertCircle, BarChart3, CheckCircle2, Users } from "lucide-react"
 
-export interface Stat {
+export type Stat = {
 	id: string
 	title: string
 	value: string
@@ -10,7 +10,7 @@ export interface Stat {
 	variant?: "default" | "success"
 }
 
-export interface Tenant {
+export type Tenant = {
 	id: string
 	name: string
 	status: "active" | "suspended"

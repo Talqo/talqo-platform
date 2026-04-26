@@ -1,6 +1,6 @@
 # API
 
-REST API built with Hono running on Bun. Uses `@hono/zod-openapi` (not plain Hono) — all routes are defined via `createRoute` + `OpenAPIHono` for auto-generated OpenAPI spec.
+REST API built with Hono on Bun. Uses `@hono/zod-openapi` (not plain Hono) — all routes defined via `createRoute` + `OpenAPIHono` for auto-generated OpenAPI spec.
 
 ## Structure
 
@@ -17,7 +17,7 @@ src/
 │   ├── crypto.ts   # AES-256-GCM encrypt/decrypt for provider API keys at rest
 │   ├── logger.ts   # Structured logger — never use console.*
 │   ├── schemas.ts  # successResponseSchema / errorResponseSchema helpers
-│   └── middleware/ # clientAuth, widgetAuth, adminAuth, requestLogger, errorHandler
+│   └── middleware/ # clientAuth, widgetAuth, adminAuth, requestLogger, errorHandler, widgetRateLimit, adminAuditLog
 ├── db/
 │   └── index.ts    # Local Drizzle client (re-exports schema from packages/db)
 └── modules/<feature>/
@@ -30,12 +30,12 @@ src/
 
 ## Key conventions
 
-- **Routes are factory functions** — `createAuthRouter(service)` — wired in `index.ts`, not directly imported.
-- **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts them to `{ success: false, error: { code, message } }`. Never build error JSON manually in routes.
-- **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs a code string).
-- **Response shape** — always use `successResponseSchema` / `errorResponseSchema` from `src/common/schemas.ts` for OpenAPI response definitions.
-- **Services are framework-agnostic** — no `c` (Hono context), no Drizzle imports.
-- **Repositories own all queries** — services never import Drizzle or run SQL.
+- **Routes are factory functions** — `createAuthRouter(service)` — wired in `index.ts`, not directly imported
+- **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts to `{ error: { code, message } }`. Never build error JSON manually in routes
+- **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs code string), `TooManyRequestsError` (429)
+- **Response shape** — always use `successResponseSchema` / `errorResponseSchema` from `src/common/schemas.ts` for OpenAPI response definitions
+- **Services are framework-agnostic** — no `c` (Hono context), no Drizzle imports
+- **Repositories own all queries** — services never import Drizzle or run SQL
 
 ## Auth layers
 
@@ -45,28 +45,28 @@ src/
 | `widgetAuth` | `X-Widget-Token: <token>` | `/widget/*` |
 | `adminAuth` | `Authorization: Bearer <JWT>` | `/admin/*` (except `/admin/auth`) |
 
-- JWT payload: `{ sub, role: "client"|"admin", imp?: true }` — `imp` marks admin impersonation tokens.
-- `clientId` / `adminId` are set on Hono context by auth middleware; read via `c.get("clientId")`.
-- Per-request logger with `requestId` is injected globally: `c.get("logger")`.
+- JWT payload: `{ sub, role: "client"|"admin", imp?: true }` — `imp` marks admin impersonation tokens
+- `clientId` / `adminId` set on Hono context by auth middleware; read via `c.get("clientId")`
+- Per-request logger with `requestId` injected globally: `c.get("logger")`
 
 ## Testing
 
-- Tests use `app.fetch()` directly — no real server needed.
-- Repositories export an `InMemoryRepository` alongside the Drizzle implementation; tests wire the in-memory variant.
-- Mocks must be declared **before** dynamic `await import(...)` due to Bun module caching order.
-- Config auto-provides safe defaults in test env (`NODE_ENV=test` or `BUN_TEST=1`) — no `.env` required.
+- Tests use `app.fetch()` directly — no real server needed
+- Repositories export `InMemoryRepository` alongside Drizzle implementation; tests wire in-memory variant
+- Mocks must be declared **before** dynamic `await import(...)` due to Bun module caching order
+- Config auto-provides safe defaults in test env (`NODE_ENV=test` or `BUN_TEST=1`) — no `.env` required
 
 ## Logging
 
-Use `src/common/logger.ts` (never `console.*`). Output is NDJSON. HTTP requests are logged automatically — don't log them in routes. Rethrow unhandled errors so `errorHandler` logs them.
+Use `src/common/logger.ts` (never `console.*`). Output is NDJSON. HTTP requests logged automatically — don't log them in routes. Rethrow unhandled errors so `errorHandler` logs them.
 
 ## OpenAPI / docs
 
-- Spec auto-generated at `GET /openapi.json`; Scalar UI at `GET /docs`.
-- Security schemes registered in `app.ts`: `bearerAuth` (JWT) and `widgetToken` (API key header).
+- Spec auto-generated at `GET /openapi.json`; Scalar UI at `GET /docs`
+- Security schemes registered in `app.ts`: `bearerAuth` (JWT) and `widgetToken` (API key header)
 
 ## AI / agent
 
-- `src/modules/agent/` uses Vercel AI SDK (`ai` package) with `generateText`.
-- Provider API keys are stored AES-256-GCM encrypted (`src/common/crypto.ts`); `PROVIDER_KEY_SECRET` must be a 64-hex-char non-trivial value.
-- MCP server connections are opened per-request and closed in a `finally` block.
+- `src/modules/agent/` uses Vercel AI SDK (`ai` package) with `generateText` and `streamText` for synchronous and streaming responses
+- Provider API keys stored AES-256-GCM encrypted (`src/common/crypto.ts`); `PROVIDER_KEY_SECRET` must be 64-hex-char non-trivial value
+- MCP server connections opened per-request and closed in `finally` block

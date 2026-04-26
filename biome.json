@@ -33,6 +33,14 @@
 						"functions": ["cn", "clsx", "twMerge"]
 					}
 				}
+			},
+			"style": {
+				"useConsistentTypeDefinitions": {
+					"level": "error",
+					"options": {
+						"style": "type"
+					}
+				}
 			}
 		}
 	},

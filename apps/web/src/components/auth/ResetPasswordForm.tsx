@@ -24,7 +24,7 @@ import {
 } from "@/schemas/auth"
 import { PasswordInput } from "./PasswordInput"
 
-interface ResetPasswordFormProps {
+type ResetPasswordFormProps = {
 	onSubmit: (password: string) => void
 	isPending: boolean
 	error: string | null

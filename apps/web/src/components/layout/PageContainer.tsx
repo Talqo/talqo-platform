@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 
-interface PageContainerProps {
+type PageContainerProps = {
 	children: ReactNode
 	className?: string
 }

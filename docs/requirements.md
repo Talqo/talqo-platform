@@ -18,12 +18,14 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-1.1 | End user can send text messages to the bot and receive AI-generated responses | High | Approved | In progress |
-| FR-1.2 | Conversation history is persisted in the end user's browser so the context survives page reloads | High | Approved | In progress |
+| FR-1.1 | End user can send text messages to the bot and receive AI-generated responses | High | Approved | Done |
+| FR-1.2 | Conversation history is persisted server-side and survives page reloads via browser session ID | High | Approved | Done |
 | FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved | Done |
 | FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved | Done |
 | FR-1.5 | End user can clear / reset the current conversation | Low | Approved | Done |
 | FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved | In progress |
+| FR-1.7 | Widget enforces IP-based hourly rate limiting to prevent abuse | High | Approved | Done |
+| FR-1.8 | Widget enforces a per-conversation message limit before requiring a new conversation | High | Approved | Done |
 
 ### FR-2: Client Dashboard
 
@@ -38,12 +40,13 @@
 | FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved | Done |
 | FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved | Done |
 | FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Not started |
+| FR-2.5a | Client can rotate the widget token to invalidate the old embed code | Medium | Approved | Done |
 
 #### FR-2b: API configuration
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.6 | Client can use platform's default API endpoint | High | Approved | In progress |
+| FR-2.6 | Client can use platform's default API endpoint | High | Approved | Done |
 | FR-2.7 | Client can configure a custom API endpoint and API key | Medium | Approved | Done |
 
 #### FR-2c: Usage and billing
@@ -62,7 +65,6 @@
 | FR-2.12 | Client can assign a default role to the bot (e.g. "customer support agent for Acme Shop") | High | Approved | In progress |
 | FR-2.13 | Client can customise the bot's tone and communication style (e.g. formal / informal address) | Medium | Approved | In progress |
 | FR-2.14 | Client can maintain a word blacklist; the bot must not use or engage with blacklisted terms | Medium | Approved | In progress |
-| FR-2.15 | Client can toggle whether the bot is allowed to search the internet for answers | Medium | Approved | In progress |
 
 #### FR-2e: Knowledge & integrations (MCP)
 
@@ -115,12 +117,12 @@
 
 ### NFR-2: Safety & Content Policy
 
-| ID | Requirement | Notes | Priority |
-|----|-------------|-------|----------|
-| NFR-2.1 | The bot must refuse requests that could cause real-world harm (e.g. harmful advice, PII extraction) | Enforced via system prompt guardrails | Low |
-| NFR-2.2 | The bot must not recommend or promote competing products or services | Enforced via system prompt + blacklist | High |
-| NFR-2.3 | Client-defined word blacklist violations must be filtered before the response is sent to the end user | | High |
-| NFR-2.4 | The bot must stay on-topic for the client's domain and refuse to help with unrelated tasks (e.g. homework, general trivia) | Enforced via system prompt guardrails | High |
+| ID | Requirement | Notes | Priority | Completion |
+|----|-------------|-------|----------|------------|
+| NFR-2.1 | The bot must refuse requests that could cause real-world harm (e.g. harmful advice, PII extraction) | Enforced via system prompt guardrails | Low | Done |
+| NFR-2.2 | The bot must not recommend or promote competing products or services | Enforced via system prompt + blacklist | High | Done |
+| NFR-2.3 | Client-defined word blacklist violations must be filtered before the response is sent to the end user | | High | Not started |
+| NFR-2.4 | The bot must stay on-topic for the client's domain and refuse to help with unrelated tasks (e.g. homework, general trivia) | Enforced via system prompt guardrails | High | Done |
 
 ### NFR-3: Security
 
