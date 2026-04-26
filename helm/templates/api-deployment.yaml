@@ -71,22 +71,26 @@ spec:
               value: {{ .Values.api.widgetConversationMaxMessages | default 50 | quote }}
             - name: TRUSTED_PROXY_IPS
               value: {{ .Values.api.trustedProxyIps | default "" | quote }}
-            {{- if .Values.api.defaultLlm.providerType }}
             - name: DEFAULT_LLM_PROVIDER_TYPE
-              value: {{ .Values.api.defaultLlm.providerType | quote }}
-            {{- end }}
-            {{- if .Values.api.defaultLlm.apiKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: providerType
             - name: DEFAULT_LLM_API_KEY
-              value: {{ .Values.api.defaultLlm.apiKey | quote }}
-            {{- end }}
-            {{- if .Values.api.defaultLlm.model }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: apiKey
             - name: DEFAULT_LLM_MODEL
-              value: {{ .Values.api.defaultLlm.model | quote }}
-            {{- end }}
-            {{- if .Values.api.defaultLlm.baseUrl }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: model
             - name: DEFAULT_LLM_BASE_URL
-              value: {{ .Values.api.defaultLlm.baseUrl | quote }}
-            {{- end }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: baseUrl
             - name: PROVIDER_KEY_SECRET
               valueFrom:
                 secretKeyRef:

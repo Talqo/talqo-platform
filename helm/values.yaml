@@ -18,6 +18,7 @@ api:
   trustedProxyIps: ""
   # Default LLM provider used when a client has not configured their own (optional)
   defaultLlm:
+    existingSecret: ""
     providerType: ""
     apiKey: ""
     model: ""
