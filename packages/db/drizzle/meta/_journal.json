@@ -71,6 +71,27 @@
 			"when": 1776327176756,
 			"tag": "0010_widget_setup_dismissed",
 			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1776795486640,
+			"tag": "0011_even_unus",
+			"breakpoints": true
+		},
+		{
+			"idx": 11,
+			"version": "7",
+			"when": 1776888053747,
+			"tag": "0012_lying_bastion",
+			"breakpoints": true
+		},
+		{
+			"idx": 12,
+			"version": "7",
+			"when": 1776940177206,
+			"tag": "0013_cool_white_tiger",
+			"breakpoints": true
 		}
 	]
 }

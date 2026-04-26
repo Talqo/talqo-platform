@@ -1,9 +1,9 @@
 import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { cors } from "hono/cors"
-import type { ApiResponse } from "shared"
 import type { AppVariables } from "./common/jwt"
 import { logger } from "./common/logger"
+import { adminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
@@ -12,6 +12,7 @@ import { widgetAuth } from "./common/middleware/widget-auth"
 import {
 	adminAuthRoutes,
 	adminClientRoutes,
+	adminConversationRoutes,
 	adminMeRoutes,
 } from "./modules/admin"
 import {
@@ -44,8 +45,7 @@ app.onError(errorHandler)
 app.get("/", (c) => c.text("PagePal API"))
 
 app.get("/health", (c) => {
-	const response: ApiResponse = { message: "OK", success: true }
-	return c.json(response, 200)
+	return c.json({ message: "OK" }, 200)
 })
 
 // ─── Client auth (unprotected) ────────────────────────────────────────────────
@@ -63,13 +63,10 @@ app.route("/client/me/files", filesRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 app.use("/widget/*", widgetAuth)
-app.route("/widget/:clientId/sessions", widgetSessionRoutes)
+app.route("/widget/sessions", widgetSessionRoutes)
+app.route("/widget/sessions/:sessionId/conversations", widgetConversationRoutes)
 app.route(
-	"/widget/:clientId/sessions/:sessionId/conversations",
-	widgetConversationRoutes,
-)
-app.route(
-	"/widget/:clientId/sessions/:sessionId/conversations/:conversationId/messages",
+	"/widget/sessions/:sessionId/conversations/:conversationId/messages",
 	widgetMessageRoutes,
 )
 
@@ -78,9 +75,11 @@ app.route("/admin/auth", adminAuthRoutes)
 
 // ─── Admin dashboard (protected) ─────────────────────────────────────────────
 app.use("/admin/*", adminAuth)
+app.use("/admin/*", adminAuditLog)
 app.route("/admin/me", adminMeRoutes)
 app.route("/admin/clients", adminClientRoutes)
 app.route("/admin/analytics", adminAnalyticsRoutes)
+app.route("/admin/conversations", adminConversationRoutes)
 app.route("/admin/mcp/pre-made", adminMcpRoutes)
 
 // ─── Security scheme definitions ─────────────────────────────────────────────

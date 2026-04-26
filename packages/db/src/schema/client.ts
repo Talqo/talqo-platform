@@ -99,9 +99,6 @@ export const botConfigs = pgTable("bot_configs", {
 	systemPrompt: text("system_prompt"),
 	defaultRole: varchar("default_role", { length: 255 }),
 	toneStyle: varchar("tone_style", { length: 255 }),
-	internetSearchEnabled: boolean("internet_search_enabled")
-		.notNull()
-		.default(false),
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),

@@ -39,11 +39,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -54,8 +50,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -70,8 +64,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -113,12 +105,8 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                token: string;
-                                message: string;
-                            };
+                            token: string;
+                            message: string;
                         };
                     };
                 };
@@ -129,8 +117,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -145,8 +131,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -198,11 +182,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                token: string;
-                            };
+                            token: string;
                         };
                     };
                 };
@@ -213,8 +193,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -263,11 +241,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -278,8 +252,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -328,11 +300,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -343,8 +311,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -387,11 +353,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                valid: boolean;
-                                email?: string;
-                            };
+                            valid: true;
                         };
                     };
                 };
@@ -402,8 +364,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -455,11 +415,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -470,8 +426,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -511,21 +465,19 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                name: string;
-                                email: string;
-                                balanceUsd: string;
-                                monthlyUsageLimit: string | null;
-                                usageAlertThresholdUsd: string | null;
-                                status: string;
-                                lastActive: string | null;
-                                createdAt: string;
-                                widgetSetupDismissed: boolean;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            email: string;
+                            balanceUsd: string;
+                            monthlyUsageLimit: string | null;
+                            usageAlertThresholdUsd: string | null;
+                            widgetToken: string;
+                            status: string;
+                            lastActive: string | null;
+                            createdAt: string;
+                            widgetSetupDismissed: boolean;
+                            widgetToken: string;
                         };
                     };
                 };
@@ -561,13 +513,9 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                id: string;
-                                name: string;
-                                email: string;
-                            };
+                            id: string;
+                            name: string;
+                            email: string;
                         };
                     };
                 };
@@ -578,8 +526,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -628,11 +574,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -643,8 +585,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -688,11 +628,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                balanceUsd: string;
-                            };
+                            balanceUsd: string;
                         };
                     };
                 };
@@ -740,11 +676,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -788,11 +720,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -826,11 +754,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -841,8 +765,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -882,19 +804,14 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                systemPrompt: string | null;
-                                defaultRole: string | null;
-                                toneStyle: string | null;
-                                internetSearchEnabled: boolean;
-                                updatedAt: string;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            systemPrompt: string | null;
+                            defaultRole: string | null;
+                            toneStyle: string | null;
+                            updatedAt: string;
                         };
                     };
                 };
@@ -919,7 +836,6 @@ export interface paths {
                         systemPrompt?: string | null;
                         defaultRole?: string | null;
                         toneStyle?: string | null;
-                        internetSearchEnabled?: boolean;
                     };
                 };
             };
@@ -931,19 +847,14 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                systemPrompt: string | null;
-                                defaultRole: string | null;
-                                toneStyle: string | null;
-                                internetSearchEnabled: boolean;
-                                updatedAt: string;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            systemPrompt: string | null;
+                            defaultRole: string | null;
+                            toneStyle: string | null;
+                            updatedAt: string;
                         };
                     };
                 };
@@ -975,17 +886,13 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                word: string;
-                                createdAt: string;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            word: string;
+                            createdAt: string;
+                        }[];
                     };
                 };
             };
@@ -1014,16 +921,12 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                word: string;
-                                createdAt: string;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            word: string;
+                            createdAt: string;
                         };
                     };
                 };
@@ -1034,8 +937,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1080,11 +981,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -1095,8 +992,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1135,14 +1030,10 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                mcpConfig?: unknown;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            mcpConfig?: unknown;
+                        }[];
                     };
                 };
             };
@@ -1179,14 +1070,10 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                mcpConfig?: unknown;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            mcpConfig?: unknown;
+                        }[];
                     };
                 };
             };
@@ -1227,11 +1114,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -1242,8 +1125,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1272,11 +1153,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -1287,8 +1164,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1327,16 +1202,12 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                mcpConfig?: unknown;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            mcpConfig?: unknown;
+                        }[];
                     };
                 };
             };
@@ -1365,15 +1236,11 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                mcpConfig?: unknown;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            mcpConfig?: unknown;
                         };
                     };
                 };
@@ -1414,11 +1281,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -1429,8 +1292,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1467,15 +1328,11 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                mcpConfig?: unknown;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            mcpConfig?: unknown;
                         };
                     };
                 };
@@ -1486,8 +1343,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1527,14 +1382,10 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                period: string;
-                                tokensUsed: number;
-                                costUsd: string | null;
-                            }[];
-                        };
+                            period: string;
+                            tokensUsed: number;
+                            costUsd: string | null;
+                        }[];
                     };
                 };
             };
@@ -1575,12 +1426,51 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                period: string;
-                                messageCount: number;
-                            }[];
+                            period: string;
+                            messageCount: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/client/me/analytics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Client engagement and satisfaction summary */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Engagement and satisfaction totals */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            totalConversations: number;
+                            uniqueUsers: number;
+                            totalTokens: number;
+                            totalUserMessages: number;
+                            avgSatisfactionRating: number | null;
+                            totalPageviewSessions: number;
                         };
                     };
                 };
@@ -1618,21 +1508,17 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                /** @enum {string} */
-                                providerType: "openai" | "openai_compatible" | "google" | "anthropic";
-                                apiKeyMasked: string;
-                                model: string;
-                                baseUrl: string | null;
-                                updatedAt: string;
-                            } | null;
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            /** @enum {string} */
+                            providerType: "openai" | "openai_compatible" | "google" | "anthropic";
+                            model: string;
+                            baseUrl: string | null;
+                            updatedAt: string;
+                            apiKeyMasked: string;
+                        } | null;
                     };
                 };
             };
@@ -1686,21 +1572,17 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                /** @enum {string} */
-                                providerType: "openai" | "openai_compatible" | "google" | "anthropic";
-                                apiKeyMasked: string;
-                                model: string;
-                                baseUrl: string | null;
-                                updatedAt: string;
-                            } | null;
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            /** @enum {string} */
+                            providerType: "openai" | "openai_compatible" | "google" | "anthropic";
+                            model: string;
+                            baseUrl: string | null;
+                            updatedAt: string;
+                            apiKeyMasked: string;
+                        } | null;
                     };
                 };
             };
@@ -1724,11 +1606,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** @enum {boolean} */
-                                deleted: true;
-                            };
+                            deleted: true;
                         };
                     };
                 };
@@ -1739,8 +1617,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1781,17 +1657,13 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                entries: {
-                                    name: string;
-                                    /** @enum {string} */
-                                    type: "file" | "directory";
-                                    size?: number;
-                                    lastModified?: string;
-                                }[];
-                            };
+                            entries: {
+                                name: string;
+                                /** @enum {string} */
+                                type: "file" | "directory";
+                                size?: number;
+                                lastModified?: string;
+                            }[];
                         };
                     };
                 };
@@ -1802,8 +1674,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1840,11 +1710,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                path: string;
-                            };
+                            path: string;
                         };
                     };
                 };
@@ -1855,8 +1721,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1885,11 +1749,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -1900,8 +1760,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -1948,11 +1806,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                url: string;
-                            };
+                            url: string;
                         };
                     };
                 };
@@ -1963,8 +1817,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2012,11 +1864,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -2027,8 +1875,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2077,11 +1923,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -2092,8 +1934,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2141,17 +1981,13 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                browserSessionId: string;
-                                createdAt: string;
-                                lastActiveAt: string;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            browserSessionId: string;
+                            createdAt: string;
+                            lastActiveAt: string;
                         };
                     };
                 };
@@ -2189,18 +2025,14 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                sessionId: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                startedAt: string;
-                                satisfactionRating: number | null;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            sessionId: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            startedAt: string;
+                            satisfactionRating: number | null;
                         };
                     };
                 };
@@ -2211,8 +2043,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2228,7 +2058,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/{clientId}/sessions/{sessionId}/conversations/:conversationId": {
+    "/widget/{clientId}/sessions/{sessionId}/conversations/{conversationId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2257,11 +2087,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -2272,8 +2098,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2310,18 +2134,14 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                sessionId: string;
-                                /** Format: uuid */
-                                clientId: string;
-                                startedAt: string;
-                                satisfactionRating: number | null;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            sessionId: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            startedAt: string;
+                            satisfactionRating: number | null;
                         };
                     };
                 };
@@ -2332,8 +2152,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2369,20 +2187,16 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                conversationId: string;
-                                /** @enum {string} */
-                                role: "user" | "assistant" | "system";
-                                content: string;
-                                tokenCount: number;
-                                createdAt: string;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            conversationId: string;
+                            /** @enum {string} */
+                            role: "user" | "assistant" | "system";
+                            content: string;
+                            tokenCount: number;
+                            createdAt: string;
+                        }[];
                     };
                 };
                 /** @description Conversation not found */
@@ -2392,8 +2206,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2427,31 +2239,27 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                userMessage: {
-                                    /** Format: uuid */
-                                    id: string;
-                                    /** Format: uuid */
-                                    conversationId: string;
-                                    /** @enum {string} */
-                                    role: "user" | "assistant" | "system";
-                                    content: string;
-                                    tokenCount: number;
-                                    createdAt: string;
-                                };
-                                assistantMessage: {
-                                    /** Format: uuid */
-                                    id: string;
-                                    /** Format: uuid */
-                                    conversationId: string;
-                                    /** @enum {string} */
-                                    role: "user" | "assistant" | "system";
-                                    content: string;
-                                    tokenCount: number;
-                                    createdAt: string;
-                                };
+                            userMessage: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                conversationId: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "system";
+                                content: string;
+                                tokenCount: number;
+                                createdAt: string;
+                            };
+                            assistantMessage: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                conversationId: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "system";
+                                content: string;
+                                tokenCount: number;
+                                createdAt: string;
                             };
                         };
                     };
@@ -2463,8 +2271,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2514,14 +2320,10 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                token: string;
-                                admin: {
-                                    id: string;
-                                    email: string;
-                                };
+                            token: string;
+                            admin: {
+                                id: string;
+                                email: string;
                             };
                         };
                     };
@@ -2533,8 +2335,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2576,11 +2376,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -2616,14 +2412,10 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                id: string;
-                                email: string;
-                                /** @enum {string} */
-                                role: "admin";
-                            };
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "admin";
                         };
                     };
                 };
@@ -2634,8 +2426,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2650,8 +2440,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2696,19 +2484,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                name: string;
-                                email: string;
-                                balanceUsd: string;
-                                status: string;
-                                lastActive: string | null;
-                                createdAt: string;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            email: string;
+                            balanceUsd: string;
+                            status: string;
+                            lastActive: string | null;
+                            createdAt: string;
+                        }[];
                     };
                 };
             };
@@ -2721,7 +2505,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/clients/:clientId": {
+    "/admin/clients/{clientId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2747,21 +2531,17 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                name: string;
-                                email: string;
-                                balanceUsd: string;
-                                status: string;
-                                lastActive: string | null;
-                                createdAt: string;
-                                totalTokens: number;
-                                totalCostUsd: string | null;
-                                totalConversations: number;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            email: string;
+                            balanceUsd: string;
+                            status: string;
+                            lastActive: string | null;
+                            createdAt: string;
+                            totalTokens: number;
+                            totalCostUsd: string | null;
+                            totalConversations: number;
                         };
                     };
                 };
@@ -2772,8 +2552,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2791,7 +2569,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/clients/:clientId/status": {
+    "/admin/clients/{clientId}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -2830,12 +2608,8 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                id: string;
-                                status: string;
-                            };
+                            id: string;
+                            status: string;
                         };
                     };
                 };
@@ -2846,8 +2620,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2859,7 +2631,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/clients/:clientId/impersonate": {
+    "/admin/clients/{clientId}/impersonate": {
         parameters: {
             query?: never;
             header?: never;
@@ -2887,11 +2659,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                token: string;
-                            };
+                            token: string;
                         };
                     };
                 };
@@ -2902,8 +2670,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -2943,13 +2709,131 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                totalTokens: number;
-                                totalCostUsd: string | null;
-                                activeClients: number;
-                                totalConversations: number;
+                            totalTokens: number;
+                            totalCostUsd: string | null;
+                            activeClients: number;
+                            totalConversations: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all conversations */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number | null;
+                    clientId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversations list */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            clientName: string | null;
+                            clientEmail: string | null;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messageCount: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get conversation with messages */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    conversationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversation detail with messages */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            clientId: string;
+                            clientName: string | null;
+                            clientEmail: string | null;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                conversationId: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "system";
+                                content: string;
+                                tokenCount: number;
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Conversation not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
                             };
                         };
                     };
@@ -2988,14 +2872,10 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                mcpConfig?: unknown;
-                            }[];
-                        };
+                            /** Format: uuid */
+                            id: string;
+                            mcpConfig?: unknown;
+                        }[];
                     };
                 };
             };
@@ -3024,13 +2904,9 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                mcpConfig?: unknown;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            mcpConfig?: unknown;
                         };
                     };
                 };
@@ -3042,7 +2918,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/mcp/pre-made/:serverId": {
+    "/admin/mcp/pre-made/{serverId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3071,11 +2947,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                message: string;
-                            };
+                            message: string;
                         };
                     };
                 };
@@ -3086,8 +2958,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;
@@ -3124,13 +2994,9 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: true;
-                            data: {
-                                /** Format: uuid */
-                                id: string;
-                                mcpConfig?: unknown;
-                            };
+                            /** Format: uuid */
+                            id: string;
+                            mcpConfig?: unknown;
                         };
                     };
                 };
@@ -3141,8 +3007,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** @enum {boolean} */
-                            success: false;
                             error: {
                                 code: string;
                                 message: string;

@@ -23,9 +23,9 @@
       (() => {
         // Only load widget in development - check BOTH hostname AND port
         if (window.location.hostname === 'localhost' && window.location.port === '5173') {
-          // Use a test client ID for development
+          // Use a test widgetToken for development
           window.__AI_WIDGET_CONFIG__ = {
-            clientId: 'dev-test-client-id',
+            widgetToken: '00000000-0000-4000-8001-000000000010',
             apiUrl: 'http://localhost:3000',
             position: 'right',
             colors: {

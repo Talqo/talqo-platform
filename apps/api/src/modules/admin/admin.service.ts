@@ -56,6 +56,20 @@ export class AdminService {
 		return updated
 	}
 
+	async listConversations(params: {
+		clientId?: string
+		limit: number
+		offset: number
+	}) {
+		return this.repo.listConversations(params)
+	}
+
+	async getConversation(conversationId: string) {
+		const conv = await this.repo.getConversationWithMessages(conversationId)
+		if (!conv) throw new NotFoundError("Conversation not found")
+		return conv
+	}
+
 	async impersonate(clientId: string) {
 		const client = await this.repo.getClientDetail(clientId)
 		if (!client) throw new NotFoundError("Client not found")

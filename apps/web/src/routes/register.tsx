@@ -1,9 +1,10 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2, Mail } from "lucide-react"
 import { useEffect, useState } from "react"
-import type { RegisterInput } from "shared"
+import { useForm } from "react-hook-form"
 import { useRegister, useResendVerificationEmail } from "@/api/hooks/useAuth"
-import { AuthFormField, AuthHeader } from "@/components/auth"
+import { AuthHeader } from "@/components/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,30 +15,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { useForm } from "@/lib/useForm"
-import { registerSchema } from "@/schemas"
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { type RegisterFormType, registerSchema } from "@/schemas"
 
 export const Route = createFileRoute("/register")({
 	component: RegisterPage,
 })
-
-interface RegisterFormData extends Record<string, string>, RegisterInput {
-	confirmPassword: string
-}
-
-function validateRegisterForm(values: RegisterFormData) {
-	const result = registerSchema.safeParse(values)
-	if (result.success) return {}
-
-	const errors: Partial<Record<keyof RegisterFormData, string>> = {}
-	for (const issue of result.error.issues) {
-		const path = issue.path[0] as keyof RegisterFormData
-		if (!errors[path]) {
-			errors[path] = issue.message
-		}
-	}
-	return errors
-}
 
 function RegisterPage() {
 	const register = useRegister()
@@ -61,45 +52,35 @@ function RegisterPage() {
 		return undefined
 	}, [resendTimeout, canResend])
 
-	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
-		useForm<RegisterFormData>({
-			initialValues: { name: "", email: "", password: "", confirmPassword: "" },
-			validate: validateRegisterForm,
-			onSubmit: async () => {
-				// Guard against concurrent submissions
-				if (register.isPending) return
-				register.mutate(
-					{
-						name: values.name,
-						email: values.email,
-						password: values.password,
-					},
-					{
-						onSuccess: () => {
-							setRegisteredEmail(values.email)
-							setShowSuccess(true)
-						},
-						// Error handling is done via register.error
-					},
-				)
-			},
-		})
+	const form = useForm<RegisterFormType>({
+		resolver: zodResolver(registerSchema),
+		defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+		mode: "onBlur",
+	})
 
-	const handleResend = () => {
-		if (!registeredEmail || !canResend) return
-		setCanResend(false)
-		setResendTimeout(60) // 60 second cooldown
-		resendVerification.mutate(
-			{ email: registeredEmail },
+	const onSubmit = (values: RegisterFormType) => {
+		if (register.isPending) return
+		register.mutate(
+			{ name: values.name, email: values.email, password: values.password },
 			{
 				onSuccess: () => {
-					setResendSuccess(true)
+					setRegisteredEmail(values.email)
+					setShowSuccess(true)
 				},
 			},
 		)
 	}
 
-	// Success state - show confirmation
+	const handleResend = () => {
+		if (!registeredEmail || !canResend) return
+		setCanResend(false)
+		setResendTimeout(60)
+		resendVerification.mutate(
+			{ email: registeredEmail },
+			{ onSuccess: () => setResendSuccess(true) },
+		)
+	}
+
 	if (showSuccess) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -173,97 +154,115 @@ function RegisterPage() {
 							Enter your details below to create your account
 						</CardDescription>
 					</CardHeader>
-					<form onSubmit={handleSubmit} noValidate>
-						<CardContent className="space-y-4">
-							{register.error && (
-								<Alert variant="destructive">
-									<AlertDescription>
-										{register.error.error?.message ||
-											"Registration failed. Please try again."}
-									</AlertDescription>
-								</Alert>
-							)}
-							<AuthFormField
-								id="name"
-								name="name"
-								label="Name"
-								type="text"
-								placeholder="John Doe"
-								value={values.name}
-								onChange={handleChange("name")}
-								onBlur={handleBlur("name")}
-								error={errors.name}
-								showError={touched.name && !!errors.name}
-								errorId="name-error"
-								autoComplete="name"
-							/>
-							<AuthFormField
-								id="email"
-								name="email"
-								label="Email"
-								type="email"
-								placeholder="m@example.com"
-								value={values.email}
-								onChange={handleChange("email")}
-								onBlur={handleBlur("email")}
-								error={errors.email}
-								showError={touched.email && !!errors.email}
-								errorId="email-error"
-								autoComplete="email"
-							/>
-							<AuthFormField
-								id="password"
-								name="password"
-								label="Password"
-								type="password"
-								value={values.password}
-								onChange={handleChange("password")}
-								onBlur={handleBlur("password")}
-								error={errors.password}
-								showError={touched.password && !!errors.password}
-								errorId="password-error"
-								autoComplete="new-password"
-							/>
-							<AuthFormField
-								id="confirm-password"
-								name="confirmPassword"
-								label="Confirm Password"
-								type="password"
-								value={values.confirmPassword}
-								onChange={handleChange("confirmPassword")}
-								onBlur={handleBlur("confirmPassword")}
-								error={errors.confirmPassword}
-								showError={touched.confirmPassword && !!errors.confirmPassword}
-								errorId="confirm-password-error"
-								autoComplete="new-password"
-							/>
-						</CardContent>
-						<CardFooter className="flex flex-col">
-							<Button
-								className="w-full"
-								type="submit"
-								disabled={register.isPending}
-							>
-								{register.isPending ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Creating account...
-									</>
-								) : (
-									"Create account"
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+							<CardContent className="space-y-4">
+								{register.error && (
+									<Alert variant="destructive">
+										<AlertDescription>
+											{register.error.error?.message ||
+												"Registration failed. Please try again."}
+										</AlertDescription>
+									</Alert>
 								)}
-							</Button>
-							<div className="mt-4 text-center text-muted-foreground text-sm">
-								Already have an account?{" "}
-								<Link
-									to="/login"
-									className="rounded-md border border-primary/50 px-3 py-1 font-medium text-primary underline underline-offset-4 hover:border-primary hover:text-primary/80"
+								<FormField
+									control={form.control}
+									name="name"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Name</FormLabel>
+											<FormControl>
+												<Input
+													type="text"
+													placeholder="John Doe"
+													autoComplete="name"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="email"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Email</FormLabel>
+											<FormControl>
+												<Input
+													type="email"
+													placeholder="m@example.com"
+													autoComplete="email"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="password"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Password</FormLabel>
+											<FormControl>
+												<Input
+													type="password"
+													autoComplete="new-password"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="confirmPassword"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Confirm Password</FormLabel>
+											<FormControl>
+												<Input
+													type="password"
+													autoComplete="new-password"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</CardContent>
+							<CardFooter className="flex flex-col">
+								<Button
+									className="w-full"
+									type="submit"
+									disabled={register.isPending}
 								>
-									Log in
-								</Link>
-							</div>
-						</CardFooter>
-					</form>
+									{register.isPending ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Creating account...
+										</>
+									) : (
+										"Create account"
+									)}
+								</Button>
+								<div className="mt-4 text-center text-muted-foreground text-sm">
+									Already have an account?{" "}
+									<Link
+										to="/login"
+										className="rounded-md border border-primary/50 px-3 py-1 font-medium text-primary underline underline-offset-4 hover:border-primary hover:text-primary/80"
+									>
+										Log in
+									</Link>
+								</div>
+							</CardFooter>
+						</form>
+					</Form>
 				</Card>
 			</div>
 		</div>

@@ -7,7 +7,7 @@ export function useBotConfig() {
 		queryFn: async () => {
 			const { data, error } = await client.GET("/client/me/bot-config", {})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -19,13 +19,12 @@ export function useUpdateBotConfig() {
 			systemPrompt?: string | null
 			defaultRole?: string | null
 			toneStyle?: string | null
-			internetSearchEnabled?: boolean
 		}) => {
 			const { data, error } = await client.PATCH("/client/me/bot-config", {
 				body,
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["bot-config"] }),
 	})

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
-interface EmbedCodeCardProps {
-	clientId: string | undefined
+type EmbedCodeCardProps = {
+	widgetToken: string | undefined
 	position: "left" | "right"
 	colors: WidgetColorsConfig
 	icons: WidgetIcons
@@ -14,7 +14,7 @@ interface EmbedCodeCardProps {
 }
 
 export function EmbedCodeCard({
-	clientId,
+	widgetToken,
 	position,
 	colors,
 	icons,
@@ -31,7 +31,7 @@ export function EmbedCodeCard({
 			: "https://dev.pagepal.dyn.cloud.e-infra.cz/widget-bundle.js")
 
 	const configObject = {
-		clientId,
+		widgetToken,
 		position,
 		botName,
 		colors: colors.light,
@@ -40,11 +40,11 @@ export function EmbedCodeCard({
 	}
 
 	const placeholderCode = `// Loading your widget configuration...
-// Please wait while we fetch your client ID.`
+// Please wait while we fetch your widget token.`
 
-	// Build embed code only when clientId is available
+	// Build embed code only when widgetToken is available
 	let embedCode: string
-	if (isLoading || !clientId) {
+	if (isLoading || !widgetToken) {
 		embedCode = placeholderCode
 	} else {
 		// Escape script-sensitive sequences to prevent XSS and Unicode separators
@@ -69,7 +69,7 @@ export function EmbedCodeCard({
 	}, [])
 
 	const copyToClipboard = async () => {
-		if (isLoading || !clientId) return
+		if (isLoading || !widgetToken) return
 		try {
 			await navigator.clipboard.writeText(embedCode)
 			setCopied(true)
@@ -95,7 +95,7 @@ export function EmbedCodeCard({
 			<CardContent className="space-y-4">
 				<div className="relative">
 					<pre
-						className={`overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm ${isLoading || !clientId ? "opacity-50 blur-[1px]" : ""}`}
+						className={`overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm ${isLoading || !widgetToken ? "opacity-50 blur-[1px]" : ""}`}
 					>
 						{embedCode}
 					</pre>
@@ -104,7 +104,7 @@ export function EmbedCodeCard({
 						variant="secondary"
 						className="absolute top-2 right-2"
 						onClick={copyToClipboard}
-						disabled={isLoading || !clientId}
+						disabled={isLoading || !widgetToken}
 					>
 						{copied ? (
 							<>

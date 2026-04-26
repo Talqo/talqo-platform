@@ -4,7 +4,6 @@ type BotConfigUpdate = Partial<{
 	systemPrompt: string | null
 	defaultRole: string | null
 	toneStyle: string | null
-	internetSearchEnabled: boolean
 }>
 
 export class BotConfigService {

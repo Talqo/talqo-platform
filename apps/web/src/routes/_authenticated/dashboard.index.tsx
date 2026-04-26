@@ -1,32 +1,79 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
 import { useEffect, useState } from "react"
-import { useClientProfile, useCurrentUser } from "@/api/hooks"
+import {
+	useClientAnalyticsSummary,
+	useClientProfile,
+	useCurrentUser,
+	useMessageAnalytics,
+	useTokenAnalytics,
+} from "@/api/hooks"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { PageHeader } from "@/components/layout"
 import { StatCard } from "@/components/stats/StatCard"
 import { OnboardingPopup } from "@/components/widget"
-import { WEEKLY_STATS_DATA } from "@/data/charts"
+import type { ChartDataPoint } from "@/data/charts"
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	component: AdminDashboard,
 })
 
+function formatPeriod(period: string): string {
+	return new Date(period).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		timeZone: "UTC",
+	})
+}
+
 function AdminDashboard() {
 	const { data: profile } = useClientProfile()
-	const { data: client, isSuccess } = useCurrentUser()
+	const { data: currentUser, isSuccess } = useCurrentUser()
 	const [showPopup, setShowPopup] = useState(false)
 
+	const { data: tokenData } = useTokenAnalytics()
+	const { data: messageData } = useMessageAnalytics()
+	const { data: summary } = useClientAnalyticsSummary()
+
 	useEffect(() => {
-		if (isSuccess && client?.data?.widgetSetupDismissed === false) {
+		if (isSuccess && currentUser?.widgetSetupDismissed === false) {
 			setShowPopup(true)
 		}
-	}, [isSuccess, client])
+	}, [isSuccess, currentUser])
 
 	const balanceRaw = Number(profile?.balanceUsd)
 	const balanceValue = Number.isFinite(balanceRaw)
 		? `$${balanceRaw.toFixed(2)}`
 		: "$0.00"
+
+	const tokenChartData: ChartDataPoint[] = (tokenData ?? []).map((d) => ({
+		name: formatPeriod(d.period),
+		tokens: d.tokensUsed,
+		questions: 0,
+	}))
+
+	const messageChartData: ChartDataPoint[] = (messageData ?? []).map((d) => ({
+		name: formatPeriod(d.period),
+		tokens: 0,
+		questions: d.messageCount,
+	}))
+
+	const totalTokens = summary ? summary.totalTokens.toLocaleString() : "—"
+	const totalMessages = summary
+		? summary.totalUserMessages.toLocaleString()
+		: "—"
+	const totalConversations = summary
+		? summary.totalConversations.toLocaleString()
+		: "—"
+	const uniqueUsers = summary ? summary.uniqueUsers.toLocaleString() : "—"
+	const avgRating =
+		summary?.avgSatisfactionRating != null
+			? `${summary.avgSatisfactionRating.toFixed(1)} / 5`
+			: "No data"
+	const visitorEngagement =
+		summary && summary.totalPageviewSessions > 0
+			? `${((summary.uniqueUsers / summary.totalPageviewSessions) * 100).toFixed(1)}%`
+			: "No data"
 
 	return (
 		<div className="space-y-6">
@@ -53,14 +100,14 @@ function AdminDashboard() {
 				/>
 				<StatCard
 					title="Total Tokens"
-					value="19,550"
-					subtitle="+20.1% from last month"
+					value={totalTokens}
+					subtitle="All time"
 					icon="zap"
 				/>
 				<StatCard
 					title="Questions Answered"
-					value="3,039"
-					subtitle="+15% from last month"
+					value={totalMessages}
+					subtitle="All time"
 					icon="message"
 				/>
 				<StatCard
@@ -77,9 +124,36 @@ function AdminDashboard() {
 				/>
 			</div>
 
+			<div className="grid gap-4 md:grid-cols-4">
+				<StatCard
+					title="Total Conversations"
+					value={totalConversations}
+					subtitle="All time"
+					icon="message"
+				/>
+				<StatCard
+					title="Unique Users"
+					value={uniqueUsers}
+					subtitle="Sessions that chatted"
+					icon="bot"
+				/>
+				<StatCard
+					title="Visitor Engagement"
+					value={visitorEngagement}
+					subtitle="Site visitors who chatted"
+					icon="bot"
+				/>
+				<StatCard
+					title="Avg Satisfaction"
+					value={avgRating}
+					subtitle="Satisfaction rating (1–5)"
+					icon="zap"
+				/>
+			</div>
+
 			<div className="grid gap-4 md:grid-cols-2">
-				<TokenConsumptionChart data={WEEKLY_STATS_DATA} />
-				<QuestionsAskedChart data={WEEKLY_STATS_DATA} />
+				<TokenConsumptionChart data={tokenChartData} />
+				<QuestionsAskedChart data={messageChartData} />
 			</div>
 
 			<OnboardingPopup open={showPopup} onOpenChange={setShowPopup} />

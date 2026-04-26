@@ -1,6 +1,6 @@
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { aiProviderConfigMaskedResponseSchema } from "db/dto"
 import { upsertProviderConfigBodySchema } from "shared"
-import { z } from "zod"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -8,23 +8,6 @@ import {
 import { providerConfigService } from "./index"
 
 const router = new OpenAPIHono()
-
-const providerConfigResponseSchema = z
-	.object({
-		id: z.string().uuid(),
-		clientId: z.string().uuid(),
-		providerType: z.enum([
-			"openai",
-			"openai_compatible",
-			"google",
-			"anthropic",
-		]),
-		apiKeyMasked: z.string(),
-		model: z.string(),
-		baseUrl: z.string().nullable(),
-		updatedAt: z.string(),
-	})
-	.nullable()
 
 router.openapi(
 	createRoute({
@@ -38,7 +21,9 @@ router.openapi(
 				description: "Provider config or null (platform default)",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(providerConfigResponseSchema),
+						schema: successResponseSchema(
+							aiProviderConfigMaskedResponseSchema.nullable(),
+						),
 					},
 				},
 			},
@@ -47,7 +32,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const config = await providerConfigService.getConfig(clientId)
-		return c.json({ success: true as const, data: config }, 200)
+		return c.json(config, 200)
 	},
 )
 
@@ -70,7 +55,9 @@ router.openapi(
 				description: "Upserted provider config",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(providerConfigResponseSchema),
+						schema: successResponseSchema(
+							aiProviderConfigMaskedResponseSchema.nullable(),
+						),
 					},
 				},
 			},
@@ -85,7 +72,7 @@ router.openapi(
 			model: body.model,
 			baseUrl: "baseUrl" in body ? body.baseUrl : undefined,
 		})
-		return c.json({ success: true as const, data: config }, 200)
+		return c.json(config, 200)
 	},
 )
 
@@ -118,10 +105,7 @@ router.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		await providerConfigService.deleteConfig(clientId)
-		return c.json(
-			{ success: true as const, data: { deleted: true as const } },
-			200,
-		)
+		return c.json({ deleted: true as const }, 200)
 	},
 )
 

@@ -1,4 +1,4 @@
-interface ToolIconProps {
+type ToolIconProps = {
 	color: "blue" | "green" | "purple" | "red" | "yellow"
 	icon: string
 	size?: "sm" | "md"

@@ -53,7 +53,7 @@ help: ## Show this help
 .PHONY: setup
 setup: ## Install deps, start database, run migrations and seed
 	bun install
-	$(COMPOSE) up -d db --wait
+	$(COMPOSE) --env-file=.env.example up -d db --wait
 	cd apps/api && bun run db:migrate
 	cd apps/api && bun run db:seed
 	@echo "Setup complete. Run 'make dev' to start development."
@@ -72,7 +72,7 @@ dev-web: ## Start web only
 
 .PHONY: db-up
 db-up: ## Start PostgreSQL (waits until healthy)
-	$(COMPOSE) up -d db --wait
+	$(COMPOSE) --env-file=.env.example up -d db --wait
 
 .PHONY: db-down
 db-down: ## Stop database services
@@ -81,7 +81,7 @@ db-down: ## Stop database services
 .PHONY: db-reset
 db-reset: ## Reset database (destroy volume, recreate, migrate and seed)
 	$(COMPOSE) down -v
-	$(COMPOSE) up -d db --wait
+	$(COMPOSE) --env-file=.env.example up -d db --wait
 	cd apps/api && bun run db:migrate
 	cd apps/api && bun run db:seed
 
@@ -107,6 +107,20 @@ _require-tag:
 	@[ -n "$(IMAGE_TAG)" ] || { \
 		echo "ERROR: prod build requires a semver git tag on HEAD."; \
 		echo "  Run: make release VERSION=x.y.z"; \
+		exit 1; \
+	}
+
+.PHONY: _require-resend-api-key
+_require-resend-api-key:
+	@[ -n "$$RESEND_API_KEY" ] || { \
+		echo "ERROR: RESEND_API_KEY env var is required for deployment."; \
+		exit 1; \
+	}
+
+.PHONY: _require-default-llm
+_require-default-llm:
+	@[ -n "$$DEFAULT_LLM_PROVIDER_TYPE" ] && [ -n "$$DEFAULT_LLM_API_KEY" ] && [ -n "$$DEFAULT_LLM_MODEL" ] || { \
+		echo "ERROR: DEFAULT_LLM_PROVIDER_TYPE, DEFAULT_LLM_API_KEY, and DEFAULT_LLM_MODEL are required."; \
 		exit 1; \
 	}
 
@@ -139,7 +153,7 @@ push: push-api push-web ## Build and push all Docker images
 
 # ── Test / Lint ────────────────────────────────────
 .PHONY: test
-test: ## Run all tests
+test: ## Run all unit tests (excludes e2e tests)
 	bun run test
 
 .PHONY: e2e
@@ -155,7 +169,7 @@ e2e: db-up ## Run e2e tests (build, migrate, seed, start services, test, clean u
 	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
 	export BASE_URL=http://localhost:$(E2E_PORT); \
-	cd apps/e2e && bun run test; STATUS=$$?; \
+	cd apps/e2e && bun run test:run; STATUS=$$?; \
 	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
 	exit $$STATUS
 
@@ -202,7 +216,7 @@ helm-lint: ## Lint Helm chart
 	helm lint "$(HELM_CHART)"
 
 .PHONY: deploy
-deploy: ns-create helm-deps _require-tag ## Deploy to cluster (env based on git branch)
+deploy: ns-create helm-deps _require-tag _require-resend-api-key _require-default-llm ## Deploy to cluster (env based on git branch)
 	@echo "Deploying $(IMAGE_TAG) to $(NAMESPACE) (branch: $(BRANCH), env: $(ENV))"
 	@MINIO_PASS=$$(kubectl get secret "$(HELM_RELEASE)-minio" -n "$(NAMESPACE)" \
 		-o jsonpath='{.data.rootPassword}' 2>/dev/null | base64 -d); \
@@ -214,7 +228,11 @@ deploy: ns-create helm-deps _require-tag ## Deploy to cluster (env based on git 
 		--set web.image.tag="$(IMAGE_TAG)" \
 		--set migration.image.tag="$(IMAGE_TAG)" \
 		--set minio.rootPassword="$$MINIO_PASS" \
-		$${RESEND_API_KEY:+--set resend.apiKey="$$RESEND_API_KEY"}
+		--set resend.apiKey="$$RESEND_API_KEY" \
+		--set api.defaultLlm.providerType="$$DEFAULT_LLM_PROVIDER_TYPE" \
+		--set api.defaultLlm.apiKey="$$DEFAULT_LLM_API_KEY" \
+		--set api.defaultLlm.model="$$DEFAULT_LLM_MODEL" \
+		--set api.defaultLlm.baseUrl="$$DEFAULT_LLM_BASE_URL"
 
 .PHONY: undeploy
 undeploy: ## Uninstall from cluster (env based on git branch)

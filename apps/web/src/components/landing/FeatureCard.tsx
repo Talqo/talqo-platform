@@ -1,7 +1,7 @@
 import type { Feature } from "@/data/landing"
 import { cn } from "@/lib/utils"
 
-interface FeatureCardProps {
+type FeatureCardProps = {
 	feature: Feature
 }
 

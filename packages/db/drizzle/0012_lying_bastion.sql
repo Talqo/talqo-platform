@@ -1,0 +1,1 @@
+ALTER TABLE "bot_configs" DROP COLUMN "internet_search_enabled";

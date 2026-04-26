@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 
-interface AuthCardProps {
+type AuthCardProps = {
 	children: ReactNode
 	className?: string
 }

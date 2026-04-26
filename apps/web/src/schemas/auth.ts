@@ -1,16 +1,8 @@
 import { LoginSchema, RegisterSchema } from "shared"
 import { z } from "zod"
 
-/**
- * Authentication form validation schemas
- * Extends shared validators with frontend-specific fields (confirmPassword)
- */
-
-// Re-export shared login schema
 export const loginSchema = LoginSchema
-export type LoginFormType = z.infer<typeof loginSchema>
 
-// Import and extend shared register schema
 export const registerSchema = RegisterSchema.extend({
 	confirmPassword: z.string().min(1, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -18,6 +10,12 @@ export const registerSchema = RegisterSchema.extend({
 	path: ["confirmPassword"],
 })
 export type RegisterFormType = z.infer<typeof registerSchema>
+
+export const resetPasswordFormSchema = z.object({
+	password: z.string().min(8, "Must be at least 8 characters"),
+})
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
 export const passwordChangeSchema = z
 	.object({

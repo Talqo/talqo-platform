@@ -2,13 +2,22 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 export type WidgetTheme = "light" | "dark"
 
-export interface Message {
+export type MessageRole = "user" | "assistant"
+
+export type Message = {
 	id: string
-	role: "user" | "bot"
+	role: MessageRole
 	content: string
 }
 
-export interface UseWidgetOptions {
+export type WidgetApiConfig = {
+	/** Widget token for API authentication */
+	widgetToken: string
+	/** API base URL for widget requests */
+	apiUrl: string
+}
+
+export type UseWidgetOptions = {
 	/** Initial open state */
 	defaultOpen?: boolean
 	/** Initial messages */
@@ -17,13 +26,13 @@ export interface UseWidgetOptions {
 	position?: "left" | "right"
 	/** Initial theme (defaults to light) */
 	defaultTheme?: WidgetTheme
-	/** Callback when message is sent */
-	onMessageSend?: (message: string) => void | Promise<void>
+	/** API configuration for real backend calls */
+	apiConfig: WidgetApiConfig
 	/** Callback when widget is toggled */
 	onOpenChange?: (isOpen: boolean) => void
 }
 
-export interface UseWidgetReturn {
+export type UseWidgetReturn = {
 	/** Whether the chat panel is currently open */
 	isOpen: boolean
 	/** Whether the chat panel is expanded */
@@ -40,6 +49,8 @@ export interface UseWidgetReturn {
 	theme: WidgetTheme
 	/** Whether current theme is dark */
 	isDark: boolean
+	/** Error message if any */
+	error: string | null
 	/** Toggle the chat panel open/closed */
 	toggleOpen: () => void
 	/** Set whether panel is open */
@@ -58,22 +69,16 @@ export interface UseWidgetReturn {
 
 // Namespaced localStorage key to avoid collisions with host pages
 const THEME_STORAGE_KEY = "pagepal:widget:theme"
+const SESSION_STORAGE_KEY = "pagepal:widget:session"
 
-/**
- * Safely get an item from localStorage with try/catch
- */
 function safeGetItem(key: string): string | null {
 	try {
 		return localStorage.getItem(key)
 	} catch {
-		// localStorage may be unavailable in restricted environments
 		return null
 	}
 }
 
-/**
- * Safely set an item in localStorage with try/catch
- */
 function safeSetItem(key: string, value: string): void {
 	try {
 		localStorage.setItem(key, value)
@@ -82,22 +87,226 @@ function safeSetItem(key: string, value: string): void {
 	}
 }
 
+// ─── API types ───────────────────────────────────────────────────────────────
+
+type SessionData = {
+	id: string
+	browserSessionId: string
+	clientId: string
+	createdAt: string
+	lastActiveAt: string
+}
+
+type ConversationData = {
+	id: string
+	sessionId: string
+	clientId: string
+	startedAt: string | null
+	endedAt: string | null
+	satisfactionRating: number | null
+}
+
+type MessageData = {
+	id: string
+	conversationId: string
+	role: string
+	content: string
+	tokenCount: number
+	createdAt: string
+}
+
+type ErrorBody = {
+	error?: { message?: unknown }
+}
+
+type SseEvent =
+	| { type: "user_message"; message: MessageData }
+	| { type: "token"; content: string }
+	| { type: "done"; message: MessageData }
+	| { type: "error"; code: string; message: string }
+
+// ─── API client ──────────────────────────────────────────────────────────────
+
+class WidgetApi {
+	constructor(private readonly config: WidgetApiConfig) {}
+
+	private async parseErrorBody(res: Response): Promise<string> {
+		const body = (await res.json().catch(() => ({}))) as ErrorBody
+		return typeof body.error?.message === "string"
+			? body.error.message
+			: `HTTP ${res.status}`
+	}
+
+	private async fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
+		const url = `${this.config.apiUrl}${path}`
+		const res = await fetch(url, {
+			...options,
+			headers: {
+				"Content-Type": "application/json",
+				"X-Widget-Token": this.config.widgetToken,
+				...options?.headers,
+			},
+		})
+		if (!res.ok) {
+			throw new Error(await this.parseErrorBody(res))
+		}
+		return res.json() as Promise<T>
+	}
+
+	async createOrResumeSession(browserSessionId: string): Promise<SessionData> {
+		return this.fetchJson<SessionData>("/widget/sessions", {
+			method: "POST",
+			body: JSON.stringify({ browserSessionId }),
+		})
+	}
+
+	async startConversation(sessionId: string): Promise<ConversationData> {
+		return this.fetchJson<ConversationData>(
+			`/widget/sessions/${sessionId}/conversations`,
+			{ method: "POST" },
+		)
+	}
+
+	async sendMessage(
+		sessionId: string,
+		conversationId: string,
+		content: string,
+		onEvent: (event: SseEvent) => void,
+		signal?: AbortSignal,
+	): Promise<void> {
+		const url = `${this.config.apiUrl}/widget/sessions/${sessionId}/conversations/${conversationId}/messages`
+		const res = await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-Widget-Token": this.config.widgetToken,
+			},
+			body: JSON.stringify({ content }),
+			signal,
+		})
+		if (!res.ok) {
+			throw new Error(await this.parseErrorBody(res))
+		}
+
+		const reader = res.body?.getReader()
+		if (!reader) throw new Error("No response body")
+
+		const decoder = new TextDecoder()
+		let buffer = ""
+		let gotTerminalEvent = false
+
+		try {
+			while (true) {
+				const { done, value } = await reader.read()
+				if (done) break
+				buffer += decoder.decode(value, { stream: true })
+				const events = parseSseBuffer(buffer)
+				buffer = events.remainder
+				for (const ev of events.items) {
+					if (!ev) continue
+					onEvent(ev)
+					if (ev.type === "done" || ev.type === "error") gotTerminalEvent = true
+				}
+			}
+			if (buffer.trim()) {
+				const events = parseSseBuffer(`${buffer}\n\n`)
+				for (const ev of events.items) {
+					if (!ev) continue
+					onEvent(ev)
+					if (ev.type === "done" || ev.type === "error") gotTerminalEvent = true
+				}
+			}
+			if (!gotTerminalEvent) {
+				onEvent({
+					type: "error",
+					code: "STREAM_ENDED",
+					message: "Connection lost. Please try again.",
+				})
+			}
+		} finally {
+			reader.releaseLock()
+		}
+	}
+}
+
+function parseSseBuffer(buffer: string): {
+	items: (SseEvent | null)[]
+	remainder: string
+} {
+	const events: (SseEvent | null)[] = []
+	const rawEvents = buffer.split("\n\n")
+	const remainder = rawEvents.pop() ?? ""
+	for (const raw of rawEvents) {
+		const lines = raw
+			.split("\n")
+			.map((l) => l.trim())
+			.filter(Boolean)
+		const eventName =
+			lines
+				.find((l) => l.startsWith("event:"))
+				?.slice(6)
+				.trim() ?? ""
+		const dataLines = lines
+			.filter((l) => l.startsWith("data:"))
+			.map((l) => l.slice(5).trim())
+		if (!dataLines.length) continue
+		const dataStr = dataLines.join("\n")
+		try {
+			const payload = JSON.parse(dataStr) as Record<string, unknown>
+			switch (eventName) {
+				case "user_message":
+					events.push({
+						type: "user_message",
+						message: payload as unknown as MessageData,
+					})
+					break
+				case "token":
+					events.push({
+						type: "token",
+						content: typeof payload.content === "string" ? payload.content : "",
+					})
+					break
+				case "done":
+					events.push({
+						type: "done",
+						message: payload as unknown as MessageData,
+					})
+					break
+				case "error":
+					events.push({
+						type: "error",
+						code: typeof payload.code === "string" ? payload.code : "UNKNOWN",
+						message:
+							typeof payload.message === "string" ? payload.message : "Error",
+					})
+					break
+			}
+		} catch {
+			// ignore malformed event
+		}
+	}
+	return { items: events, remainder }
+}
+
+// ─── Hook ────────────────────────────────────────────────────────────────────
+
 /**
- * Headless hook for managing widget state
- * Extracts all logic from the UI so consumers can build their own interface
+ * Headless hook for managing widget state with real API integration.
+ * Extracts all logic from the UI so consumers can build their own interface.
  */
-export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
+export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 	const {
 		defaultOpen = false,
 		initialMessages = [
 			{
 				id: "welcome",
-				role: "bot",
+				role: "assistant",
 				content: "Hi! How can I help you today?",
 			},
 		],
 		position = "right",
 		defaultTheme = "light",
+		apiConfig,
 		onOpenChange,
 	} = options
 
@@ -107,14 +316,74 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 	const [messages, setMessages] = useState<Message[]>(initialMessages)
 	const [isTyping, setIsTyping] = useState(false)
 	const [theme, setTheme] = useState<WidgetTheme>(defaultTheme)
+	const [error, setError] = useState<string | null>(null)
+
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const isRightPosition = position === "right"
 	const isDark = theme === "dark"
 
+	const { widgetToken, apiUrl } = apiConfig
+
+	const apiRef = useRef<WidgetApi | null>(null)
+	const sessionRef = useRef<SessionData | null>(null)
+	const conversationRef = useRef<ConversationData | null>(null)
+	const abortRef = useRef<AbortController | null>(null)
+
+	useEffect(() => {
+		apiRef.current = new WidgetApi({ widgetToken, apiUrl })
+	}, [widgetToken, apiUrl])
+
+	// Initialize session on mount (or when api config changes)
+	useEffect(() => {
+		let cancelled = false
+
+		const stored = safeGetItem(SESSION_STORAGE_KEY)
+		let browserSessionId: string
+		try {
+			const parsed = stored ? (JSON.parse(stored) as unknown) : null
+			if (
+				parsed &&
+				typeof parsed === "object" &&
+				"browserSessionId" in parsed &&
+				typeof (parsed as Record<string, unknown>).browserSessionId === "string"
+			) {
+				browserSessionId = (parsed as Record<string, unknown>)
+					.browserSessionId as string
+			} else {
+				browserSessionId = crypto.randomUUID()
+			}
+		} catch {
+			browserSessionId = crypto.randomUUID()
+		}
+
+		const api = apiRef.current ?? new WidgetApi({ widgetToken, apiUrl })
+		if (!apiRef.current) apiRef.current = api
+
+		api
+			.createOrResumeSession(browserSessionId)
+			.then((session) => {
+				if (cancelled) return
+				sessionRef.current = session
+				safeSetItem(SESSION_STORAGE_KEY, JSON.stringify(session))
+				return api.startConversation(session.id)
+			})
+			.then((conversation) => {
+				if (cancelled || !conversation) return
+				conversationRef.current = conversation
+			})
+			.catch((err) => {
+				if (!cancelled)
+					setError(err instanceof Error ? err.message : String(err))
+			})
+
+		return () => {
+			cancelled = true
+		}
+	}, [widgetToken, apiUrl])
+
 	const toggleTheme = useCallback(() => {
 		setTheme((prev) => {
 			const next = prev === "light" ? "dark" : "light"
-			// Persist theme with namespaced key
 			safeSetItem(THEME_STORAGE_KEY, next)
 			return next
 		})
@@ -140,12 +409,11 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		setIsExpanded((prev) => !prev)
 	}, [])
 
-	// Cleanup timeout on unmount
+	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current)
-			}
+			if (timeoutRef.current) clearTimeout(timeoutRef.current)
+			if (abortRef.current) abortRef.current.abort()
 		}
 	}, [])
 
@@ -153,41 +421,150 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		const trimmedInput = inputValue.trim()
 		if (!trimmedInput || isTyping) return
 
+		const session = sessionRef.current
+		const conversation = conversationRef.current
+		const api = apiRef.current
+		if (!session || !conversation || !api) {
+			setError("Chat not initialized yet. Please wait.")
+			return
+		}
+
+		setError(null)
+		setInputValue("")
+		setIsTyping(true)
+
+		const tempId = `temp-${crypto.randomUUID()}`
 		const userMsg: Message = {
-			id: Date.now().toString(),
+			id: tempId,
 			role: "user",
 			content: trimmedInput,
 		}
 		setMessages((prev) => [...prev, userMsg])
-		setInputValue("")
-		setIsTyping(true)
 
-		// Simulate bot response - replace with actual API call
-		timeoutRef.current = setTimeout(() => {
-			const botMsg: Message = {
-				id: (Date.now() + 1).toString(),
-				role: "bot",
-				content: "Thanks for your message! Our team will get back to you soon.",
-			}
-			setMessages((prev) => [...prev, botMsg])
-			setIsTyping(false)
-			timeoutRef.current = null
-		}, 1500)
+		const controller = new AbortController()
+		abortRef.current = controller
+
+		api
+			.sendMessage(
+				session.id,
+				conversation.id,
+				trimmedInput,
+				(event) => {
+					switch (event.type) {
+						case "user_message": {
+							setMessages((prev) => {
+								const withoutTemp = prev.filter((m) => m.id !== tempId)
+								return [
+									...withoutTemp,
+									{
+										id: event.message.id,
+										role: event.message.role as MessageRole,
+										content: event.message.content,
+									},
+								]
+							})
+							break
+						}
+						case "token": {
+							setMessages((prev) => {
+								const last = prev[prev.length - 1]
+								if (last && last.role === "assistant") {
+									return [
+										...prev.slice(0, -1),
+										{ ...last, content: last.content + event.content },
+									]
+								}
+								return [
+									...prev,
+									{
+										id: `stream-${crypto.randomUUID()}`,
+										role: "assistant",
+										content: event.content,
+									},
+								]
+							})
+							break
+						}
+						case "done": {
+							setMessages((prev) => {
+								const last = prev[prev.length - 1]
+								if (
+									last &&
+									last.role === "assistant" &&
+									last.id.startsWith("stream-")
+								) {
+									return [
+										...prev.slice(0, -1),
+										{
+											id: event.message.id,
+											role: "assistant",
+											content: event.message.content,
+										},
+									]
+								}
+								return prev
+							})
+							setIsTyping(false)
+							break
+						}
+						case "error": {
+							setMessages((prev) =>
+								prev.filter((m) => !m.id.startsWith("stream-")),
+							)
+							setError(event.message)
+							setIsTyping(false)
+							break
+						}
+					}
+				},
+				controller.signal,
+			)
+			.catch((err: unknown) => {
+				if (err instanceof Error && err.name === "AbortError") return
+				setMessages((prev) => prev.filter((m) => !m.id.startsWith("stream-")))
+				setError(err instanceof Error ? err.message : String(err))
+				setIsTyping(false)
+			})
+			.finally(() => {
+				if (abortRef.current === controller) abortRef.current = null
+			})
 	}, [inputValue, isTyping])
 
 	const clearMessages = useCallback(() => {
+		if (abortRef.current) {
+			abortRef.current.abort()
+			abortRef.current = null
+		}
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current)
 			timeoutRef.current = null
 		}
 		setIsTyping(false)
+		setError(null)
 		setMessages([
 			{
 				id: "welcome",
-				role: "bot",
+				role: "assistant",
 				content: "Hi! How can I help you today?",
 			},
 		])
+
+		// Start a fresh conversation
+		conversationRef.current = null
+		const session = sessionRef.current
+		const api = apiRef.current
+		if (session && api) {
+			api
+				.startConversation(session.id)
+				.then((conversation) => {
+					conversationRef.current = conversation
+				})
+				.catch((err) => {
+					setError(
+						err instanceof Error ? err.message : "Failed to start conversation",
+					)
+				})
+		}
 	}, [])
 
 	return {
@@ -199,6 +576,7 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 		isRightPosition,
 		theme,
 		isDark,
+		error,
 		toggleOpen,
 		setIsOpen,
 		toggleExpanded,
@@ -216,13 +594,11 @@ export function useWidget(options: UseWidgetOptions = {}): UseWidgetReturn {
 export function getInitialTheme(): "light" | "dark" {
 	if (typeof window === "undefined") return "light"
 
-	// Check localStorage first (using namespaced key)
 	const savedTheme = safeGetItem(THEME_STORAGE_KEY)
 	if (savedTheme === "dark" || savedTheme === "light") {
 		return savedTheme
 	}
 
-	// Fall back to system preference
 	if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
 		return "dark"
 	}

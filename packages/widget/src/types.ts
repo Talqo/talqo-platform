@@ -2,9 +2,9 @@
  * Configuration for the embedded AI widget
  * Customers set this via window.__AI_WIDGET_CONFIG__
  */
-export interface WidgetConfig {
-	/** Client ID for API authentication */
-	clientId: string
+export type WidgetConfig = {
+	/** Widget token for API authentication */
+	widgetToken: string
 	/** API base URL for widget requests */
 	apiUrl: string
 	/** Theme colors - omit to use defaults */
@@ -21,7 +21,7 @@ export interface WidgetConfig {
 	botName?: string
 }
 
-export interface WidgetColors {
+export type WidgetColors = {
 	/** Primary accent color (buttons, user messages) - default: #64748b */
 	primary: string
 	/** Panel background - default: #ffffff */
@@ -44,16 +44,15 @@ export interface WidgetColors {
 	footerText: string
 }
 
-export interface WidgetIcons {
+export type WidgetIcons = {
 	/** Bot avatar icon - shown in header and messages - default: bot */
 	botAvatar: string
 }
 
 /** Validated config with defaults applied */
-export interface ResolvedWidgetConfig
-	extends Required<
-		Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
-	> {
+export type ResolvedWidgetConfig = Required<
+	Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
+> & {
 	colors: WidgetColors
 	/** Dark mode colors - always populated by resolveConfig */
 	darkColors: WidgetColors

@@ -1,6 +1,6 @@
 import { motion } from "motion/react"
 
-interface ToolAnimationProps {
+type ToolAnimationProps = {
 	icon: string
 	startX: number
 	startY: number

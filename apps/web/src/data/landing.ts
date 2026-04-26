@@ -1,6 +1,6 @@
 import { type LucideIcon, MessageSquare, Shield, Zap } from "lucide-react"
 
-export interface Feature {
+export type Feature = {
 	id: string
 	icon: LucideIcon
 	title: string

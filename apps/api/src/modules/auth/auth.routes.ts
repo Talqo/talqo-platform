@@ -3,6 +3,7 @@ import {
 	ForgotPasswordSchema,
 	LoginSchema,
 	RegisterSchema,
+	ResendVerificationSchema,
 	ResetPasswordSchema,
 	VerifyEmailSchema,
 	VerifyResetTokenSchema,
@@ -67,26 +68,15 @@ export function createAuthRouter(
 						error: err.message,
 						email,
 					})
-					return c.json(
-						{
-							success: false as const,
-							error: {
-								code: "EMAIL_FAILED",
-								message: "Failed to send verification email",
-							},
-						},
+					throw new AppError(
 						500,
+						"EMAIL_FAILED",
+						"Failed to send verification email",
 					)
 				}
 				throw err
 			}
-			return c.json(
-				{
-					success: true as const,
-					data: { message: "Verification email sent" },
-				},
-				201,
-			)
+			return c.json({ message: "Verification email sent" }, 201)
 		},
 	)
 
@@ -125,11 +115,8 @@ export function createAuthRouter(
 			const jwtToken = await service.verifyEmail(token)
 			return c.json(
 				{
-					success: true as const,
-					data: {
-						token: jwtToken,
-						message: "Email verified successfully",
-					},
+					token: jwtToken,
+					message: "Email verified successfully",
 				},
 				200,
 			)
@@ -169,7 +156,7 @@ export function createAuthRouter(
 		async (c) => {
 			const { email, password } = c.req.valid("json")
 			const token = await service.login(email, password)
-			return c.json({ success: true as const, data: { token } }, 200)
+			return c.json({ token }, 200)
 		},
 	)
 
@@ -183,7 +170,7 @@ export function createAuthRouter(
 				body: {
 					content: {
 						"application/json": {
-							schema: z.object({ email: z.string().email() }),
+							schema: ResendVerificationSchema,
 						},
 					},
 				},
@@ -218,11 +205,8 @@ export function createAuthRouter(
 			// Always return success to prevent user enumeration
 			return c.json(
 				{
-					success: true as const,
-					data: {
-						message:
-							"If a registration exists, a verification email has been sent",
-					},
+					message:
+						"If a registration exists, a verification email has been sent",
 				},
 				200,
 			)
@@ -272,11 +256,8 @@ export function createAuthRouter(
 			// Always return success to prevent user enumeration
 			return c.json(
 				{
-					success: true as const,
-					data: {
-						message:
-							"If an account exists with this email, a password reset link has been sent",
-					},
+					message:
+						"If an account exists with this email, a password reset link has been sent",
 				},
 				200,
 			)
@@ -298,7 +279,7 @@ export function createAuthRouter(
 					content: {
 						"application/json": {
 							schema: successResponseSchema(
-								z.object({ valid: z.boolean(), email: z.string().optional() }),
+								z.object({ valid: z.literal(true) }),
 							),
 						},
 					},
@@ -313,24 +294,9 @@ export function createAuthRouter(
 			const { token } = c.req.valid("query")
 			const isValid = await service.verifyResetToken(token)
 			if (!isValid) {
-				return c.json(
-					{
-						success: false as const,
-						error: {
-							code: "INVALID_TOKEN",
-							message: "Invalid or expired token",
-						},
-					},
-					400,
-				)
+				throw new AppError(400, "INVALID_TOKEN", "Invalid or expired token")
 			}
-			return c.json(
-				{
-					success: true as const,
-					data: { valid: true },
-				},
-				200,
-			)
+			return c.json({ valid: true as const }, 200)
 		},
 	)
 
@@ -367,13 +333,7 @@ export function createAuthRouter(
 		async (c) => {
 			const { token, password } = c.req.valid("json")
 			await service.resetPassword(token, password)
-			return c.json(
-				{
-					success: true as const,
-					data: { message: "Password reset successful" },
-				},
-				200,
-			)
+			return c.json({ message: "Password reset successful" }, 200)
 		},
 	)
 

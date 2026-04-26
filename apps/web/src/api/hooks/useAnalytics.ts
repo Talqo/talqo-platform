@@ -15,7 +15,7 @@ export function useTokenAnalytics(query: AnalyticsQuery = {}) {
 				params: { query },
 			})
 			if (error) throw error
-			return data.data
+			return data
 		},
 	})
 }
@@ -31,7 +31,18 @@ export function useMessageAnalytics(query: AnalyticsQuery = {}) {
 				},
 			)
 			if (error) throw error
-			return data.data
+			return data
+		},
+	})
+}
+
+export function useClientAnalyticsSummary() {
+	return useQuery({
+		queryKey: ["analytics", "summary"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/client/me/analytics/summary")
+			if (error) throw error
+			return data
 		},
 	})
 }

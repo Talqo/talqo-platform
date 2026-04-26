@@ -40,7 +40,7 @@ export type PendingRegistration = {
 // Inferred from Drizzle schema - single source of truth
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
 
-export interface IAuthRepository {
+export type IAuthRepository = {
 	findClientByEmail(email: string): Promise<Client | null>
 	findClientById(id: string): Promise<Client | null>
 	// Case-insensitive name lookup; normalizes input internally
