@@ -77,13 +77,24 @@ export class AnalyticsRepository {
 		const [convRow] = await this.db
 			.select({
 				totalConversations: count(conversations.id),
-				uniqueUsers: countDistinct(conversations.sessionId),
 				avgSatisfactionRating: avg(conversations.satisfactionRating).mapWith(
 					Number,
 				),
 			})
 			.from(conversations)
 			.where(eq(conversations.clientId, clientId))
+
+		const [engagedRow] = await this.db
+			.select({ uniqueUsers: countDistinct(endUserSessions.id) })
+			.from(endUserSessions)
+			.innerJoin(
+				conversations,
+				and(
+					eq(conversations.sessionId, endUserSessions.id),
+					eq(conversations.clientId, clientId),
+				),
+			)
+			.where(eq(endUserSessions.clientId, clientId))
 
 		const [msgRow] = await this.db
 			.select({ totalUserMessages: count(messages.id) })
@@ -105,7 +116,7 @@ export class AnalyticsRepository {
 
 		return {
 			totalConversations: convRow?.totalConversations ?? 0,
-			uniqueUsers: convRow?.uniqueUsers ?? 0,
+			uniqueUsers: engagedRow?.uniqueUsers ?? 0,
 			avgSatisfactionRating: convRow?.avgSatisfactionRating ?? null,
 			totalUserMessages: msgRow?.totalUserMessages ?? 0,
 			totalTokens: tokenRow?.totalTokens ?? 0,
