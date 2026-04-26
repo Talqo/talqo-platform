@@ -22,6 +22,7 @@ function formatPeriod(period: string): string {
 	return new Date(period).toLocaleDateString("en-US", {
 		month: "short",
 		day: "numeric",
+		timeZone: "UTC",
 	})
 }
 
