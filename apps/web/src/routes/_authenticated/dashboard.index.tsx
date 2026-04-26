@@ -134,7 +134,7 @@ function AdminDashboard() {
 				<StatCard
 					title="Unique Users"
 					value={uniqueUsers}
-					subtitle="Browser sessions"
+					subtitle="Sessions that chatted"
 					icon="bot"
 				/>
 				<StatCard
