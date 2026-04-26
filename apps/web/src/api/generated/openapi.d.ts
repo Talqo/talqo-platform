@@ -472,6 +472,7 @@ export interface paths {
                             balanceUsd: string;
                             monthlyUsageLimit: string | null;
                             usageAlertThresholdUsd: string | null;
+                            widgetToken: string;
                             status: string;
                             lastActive: string | null;
                             createdAt: string;
@@ -1428,6 +1429,49 @@ export interface paths {
                             period: string;
                             messageCount: number;
                         }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/client/me/analytics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Client engagement and satisfaction summary */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Engagement and satisfaction totals */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            totalConversations: number;
+                            uniqueUsers: number;
+                            totalTokens: number;
+                            totalUserMessages: number;
+                            avgSatisfactionRating: number | null;
+                            totalPageviewSessions: number;
+                        };
                     };
                 };
             };

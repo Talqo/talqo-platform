@@ -35,3 +35,14 @@ export function useMessageAnalytics(query: AnalyticsQuery = {}) {
 		},
 	})
 }
+
+export function useClientAnalyticsSummary() {
+	return useQuery({
+		queryKey: ["analytics", "summary"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/client/me/analytics/summary")
+			if (error) throw error
+			return data
+		},
+	})
+}

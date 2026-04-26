@@ -192,6 +192,34 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	return root
 }
 
+const SESSION_ID_KEY = "pagepal:widget:sessionId"
+
+function getOrCreateBrowserSessionId(): string | null {
+	try {
+		const existing = localStorage.getItem(SESSION_ID_KEY)
+		if (existing) return existing
+		const id = crypto.randomUUID()
+		localStorage.setItem(SESSION_ID_KEY, id)
+		return id
+	} catch {
+		return null
+	}
+}
+
+function trackPageview(config: ResolvedWidgetConfig): void {
+	if (!config.widgetToken) return
+	const browserSessionId = getOrCreateBrowserSessionId()
+	if (!browserSessionId) return
+	fetch(`${config.apiUrl}/widget/sessions`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"X-Widget-Token": config.widgetToken,
+		},
+		body: JSON.stringify({ browserSessionId }),
+	}).catch(() => {})
+}
+
 function init(): void {
 	// Prevent double initialization if root already exists
 	if (mountedRoot) {
@@ -200,6 +228,7 @@ function init(): void {
 
 	try {
 		const config = resolveConfig()
+		trackPageview(config)
 		const container = injectCSSVariables(config)
 
 		// Check if React root already exists on container

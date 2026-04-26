@@ -50,10 +50,9 @@ export type WidgetIcons = {
 }
 
 /** Validated config with defaults applied */
-export interface ResolvedWidgetConfig
-	extends Required<
-		Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
-	> {
+export type ResolvedWidgetConfig = Required<
+	Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
+> & {
 	colors: WidgetColors
 	/** Dark mode colors - always populated by resolveConfig */
 	darkColors: WidgetColors
