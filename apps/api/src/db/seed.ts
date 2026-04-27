@@ -190,6 +190,7 @@ async function seed() {
 			{
 				id: ID.preMadeMcp1,
 				mcpConfig: {
+					type: "stdio",
 					name: "Weather",
 					description: "Provides real-time weather information",
 					command: "npx",
@@ -199,6 +200,7 @@ async function seed() {
 			{
 				id: ID.preMadeMcp2,
 				mcpConfig: {
+					type: "stdio",
 					name: "Web Search",
 					description: "Enables web search via Brave Search API",
 					command: "npx",
@@ -229,6 +231,7 @@ async function seed() {
 				id: ID.customMcp1,
 				clientId: ID.client1,
 				mcpConfig: {
+					type: "stdio",
 					name: "Acme Inventory",
 					description: "Internal product inventory lookup for Acme Corp",
 					command: "node",
