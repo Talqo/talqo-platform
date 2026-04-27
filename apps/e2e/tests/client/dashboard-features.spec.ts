@@ -2,14 +2,16 @@ import { expect, test } from "@playwright/test"
 import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
 
 test.describe("Client dashboard features", () => {
-	test("client logs in and updates bot configuration", async ({ page }) => {
+	test.beforeEach(async ({ page }) => {
 		await fillAndSubmitLogin(
 			page,
 			SEEDED_USERS.client.email,
 			SEEDED_USERS.client.password,
 		)
 		await expect(page).toHaveURL(/\/dashboard/)
+	})
 
+	test("client updates bot configuration", async ({ page }) => {
 		await page.getByRole("link", { name: "Bot Configuration" }).click()
 		await expect(page).toHaveURL(/\/dashboard\/bot-config/)
 		await expect(
@@ -17,7 +19,6 @@ test.describe("Client dashboard features", () => {
 		).toBeVisible()
 
 		const systemPromptField = page.getByLabel("System Prompt")
-		await systemPromptField.fill("")
 		await systemPromptField.fill("You are a helpful assistant for Acme Corp.")
 
 		await page.getByRole("button", { name: "Save Configuration" }).click()
@@ -26,14 +27,7 @@ test.describe("Client dashboard features", () => {
 		).toBeVisible()
 	})
 
-	test("client logs in and adds funds", async ({ page }) => {
-		await fillAndSubmitLogin(
-			page,
-			SEEDED_USERS.client.email,
-			SEEDED_USERS.client.password,
-		)
-		await expect(page).toHaveURL(/\/dashboard/)
-
+	test("client adds funds", async ({ page }) => {
 		await page.getByRole("link", { name: "Add Funds" }).click()
 		await expect(page).toHaveURL(/\/dashboard\/add-funds/)
 		await expect(page.getByRole("heading", { name: "Add Funds" })).toBeVisible()
@@ -46,18 +40,13 @@ test.describe("Client dashboard features", () => {
 
 		await page.getByRole("button", { name: "Pay $50.00" }).click()
 		await expect(
-			page.getByText("Funds added successfully! Redirecting..."),
+			page.getByText("Funds added successfully! Redirecting...", {
+				exact: true,
+			}),
 		).toBeVisible()
 	})
 
 	test("widget preview shows initial welcome message", async ({ page }) => {
-		await fillAndSubmitLogin(
-			page,
-			SEEDED_USERS.client.email,
-			SEEDED_USERS.client.password,
-		)
-		await expect(page).toHaveURL(/\/dashboard/)
-
 		await page.getByRole("link", { name: "Widget Setup" }).click()
 		await expect(page).toHaveURL(/\/dashboard\/widget-setup/)
 		await expect(
@@ -68,13 +57,20 @@ test.describe("Client dashboard features", () => {
 			page.getByRole("heading", { name: "Live Preview" }),
 		).toBeVisible()
 
+		const previewCard = page
+			.locator("div.rounded-xl.border")
+			.filter({ hasText: "Live Preview" })
+			.first()
 		await expect(
-			page.getByText("Hi! How can I help you today?", { exact: true }),
+			previewCard.getByText("Hi! How can I help you today?", {
+				exact: true,
+			}),
 		).toBeVisible()
 
 		const botNameInput = page.getByLabel("Bot Name")
-		await botNameInput.fill("")
 		await botNameInput.fill("Support Bot")
-		await expect(page.getByText("Support Bot", { exact: true })).toBeVisible()
+		await expect(
+			previewCard.getByText("Support Bot", { exact: true }),
+		).toBeVisible()
 	})
 })
