@@ -29,7 +29,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${usageRecords.recordedAt})`
+		const bucket = sql<string>`date_trunc(${sql.raw(`'${granularity}'`)}, ${usageRecords.recordedAt})`
 		return this.db
 			.select({
 				period: bucket,
@@ -54,7 +54,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${messages.createdAt})`
+		const bucket = sql<string>`date_trunc(${sql.raw(`'${granularity}'`)}, ${messages.createdAt})`
 		return this.db
 			.select({
 				period: bucket,
