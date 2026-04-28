@@ -16,13 +16,14 @@
 		"dev": "tsc --watch",
 		"lint": "biome lint .",
 		"check": "biome check .",
-		"test": "bun -e \"console.log('No tests in shared')\"",
+		"test": "bun test",
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
+		"@types/bun": "latest",
 		"typescript": "^6.0.0"
 	}
 }
