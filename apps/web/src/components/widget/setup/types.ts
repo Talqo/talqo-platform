@@ -1,4 +1,4 @@
-export interface WidgetColors {
+export type WidgetColors = {
 	primary: string
 	bgPrimary: string
 	bgSecondary: string
@@ -11,12 +11,12 @@ export interface WidgetColors {
 	footerText: string
 }
 
-export interface WidgetColorsConfig {
+export type WidgetColorsConfig = {
 	light: WidgetColors
 	dark: WidgetColors
 }
 
-export interface WidgetIcons {
+export type WidgetIcons = {
 	botAvatar: string
 }
 

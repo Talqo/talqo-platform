@@ -1,40 +1,94 @@
+import type { AiProviderConfig } from "shared"
 import { z } from "zod"
 
-const envSchema = z.object({
-	POSTGRES_USER: z.string().min(1),
-	POSTGRES_PASSWORD: z.string().min(1),
-	POSTGRES_HOST: z.string().default("localhost"),
-	POSTGRES_PORT: z.coerce.number().default(5432),
-	POSTGRES_DB: z.string().min(1),
-	JWT_SECRET: z.string().min(32),
-	JWT_EXPIRES_IN: z.string().default("24h"),
-	API_PORT: z.coerce.number().default(3000),
-	S3_ACCESS_KEY_ID: z.string().min(1),
-	S3_SECRET_ACCESS_KEY: z.string().min(1),
-	S3_ENDPOINT: z.string().url(),
-	S3_BUCKET: z.string().min(1),
-	RESEND_API_KEY: z.string().min(1),
-	APP_URL: z.string().url(),
-	// 32-byte AES-256-GCM key represented as 64 hex characters
-	PROVIDER_KEY_SECRET: z
-		.string()
-		.length(64)
-		.regex(/^[0-9a-fA-F]+$/)
-		.refine(
-			(val) => {
-				// Allow trivially weak keys in test environment (e.g. all-zeros default)
-				if (process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1")
-					return true
-				const first = val[0]
-				// Reject all-same-character keys (e.g. 000...0, aaa...a)
-				return !val.split("").every((c) => c === first)
-			},
-			{
-				message:
-					"PROVIDER_KEY_SECRET must not be a trivially predictable value (all same character)",
-			},
-		),
-})
+const normalizeEmpty = (val: string | undefined) =>
+	val === undefined || val.trim() === "" ? undefined : val
+
+const envSchema = z
+	.object({
+		POSTGRES_USER: z.string().min(1),
+		POSTGRES_PASSWORD: z.string().min(1),
+		POSTGRES_HOST: z.string().default("localhost"),
+		POSTGRES_PORT: z.coerce.number().default(5432),
+		POSTGRES_DB: z.string().min(1),
+		JWT_SECRET: z.string().min(32),
+		JWT_EXPIRES_IN: z.string().default("24h"),
+		API_PORT: z.coerce.number().default(3000),
+		S3_ACCESS_KEY_ID: z.string().min(1),
+		S3_SECRET_ACCESS_KEY: z.string().min(1),
+		S3_ENDPOINT: z.string().url(),
+		S3_BUCKET: z.string().min(1),
+		RESEND_API_KEY: z.string().min(1),
+		APP_URL: z.string().url(),
+		// 32-byte AES-256-GCM key represented as 64 hex characters
+		PROVIDER_KEY_SECRET: z
+			.string()
+			.length(64)
+			.regex(/^[0-9a-fA-F]+$/)
+			.refine(
+				(val) => {
+					// Allow trivially weak keys in test environment (e.g. all-zeros default)
+					if (process.env.NODE_ENV === "test" || process.env.BUN_TEST === "1")
+						return true
+					const first = val[0]
+					// Reject all-same-character keys (e.g. 000...0, aaa...a)
+					return !val.split("").every((c) => c === first)
+				},
+				{
+					message:
+						"PROVIDER_KEY_SECRET must not be a trivially predictable value (all same character)",
+				},
+			),
+		// Widget rate limiting — max messages per IP per hour
+		WIDGET_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(60),
+		// Max messages per conversation before the user must start a new one
+		WIDGET_CONVERSATION_MAX_MESSAGES: z.coerce
+			.number()
+			.int()
+			.positive()
+			.default(50),
+		// Default LLM provider — used when a client has not configured their own
+		DEFAULT_LLM_PROVIDER_TYPE: z
+			.enum(["openai", "openai_compatible", "google", "anthropic"])
+			.optional(),
+		DEFAULT_LLM_API_KEY: z.string().optional(),
+		DEFAULT_LLM_MODEL: z.string().optional(),
+		DEFAULT_LLM_BASE_URL: z.string().url().optional(),
+		// Comma-separated list of trusted proxy IPs; when the direct connection is from one of these IPs, X-Forwarded-For is trusted
+		TRUSTED_PROXY_IPS: z.string().optional(),
+	})
+	.refine(
+		(data) => {
+			const hasAny =
+				data.DEFAULT_LLM_PROVIDER_TYPE ??
+				data.DEFAULT_LLM_API_KEY ??
+				data.DEFAULT_LLM_MODEL
+			if (hasAny) {
+				return (
+					!!data.DEFAULT_LLM_PROVIDER_TYPE &&
+					!!data.DEFAULT_LLM_API_KEY &&
+					!!data.DEFAULT_LLM_MODEL
+				)
+			}
+			return true
+		},
+		{
+			message:
+				"DEFAULT_LLM_PROVIDER_TYPE, DEFAULT_LLM_API_KEY, and DEFAULT_LLM_MODEL must all be set when any one is provided",
+		},
+	)
+	.refine(
+		(data) => {
+			if (data.DEFAULT_LLM_PROVIDER_TYPE === "openai_compatible") {
+				return !!data.DEFAULT_LLM_BASE_URL
+			}
+			return true
+		},
+		{
+			message:
+				"DEFAULT_LLM_BASE_URL is required when DEFAULT_LLM_PROVIDER_TYPE is openai_compatible",
+		},
+	)
 
 // For tests, provide default values so config validation doesn't fail
 // These defaults are only used in test environment
@@ -55,14 +109,27 @@ const testDefaults = isTest
 			// 64 hex chars = 32 bytes, valid for AES-256-GCM
 			PROVIDER_KEY_SECRET:
 				"0000000000000000000000000000000000000000000000000000000000000000",
+			WIDGET_RATE_LIMIT_PER_HOUR: 60,
+			WIDGET_CONVERSATION_MAX_MESSAGES: 50,
 		}
 	: {}
 
-const parsed = envSchema.safeParse({ ...testDefaults, ...process.env })
+const parsed = envSchema.safeParse({
+	...testDefaults,
+	...process.env,
+	DEFAULT_LLM_PROVIDER_TYPE: normalizeEmpty(
+		process.env.DEFAULT_LLM_PROVIDER_TYPE,
+	),
+	DEFAULT_LLM_API_KEY: normalizeEmpty(process.env.DEFAULT_LLM_API_KEY),
+	DEFAULT_LLM_MODEL: normalizeEmpty(process.env.DEFAULT_LLM_MODEL),
+	DEFAULT_LLM_BASE_URL: normalizeEmpty(process.env.DEFAULT_LLM_BASE_URL),
+	TRUSTED_PROXY_IPS: normalizeEmpty(process.env.TRUSTED_PROXY_IPS),
+})
 
 if (!parsed.success) {
+	// eslint-disable-next-line no-console
 	console.error(
-		"Invalid environment variables:",
+		"Invalid environment variables",
 		parsed.error.flatten().fieldErrors,
 	)
 	process.exit(1)
@@ -73,4 +140,43 @@ const env = parsed.data
 export const config = {
 	...env,
 	DATABASE_URL: `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DB}`,
+}
+
+export function getDefaultProviderConfig(): AiProviderConfig | null {
+	const {
+		DEFAULT_LLM_PROVIDER_TYPE,
+		DEFAULT_LLM_API_KEY,
+		DEFAULT_LLM_MODEL,
+		DEFAULT_LLM_BASE_URL,
+	} = env
+	if (!DEFAULT_LLM_PROVIDER_TYPE || !DEFAULT_LLM_API_KEY || !DEFAULT_LLM_MODEL)
+		return null
+
+	if (DEFAULT_LLM_PROVIDER_TYPE === "openai_compatible") {
+		if (typeof DEFAULT_LLM_BASE_URL !== "string" || !DEFAULT_LLM_BASE_URL) {
+			throw new Error(
+				"DEFAULT_LLM_BASE_URL is required when DEFAULT_LLM_PROVIDER_TYPE is openai_compatible",
+			)
+		}
+		return {
+			type: DEFAULT_LLM_PROVIDER_TYPE,
+			apiKey: DEFAULT_LLM_API_KEY,
+			model: DEFAULT_LLM_MODEL,
+			baseURL: DEFAULT_LLM_BASE_URL,
+		}
+	}
+	const result: {
+		type: string
+		apiKey: string
+		model: string
+		baseURL?: string
+	} = {
+		type: DEFAULT_LLM_PROVIDER_TYPE,
+		apiKey: DEFAULT_LLM_API_KEY,
+		model: DEFAULT_LLM_MODEL,
+	}
+	if (typeof DEFAULT_LLM_BASE_URL === "string" && DEFAULT_LLM_BASE_URL) {
+		result.baseURL = DEFAULT_LLM_BASE_URL
+	}
+	return result as AiProviderConfig
 }

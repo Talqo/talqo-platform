@@ -76,6 +76,40 @@ clientAnalyticsRoutes.openapi(
 	},
 )
 
+clientAnalyticsRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/summary",
+		tags: ["Analytics"],
+		summary: "Client engagement and satisfaction summary",
+		security: [{ bearerAuth: [] }],
+		responses: {
+			200: {
+				description: "Engagement and satisfaction totals",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.object({
+								totalConversations: z.number(),
+								uniqueUsers: z.number(),
+								totalTokens: z.number(),
+								totalUserMessages: z.number(),
+								avgSatisfactionRating: z.number().nullable(),
+								totalPageviewSessions: z.number(),
+							}),
+						),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		const data = await analyticsService.getClientSummary(clientId)
+		return c.json(data, 200)
+	},
+)
+
 // ─── Admin analytics ───────────────────────────────────────────────────────────
 
 export const adminAnalyticsRoutes = new OpenAPIHono()

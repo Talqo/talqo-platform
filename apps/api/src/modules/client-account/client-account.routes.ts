@@ -254,4 +254,35 @@ router.openapi(
 	},
 )
 
+router.openapi(
+	createRoute({
+		method: "post",
+		path: "/me/widget-token/rotate",
+		tags: ["Client Account"],
+		summary: "Rotate widget token",
+		security: [{ bearerAuth: [] }],
+		responses: {
+			200: {
+				description: "Widget token rotated",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.object({ widgetToken: z.string() }),
+						),
+					},
+				},
+			},
+			404: {
+				description: "Client not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		const widgetToken = await clientAccountService.rotateWidgetToken(clientId)
+		return c.json({ widgetToken }, 200)
+	},
+)
+
 export default router

@@ -14,10 +14,10 @@ Standalone chat widget. Embeds on customer sites as single self-contained IIFE b
 Customers configure widget before `<script>` tag loads:
 
 ```js
-window.__AI_WIDGET_CONFIG__ = { clientId: "...", apiUrl: "..." }
+window.__AI_WIDGET_CONFIG__ = { widgetToken: "...", apiUrl: "..." }
 ```
 
-Required fields: `clientId`, `apiUrl`. See `src/types.ts` for full `WidgetConfig` interface.
+Required fields: `widgetToken`, `apiUrl`. See `src/types.ts` for the full `WidgetConfig` interface.
 
 ## Theming
 

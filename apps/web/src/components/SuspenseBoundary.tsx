@@ -6,7 +6,7 @@ import { LoadingOverlay } from "./ui/spinner"
  * Use this to wrap components that load data asynchronously
  */
 
-interface SuspenseBoundaryProps {
+type SuspenseBoundaryProps = {
 	children: React.ReactNode
 	fallback?: React.ReactNode
 }

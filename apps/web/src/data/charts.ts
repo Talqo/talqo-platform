@@ -1,4 +1,4 @@
-export interface ChartDataPoint {
+export type ChartDataPoint = {
 	name: string
 	tokens: number
 	questions: number
@@ -16,7 +16,7 @@ export const WEEKLY_STATS_DATA: ChartDataPoint[] = [
 
 export type StatIcon = "dollar" | "zap" | "message" | "bot" | "card"
 
-export interface StatCardData {
+export type StatCardData = {
 	title: string
 	value: string
 	subtitle: string

@@ -64,7 +64,7 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 
 	if (error) {
 		return (
-			<p className="py-6 text-center text-sm text-muted-foreground">
+			<p className="py-6 text-center text-muted-foreground text-sm">
 				Failed to load conversation
 			</p>
 		)

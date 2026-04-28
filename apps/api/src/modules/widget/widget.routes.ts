@@ -4,11 +4,13 @@ import {
 	messageResponseSchema,
 	sessionResponseSchema,
 } from "db/dto"
+import { streamSSE } from "hono/streaming"
 import {
 	createSessionBodySchema,
 	rateConversationBodySchema,
 	sendMessageBodySchema,
 } from "shared"
+import { widgetRateLimit } from "../../common/middleware/widget-rate-limit"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -68,6 +70,9 @@ widgetConversationRoutes.openapi(
 		tags: ["Widget"],
 		summary: "Start a new conversation",
 		security: [{ widgetToken: [] }],
+		request: {
+			params: z.object({ sessionId: z.string().uuid() }),
+		},
 		responses: {
 			201: {
 				description: "Conversation started",
@@ -85,8 +90,7 @@ widgetConversationRoutes.openapi(
 	}),
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
-		// sessionId is always defined when mounted at /widget/:clientId/sessions/:sessionId/conversations
-		const sessionId = c.req.param("sessionId") as string
+		const sessionId = c.req.valid("param").sessionId
 		const conversation = await widgetService.startConversation(
 			clientId,
 			sessionId,
@@ -97,41 +101,8 @@ widgetConversationRoutes.openapi(
 
 widgetConversationRoutes.openapi(
 	createRoute({
-		method: "delete",
-		path: "/{conversationId}",
-		tags: ["Widget"],
-		summary: "Reset (delete) a conversation",
-		security: [{ widgetToken: [] }],
-		request: {
-			params: z.object({ conversationId: z.string().uuid() }),
-		},
-		responses: {
-			200: {
-				description: "Conversation reset",
-				content: {
-					"application/json": {
-						schema: successResponseSchema(z.object({ message: z.string() })),
-					},
-				},
-			},
-			404: {
-				description: "Conversation not found",
-				content: { "application/json": { schema: errorResponseSchema } },
-			},
-		},
-	}),
-	async (c) => {
-		const clientId = c.get("clientId" as never) as string
-		const { conversationId } = c.req.valid("param")
-		await widgetService.resetConversation(clientId, conversationId)
-		return c.json({ message: "Conversation reset" }, 200)
-	},
-)
-
-widgetConversationRoutes.openapi(
-	createRoute({
 		method: "patch",
-		path: "/{conversationId}",
+		path: "/:conversationId",
 		tags: ["Widget"],
 		summary: "Submit satisfaction rating",
 		security: [{ widgetToken: [] }],
@@ -177,6 +148,8 @@ widgetConversationRoutes.openapi(
 
 export const widgetMessageRoutes = new OpenAPIHono()
 
+widgetMessageRoutes.use(widgetRateLimit)
+
 widgetMessageRoutes.openapi(
 	createRoute({
 		method: "get",
@@ -184,6 +157,9 @@ widgetMessageRoutes.openapi(
 		tags: ["Widget"],
 		summary: "Get conversation message history",
 		security: [{ widgetToken: [] }],
+		request: {
+			params: z.object({ conversationId: z.string().uuid() }),
+		},
 		responses: {
 			200: {
 				description: "Message history",
@@ -201,8 +177,7 @@ widgetMessageRoutes.openapi(
 	}),
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
-		// conversationId is always defined when mounted at /.../conversations/:conversationId/messages
-		const conversationId = c.req.param("conversationId") as string
+		const { conversationId } = c.req.valid("param")
 		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
 		return c.json(msgs, 200)
 	},
@@ -216,6 +191,7 @@ widgetMessageRoutes.openapi(
 		summary: "Send a message (streams AI response via SSE)",
 		security: [{ widgetToken: [] }],
 		request: {
+			params: z.object({ conversationId: z.string().uuid() }),
 			body: {
 				content: {
 					"application/json": {
@@ -226,15 +202,10 @@ widgetMessageRoutes.openapi(
 		},
 		responses: {
 			200: {
-				description: "Message sent and assistant response returned",
+				description: "SSE stream of AI response",
 				content: {
-					"application/json": {
-						schema: successResponseSchema(
-							z.object({
-								userMessage: messageResponseSchema,
-								assistantMessage: messageResponseSchema,
-							}),
-						),
+					"text/event-stream": {
+						schema: z.object({ event: z.string(), data: z.string() }),
 					},
 				},
 			},
@@ -242,17 +213,75 @@ widgetMessageRoutes.openapi(
 				description: "Conversation not found",
 				content: { "application/json": { schema: errorResponseSchema } },
 			},
+			429: {
+				description: "Rate limit exceeded",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
 		},
 	}),
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
-		const conversationId = c.req.param("conversationId") as string
+		const { conversationId } = c.req.valid("param")
 		const { content } = c.req.valid("json")
-		const result = await widgetService.sendMessage(
-			clientId,
-			conversationId,
-			content,
-		)
-		return c.json(result, 200)
+
+		const { stream, userMessage, usage, isExternalProvider } =
+			await widgetService.sendMessage(clientId, conversationId, content)
+
+		return streamSSE(c, async (sse) => {
+			await sse.writeSSE({
+				event: "user_message",
+				data: JSON.stringify(userMessage),
+			})
+
+			let fullContent = ""
+			const reader = stream.getReader()
+
+			try {
+				while (true) {
+					const { done, value } = await reader.read()
+					if (done) break
+
+					fullContent += value
+					await sse.writeSSE({
+						event: "token",
+						data: JSON.stringify({ content: value }),
+					})
+				}
+			} catch {
+				await reader.cancel().catch(() => {})
+				await sse.writeSSE({
+					event: "error",
+					data: JSON.stringify({
+						code: "LLM_ERROR",
+						message: "Something went wrong. Please try again.",
+					}),
+				})
+				return
+			}
+
+			try {
+				const tokensUsed = isExternalProvider ? undefined : await usage
+				const assistantMessage = await widgetService.saveAssistantMessage(
+					clientId,
+					conversationId,
+					fullContent,
+					tokensUsed,
+				)
+
+				await sse.writeSSE({
+					event: "done",
+					data: JSON.stringify(assistantMessage),
+				})
+			} catch {
+				await sse.writeSSE({
+					event: "error",
+					data: JSON.stringify({
+						code: "PERSISTENCE_ERROR",
+						message: "Failed to save response. Please try again.",
+					}),
+				})
+				return
+			}
+		})
 	},
 )

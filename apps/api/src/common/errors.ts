@@ -45,6 +45,12 @@ export class BadRequestError extends AppError {
 	}
 }
 
+export class TooManyRequestsError extends AppError {
+	constructor(message = "Too many requests") {
+		super(429, "TOO_MANY_REQUESTS", message)
+	}
+}
+
 export class AuthConflictError extends AppError {
 	constructor(
 		code: "EMAIL_TAKEN" | "NAME_TAKEN" | "EMAIL_ALREADY_VERIFIED",

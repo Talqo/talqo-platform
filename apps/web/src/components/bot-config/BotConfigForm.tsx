@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 
 const botConfigSchema = botConfigFieldsSchema
@@ -75,7 +74,6 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 				systemPrompt: toApi(values.systemPrompt),
 				defaultRole: toApi(values.defaultRole),
 				toneStyle: toApi(values.toneStyle),
-				internetSearchEnabled: values.internetSearchEnabled,
 			})
 			setFeedback({ type: "success", message: "Configuration saved." })
 			clearFeedback()
@@ -165,27 +163,6 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 								</FormItem>
 							)}
 						/>
-
-						<FormField
-							control={form.control}
-							name="internetSearchEnabled"
-							render={({ field }) => (
-								<FormItem className="flex items-center justify-between gap-4 pt-2">
-									<div>
-										<FormLabel>Internet Search</FormLabel>
-										<FormDescription>
-											Allow the bot to search the internet for answers.
-										</FormDescription>
-									</div>
-									<FormControl>
-										<Switch
-											checked={field.value}
-											onCheckedChange={field.onChange}
-										/>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
 					</CardContent>
 					<CardFooter className="flex justify-end">
 						<Button type="submit" disabled={form.formState.isSubmitting}>
@@ -217,10 +194,6 @@ function BotConfigFormSkeleton() {
 					<Skeleton className="h-4 w-32" />
 					<Skeleton className="h-10 w-full" />
 				</div>
-				<div className="flex items-center justify-between pt-2">
-					<Skeleton className="h-4 w-40" />
-					<Skeleton className="h-6 w-11 rounded-full" />
-				</div>
 			</CardContent>
 			<CardFooter className="flex justify-end">
 				<Skeleton className="h-10 w-36" />
@@ -241,7 +214,6 @@ export function BotConfigForm() {
 				systemPrompt: fromApi(data.systemPrompt),
 				defaultRole: fromApi(data.defaultRole),
 				toneStyle: fromApi(data.toneStyle),
-				internetSearchEnabled: data.internetSearchEnabled,
 			})
 		}
 	}, [data, initialValues])

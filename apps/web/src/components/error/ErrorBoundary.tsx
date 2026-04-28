@@ -9,12 +9,12 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 
-interface Props {
+type Props = {
 	children: React.ReactNode
 	fallback?: React.ReactNode
 }
 
-interface State {
+type State = {
 	hasError: boolean
 	error?: Error
 }

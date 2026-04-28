@@ -6,6 +6,7 @@ import "./theme/default.css"
 
 // Global config type augmentation
 declare global {
+	// biome-ignore lint/style/useConsistentTypeDefinitions: declaration merging required for global Window augmentation
 	interface Window {
 		__AI_WIDGET_CONFIG__?: WidgetConfig
 	}
@@ -87,9 +88,9 @@ function resolveDarkColors(
 function resolveConfig(): ResolvedWidgetConfig {
 	const userConfig = window.__AI_WIDGET_CONFIG__
 
-	if (!userConfig?.clientId) {
+	if (!userConfig?.widgetToken) {
 		throw new Error(
-			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.clientId",
+			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.widgetToken",
 		)
 	}
 
@@ -107,7 +108,7 @@ function resolveConfig(): ResolvedWidgetConfig {
 	)
 
 	return {
-		clientId: userConfig.clientId,
+		widgetToken: userConfig.widgetToken,
 		apiUrl,
 		colors: lightColors,
 		darkColors: resolvedDarkColors,
@@ -191,6 +192,34 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	return root
 }
 
+const SESSION_ID_KEY = "pagepal:widget:sessionId"
+
+function getOrCreateBrowserSessionId(): string | null {
+	try {
+		const existing = localStorage.getItem(SESSION_ID_KEY)
+		if (existing) return existing
+		const id = crypto.randomUUID()
+		localStorage.setItem(SESSION_ID_KEY, id)
+		return id
+	} catch {
+		return null
+	}
+}
+
+function trackPageview(config: ResolvedWidgetConfig): void {
+	if (!config.widgetToken) return
+	const browserSessionId = getOrCreateBrowserSessionId()
+	if (!browserSessionId) return
+	fetch(`${config.apiUrl}/widget/sessions`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"X-Widget-Token": config.widgetToken,
+		},
+		body: JSON.stringify({ browserSessionId }),
+	}).catch(() => {})
+}
+
 function init(): void {
 	// Prevent double initialization if root already exists
 	if (mountedRoot) {
@@ -199,6 +228,7 @@ function init(): void {
 
 	try {
 		const config = resolveConfig()
+		trackPageview(config)
 		const container = injectCSSVariables(config)
 
 		// Check if React root already exists on container

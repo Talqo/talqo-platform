@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useTheme } from "@/lib/useTheme"
 import { cn } from "@/lib/utils"
 
-interface BackofficeLayoutProps {
+type BackofficeLayoutProps = {
 	children?: React.ReactNode
 }
 

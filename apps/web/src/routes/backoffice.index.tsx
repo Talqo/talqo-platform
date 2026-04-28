@@ -25,7 +25,7 @@ import {
 import type { Tenant } from "@/data/backoffice"
 import { AUTH } from "@/lib/constants"
 
-interface Client {
+type Client = {
 	id: string
 	name: string
 	email: string

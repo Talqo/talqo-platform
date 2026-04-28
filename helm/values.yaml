@@ -8,6 +8,21 @@ api:
     tag: ""
     pullPolicy: "IfNotPresent"
   port: 3000
+  # Widget rate limiting — max messages per IP per hour
+  widgetRateLimitPerHour: 60
+  # Max messages per conversation before user must start a new one
+  widgetConversationMaxMessages: 50
+  # Comma-separated trusted proxy IPs for X-Forwarded-For validation.
+  # When the direct connection is from one of these IPs, X-Forwarded-For is read
+  # to extract the real client IP for rate limiting. Private/internal IPs are auto-trusted.
+  trustedProxyIps: ""
+  # Default LLM provider used when a client has not configured their own (optional)
+  defaultLlm:
+    existingSecret: ""
+    providerType: ""
+    apiKey: ""
+    model: ""
+    baseUrl: ""
   resources:
     limits:
       cpu: "1000m"

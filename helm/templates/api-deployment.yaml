@@ -65,6 +65,32 @@ spec:
                   key: apiKey
             - name: APP_URL
               value: {{ printf "%s://%s" (ternary "https" "http" .Values.ingress.tls) .Values.ingress.host | quote }}
+            - name: WIDGET_RATE_LIMIT_PER_HOUR
+              value: {{ .Values.api.widgetRateLimitPerHour | default 60 | quote }}
+            - name: WIDGET_CONVERSATION_MAX_MESSAGES
+              value: {{ .Values.api.widgetConversationMaxMessages | default 50 | quote }}
+            - name: TRUSTED_PROXY_IPS
+              value: {{ .Values.api.trustedProxyIps | default "" | quote }}
+            - name: DEFAULT_LLM_PROVIDER_TYPE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: providerType
+            - name: DEFAULT_LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: apiKey
+            - name: DEFAULT_LLM_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: model
+            - name: DEFAULT_LLM_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: baseUrl
             - name: PROVIDER_KEY_SECRET
               valueFrom:
                 secretKeyRef:

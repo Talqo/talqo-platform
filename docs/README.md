@@ -16,3 +16,5 @@ PagePal is a white-label AI chat platform. Businesses (clients) embed a lightwei
 - [Data model (ERD)](./architecture/ERD/main-mermaid.md) — entity-relationship diagram for the main database
 - [Request flow](./architecture/component-diagram/enduser-request.md) — component diagram showing how an end-user message is processed
 - [Deployment](./deployment.md) — local dev setup, cluster access, and release workflow
+- [Widget: embed snippet](./widget/EMBED_SNIPPET.md) — HTML snippet for customers embedding the widget
+- [Widget: CORS and hosting](./widget/CORS_SETUP.md) — hosting options and CORS configuration

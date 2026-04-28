@@ -14,6 +14,7 @@ export class ClientAccountRepository {
 				balanceUsd: clients.balanceUsd,
 				monthlyUsageLimit: clients.monthlyUsageLimit,
 				usageAlertThresholdUsd: clients.usageAlertThresholdUsd,
+				widgetToken: clients.widgetToken,
 				status: clients.status,
 				lastActive: clients.lastActive,
 				createdAt: clients.createdAt,
@@ -81,6 +82,15 @@ export class ClientAccountRepository {
 			.update(clients)
 			.set({ usageAlertThresholdUsd: thresholdUsd })
 			.where(eq(clients.id, id))
+	}
+
+	async setWidgetToken(id: string, widgetToken: string) {
+		const [updated] = await this.db
+			.update(clients)
+			.set({ widgetToken })
+			.where(eq(clients.id, id))
+			.returning({ widgetToken: clients.widgetToken })
+		return updated ?? null
 	}
 
 	async findByEmail(email: string) {

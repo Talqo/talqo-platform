@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 import type { DB } from "../../db"
 import {
 	conversations,
@@ -8,35 +8,248 @@ import {
 	usageRecords,
 } from "../../db/schema"
 
+export type WidgetMessage = {
+	id: string
+	conversationId: string
+	role: string
+	content: string
+	tokenCount: number
+	createdAt: string
+}
+
+export type IWidgetRepository = {
+	findOrCreateSession(
+		clientId: string,
+		browserSessionId: string,
+	): Promise<{
+		id: string
+		clientId: string
+		browserSessionId: string
+		createdAt: Date
+		lastActiveAt: Date
+	}>
+	getSession(
+		sessionId: string,
+		clientId: string,
+	): Promise<{
+		id: string
+		clientId: string
+		browserSessionId: string
+		createdAt: Date
+		lastActiveAt: Date
+	} | null>
+	createConversation(
+		sessionId: string,
+		clientId: string,
+	): Promise<{
+		id: string
+		sessionId: string
+		clientId: string
+		startedAt: string | null
+		endedAt: string | null
+		satisfactionRating: number | null
+	}>
+	getConversation(
+		conversationId: string,
+		clientId: string,
+	): Promise<{
+		id: string
+		sessionId: string
+		clientId: string
+		startedAt: string | null
+		endedAt: string | null
+		satisfactionRating: number | null
+	} | null>
+	deleteConversation(conversationId: string, clientId: string): Promise<boolean>
+	rateConversation(
+		conversationId: string,
+		clientId: string,
+		rating: number,
+	): Promise<{
+		id: string
+		sessionId: string
+		clientId: string
+		startedAt: string | null
+		endedAt: string | null
+		satisfactionRating: number | null
+	} | null>
+	getMessages(
+		conversationId: string,
+		clientId: string,
+	): Promise<WidgetMessage[] | null>
+	getMessageCount(
+		conversationId: string,
+		clientId: string,
+	): Promise<number | null>
+	createMessage(
+		conversationId: string,
+		role: (typeof messageRoleEnum.enumValues)[number],
+		content: string,
+		tokenCount?: number,
+	): Promise<WidgetMessage>
+	recordUsage(
+		clientId: string,
+		messageId: string,
+		tokensUsed: number,
+		costUsd: string,
+	): Promise<void>
+}
+
+export class InMemoryWidgetRepository implements IWidgetRepository {
+	private sessions = new Map<
+		string,
+		{
+			id: string
+			clientId: string
+			browserSessionId: string
+			createdAt: Date
+			lastActiveAt: Date
+		}
+	>()
+	private conversations = new Map<
+		string,
+		{
+			id: string
+			sessionId: string
+			clientId: string
+			startedAt: string | null
+			endedAt: string | null
+			satisfactionRating: number | null
+		}
+	>()
+	private messageList: WidgetMessage[] = []
+	private usages: {
+		clientId: string
+		messageId: string
+		tokensUsed: number
+		costUsd: string
+	}[] = []
+	private idCounters = { session: 0, conversation: 0, message: 0 }
+
+	async findOrCreateSession(clientId: string, browserSessionId: string) {
+		for (const sess of this.sessions.values()) {
+			if (
+				sess.clientId === clientId &&
+				sess.browserSessionId === browserSessionId
+			) {
+				sess.lastActiveAt = new Date()
+				return sess
+			}
+		}
+		this.idCounters.session++
+		const id = `sess-${this.idCounters.session}`
+		const sess = {
+			id,
+			clientId,
+			browserSessionId,
+			createdAt: new Date(),
+			lastActiveAt: new Date(),
+		}
+		this.sessions.set(id, sess)
+		return sess
+	}
+
+	async getSession(sessionId: string, clientId: string) {
+		const sess = this.sessions.get(sessionId)
+		return sess && sess.clientId === clientId ? sess : null
+	}
+
+	async createConversation(sessionId: string, clientId: string) {
+		this.idCounters.conversation++
+		const id = `conv-${this.idCounters.conversation}`
+		const conv = {
+			id,
+			sessionId,
+			clientId,
+			startedAt: new Date().toISOString(),
+			endedAt: null,
+			satisfactionRating: null,
+		}
+		this.conversations.set(id, conv)
+		return conv
+	}
+
+	async getConversation(conversationId: string, clientId: string) {
+		const conv = this.conversations.get(conversationId)
+		return conv && conv.clientId === clientId ? conv : null
+	}
+
+	async deleteConversation(conversationId: string, clientId: string) {
+		const conv = this.conversations.get(conversationId)
+		if (conv && conv.clientId === clientId) {
+			this.conversations.delete(conversationId)
+			return true
+		}
+		return false
+	}
+
+	async rateConversation(
+		conversationId: string,
+		clientId: string,
+		rating: number,
+	) {
+		const conv = this.conversations.get(conversationId)
+		if (!conv || conv.clientId !== clientId) return null
+		conv.satisfactionRating = rating
+		return conv
+	}
+
+	async getMessages(conversationId: string, clientId: string) {
+		const conv = this.conversations.get(conversationId)
+		if (!conv || conv.clientId !== clientId) return null
+		return this.messageList.filter((m) => m.conversationId === conversationId)
+	}
+
+	async getMessageCount(conversationId: string, clientId: string) {
+		const conv = this.conversations.get(conversationId)
+		if (!conv || conv.clientId !== clientId) return null
+		return this.messageList.filter((m) => m.conversationId === conversationId)
+			.length
+	}
+
+	async createMessage(
+		conversationId: string,
+		role: string,
+		content: string,
+		tokenCount = 0,
+	) {
+		this.idCounters.message++
+		const msg: WidgetMessage = {
+			id: `msg-${this.idCounters.message}`,
+			conversationId,
+			role,
+			content,
+			tokenCount,
+			createdAt: new Date().toISOString(),
+		}
+		this.messageList.push(msg)
+		return msg
+	}
+
+	async recordUsage(
+		clientId: string,
+		messageId: string,
+		tokensUsed: number,
+		costUsd: string,
+	) {
+		this.usages.push({ clientId, messageId, tokensUsed, costUsd })
+	}
+}
+
 export class WidgetRepository {
 	constructor(private readonly db: DB) {}
 
 	// ─── Sessions ────────────────────────────────────────────────────────────────
 
 	async findOrCreateSession(clientId: string, browserSessionId: string) {
-		const existing = await this.db
-			.select()
-			.from(endUserSessions)
-			.where(
-				and(
-					eq(endUserSessions.clientId, clientId),
-					eq(endUserSessions.browserSessionId, browserSessionId),
-				),
-			)
-			.then((rows) => rows[0] ?? null)
-
-		if (existing) {
-			const [updated] = await this.db
-				.update(endUserSessions)
-				.set({ lastActiveAt: new Date() })
-				.where(eq(endUserSessions.id, existing.id))
-				.returning()
-			return updated
-		}
-
+		const now = new Date()
 		const [session] = await this.db
 			.insert(endUserSessions)
-			.values({ clientId, browserSessionId })
+			.values({ clientId, browserSessionId, createdAt: now, lastActiveAt: now })
+			.onConflictDoUpdate({
+				target: [endUserSessions.clientId, endUserSessions.browserSessionId],
+				set: { lastActiveAt: now },
+			})
 			.returning()
 		return session
 	}
@@ -120,6 +333,17 @@ export class WidgetRepository {
 			.from(messages)
 			.where(eq(messages.conversationId, conversationId))
 			.orderBy(messages.createdAt)
+	}
+
+	async getMessageCount(conversationId: string, clientId: string) {
+		const conversation = await this.getConversation(conversationId, clientId)
+		if (!conversation) return null
+		const result = await this.db
+			.select({ count: sql<number>`count(*)::int` })
+			.from(messages)
+			.where(eq(messages.conversationId, conversationId))
+			.then((rows) => rows[0]?.count ?? 0)
+		return result
 	}
 
 	async createMessage(
