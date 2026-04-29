@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import { AUTH } from "@/lib/constants"
 import { client } from "../client"
 import type { ApiError } from "./useAuth"
 
@@ -73,6 +75,21 @@ export function useSetUsageAlert() {
 			})
 			if (error) throw error
 			return data
+		},
+	})
+}
+
+export function useDeleteAccount() {
+	const navigate = useNavigate()
+	return useMutation<{ message: string }, ApiError, { password: string }>({
+		mutationFn: async (body) => {
+			const { data, error } = await client.DELETE("/client/me", { body })
+			if (error) throw error
+			return data
+		},
+		onSuccess: () => {
+			localStorage.removeItem(AUTH.TOKEN_KEY)
+			navigate({ to: "/login" })
 		},
 	})
 }

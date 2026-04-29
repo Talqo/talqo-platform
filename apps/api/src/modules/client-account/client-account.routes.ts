@@ -3,6 +3,7 @@ import { clientResponseSchema } from "db/dto"
 import {
 	addFundsBodySchema,
 	changePasswordBodySchema,
+	deleteAccountBodySchema,
 	updateProfileBodySchema,
 	usageAlertBodySchema,
 	usageLimitBodySchema,
@@ -282,6 +283,49 @@ router.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const widgetToken = await clientAccountService.rotateWidgetToken(clientId)
 		return c.json({ widgetToken }, 200)
+	},
+)
+
+router.openapi(
+	createRoute({
+		method: "delete",
+		path: "/me",
+		tags: ["Client Account"],
+		summary: "Permanently delete account and all associated data",
+		security: [{ bearerAuth: [] }],
+		request: {
+			body: {
+				content: {
+					"application/json": {
+						schema: deleteAccountBodySchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Account deleted",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(z.object({ message: z.string() })),
+					},
+				},
+			},
+			401: {
+				description: "Password incorrect",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+			404: {
+				description: "Client not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		const { password } = c.req.valid("json")
+		await clientAccountService.deleteAccount(clientId, password)
+		return c.json({ message: "Account deleted" }, 200)
 	},
 )
 
