@@ -76,7 +76,7 @@ db-up: ## Start PostgreSQL (waits until healthy)
 
 .PHONY: db-down
 db-down: ## Stop database services
-	$(COMPOSE) down
+	$(COMPOSE) $(or $(COMPOSE_ENV_FLAGS),--env-file=.env.example) down
 
 .PHONY: db-reset
 db-reset: ## Reset database (destroy volume, recreate, migrate and seed)
@@ -157,12 +157,17 @@ test: ## Run all unit tests (excludes e2e tests)
 	bun run test
 
 .PHONY: e2e
-e2e: db-up ## Run e2e tests (build, migrate, seed, start services, test, clean up)
-	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db
-	bun --env-file=.env.example packages/db/migrate.ts
-	bun --env-file=.env.example apps/api/src/db/seed.ts
-	@PIDS=""; \
-	APP_URL=http://localhost:$(E2E_PORT) bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
+e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
+	@TMP_PORT=$$(bun -e "const net=require('net');const s=net.createServer();s.listen(0,()=>{console.log(s.address().port);s.close();})"); \
+	COMPOSE_ENV_FLAGS="--env-file=.env.example"; \
+	echo "POSTGRES_PORT=$${TMP_PORT}" > .env.e2e; \
+	$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file=.env.e2e up -d db --wait; \
+	trap '$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file=.env.e2e down -v; rm -f .env.e2e' EXIT; \
+	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db; \
+	POSTGRES_PORT=$${TMP_PORT} bun --env-file=.env.example packages/db/migrate.ts; \
+	POSTGRES_PORT=$${TMP_PORT} bun --env-file=.env.example apps/api/src/db/seed.ts; \
+	PIDS=""; \
+	APP_URL=http://localhost:$(E2E_PORT) POSTGRES_PORT=$${TMP_PORT} bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
 	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
 	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
