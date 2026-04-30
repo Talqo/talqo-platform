@@ -173,7 +173,7 @@ e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
 	sed -i "s/^POSTGRES_PORT=.*/POSTGRES_PORT=$${TMP_PORT}/" "$${ENV_E2E}"; \
 	echo "[e2e] ephemeral port=$${TMP_PORT}"; \
 	\
-	COMPOSE_PROJECT_NAME=scrum94-e2e env -u POSTGRES_PORT \$(COMPOSE) --env-file="$${ENV_E2E}" up -d db --wait; \
+	POSTGRES_PORT="$${TMP_PORT}" COMPOSE_PROJECT_NAME=scrum94-e2e \$(COMPOSE) --env-file="$${ENV_E2E}" up -d db --wait; \
 	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db; \
 	bun --env-file="$${ENV_E2E}" "$${ROOT}/packages/db/migrate.ts"; \
 	bun --env-file="$${ENV_E2E}" "$${ROOT}/apps/api/src/db/seed.ts"; \
