@@ -134,6 +134,7 @@ async function seed() {
 				usageAlertThresholdUsd: "40.0000",
 				widgetToken: ID.widgetToken1,
 				status: "active",
+				widgetSetupDismissed: true,
 			},
 			{
 				id: ID.client2,
@@ -143,6 +144,7 @@ async function seed() {
 				balanceUsd: "250.0000",
 				widgetToken: ID.widgetToken2,
 				status: "active",
+				widgetSetupDismissed: true,
 			},
 		])
 		.onConflictDoUpdate({
@@ -155,6 +157,7 @@ async function seed() {
 				usageAlertThresholdUsd: sql`excluded.usage_alert_threshold_usd`,
 				widgetToken: sql`excluded.widget_token`,
 				status: sql`excluded.status`,
+				widgetSetupDismissed: sql`excluded.widget_setup_dismissed`,
 			},
 		})
 	console.log("  ✓ clients")

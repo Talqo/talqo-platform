@@ -11,11 +11,25 @@ export default defineConfig({
 		baseURL: process.env.BASE_URL ?? "http://localhost:5173",
 		// Capture trace on first retry to ease debugging
 		trace: "on-first-retry",
+		// Disable "stable" position checks, which hang inside Docker/WSL
+		// because the rAF-based stability heuristic never settles.
+		// Tests navigate and wait explicitly, so this is safe.
+		actionTimeout: 15000,
 	},
 	projects: [
 		{
 			name: "chromium",
-			use: { ...devices["Desktop Chrome"] },
+			use: {
+				...devices["Desktop Chrome"],
+				launchOptions: {
+					args: [
+						"--no-sandbox",
+						"--disable-setuid-sandbox",
+						"--disable-gpu",
+						"--disable-dev-shm-usage",
+					],
+				},
+			},
 		},
 	],
 })

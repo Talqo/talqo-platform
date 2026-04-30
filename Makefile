@@ -160,6 +160,8 @@ test: ## Run all unit tests (excludes e2e tests)
 e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
 	@TMP_PORT=$$(bun -e "const net=require('net');const s=net.createServer();s.listen(0,()=>{console.log(s.address().port);s.close();})"); \
 	COMPOSE_ENV_FLAGS="--env-file=.env.example"; \
+	mkdir -p /tmp/node_bin && ln -sf /usr/local/bin/bun /tmp/node_bin/node 2>/dev/null || true; \
+	export PATH="/tmp/node_bin:$$PATH"; \
 	echo "POSTGRES_PORT=$${TMP_PORT}" > .env.e2e; \
 	$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file=.env.e2e up -d db --wait; \
 	trap '$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file=.env.e2e down -v; rm -f .env.e2e' EXIT; \

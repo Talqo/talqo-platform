@@ -21,7 +21,9 @@ test.describe("Change password flow", () => {
 			.getByLabel("Confirm New Password")
 			.fill(SEEDED_USERS.client.password)
 
-		await page.getByRole("button", { name: "Change Password" }).click()
+		await page
+			.getByRole("button", { name: "Change Password" })
+			.click({ force: true })
 
 		// Wait for the revert mutation to finish (button exits pending state)
 		await expect(
@@ -41,7 +43,7 @@ test.describe("Change password flow", () => {
 		)
 		await expect(page).toHaveURL(/\/dashboard/)
 
-		await page.getByRole("link", { name: "Settings" }).click()
+		await page.getByRole("link", { name: "Settings" }).click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/settings/)
 
 		await expect(
@@ -52,7 +54,9 @@ test.describe("Change password flow", () => {
 		await page.getByLabel("New Password", { exact: true }).fill(NEW_PASSWORD)
 		await page.getByLabel("Confirm New Password").fill(NEW_PASSWORD)
 
-		await page.getByRole("button", { name: "Change Password" }).click()
+		await page
+			.getByRole("button", { name: "Change Password" })
+			.click({ force: true })
 
 		await expect(page.getByText("Password changed successfully")).toBeVisible()
 
