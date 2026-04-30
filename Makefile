@@ -161,7 +161,9 @@ e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
 	@set -eu; \
 	ROOT=$$(pwd); \
 	ENV_E2E="$${ROOT}/.env.e2e"; \
-	trap 'docker compose --env-file="$${ENV_E2E}" down -v 2>/dev/null || true; rm -f "$${ENV_E2E}"' EXIT; \
+	\
+	rm -f "$${ENV_E2E}"; \
+	trap 'docker compose --env-file="$${ENV_E2E}" --project-name scrum94-e2e down -v 2>/dev/null || true; rm -f "$${ENV_E2E}"' EXIT; \
 	\
 	mkdir -p /tmp/node_bin && ln -sf /usr/local/bin/bun /tmp/node_bin/node 2>/dev/null || true; \
 	export PATH="/tmp/node_bin:$$PATH"; \
@@ -170,7 +172,8 @@ e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
 	cp "$${ROOT}/.env.example" "$${ENV_E2E}"; \
 	sed -i "s/^POSTGRES_PORT=.*/POSTGRES_PORT=$${TMP_PORT}/" "$${ENV_E2E}"; \
 	echo "[e2e] ephemeral port=$${TMP_PORT}"; \
-	$(COMPOSE) --env-file="$${ENV_E2E}" up -d db --wait; \
+	\
+	COMPOSE_PROJECT_NAME=scrum94-e2e env -u POSTGRES_PORT \$(COMPOSE) --env-file="$${ENV_E2E}" up -d db --wait; \
 	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db; \
 	bun --env-file="$${ENV_E2E}" "$${ROOT}/packages/db/migrate.ts"; \
 	bun --env-file="$${ENV_E2E}" "$${ROOT}/apps/api/src/db/seed.ts"; \
