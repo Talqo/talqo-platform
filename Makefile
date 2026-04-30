@@ -158,20 +158,24 @@ test: ## Run all unit tests (excludes e2e tests)
 
 .PHONY: e2e
 e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
-	@ROOT=$$(pwd); \
-	TMP_PORT=$$(bun -e "const net=require('net');const s=net.createServer();s.listen(0,()=>{console.log(s.address().port);s.close();})"); \
-	[ -n "$${TMP_PORT}" ] || { echo "ERROR: failed to find free ephemeral port"; exit 1; }; \
-	COMPOSE_ENV_FLAGS="--env-file=.env.example"; \
+	@set -eu; \
+	ROOT=$$(pwd); \
+	ENV_E2E="$${ROOT}/.env.e2e"; \
+	trap 'docker compose --env-file="$${ENV_E2E}" down -v 2>/dev/null || true; rm -f "$${ENV_E2E}"' EXIT; \
+	\
 	mkdir -p /tmp/node_bin && ln -sf /usr/local/bin/bun /tmp/node_bin/node 2>/dev/null || true; \
 	export PATH="/tmp/node_bin:$$PATH"; \
-	echo "POSTGRES_PORT=$${TMP_PORT}" > "$${ROOT}/.env.e2e"; \
-	$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file="$${ROOT}/.env.e2e" up -d db --wait; \
-	trap '$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file="$${ROOT}/.env.e2e" down -v; rm -f "$${ROOT}/.env.e2e"' EXIT; \
+	TMP_PORT=$$(bun -e 'const net=require("net");const s=net.createServer();s.listen(0,()=>{console.log(s.address().port);s.close();})'); \
+	[ -n "$${TMP_PORT}" ] || { echo "ERROR: failed to find free ephemeral port"; exit 1; }; \
+	cp "$${ROOT}/.env.example" "$${ENV_E2E}"; \
+	sed -i "s/^POSTGRES_PORT=.*/POSTGRES_PORT=$${TMP_PORT}/" "$${ENV_E2E}"; \
+	echo "[e2e] ephemeral port=$${TMP_PORT}"; \
+	$(COMPOSE) --env-file="$${ENV_E2E}" up -d db --wait; \
 	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db; \
-	bun --env-file=.env.example --env-file="$${ROOT}/.env.e2e" "$${ROOT}/packages/db/migrate.ts"; \
-	bun --env-file=.env.example --env-file="$${ROOT}/.env.e2e" "$${ROOT}/apps/api/src/db/seed.ts"; \
+	bun --env-file="$${ENV_E2E}" "$${ROOT}/packages/db/migrate.ts"; \
+	bun --env-file="$${ENV_E2E}" "$${ROOT}/apps/api/src/db/seed.ts"; \
 	PIDS=""; \
-	APP_URL=http://localhost:$(E2E_PORT) bun --env-file=.env.example --env-file="$${ROOT}/.env.e2e" "$${ROOT}/apps/api/src/index.ts" & PIDS="$$!"; \
+	APP_URL=http://localhost:$(E2E_PORT) bun --env-file="$${ENV_E2E}" "$${ROOT}/apps/api/src/index.ts" & PIDS="$$!"; \
 	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
 	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
