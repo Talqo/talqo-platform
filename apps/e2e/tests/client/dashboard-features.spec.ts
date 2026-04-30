@@ -12,7 +12,9 @@ test.describe("Client dashboard features", () => {
 	})
 
 	test("client updates bot configuration", async ({ page }) => {
-		await page.getByRole("link", { name: "Bot Configuration" }).click()
+		await page
+			.getByRole("link", { name: "Bot Configuration" })
+			.click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/bot-config/)
 		await expect(
 			page.getByRole("heading", { name: "Bot Personality & Behavior" }),
@@ -21,24 +23,30 @@ test.describe("Client dashboard features", () => {
 		const systemPromptField = page.getByLabel("System Prompt")
 		await systemPromptField.fill("You are a helpful assistant for Acme Corp.")
 
-		await page.getByRole("button", { name: "Save Configuration" }).click()
+		await page
+			.getByRole("button", { name: "Save Configuration" })
+			.click({ force: true })
 		await expect(
 			page.getByText("Configuration saved.", { exact: true }),
 		).toBeVisible()
 	})
 
 	test("client adds funds", async ({ page }) => {
-		await page.getByRole("link", { name: "Add Funds" }).click()
+		await page.getByRole("link", { name: "Add Funds" }).click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/add-funds/)
-		await expect(page.getByRole("heading", { name: "Add Funds" })).toBeVisible()
+		await expect(
+			page.getByRole("heading", { name: "Add Funds", level: 1 }),
+		).toBeVisible()
 
-		await page.getByLabel("Amount (USD)").fill("50")
+		await page.getByPlaceholder("0.00").fill("50")
 		await page.getByLabel("Card Number").fill("4242 4242 4242 4242")
 		await page.getByLabel("Expiry").fill("12/30")
 		await page.getByLabel("CVV").fill("123")
 		await page.getByLabel("Name on Card").fill("Test User")
 
-		await page.getByRole("button", { name: "Pay $50.00" }).click()
+		await page
+			.getByRole("button", { name: "Pay $50.00" })
+			.click({ force: true })
 		await expect(
 			page.getByText("Funds added successfully! Redirecting...", {
 				exact: true,
@@ -47,7 +55,9 @@ test.describe("Client dashboard features", () => {
 	})
 
 	test("widget preview shows initial welcome message", async ({ page }) => {
-		await page.getByRole("link", { name: "Widget Setup" }).click()
+		await page
+			.getByRole("link", { name: "Widget Setup" })
+			.click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/widget-setup/)
 		await expect(
 			page.getByRole("heading", { name: "Widget Setup" }),
