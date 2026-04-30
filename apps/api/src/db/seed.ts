@@ -1,4 +1,4 @@
-import { inArray, sql } from "drizzle-orm"
+import { sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
@@ -93,18 +93,11 @@ const ID = {
 async function seed() {
 	console.log("Seeding database...")
 
-	// Clean up any existing rows where our fixed UUIDs won't match, to prevent
-	// foreign-key failures. onConflictDoUpdate updates non-PK columns but keeps
-	// the existing UUID, so later inserts referencing our fixed UUIDs would fail.
+	// Wipe all data so the seed is always a clean re-insert regardless of prior state.
+	// CASCADE handles FK ordering automatically.
 	await db.execute(
-		sql`delete from admin_access_logs where admin_id in (select id from admin_users where email = 'admin@pagepal.dev')`,
+		sql`TRUNCATE admin_users, clients, pre_made_mcp_servers CASCADE`,
 	)
-	await db
-		.delete(adminUsers)
-		.where(inArray(adminUsers.email, ["admin@pagepal.dev"]))
-	await db
-		.delete(clients)
-		.where(inArray(clients.email, ["acme@pagepal.dev", "tech@pagepal.dev"]))
 
 	// ── Admin users ────────────────────────────────────────────────────────────
 	await db
@@ -193,8 +186,7 @@ async function seed() {
 			{
 				id: ID.preMadeMcp1,
 				mcpConfig: {
-					name: "Weather",
-					description: "Provides real-time weather information",
+					type: "stdio",
 					command: "npx",
 					args: ["-y", "@mcp/weather"],
 				},
@@ -202,8 +194,7 @@ async function seed() {
 			{
 				id: ID.preMadeMcp2,
 				mcpConfig: {
-					name: "Web Search",
-					description: "Enables web search via Brave Search API",
+					type: "stdio",
 					command: "npx",
 					args: ["-y", "@mcp/brave-search"],
 					env: { BRAVE_API_KEY: "" },
@@ -232,11 +223,8 @@ async function seed() {
 				id: ID.customMcp1,
 				clientId: ID.client1,
 				mcpConfig: {
-					name: "Acme Inventory",
-					description: "Internal product inventory lookup for Acme Corp",
-					command: "node",
-					args: ["./mcp-servers/inventory.js"],
-					env: { INVENTORY_API_KEY: "acme-internal-key" },
+					type: "sse",
+					url: "https://mcp.acme-corp.example.com/inventory/sse",
 				},
 			},
 		])
