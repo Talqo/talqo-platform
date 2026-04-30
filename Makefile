@@ -158,25 +158,26 @@ test: ## Run all unit tests (excludes e2e tests)
 
 .PHONY: e2e
 e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
-	@TMP_PORT=$$(bun -e "const net=require('net');const s=net.createServer();s.listen(0,()=>{console.log(s.address().port);s.close();})"); \
+	@ROOT=$$(pwd); \
+	TMP_PORT=$$(bun -e "const net=require('net');const s=net.createServer();s.listen(0,()=>{console.log(s.address().port);s.close();})"); \
+	[ -n "$${TMP_PORT}" ] || { echo "ERROR: failed to find free ephemeral port"; exit 1; }; \
 	COMPOSE_ENV_FLAGS="--env-file=.env.example"; \
 	mkdir -p /tmp/node_bin && ln -sf /usr/local/bin/bun /tmp/node_bin/node 2>/dev/null || true; \
 	export PATH="/tmp/node_bin:$$PATH"; \
-	echo "POSTGRES_PORT=$${TMP_PORT}" > .env.e2e; \
-	$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file=.env.e2e up -d db --wait; \
-	trap '$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file=.env.e2e down -v; rm -f .env.e2e' EXIT; \
+	echo "POSTGRES_PORT=$${TMP_PORT}" > "$${ROOT}/.env.e2e"; \
+	$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file="$${ROOT}/.env.e2e" up -d db --wait; \
+	trap '$(COMPOSE) $${COMPOSE_ENV_FLAGS} --env-file="$${ROOT}/.env.e2e" down -v; rm -f "$${ROOT}/.env.e2e"' EXIT; \
 	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db; \
-	POSTGRES_PORT=$${TMP_PORT} bun --env-file=.env.example packages/db/migrate.ts; \
-	POSTGRES_PORT=$${TMP_PORT} bun --env-file=.env.example apps/api/src/db/seed.ts; \
+	bun --env-file=.env.example --env-file="$${ROOT}/.env.e2e" "$${ROOT}/packages/db/migrate.ts"; \
+	bun --env-file=.env.example --env-file="$${ROOT}/.env.e2e" "$${ROOT}/apps/api/src/db/seed.ts"; \
 	PIDS=""; \
-	APP_URL=http://localhost:$(E2E_PORT) POSTGRES_PORT=$${TMP_PORT} bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
+	APP_URL=http://localhost:$(E2E_PORT) bun --env-file=.env.example --env-file="$${ROOT}/.env.e2e" "$${ROOT}/apps/api/src/index.ts" & PIDS="$$!"; \
 	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
 	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
 	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
-	export BASE_URL=http://localhost:$(E2E_PORT); \
-	cd apps/e2e && bun run test:run; STATUS=$$?; \
+	(export BASE_URL=http://localhost:$(E2E_PORT); cd apps/e2e && bun run test:run); STATUS=$$?; \
 	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
 	exit $$STATUS
 
