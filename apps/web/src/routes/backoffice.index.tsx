@@ -15,6 +15,17 @@ import {
 } from "@/api/hooks/useAdmin"
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
 import { TenantsTable } from "@/components/backoffice/TenantsTable"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import {
 	Card,
 	CardContent,
@@ -60,20 +71,46 @@ function BackofficePage() {
 	const updateStatus = useUpdateClientStatus()
 	const impersonate = useImpersonateClient()
 	const [pendingId, setPendingId] = useState<string | undefined>()
+	const [confirmAction, setConfirmAction] = useState<{
+		id: string
+		type: "suspend" | "reenable"
+	} | null>(null)
+	const [actionError, setActionError] = useState<string | null>(null)
+	// Snapshot of the action type used for dialog labels — persists through the
+	// close animation so labels don't flip when confirmAction is cleared.
+	const [dialogType, setDialogType] = useState<"suspend" | "reenable">(
+		"suspend",
+	)
 
 	function handleSuspend(id: string) {
-		setPendingId(id)
-		updateStatus.mutate(
-			{ clientId: id, status: "suspended" },
-			{ onSettled: () => setPendingId(undefined) },
-		)
+		setDialogType("suspend")
+		setActionError(null)
+		setConfirmAction({ id, type: "suspend" })
 	}
 
 	function handleReEnable(id: string) {
+		setDialogType("reenable")
+		setActionError(null)
+		setConfirmAction({ id, type: "reenable" })
+	}
+
+	function handleConfirm() {
+		if (!confirmAction) return
+		const { id, type } = confirmAction
 		setPendingId(id)
+		setActionError(null)
 		updateStatus.mutate(
-			{ clientId: id, status: "active" },
-			{ onSettled: () => setPendingId(undefined) },
+			{ clientId: id, status: type === "suspend" ? "suspended" : "active" },
+			{
+				onSettled: () => setPendingId(undefined),
+				onSuccess: () => setConfirmAction(null),
+				onError: (err) => {
+					setActionError(
+						err.error?.message ??
+							"Failed to update client status. Please try again.",
+					)
+				},
+			},
 		)
 	}
 
@@ -168,6 +205,39 @@ function BackofficePage() {
 					/>
 				</CardContent>
 			</Card>
+
+			<AlertDialog
+				open={confirmAction !== null}
+				onOpenChange={(open) => {
+					if (!open) setConfirmAction(null)
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{dialogType === "suspend"
+								? "Suspend client?"
+								: "Re-enable client?"}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{dialogType === "suspend"
+								? "This will immediately block the client from accessing their dashboard and widget."
+								: "This will restore the client's access to their dashboard and widget."}
+						</AlertDialogDescription>
+						{actionError && (
+							<Alert variant="destructive" className="mt-4">
+								<AlertDescription>{actionError}</AlertDescription>
+							</Alert>
+						)}
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<Button onClick={handleConfirm}>
+							{dialogType === "suspend" ? "Suspend" : "Re-enable"}
+						</Button>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	)
 }
