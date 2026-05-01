@@ -259,6 +259,11 @@ export function useUnifiedLogin() {
 	// Use ref for synchronous tracking to avoid race conditions with react-query state
 	const tryingAdminRef = useRef(false)
 	const [isTryingAdmin, setIsTryingAdmin] = useState(false)
+	// Tracks non-UNAUTHORIZED client errors (e.g. FORBIDDEN for suspended accounts)
+	// that bypass the admin login fallback and need explicit state to trigger re-renders
+	const [directClientError, setDirectClientError] = useState<ApiError | null>(
+		null,
+	)
 
 	const clientLogin = useMutation<AuthResponse, ApiError, LoginRequest>({
 		mutationFn: async (credentials) => {
@@ -302,6 +307,7 @@ export function useUnifiedLogin() {
 		) => {
 			tryingAdminRef.current = false
 			setIsTryingAdmin(false)
+			setDirectClientError(null)
 			clientLogin.reset()
 			adminLogin.reset()
 
@@ -328,6 +334,7 @@ export function useUnifiedLogin() {
 							},
 						})
 					} else {
+						setDirectClientError(clientError)
 						options?.onError?.(clientError)
 					}
 				},
@@ -339,19 +346,22 @@ export function useUnifiedLogin() {
 	const isPending =
 		clientLogin.isPending || adminLogin.isPending || isTryingAdmin
 
-	// Error is only shown when client failed and we're not trying/awaiting admin
-	// Use the ref for immediate synchronous check to prevent flash
+	// Error is only shown when client failed and we're not trying/awaiting admin.
+	// directClientError handles non-UNAUTHORIZED cases (e.g. suspended accounts)
+	// that bypass admin login and need explicit state to guarantee a re-render.
 	const error: ApiError | null =
-		clientLogin.error &&
+		directClientError ||
+		(clientLogin.error &&
 		!tryingAdminRef.current &&
 		!adminLogin.isPending &&
 		!isTryingAdmin
 			? adminLogin.error || clientLogin.error
-			: null
+			: null)
 
 	const reset = useCallback(() => {
 		tryingAdminRef.current = false
 		setIsTryingAdmin(false)
+		setDirectClientError(null)
 		clientLogin.reset()
 		adminLogin.reset()
 	}, [clientLogin, adminLogin])

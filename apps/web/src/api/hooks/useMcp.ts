@@ -33,13 +33,13 @@ export function useEnablePreMadeServer() {
 	return useMutation({
 		mutationFn: async (serverId: string) => {
 			const { data, error } = await client.POST(
-				"/client/me/mcp/pre-made/:serverId",
+				"/client/me/mcp/pre-made/{serverId}",
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error
 			return data
 		},
-		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "pre-made"] }),
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp"] }),
 	})
 }
 
@@ -48,13 +48,13 @@ export function useDisablePreMadeServer() {
 	return useMutation({
 		mutationFn: async (serverId: string) => {
 			const { data, error } = await client.DELETE(
-				"/client/me/mcp/pre-made/:serverId",
+				"/client/me/mcp/pre-made/{serverId}",
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error
 			return data
 		},
-		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp", "pre-made"] }),
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["mcp"] }),
 	})
 }
 
@@ -96,7 +96,7 @@ export function useUpdateCustomServer() {
 			mcpConfig: unknown
 		}) => {
 			const { data, error } = await client.PATCH(
-				"/client/me/mcp/custom/:serverId",
+				"/client/me/mcp/custom/{serverId}",
 				{ params: { path: { serverId } }, body: { mcpConfig } },
 			)
 			if (error) throw error
@@ -111,7 +111,7 @@ export function useDeleteCustomServer() {
 	return useMutation({
 		mutationFn: async (serverId: string) => {
 			const { data, error } = await client.DELETE(
-				"/client/me/mcp/custom/:serverId",
+				"/client/me/mcp/custom/{serverId}",
 				{ params: { path: { serverId } } },
 			)
 			if (error) throw error

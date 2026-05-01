@@ -127,6 +127,7 @@ async function seed() {
 				usageAlertThresholdUsd: "40.0000",
 				widgetToken: ID.widgetToken1,
 				status: "active",
+				widgetSetupDismissed: true,
 			},
 			{
 				id: ID.client2,
@@ -136,6 +137,7 @@ async function seed() {
 				balanceUsd: "250.0000",
 				widgetToken: ID.widgetToken2,
 				status: "active",
+				widgetSetupDismissed: true,
 			},
 		])
 		.onConflictDoUpdate({
@@ -148,6 +150,7 @@ async function seed() {
 				usageAlertThresholdUsd: sql`excluded.usage_alert_threshold_usd`,
 				widgetToken: sql`excluded.widget_token`,
 				status: sql`excluded.status`,
+				widgetSetupDismissed: sql`excluded.widget_setup_dismissed`,
 			},
 		})
 	console.log("  ✓ clients")
@@ -184,6 +187,8 @@ async function seed() {
 				id: ID.preMadeMcp1,
 				mcpConfig: {
 					type: "stdio",
+					name: "Weather",
+					description: "Provides real-time weather information",
 					command: "npx",
 					args: ["-y", "@mcp/weather"],
 				},
@@ -192,6 +197,8 @@ async function seed() {
 				id: ID.preMadeMcp2,
 				mcpConfig: {
 					type: "stdio",
+					name: "Web Search",
+					description: "Enables web search via Brave Search API",
 					command: "npx",
 					args: ["-y", "@mcp/brave-search"],
 					env: { BRAVE_API_KEY: "" },
@@ -220,8 +227,10 @@ async function seed() {
 				id: ID.customMcp1,
 				clientId: ID.client1,
 				mcpConfig: {
-					type: "sse",
-					url: "https://mcp.acme-corp.example.com/inventory/sse",
+					type: "http",
+					name: "Acme Inventory",
+					description: "Internal product inventory lookup for Acme Corp",
+					url: "https://mcp.acme.example/inventory",
 				},
 			},
 		])
