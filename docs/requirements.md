@@ -70,8 +70,8 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | In progress |
-| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | In progress |
+| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | Done |
+| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | Done |
 
 #### FR-2f: Analytics & appearance
 
@@ -93,7 +93,7 @@
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
 | FR-3.1 | Platform admin can view a list of all clients with key status indicators (token consumption, API key type, active/suspended) | High | Approved | Done |
-| FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | In progress |
+| FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | Done |
 | FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved | In progress |
 | FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
 | FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |

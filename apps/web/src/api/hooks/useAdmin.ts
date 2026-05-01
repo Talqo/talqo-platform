@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "../client"
+import type { ApiError } from "./useAuth"
 
 export function useAdminProfile() {
 	return useQuery({
@@ -42,14 +43,12 @@ export function useAdminClient(clientId: string) {
 
 export function useUpdateClientStatus() {
 	const qc = useQueryClient()
-	return useMutation({
-		mutationFn: async ({
-			clientId,
-			status,
-		}: {
-			clientId: string
-			status: "active" | "suspended"
-		}) => {
+	return useMutation<
+		unknown,
+		ApiError,
+		{ clientId: string; status: "active" | "suspended" }
+	>({
+		mutationFn: async ({ clientId, status }) => {
 			const { data, error } = await client.PATCH(
 				"/admin/clients/{clientId}/status",
 				{ params: { path: { clientId } }, body: { status } },

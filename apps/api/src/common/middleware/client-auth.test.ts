@@ -144,4 +144,18 @@ describe("clientAuth middleware", () => {
 		const body = (await res.json()) as { clientId: string }
 		expect(body.clientId).toBe(clientId)
 	})
+
+	it("allows impersonation of a suspended client (admin support access)", async () => {
+		const clientId = crypto.randomUUID()
+		mockVerifyResult = { sub: clientId, role: "client", imp: true }
+		mockClientRow = { id: clientId, status: "suspended" }
+		const res = await app.fetch(
+			new Request("http://localhost/protected", {
+				headers: bearer("valid.impersonation.token"),
+			}),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as { clientId: string }
+		expect(body.clientId).toBe(clientId)
+	})
 })
