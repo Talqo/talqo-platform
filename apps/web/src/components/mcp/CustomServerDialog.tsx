@@ -31,7 +31,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+
 import {
 	type McpServerConfigFormValues,
 	mcpServerConfigSchema,
@@ -44,43 +44,13 @@ type Props = {
 }
 
 function toFormValues(config?: McpServerConfig): McpServerConfigFormValues {
-	if (!config) return { type: "sse", url: "", command: "", args: "" }
-	// Configs stored before the type field was enforced may lack it — infer from fields
+	if (!config) return { type: "sse", url: "" }
 	const raw = config as unknown as Record<string, unknown>
-	const effectiveType: "sse" | "http" | "stdio" =
-		config.type === "sse" || config.type === "http" || config.type === "stdio"
-			? config.type
-			: raw.command != null
-				? "stdio"
-				: "sse"
-	if (effectiveType === "stdio") {
-		return {
-			type: "stdio",
-			url: "",
-			command: String(raw.command ?? ""),
-			args: Array.isArray(raw.args) ? (raw.args as string[]).join("\n") : "",
-		}
-	}
-	return {
-		type: effectiveType,
-		url: String(raw.url ?? ""),
-		command: "",
-		args: "",
-	}
+	const effectiveType: "sse" | "http" = config.type === "http" ? "http" : "sse"
+	return { type: effectiveType, url: String(raw.url ?? "") }
 }
 
 function toMcpConfig(values: McpServerConfigFormValues): McpServerConfig {
-	if (values.type === "stdio") {
-		const args = values.args
-			?.split("\n")
-			.map((s) => s.trim())
-			.filter(Boolean)
-		return {
-			type: "stdio",
-			command: values.command ?? "",
-			args: args?.length ? args : undefined,
-		}
-	}
 	return { type: values.type, url: values.url ?? "" }
 }
 
@@ -100,7 +70,6 @@ export function CustomServerDialog({ trigger, serverId, initialData }: Props) {
 		}
 	}, [open, initialData, form])
 
-	const type = form.watch("type")
 	const isPending = createMutation.isPending || updateMutation.isPending
 
 	function onSubmit(values: McpServerConfigFormValues) {
@@ -155,7 +124,6 @@ export function CustomServerDialog({ trigger, serverId, initialData }: Props) {
 										<SelectContent>
 											<SelectItem value="sse">SSE (URL)</SelectItem>
 											<SelectItem value="http">HTTP (URL)</SelectItem>
-											<SelectItem value="stdio">Stdio (Command)</SelectItem>
 										</SelectContent>
 									</Select>
 									<FormMessage />
@@ -163,71 +131,24 @@ export function CustomServerDialog({ trigger, serverId, initialData }: Props) {
 							)}
 						/>
 
-						{(type === "sse" || type === "http") && (
-							<FormField
-								control={form.control}
-								name="url"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Endpoint URL</FormLabel>
-										<FormControl>
-											<Input
-												type="url"
-												placeholder="https://your-mcp-server.example.com/mcp"
-												{...field}
-												value={field.value ?? ""}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						)}
-
-						{type === "stdio" && (
-							<>
-								<FormField
-									control={form.control}
-									name="command"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Command</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="npx @modelcontextprotocol/server-filesystem"
-													{...field}
-													value={field.value ?? ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="args"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>
-												Arguments{" "}
-												<span className="text-muted-foreground">
-													(optional, one per line)
-												</span>
-											</FormLabel>
-											<FormControl>
-												<Textarea
-													placeholder={"/path/to/directory\n--flag"}
-													rows={3}
-													{...field}
-													value={field.value ?? ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</>
-						)}
+						<FormField
+							control={form.control}
+							name="url"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Endpoint URL</FormLabel>
+									<FormControl>
+										<Input
+											type="url"
+											placeholder="https://your-mcp-server.example.com/mcp"
+											{...field}
+											value={field.value ?? ""}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
 						<DialogFooter showCloseButton>
 							<Button type="submit" disabled={isPending}>
