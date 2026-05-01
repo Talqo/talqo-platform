@@ -50,8 +50,17 @@ function toFormValues(config?: McpServerConfig): McpServerConfigFormValues {
 	return { type: effectiveType, url: String(raw.url ?? "") }
 }
 
-function toMcpConfig(values: McpServerConfigFormValues): McpServerConfig {
-	return { type: values.type, url: values.url ?? "" }
+function toMcpConfig(
+	values: McpServerConfigFormValues,
+	existing?: McpServerConfig,
+): McpServerConfig {
+	const headers =
+		existing && "headers" in existing ? existing.headers : undefined
+	return {
+		type: values.type,
+		url: values.url ?? "",
+		...(headers !== undefined ? { headers } : {}),
+	}
 }
 
 export function CustomServerDialog({ trigger, serverId, initialData }: Props) {
@@ -73,7 +82,7 @@ export function CustomServerDialog({ trigger, serverId, initialData }: Props) {
 	const isPending = createMutation.isPending || updateMutation.isPending
 
 	function onSubmit(values: McpServerConfigFormValues) {
-		const mcpConfig = toMcpConfig(values)
+		const mcpConfig = toMcpConfig(values, initialData)
 		if (serverId) {
 			updateMutation.mutate(
 				{ serverId, mcpConfig },
