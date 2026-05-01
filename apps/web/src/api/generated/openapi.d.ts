@@ -1151,7 +1151,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/client/me/mcp/pre-made/:serverId": {
+    "/client/me/mcp/pre-made/{serverId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1317,7 +1317,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/client/me/mcp/custom/:serverId": {
+    "/client/me/mcp/custom/{serverId}": {
         parameters: {
             query?: never;
             header?: never;

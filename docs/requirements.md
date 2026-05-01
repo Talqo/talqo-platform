@@ -70,8 +70,8 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | In progress |
-| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | In progress |
+| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | Done |
+| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | Done |
 
 #### FR-2f: Analytics & appearance
 
