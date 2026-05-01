@@ -247,7 +247,10 @@ widgetMessageRoutes.openapi(
 						data: JSON.stringify({ content: value }),
 					})
 				}
-			} catch {
+			} catch (err) {
+				;(
+					c.get("logger" as never) as { error: (...args: unknown[]) => void }
+				).error("Widget stream error", { error: String(err) })
 				await reader.cancel().catch(() => {})
 				await sse.writeSSE({
 					event: "error",

@@ -115,23 +115,24 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 					{widget.isTyping && (
 						<WidgetTypingIndicator className={"aiw-typing"} />
 					)}
+					{widget.showRatingPrompt && (
+						<div className={"aiw-rating"}>
+							<p>Rate this conversation</p>
+							<div className={"aiw-rating-stars"}>
+								{[1, 2, 3, 4, 5].map((star) => (
+									<button
+										key={star}
+										type="button"
+										onClick={() => widget.submitRating(star)}
+										aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+									>
+										★
+									</button>
+								))}
+							</div>
+						</div>
+					)}
 				</WidgetMessageList>
-
-				{widget.showRatingPrompt && (
-					<div className={"aiw-rating"}>
-						<p>Rate this conversation</p>
-						{[1, 2, 3, 4, 5].map((star) => (
-							<button
-								key={star}
-								type="button"
-								onClick={() => widget.submitRating(star)}
-								aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
-							>
-								★
-							</button>
-						))}
-					</div>
-				)}
 
 				{widget.error && (
 					<div className={"aiw-error"} role="alert">
