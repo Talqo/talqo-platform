@@ -90,6 +90,7 @@ describe("AnalyticsService.getTokenAnalytics()", () => {
 
 	it("defaults to 30-day range when from/to omitted", async () => {
 		await service.getTokenAnalytics(CLIENT_ID, {})
+		// biome-ignore lint/style/noNonNullAssertion: test accesses internal record state
 		const { from, to } = repo.lastTokenUsageArgs!
 		expect(to.getTime() - from.getTime()).toBe(THIRTY_DAYS_MS)
 	})
@@ -148,6 +149,7 @@ describe("AnalyticsService.getMessageAnalytics()", () => {
 
 	it("defaults to 30-day range when from/to omitted", async () => {
 		await service.getMessageAnalytics(CLIENT_ID, {})
+		// biome-ignore lint/style/noNonNullAssertion: test accesses internal record state
 		const { from, to } = repo.lastMessageCountArgs!
 		expect(to.getTime() - from.getTime()).toBe(THIRTY_DAYS_MS)
 	})

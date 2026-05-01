@@ -18,6 +18,12 @@ import {
 	usageRecords,
 } from "../../db/schema"
 
+const granularityLiteral = {
+	day: sql`'day'`,
+	week: sql`'week'`,
+	month: sql`'month'`,
+} as const
+
 export type Granularity = "day" | "week" | "month"
 
 export class AnalyticsRepository {
@@ -29,7 +35,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${usageRecords.recordedAt})`
+		const bucket = sql<string>`date_trunc(${granularityLiteral[granularity]}, ${usageRecords.recordedAt})`
 		return this.db
 			.select({
 				period: bucket,
@@ -54,7 +60,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${messages.createdAt})`
+		const bucket = sql<string>`date_trunc(${granularityLiteral[granularity]}, ${messages.createdAt})`
 		return this.db
 			.select({
 				period: bucket,

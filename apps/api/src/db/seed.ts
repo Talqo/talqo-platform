@@ -1,4 +1,4 @@
-import { inArray, sql } from "drizzle-orm"
+import { sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
@@ -93,18 +93,11 @@ const ID = {
 async function seed() {
 	console.log("Seeding database...")
 
-	// Clean up any existing rows where our fixed UUIDs won't match, to prevent
-	// foreign-key failures. onConflictDoUpdate updates non-PK columns but keeps
-	// the existing UUID, so later inserts referencing our fixed UUIDs would fail.
+	// Wipe all data so the seed is always a clean re-insert regardless of prior state.
+	// CASCADE handles FK ordering automatically.
 	await db.execute(
-		sql`delete from admin_access_logs where admin_id in (select id from admin_users where email = 'admin@pagepal.dev')`,
+		sql`TRUNCATE admin_users, clients, pre_made_mcp_servers CASCADE`,
 	)
-	await db
-		.delete(adminUsers)
-		.where(inArray(adminUsers.email, ["admin@pagepal.dev"]))
-	await db
-		.delete(clients)
-		.where(inArray(clients.email, ["acme@pagepal.dev", "tech@pagepal.dev"]))
 
 	// ── Admin users ────────────────────────────────────────────────────────────
 	await db
@@ -134,6 +127,7 @@ async function seed() {
 				usageAlertThresholdUsd: "40.0000",
 				widgetToken: ID.widgetToken1,
 				status: "active",
+				widgetSetupDismissed: true,
 			},
 			{
 				id: ID.client2,
@@ -143,6 +137,7 @@ async function seed() {
 				balanceUsd: "250.0000",
 				widgetToken: ID.widgetToken2,
 				status: "active",
+				widgetSetupDismissed: true,
 			},
 		])
 		.onConflictDoUpdate({
@@ -155,6 +150,7 @@ async function seed() {
 				usageAlertThresholdUsd: sql`excluded.usage_alert_threshold_usd`,
 				widgetToken: sql`excluded.widget_token`,
 				status: sql`excluded.status`,
+				widgetSetupDismissed: sql`excluded.widget_setup_dismissed`,
 			},
 		})
 	console.log("  ✓ clients")

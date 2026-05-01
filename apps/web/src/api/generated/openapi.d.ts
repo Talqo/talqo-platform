@@ -200,6 +200,20 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Account suspended */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
             };
         };
         delete?: never;

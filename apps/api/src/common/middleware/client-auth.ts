@@ -4,6 +4,7 @@ import { db } from "../../db"
 import { clients } from "../../db/schema"
 import { ForbiddenError, UnauthorizedError } from "../errors"
 import { verifyToken } from "../jwt"
+import type { Logger } from "../logger"
 
 // Validates Client JWT from Authorization: Bearer <token>
 // Also accepts impersonation JWTs issued by POST /admin/clients/:id/impersonate (FR-3.3)
@@ -29,8 +30,17 @@ export const clientAuth: MiddlewareHandler = async (c, next) => {
 	if (!client) {
 		throw new UnauthorizedError("Client not found")
 	}
+	// Allow admin impersonation tokens to access suspended clients for support
 	if (client.status === "suspended") {
-		throw new UnauthorizedError("Account suspended")
+		if (!payload.imp) {
+			throw new UnauthorizedError("Account suspended")
+		}
+		const reqLogger = c.get("logger" as never) as Logger | undefined
+		reqLogger?.warn("Admin impersonation on suspended client", {
+			action: "admin_impersonation_on_suspended_client",
+			clientId: client.id,
+			clientStatus: client.status,
+		})
 	}
 
 	c.set("clientId" as never, payload.sub)

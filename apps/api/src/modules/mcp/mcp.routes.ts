@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { customServerResponseSchema, preMadeServerResponseSchema } from "db/dto"
-import { mcpConfigBodySchema } from "shared"
+import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -299,7 +299,7 @@ adminMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: mcpConfigBodySchema,
+						schema: adminMcpConfigBodySchema,
 					},
 				},
 			},
@@ -334,7 +334,7 @@ adminMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: mcpConfigBodySchema,
+						schema: adminMcpConfigBodySchema,
 					},
 				},
 			},
