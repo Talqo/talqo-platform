@@ -2,7 +2,11 @@ import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
 } from "../../common/email/email.service"
-import { AuthConflictError, UnauthorizedError } from "../../common/errors"
+import {
+	AuthConflictError,
+	ForbiddenError,
+	UnauthorizedError,
+} from "../../common/errors"
 import { signToken } from "../../common/jwt"
 import { logger } from "../../common/logger"
 import type { IAuthRepository } from "./auth.repository"
@@ -102,6 +106,12 @@ export class AuthService {
 			!(await Bun.password.verify(password, client.passwordHash))
 		) {
 			throw new UnauthorizedError("Invalid credentials")
+		}
+
+		if (client.status === "suspended") {
+			throw new ForbiddenError(
+				"Your account has been suspended. Please contact support.",
+			)
 		}
 
 		await this.repo.updateLastActive(client.id)

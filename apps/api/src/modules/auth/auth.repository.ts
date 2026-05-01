@@ -11,12 +11,15 @@ import {
 	pendingRegistrations,
 } from "../../db/schema"
 
+export type ClientStatus = "active" | "suspended"
+
 // Matches the CLIENT entity in the ERD
 export type Client = {
 	id: string
 	name: string
 	email: string
 	passwordHash: string
+	status: ClientStatus
 	balanceUsd: number
 	monthlyUsageLimit: number
 	lastActive: Date | null
@@ -137,6 +140,7 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		const client: Client = {
 			...data,
 			id: crypto.randomUUID(),
+			status: "active",
 			balanceUsd: 0,
 			monthlyUsageLimit: 0,
 			lastActive: null,
@@ -270,12 +274,18 @@ export class InMemoryAuthRepository implements IAuthRepository {
 	}
 }
 
+const VALID_STATUSES: readonly string[] = ["active", "suspended"]
+
 function mapClient(row: typeof clients.$inferSelect): Client {
+	const status = VALID_STATUSES.includes(row.status)
+		? (row.status as ClientStatus)
+		: "active"
 	return {
 		id: row.id,
 		name: row.name,
 		email: row.email,
 		passwordHash: row.passwordHash,
+		status,
 		balanceUsd: Number(row.balanceUsd),
 		monthlyUsageLimit: Number(row.monthlyUsageLimit ?? 0),
 		lastActive: row.lastActive,
