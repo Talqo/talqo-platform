@@ -227,12 +227,10 @@ async function seed() {
 				id: ID.customMcp1,
 				clientId: ID.client1,
 				mcpConfig: {
-					type: "stdio",
+					type: "http",
 					name: "Acme Inventory",
 					description: "Internal product inventory lookup for Acme Corp",
-					command: "node",
-					args: ["./mcp-servers/inventory.js"],
-					env: { INVENTORY_API_KEY: "acme-internal-key" },
+					url: "https://mcp.acme.example/inventory",
 				},
 			},
 		])
