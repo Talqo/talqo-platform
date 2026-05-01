@@ -23,7 +23,7 @@
 | FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved | Done |
 | FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved | Done |
 | FR-1.5 | End user can clear / reset the current conversation | Low | Approved | Done |
-| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved | In progress |
+| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved | Done |
 | FR-1.7 | Widget enforces IP-based hourly rate limiting to prevent abuse | High | Approved | Done |
 | FR-1.8 | Widget enforces a per-conversation message limit before requiring a new conversation | High | Approved | Done |
 
