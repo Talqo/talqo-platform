@@ -81,6 +81,7 @@ export function useSetUsageAlert() {
 
 export function useDeleteAccount() {
 	const navigate = useNavigate()
+	const qc = useQueryClient()
 	return useMutation<{ message: string }, ApiError, { password: string }>({
 		mutationFn: async (body) => {
 			const { data, error } = await client.DELETE("/client/me", { body })
@@ -89,6 +90,8 @@ export function useDeleteAccount() {
 		},
 		onSuccess: () => {
 			localStorage.removeItem(AUTH.TOKEN_KEY)
+			localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY)
+			qc.clear()
 			navigate({ to: "/login" })
 		},
 	})
