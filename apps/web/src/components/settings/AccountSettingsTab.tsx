@@ -40,19 +40,27 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas/auth"
+import {
+	type DeleteAccountSchema,
+	deleteAccountSchema,
+	type PasswordChangeSchema,
+	passwordChangeSchema,
+} from "@/schemas/auth"
 
 function DeleteAccountDialog() {
-	const [password, setPassword] = useState("")
 	const [open, setOpen] = useState(false)
 	const deleteAccount = useDeleteAccount()
+	const form = useForm<DeleteAccountSchema>({
+		resolver: zodResolver(deleteAccountSchema),
+		defaultValues: { password: "" },
+	})
 
-	const handleConfirm = () => {
+	const onSubmit = (values: DeleteAccountSchema) => {
 		deleteAccount.mutate(
-			{ password },
+			{ password: values.password },
 			{
 				onError: () => {
-					setPassword("")
+					form.resetField("password")
 				},
 			},
 		)
@@ -62,7 +70,7 @@ function DeleteAccountDialog() {
 		<Dialog
 			open={open}
 			onOpenChange={(next) => {
-				if (!next) setPassword("")
+				if (!next) form.reset()
 				setOpen(next)
 			}}
 		>
@@ -72,44 +80,58 @@ function DeleteAccountDialog() {
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Delete account permanently?</DialogTitle>
-					<DialogDescription>
-						This will immediately and irreversibly delete your account, widget,
-						all conversations, and every other associated record. There is no
-						undo.
-					</DialogDescription>
-				</DialogHeader>
-				<div className="space-y-2 py-2">
-					<Label htmlFor="delete-password">Confirm your password</Label>
-					<Input
-						id="delete-password"
-						type="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						placeholder="Enter your password"
-					/>
-					{deleteAccount.isError && (
-						<p className="text-destructive text-sm">
-							{deleteAccount.error?.error?.message ??
-								"Incorrect password. Please try again."}
-						</p>
-					)}
-				</div>
-				<DialogFooter>
-					<DialogClose asChild>
-						<Button variant="outline" disabled={deleteAccount.isPending}>
-							Cancel
-						</Button>
-					</DialogClose>
-					<Button
-						variant="destructive"
-						onClick={handleConfirm}
-						disabled={!password || deleteAccount.isPending}
-					>
-						{deleteAccount.isPending ? "Deleting..." : "Delete my account"}
-					</Button>
-				</DialogFooter>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<DialogHeader>
+							<DialogTitle>Delete account permanently?</DialogTitle>
+							<DialogDescription>
+								This will immediately and irreversibly delete your account,
+								widget, all conversations, and every other associated record.
+								There is no undo.
+							</DialogDescription>
+						</DialogHeader>
+						<div className="space-y-2 py-2">
+							<FormField
+								control={form.control}
+								name="password"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Confirm your password</FormLabel>
+										<FormControl>
+											<Input
+												id="delete-password"
+												type="password"
+												placeholder="Enter your password"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							{deleteAccount.isError && (
+								<p className="text-destructive text-sm">
+									{deleteAccount.error?.error?.message ??
+										"Incorrect password. Please try again."}
+								</p>
+							)}
+						</div>
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button variant="outline" disabled={deleteAccount.isPending}>
+									Cancel
+								</Button>
+							</DialogClose>
+							<Button
+								type="submit"
+								variant="destructive"
+								disabled={!form.watch("password") || deleteAccount.isPending}
+							>
+								{deleteAccount.isPending ? "Deleting..." : "Delete my account"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	)
