@@ -34,7 +34,7 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 					{t("charts.tokenConsumption.description")}
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="h-[300px]">
+			<CardContent className="min-h-[200px] flex-1">
 				{hasData ? (
 					<ResponsiveContainer width="100%" height="100%">
 						<BarChart
