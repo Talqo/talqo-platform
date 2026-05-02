@@ -33,7 +33,9 @@ export function OnboardingPopup({ open, onOpenChange }: OnboardingPopupProps) {
 		try {
 			await dismissMutation.mutateAsync()
 		} catch (err) {
-			console.error("Failed to dismiss widget setup:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to dismiss widget setup:", err)
+			}
 		} finally {
 			onOpenChange(false)
 		}

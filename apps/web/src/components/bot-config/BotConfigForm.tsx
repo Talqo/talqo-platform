@@ -83,7 +83,9 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 			})
 			clearFeedback()
 		} catch (err) {
-			console.error("Failed to save bot config:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to save bot config:", err)
+			}
 			setFeedback({
 				type: "error",
 				message: t("botConfig.saveFailed"),

@@ -116,9 +116,9 @@ function VerifyEmailPage() {
 			return
 		}
 
-		async function verify() {
+		async function verify(verifyToken: string) {
 			try {
-				const data = await verifyEmail.mutateAsync({ token })
+				const data = await verifyEmail.mutateAsync({ token: verifyToken })
 				setState({ status: "success" })
 				if (data.token) {
 					localStorage.setItem(AUTH.TOKEN_KEY, data.token)
@@ -143,7 +143,7 @@ function VerifyEmailPage() {
 			}
 		}
 
-		verify()
+		verify(token)
 		// Only run when token changes (on initial load with token from URL)
 	}, [token, navigate, verifyEmail, t])
 
