@@ -91,7 +91,7 @@ function DeleteAccountDialog() {
 					/>
 					{deleteAccount.isError && (
 						<p className="text-destructive text-sm">
-							{(deleteAccount.error as { message?: string })?.message ??
+							{deleteAccount.error?.error?.message ??
 								"Incorrect password. Please try again."}
 						</p>
 					)}
