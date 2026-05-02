@@ -63,4 +63,63 @@ export class AnalyticsService {
 	async getPlatformStats() {
 		return this.repo.getPlatformStats()
 	}
+
+	async getAdminTokenAnalytics(params: {
+		from?: string
+		to?: string
+		granularity?: string
+	}) {
+		const granularity = (params.granularity ?? "day") as Granularity
+		if (!GRANULARITIES.includes(granularity)) {
+			throw new ValidationError(
+				`granularity must be one of: ${GRANULARITIES.join(", ")}`,
+			)
+		}
+
+		const to = parseDate(params.to, new Date())
+		const from = parseDate(
+			params.from,
+			new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000),
+		)
+
+		return this.repo.getPlatformTokenUsageOverTime(from, to, granularity)
+	}
+
+	async getAdminConversationAnalytics(params: {
+		from?: string
+		to?: string
+		granularity?: string
+	}) {
+		const granularity = (params.granularity ?? "day") as Granularity
+		if (!GRANULARITIES.includes(granularity)) {
+			throw new ValidationError(
+				`granularity must be one of: ${GRANULARITIES.join(", ")}`,
+			)
+		}
+
+		const to = parseDate(params.to, new Date())
+		const from = parseDate(
+			params.from,
+			new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000),
+		)
+
+		return this.repo.getPlatformConversationCountsOverTime(
+			from,
+			to,
+			granularity,
+		)
+	}
+
+	async getAdminSummary() {
+		const [stats, activeTenants, avgSatisfaction] = await Promise.all([
+			this.repo.getPlatformStats(),
+			this.repo.getActiveTenantCount(30),
+			this.repo.getAvgPlatformSatisfaction(),
+		])
+		return {
+			...stats,
+			activeTenantsLast30Days: activeTenants,
+			avgSatisfactionRating: avgSatisfaction,
+		}
+	}
 }

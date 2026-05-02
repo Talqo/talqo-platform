@@ -26,6 +26,21 @@ const mockService = {
 		activeClients: 0,
 		totalConversations: 0,
 	})),
+	getAdminTokenAnalytics: mock(
+		async () =>
+			[] as { period: string; tokensUsed: number; costUsd: string | null }[],
+	),
+	getAdminConversationAnalytics: mock(
+		async () => [] as { period: string; conversationCount: number }[],
+	),
+	getAdminSummary: mock(async () => ({
+		totalTokens: 0,
+		totalCostUsd: "0" as string | null,
+		activeClients: 0,
+		totalConversations: 0,
+		activeTenantsLast30Days: 0,
+		avgSatisfactionRating: 0,
+	})),
 }
 
 mock.module("./index", () => ({ analyticsService: mockService }))
@@ -364,5 +379,102 @@ describe("GET /analytics/ (admin)", () => {
 		}
 		expect(body.totalTokens).toBe(50000)
 		expect(body.activeClients).toBe(3)
+	})
+})
+
+// ─── GET /analytics/summary (admin) ───────────────────────────────────────────
+
+describe("GET /analytics/summary (admin)", () => {
+	let app: ReturnType<typeof buildAdminApp>
+
+	beforeEach(() => {
+		app = buildAdminApp()
+		mockService.getAdminSummary.mockClear()
+		mockService.getAdminSummary.mockImplementation(async () => ({
+			totalTokens: 10000,
+			totalCostUsd: "5.00",
+			activeClients: 2,
+			totalConversations: 80,
+			activeTenantsLast30Days: 1,
+			avgSatisfactionRating: 4.2,
+		}))
+	})
+
+	it("returns 200 with admin summary", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/analytics/summary"),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as {
+			activeTenantsLast30Days: number
+			avgSatisfactionRating: number
+		}
+		expect(body.activeTenantsLast30Days).toBe(1)
+		expect(body.avgSatisfactionRating).toBe(4.2)
+	})
+})
+
+// ─── GET /analytics/tokens (admin) ────────────────────────────────────────────
+
+describe("GET /analytics/tokens (admin)", () => {
+	let app: ReturnType<typeof buildAdminApp>
+
+	beforeEach(() => {
+		app = buildAdminApp()
+		mockService.getAdminTokenAnalytics.mockClear()
+		mockService.getAdminTokenAnalytics.mockImplementation(async () => [
+			{ period: "2024-01-01T00:00:00.000Z", tokensUsed: 200, costUsd: "0.10" },
+		])
+	})
+
+	it("returns 200 with platform token usage data", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/analytics/tokens"),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as { period: string; tokensUsed: number }[]
+		expect(Array.isArray(body)).toBe(true)
+		expect(body[0].tokensUsed).toBe(200)
+	})
+
+	it("returns 400 for invalid granularity", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/analytics/tokens?granularity=hour"),
+		)
+		expect(res.status).toBe(400)
+	})
+})
+
+// ─── GET /analytics/conversations (admin) ─────────────────────────────────────
+
+describe("GET /analytics/conversations (admin)", () => {
+	let app: ReturnType<typeof buildAdminApp>
+
+	beforeEach(() => {
+		app = buildAdminApp()
+		mockService.getAdminConversationAnalytics.mockClear()
+		mockService.getAdminConversationAnalytics.mockImplementation(async () => [
+			{ period: "2024-01-01T00:00:00.000Z", conversationCount: 12 },
+		])
+	})
+
+	it("returns 200 with conversation count data", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/analytics/conversations"),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as {
+			period: string
+			conversationCount: number
+		}[]
+		expect(Array.isArray(body)).toBe(true)
+		expect(body[0].conversationCount).toBe(12)
+	})
+
+	it("returns 400 for invalid granularity", async () => {
+		const res = await app.fetch(
+			new Request("http://localhost/analytics/conversations?granularity=year"),
+		)
+		expect(res.status).toBe(400)
 	})
 })

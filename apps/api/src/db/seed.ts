@@ -432,6 +432,239 @@ async function seed() {
 		.onConflictDoNothing()
 	console.log("  ✓ usage records")
 
+	// ── Historical analytics data ──────────────────────────────────────────────
+	// 20 data points spread across the last 28 days so time-series charts show
+	// a real trend. Timestamps are relative to seed-run time so they always fall
+	// inside the default 30-day chart window.
+	const now = Date.now()
+	const daysAgo = (n: number) => new Date(now - n * 24 * 60 * 60 * 1000)
+	// Deterministic UUIDs: group selects the 4th UUID segment, i the last.
+	const hid = (group: string, i: number) =>
+		`00000000-0000-4000-8${group}00-${String(i).padStart(12, "0")}`
+
+	const HIST_SESSION_1 = hid("1", 1) // client1 reusable historical session
+	const HIST_SESSION_2 = hid("1", 2) // client2 reusable historical session
+
+	await db
+		.insert(endUserSessions)
+		.values([
+			{
+				id: HIST_SESSION_1,
+				clientId: ID.client1,
+				browserSessionId: "hist-browser-acme",
+			},
+			{
+				id: HIST_SESSION_2,
+				clientId: ID.client2,
+				browserSessionId: "hist-browser-tech",
+			},
+		])
+		.onConflictDoNothing()
+
+	const histPoints = [
+		{
+			d: 28,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 120,
+			cost: "0.000016",
+			rating: 4,
+		},
+		{
+			d: 27,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 80,
+			cost: "0.000011",
+			rating: 5,
+		},
+		{
+			d: 26,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 95,
+			cost: "0.000013",
+			rating: undefined,
+		},
+		{
+			d: 25,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 60,
+			cost: "0.000008",
+			rating: 3,
+		},
+		{
+			d: 24,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 140,
+			cost: "0.000019",
+			rating: 5,
+		},
+		{
+			d: 23,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 75,
+			cost: "0.000010",
+			rating: 2,
+		},
+		{
+			d: 22,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 110,
+			cost: "0.000015",
+			rating: 4,
+		},
+		{
+			d: 21,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 50,
+			cost: "0.000007",
+			rating: undefined,
+		},
+		{
+			d: 19,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 130,
+			cost: "0.000018",
+			rating: 5,
+		},
+		{
+			d: 18,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 90,
+			cost: "0.000012",
+			rating: 4,
+		},
+		{
+			d: 16,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 85,
+			cost: "0.000012",
+			rating: undefined,
+		},
+		{
+			d: 15,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 100,
+			cost: "0.000014",
+			rating: 3,
+		},
+		{
+			d: 13,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 115,
+			cost: "0.000016",
+			rating: 5,
+		},
+		{
+			d: 12,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 70,
+			cost: "0.000010",
+			rating: 4,
+		},
+		{
+			d: 10,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 125,
+			cost: "0.000017",
+			rating: 3,
+		},
+		{
+			d: 8,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 55,
+			cost: "0.000008",
+			rating: 5,
+		},
+		{
+			d: 7,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 95,
+			cost: "0.000013",
+			rating: undefined,
+		},
+		{
+			d: 5,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 80,
+			cost: "0.000011",
+			rating: 4,
+		},
+		{
+			d: 3,
+			clientId: ID.client1,
+			sessionId: HIST_SESSION_1,
+			t: 145,
+			cost: "0.000020",
+			rating: 5,
+		},
+		{
+			d: 1,
+			clientId: ID.client2,
+			sessionId: HIST_SESSION_2,
+			t: 65,
+			cost: "0.000009",
+			rating: 3,
+		},
+	]
+
+	await db
+		.insert(conversations)
+		.values(
+			histPoints.map((p, i) => ({
+				id: hid("2", i + 1),
+				sessionId: p.sessionId,
+				clientId: p.clientId,
+				startedAt: daysAgo(p.d),
+				satisfactionRating: p.rating,
+			})),
+		)
+		.onConflictDoNothing()
+
+	await db
+		.insert(messages)
+		.values(
+			histPoints.map((p, i) => ({
+				id: hid("3", i + 1),
+				conversationId: hid("2", i + 1),
+				role: "assistant" as const,
+				content: "Historical assistant response.",
+				tokenCount: p.t,
+			})),
+		)
+		.onConflictDoNothing()
+
+	await db
+		.insert(usageRecords)
+		.values(
+			histPoints.map((p, i) => ({
+				id: hid("4", i + 1),
+				clientId: p.clientId,
+				messageId: hid("3", i + 1),
+				tokensUsed: p.t,
+				costUsd: p.cost,
+				recordedAt: daysAgo(p.d),
+			})),
+		)
+		.onConflictDoNothing()
+	console.log("  ✓ historical analytics data (20 points over 28 days)")
+
 	console.log("Done.")
 	await pgClient.end()
 }
