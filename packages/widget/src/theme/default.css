@@ -180,7 +180,7 @@
 	border-radius: 0.5rem;
 	border: none;
 	background: transparent;
-	color: var(--widget-primary-foreground, rgba(255, 255, 255, 0.8));
+	color: var(--widget-primary-foreground, #ffffff);
 	cursor: pointer;
 }
 
@@ -682,18 +682,12 @@
 .aiw-footer {
 	text-align: center;
 	font-size: 0.625rem;
-	color: var(
-		--widget-footer-text,
-		var(--widget-primary-foreground, rgba(255, 255, 255, 0.8))
-	);
+	color: var(--widget-footer-text, var(--widget-primary-foreground, #ffffff));
 	padding: 0.5rem;
 	background-color: var(--widget-primary);
 }
 
 .aiw-root[data-theme="dark"] .aiw-footer {
 	background-color: var(--widget-primary);
-	color: var(
-		--widget-footer-text,
-		var(--widget-primary-foreground, rgba(255, 255, 255, 0.8))
-	);
+	color: var(--widget-footer-text, var(--widget-primary-foreground, #ffffff));
 }
