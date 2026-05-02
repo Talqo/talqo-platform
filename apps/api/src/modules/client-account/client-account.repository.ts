@@ -102,10 +102,12 @@ export class ClientAccountRepository {
 	}
 
 	async deleteAccount(id: string): Promise<void> {
-		await this.db
-			.delete(pendingRegistrations)
-			.where(eq(pendingRegistrations.consumedByClientId, id))
-		await this.db.delete(clients).where(eq(clients.id, id))
+		await this.db.transaction(async (tx) => {
+			await tx
+				.delete(pendingRegistrations)
+				.where(eq(pendingRegistrations.consumedByClientId, id))
+			await tx.delete(clients).where(eq(clients.id, id))
+		})
 	}
 }
 
