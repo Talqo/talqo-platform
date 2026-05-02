@@ -87,6 +87,56 @@ export function useAdminPlatformStats() {
 	})
 }
 
+export function useAdminAnalyticsSummary() {
+	return useQuery({
+		queryKey: ["admin", "analytics", "summary"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/analytics/summary", {})
+			if (error) throw error
+			return data
+		},
+	})
+}
+
+export function useAdminTokenAnalytics(
+	params: {
+		from?: string
+		to?: string
+		granularity?: "day" | "week" | "month"
+	} = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "analytics", "tokens", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/analytics/tokens", {
+				params: { query: params },
+			})
+			if (error) throw error
+			return data
+		},
+	})
+}
+
+export function useAdminConversationAnalytics(
+	params: {
+		from?: string
+		to?: string
+		granularity?: "day" | "week" | "month"
+	} = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "analytics", "conversations", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET(
+				"/admin/analytics/conversations",
+				{ params: { query: params } },
+			)
+			if (error) throw error
+			return data
+		},
+	})
+}
+
 // ─── Admin Conversations ───────────────────────────────────────────────────────
 
 export function useAdminConversations(

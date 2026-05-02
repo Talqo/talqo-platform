@@ -5,16 +5,21 @@ import {
 	DollarSign,
 	Loader2,
 	MessageSquare,
+	Star,
+	Users,
 } from "lucide-react"
 import { useState } from "react"
 import {
+	useAdminAnalyticsSummary,
 	useAdminClients,
-	useAdminPlatformStats,
+	useAdminConversationAnalytics,
+	useAdminTokenAnalytics,
 	useImpersonateClient,
 	useUpdateClientStatus,
 } from "@/api/hooks/useAdmin"
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
 import { TenantsTable } from "@/components/backoffice/TenantsTable"
+import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
 	AlertDialog,
@@ -34,7 +39,16 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import type { Tenant } from "@/data/backoffice"
+import type { ChartDataPoint } from "@/data/charts"
 import { AUTH } from "@/lib/constants"
+
+function formatPeriod(period: string): string {
+	return new Date(period).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		timeZone: "UTC",
+	})
+}
 
 type Client = {
 	id: string
@@ -67,7 +81,9 @@ export const Route = createFileRoute("/backoffice/")({
 function BackofficePage() {
 	const navigate = useNavigate()
 	const { data: clients, isLoading, error } = useAdminClients({ limit: 50 })
-	const { data: stats } = useAdminPlatformStats()
+	const { data: stats } = useAdminAnalyticsSummary()
+	const { data: tokenData } = useAdminTokenAnalytics()
+	const { data: conversationData } = useAdminConversationAnalytics()
 	const updateStatus = useUpdateClientStatus()
 	const impersonate = useImpersonateClient()
 	const [pendingId, setPendingId] = useState<string | undefined>()
@@ -80,6 +96,20 @@ function BackofficePage() {
 	// close animation so labels don't flip when confirmAction is cleared.
 	const [dialogType, setDialogType] = useState<"suspend" | "reenable">(
 		"suspend",
+	)
+
+	const tokenChartData: ChartDataPoint[] = (tokenData ?? []).map((d) => ({
+		name: formatPeriod(d.period),
+		tokens: d.tokensUsed,
+		questions: 0,
+	}))
+
+	const conversationChartData: ChartDataPoint[] = (conversationData ?? []).map(
+		(d) => ({
+			name: formatPeriod(d.period),
+			tokens: 0,
+			questions: d.conversationCount,
+		}),
 	)
 
 	function handleSuspend(id: string) {
@@ -188,6 +218,27 @@ function BackofficePage() {
 					subtitle="All time"
 					icon={MessageSquare}
 				/>
+				<BackOfficeStatCard
+					title="Active Tenants (30d)"
+					value={stats?.activeTenantsLast30Days?.toString() ?? "—"}
+					subtitle="With conversations in last 30 days"
+					icon={Users}
+				/>
+				<BackOfficeStatCard
+					title="Avg Satisfaction"
+					value={
+						stats?.avgSatisfactionRating != null
+							? `${Number(stats.avgSatisfactionRating).toFixed(1)} / 5`
+							: "No data"
+					}
+					subtitle="Platform-wide rating"
+					icon={Star}
+				/>
+			</div>
+
+			<div className="grid gap-4 md:grid-cols-2">
+				<TokenConsumptionChart data={tokenChartData} />
+				<QuestionsAskedChart data={conversationChartData} />
 			</div>
 
 			<Card>
