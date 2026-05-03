@@ -56,6 +56,7 @@ export function useAddFunds() {
 }
 
 export function useSetUsageLimit() {
+	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (body: { limit: number | null }) => {
 			const { data, error } = await client.PATCH("/client/me/usage-limit", {
@@ -64,10 +65,12 @@ export function useSetUsageLimit() {
 			if (error) throw error
 			return data
 		},
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
 }
 
 export function useSetUsageAlert() {
+	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (body: { thresholdUsd: number | null }) => {
 			const { data, error } = await client.PATCH("/client/me/usage-alert", {
@@ -76,6 +79,7 @@ export function useSetUsageAlert() {
 			if (error) throw error
 			return data
 		},
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
 }
 
