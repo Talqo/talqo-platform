@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import type { McpServerConfig } from "shared"
+import type { McpRemoteServerConfig, McpServerConfig } from "shared"
 import {
 	useCreateCustomServer,
 	useUpdateCustomServer,
@@ -53,7 +53,7 @@ function toFormValues(config?: McpServerConfig): McpServerConfigFormValues {
 function toMcpConfig(
 	values: McpServerConfigFormValues,
 	existing?: McpServerConfig,
-): McpServerConfig {
+): McpRemoteServerConfig {
 	const headers =
 		existing && "headers" in existing ? existing.headers : undefined
 	return {

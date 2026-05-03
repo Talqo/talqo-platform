@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import type { McpRemoteServerConfig } from "shared"
 import { client } from "../client"
 
 // ─── Pre-made servers ──────────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ export function useCustomServers() {
 export function useCreateCustomServer() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: async (body: { mcpConfig: unknown }) => {
+		mutationFn: async (body: { mcpConfig: McpRemoteServerConfig }) => {
 			const { data, error } = await client.POST("/client/me/mcp/custom", {
 				body,
 			})
@@ -93,7 +94,7 @@ export function useUpdateCustomServer() {
 			mcpConfig,
 		}: {
 			serverId: string
-			mcpConfig: unknown
+			mcpConfig: McpRemoteServerConfig
 		}) => {
 			const { data, error } = await client.PATCH(
 				"/client/me/mcp/custom/{serverId}",

@@ -506,7 +506,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
                     "application/json": {
                         password: string;
@@ -1345,7 +1345,23 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };
@@ -1437,7 +1453,23 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };
@@ -3105,7 +3137,31 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "stdio";
+                            command: string;
+                            args?: string[];
+                            env?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };
@@ -3195,7 +3251,31 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "stdio";
+                            command: string;
+                            args?: string[];
+                            env?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };

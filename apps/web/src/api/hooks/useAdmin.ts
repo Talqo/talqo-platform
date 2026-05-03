@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import type { McpServerConfigInput } from "shared"
 import { client } from "../client"
 import type { ApiError } from "./useAuth"
 
@@ -185,7 +186,7 @@ export function useAdminPreMadeServers() {
 export function useAdminCreatePreMadeServer() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: async (body: { mcpConfig: unknown }) => {
+		mutationFn: async (body: { mcpConfig: McpServerConfigInput }) => {
 			const { data, error } = await client.POST("/admin/mcp/pre-made", {
 				body,
 			})
@@ -205,7 +206,7 @@ export function useAdminUpdatePreMadeServer() {
 			mcpConfig,
 		}: {
 			serverId: string
-			mcpConfig: unknown
+			mcpConfig: McpServerConfigInput
 		}) => {
 			const { data, error } = await client.PATCH(
 				"/admin/mcp/pre-made/{serverId}",
