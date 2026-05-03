@@ -85,4 +85,14 @@ export class ClientAccountService {
 		if (!updated) throw new NotFoundError("Client not found")
 		return updated.widgetToken
 	}
+
+	async deleteAccount(clientId: string, password: string): Promise<void> {
+		const hash = await this.repo.getPasswordHash(clientId)
+		if (!hash) throw new NotFoundError("Client not found")
+
+		const valid = await Bun.password.verify(password, hash)
+		if (!valid) throw new UnauthorizedError("Password is incorrect")
+
+		await this.repo.deleteAccount(clientId)
+	}
 }

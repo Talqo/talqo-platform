@@ -39,7 +39,7 @@
 | FR-2.2 | Client can log in and log out of the dashboard | High | Approved | Done |
 | FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved | Done |
 | FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved | Done |
-| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Not started |
+| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Done |
 | FR-2.5a | Client can rotate the widget token to invalidate the old embed code | Medium | Approved | Done |
 
 #### FR-2b: API configuration
