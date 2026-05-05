@@ -223,35 +223,6 @@ export function useCurrentUser() {
 	})
 }
 
-// Get current admin (for admin dashboard)
-type AdminProfile = {
-	id: string
-	email: string
-	role: "admin"
-}
-
-export function useCurrentAdmin() {
-	return useQuery<AdminProfile>({
-		queryKey: ["admin", "me"],
-		queryFn: async () => {
-			const response = await fetch(
-				`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/admin/me`,
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem(AUTH.ADMIN_TOKEN_KEY) ?? ""}`,
-					},
-				},
-			)
-			if (!response.ok) {
-				throw new Error("Failed to fetch admin profile")
-			}
-			const result = await response.json()
-			return result as AdminProfile
-		},
-		enabled: !!localStorage.getItem(AUTH.ADMIN_TOKEN_KEY),
-	})
-}
-
 // Unified login hook that tries client first, then admin
 // Only exposes error after both attempts fail
 export function useUnifiedLogin() {

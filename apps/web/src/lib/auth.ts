@@ -2,6 +2,7 @@
  * Auth utilities for token validation
  * Used by protected routes and auto-login functionality
  */
+import { getApiBaseUrl } from "./api"
 import { STORAGE_KEYS } from "./constants"
 
 export type TokenValidationResult = {
@@ -21,34 +22,6 @@ export function isValidAuthValidationEndpoint(
 	value: string,
 ): value is AuthValidationEndpoint {
 	return value === "/client/me" || value === "/admin/me"
-}
-
-/**
- * Get the API base URL from environment variables
- * @throws Error if VITE_API_URL is not configured or is invalid
- */
-function getApiBaseUrl(): string {
-	const baseUrl = import.meta.env.VITE_API_URL
-	if (!baseUrl) {
-		throw new Error(
-			"VITE_API_URL is not configured. Please set the API URL in your environment.",
-		)
-	}
-
-	// Validate URL format and scheme
-	try {
-		const url = new URL(baseUrl)
-		if (url.protocol !== "http:" && url.protocol !== "https:") {
-			throw new Error(
-				`Invalid VITE_API_URL: "${baseUrl}". URL must use http or https protocol.`,
-			)
-		}
-		return baseUrl
-	} catch {
-		throw new Error(
-			`Invalid VITE_API_URL: "${baseUrl}". Please provide a valid absolute URL (e.g., "https://api.example.com").`,
-		)
-	}
 }
 
 /**

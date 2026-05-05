@@ -9,7 +9,8 @@ import { writeFileSync } from "node:fs"
 import { resolve } from "node:path"
 
 const apiUrl = process.env.API_URL ?? "http://localhost:3000"
-const specUrl = `${apiUrl}/openapi.json`
+const healthUrl = `${apiUrl}/health`
+const specUrl = `${apiUrl}/v1/openapi.json`
 const apiDir = resolve(import.meta.dir, "../../api")
 
 const outDir = resolve(import.meta.dir, "../src/api/generated")
@@ -52,7 +53,7 @@ function killApiProcess(proc: ReturnType<typeof spawn>): void {
 let apiProcess: ReturnType<typeof spawn> | null = null
 
 try {
-	const check = await fetch(specUrl, { signal: AbortSignal.timeout(5000) })
+	const check = await fetch(healthUrl, { signal: AbortSignal.timeout(5000) })
 	if (!check.ok) throw new Error("not running")
 	console.log("API already running, using existing instance")
 } catch {
@@ -64,7 +65,7 @@ try {
 	})
 
 	console.log("Waiting for API to be ready...")
-	const ready = await waitForApi(specUrl)
+	const ready = await waitForApi(healthUrl)
 	if (!ready) {
 		console.error("API failed to start within timeout")
 		if (apiProcess) killApiProcess(apiProcess)
