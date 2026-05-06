@@ -53,7 +53,7 @@ All four deployment metadata vars are optional. Omit them in local dev; set them
 
 ## Domain context namespaces
 
-The event type (`WideEvent` in `src/common/wide-event.types.ts`) uses named namespaces for domain context. All namespaces are optional — only present on routes where they apply.
+The event type (`WideEvent` in `apps/api/src/common/wide-event.types.ts`) uses named namespaces for domain context. All namespaces are optional — only present on routes where they apply.
 
 ### `auth` — authentication endpoints
 
@@ -127,13 +127,13 @@ Not yet wired in route handlers. Type is defined in `WideEvent` — add enrichme
 
 ## Adding an exporter (OpenTelemetry / Sentry)
 
-The middleware is a factory (`src/common/middleware/wide-event.ts`):
+The middleware is a factory (`apps/api/src/common/middleware/wide-event.ts`):
 
 ```ts
 export function createWideEventMiddleware(exporters: EventExporter[] = [])
 ```
 
-Each exporter implements `{ export(event: WideEvent): void }` from `src/common/wide-event.types.ts`. Register exporters in `app.ts`:
+Each exporter implements `{ export(event: WideEvent): void }` from `apps/api/src/common/wide-event.types.ts`. Register exporters in `apps/api/src/app.ts`:
 
 ```ts
 import { createWideEventMiddleware } from "./common/middleware/wide-event"
