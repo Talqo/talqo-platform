@@ -282,8 +282,10 @@ function BackofficePage() {
 						)}
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<Button onClick={handleConfirm}>
+						<AlertDialogCancel disabled={updateStatus.isPending}>
+							Cancel
+						</AlertDialogCancel>
+						<Button onClick={handleConfirm} disabled={updateStatus.isPending}>
 							{dialogType === "suspend" ? "Suspend" : "Re-enable"}
 						</Button>
 					</AlertDialogFooter>
