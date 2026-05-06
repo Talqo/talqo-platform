@@ -58,7 +58,16 @@ src/
 
 ## Logging
 
-Use `src/common/logger.ts` (never `console.*`). Output is NDJSON. HTTP requests logged automatically — don't log them in routes. Rethrow unhandled errors so `errorHandler` logs them.
+Use `src/common/logger.ts` (never `console.*`). Output is NDJSON.
+
+Each request emits one structured `"wide_event"` log line via `wideEventMiddleware` (registered globally in `app.ts`). Do not log HTTP request/response fields in routes — they are captured automatically. Enrich the wide event with domain context instead:
+
+```ts
+const wideEvent = c.get("wideEvent")
+wideEvent.widget = { session_id: session.id }
+```
+
+See `src/common/wide-event.types.ts` for the full event shape and `docs/logging.md` for field reference. Rethrow unhandled errors so `errorHandler` logs them.
 
 ## OpenAPI / docs
 

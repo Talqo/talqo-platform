@@ -56,6 +56,10 @@ const envSchema = z
 		DEFAULT_LLM_BASE_URL: z.string().url().optional(),
 		// Comma-separated list of trusted proxy IPs; when the direct connection is from one of these IPs, X-Forwarded-For is trusted
 		TRUSTED_PROXY_IPS: z.string().optional(),
+		SERVICE_NAME: z.string().optional(),
+		SERVICE_VERSION: z.string().optional(),
+		DEPLOYMENT_ID: z.string().optional(),
+		REGION: z.string().optional(),
 	})
 	.refine(
 		(data) => {

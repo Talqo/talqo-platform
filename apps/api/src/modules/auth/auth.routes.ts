@@ -8,7 +8,12 @@ import {
 	VerifyEmailSchema,
 	VerifyResetTokenSchema,
 } from "shared"
-import { AppError } from "../../common/errors"
+import { hashEmail } from "../../common/crypto"
+import {
+	AppError,
+	ForbiddenError,
+	UnauthorizedError,
+} from "../../common/errors"
 import type { AppVariables } from "../../common/jwt"
 import {
 	errorResponseSchema,
@@ -57,6 +62,7 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { name, email, password } = c.req.valid("json")
+			const emailHash = await hashEmail(email)
 			try {
 				await service.register(name, email, password)
 			} catch (err) {
@@ -76,6 +82,13 @@ export function createAuthRouter(
 				}
 				throw err
 			}
+			const wideEvent = c.get("wideEvent") as
+				| Record<string, unknown>
+				| undefined
+			if (wideEvent)
+				Object.assign(wideEvent, {
+					auth: { outcome: "registered", email_hash: emailHash },
+				})
 			return c.json({ message: "Verification email sent" }, 201)
 		},
 	)
@@ -159,7 +172,26 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { email, password } = c.req.valid("json")
-			const token = await service.login(email, password)
+			const emailHash = await hashEmail(email)
+			let token: string
+			const wideEvent = c.get("wideEvent") as
+				| Record<string, unknown>
+				| undefined
+			try {
+				token = await service.login(email, password)
+				if (wideEvent)
+					Object.assign(wideEvent, {
+						auth: { outcome: "logged_in", email_hash: emailHash },
+					})
+			} catch (err) {
+				if (err instanceof UnauthorizedError || err instanceof ForbiddenError) {
+					if (wideEvent)
+						Object.assign(wideEvent, {
+							auth: { outcome: "invalid_credentials", email_hash: emailHash },
+						})
+				}
+				throw err
+			}
 			return c.json({ token }, 200)
 		},
 	)
