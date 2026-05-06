@@ -17,7 +17,7 @@ src/
 │   ├── crypto.ts   # AES-256-GCM encrypt/decrypt for provider API keys at rest
 │   ├── logger.ts   # Structured logger — never use console.*
 │   ├── schemas.ts  # successResponseSchema / errorResponseSchema helpers
-│   └── middleware/ # clientAuth, widgetAuth, adminAuth, requestLogger, errorHandler, widgetRateLimit, adminAuditLog
+│   └── middleware/ # clientAuth, widgetAuth, adminAuth, wideEvent, errorHandler, widgetRateLimit, adminAuditLog
 ├── db/
 │   └── index.ts    # Local Drizzle client (re-exports schema from packages/db)
 └── modules/<feature>/
