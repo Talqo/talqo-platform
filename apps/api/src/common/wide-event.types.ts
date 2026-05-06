@@ -19,7 +19,6 @@ export type WideEvent = {
 	/** Auth endpoints (register / login) */
 	auth?: {
 		outcome: "registered" | "logged_in" | "invalid_credentials"
-		email_hash: string
 	}
 	/** Set by clientAuth middleware for /client/* and /widget/* routes */
 	client?: {

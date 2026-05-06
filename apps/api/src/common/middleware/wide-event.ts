@@ -43,7 +43,11 @@ export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 				event as unknown as Record<string, unknown>,
 			)
 			for (const exporter of exporters) {
-				exporter.export(event)
+				try {
+					exporter.export(event)
+				} catch {
+					// Exporter failures must not affect the response or suppress the original error
+				}
 			}
 		}
 	})

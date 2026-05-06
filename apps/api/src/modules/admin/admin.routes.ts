@@ -6,7 +6,6 @@ import {
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
-import { hashEmail } from "../../common/crypto"
 import { NotFoundError, UnauthorizedError } from "../../common/errors"
 import {
 	errorResponseSchema,
@@ -57,20 +56,14 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const body = c.req.valid("json")
-			const emailHash = await hashEmail(body.email)
 			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
 			let result: Awaited<ReturnType<typeof service.login>>
 			try {
 				result = await service.login(body)
-				if (wideEvent)
-					wideEvent.auth = { outcome: "logged_in", email_hash: emailHash }
+				if (wideEvent) wideEvent.auth = { outcome: "logged_in" }
 			} catch (err) {
 				if (err instanceof UnauthorizedError) {
-					if (wideEvent)
-						wideEvent.auth = {
-							outcome: "invalid_credentials",
-							email_hash: emailHash,
-						}
+					if (wideEvent) wideEvent.auth = { outcome: "invalid_credentials" }
 				}
 				throw err
 			}

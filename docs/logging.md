@@ -8,7 +8,8 @@ Every HTTP request emits a single structured JSON log line (`message: "wide_even
 2. It initialises the event with base HTTP and deployment fields and stores it on the Hono context as `wideEvent`.
 3. Route handlers can enrich the event by mutating `c.get("wideEvent")`:
    ```ts
-   c.get("wideEvent").client_id = c.get("clientId")
+   const wideEvent = c.get("wideEvent")
+   wideEvent.widget = { session_id: session.id, is_new_session: isNew }
    ```
 4. After the handler returns (or throws), the middleware appends outcome fields and emits the event via the structured logger.
 
@@ -61,7 +62,6 @@ Set on login / register handlers.
 | Field | Type | Value |
 |---|---|---|
 | `auth.outcome` | `"registered" \| "logged_in" \| "invalid_credentials"` | Result of the auth attempt |
-| `auth.email_hash` | `string` | SHA-256 of the email — cross-request correlation without PII |
 
 ### `client` — authenticated client routes (`/v1/client/*`, `/v1/widget/*`)
 
