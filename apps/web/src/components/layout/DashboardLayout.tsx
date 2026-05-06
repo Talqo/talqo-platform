@@ -6,6 +6,7 @@ import {
 	FileText,
 	LayoutDashboard,
 	LogOut,
+	MessageSquare,
 	Moon,
 	Settings,
 	Sun,
@@ -30,6 +31,7 @@ export function DashboardLayout() {
 		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
 		{ icon: Wrench, label: "Tools MCP", href: "/dashboard/tools" },
 		{ icon: Code, label: "Widget Setup", href: "/dashboard/widget-setup" },
+		{ icon: MessageSquare, label: "Chat Previews", href: "/dashboard/chats" },
 		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
 	]
 

@@ -2102,6 +2102,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/me/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List own conversations */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversation list */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messageCount: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/client/me/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get own conversation with messages */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    conversationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversation detail with messages */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                conversationId: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "system";
+                                content: string;
+                                tokenCount: number;
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Conversation not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/widget/sessions": {
         parameters: {
             query?: never;

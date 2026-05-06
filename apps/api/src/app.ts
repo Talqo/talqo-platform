@@ -23,6 +23,7 @@ import { authRoutes } from "./modules/auth"
 import { blacklistRoutes } from "./modules/blacklist"
 import { botConfigRoutes } from "./modules/bot-config"
 import { clientAccountRoutes } from "./modules/client-account"
+import { clientConversationRoutes } from "./modules/client-conversations"
 import { filesRoutes } from "./modules/files"
 import { adminMcpRoutes, clientMcpRoutes } from "./modules/mcp"
 import { providerConfigRoutes } from "./modules/provider-config"
@@ -61,6 +62,7 @@ v1.route("/client/me/mcp", clientMcpRoutes)
 v1.route("/client/me/analytics", clientAnalyticsRoutes)
 v1.route("/client/me/provider-config", providerConfigRoutes)
 v1.route("/client/me/files", filesRoutes)
+v1.route("/client/me/conversations", clientConversationRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 v1.use("/widget/*", widgetAuth)
