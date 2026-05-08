@@ -60,6 +60,7 @@ const envSchema = z
 		SERVICE_VERSION: z.string().optional(),
 		DEPLOYMENT_ID: z.string().optional(),
 		REGION: z.string().optional(),
+		SENTRY_DSN: z.string().url().optional(),
 	})
 	.refine(
 		(data) => {

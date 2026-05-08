@@ -7,8 +7,9 @@ import { adminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
-import { wideEventMiddleware } from "./common/middleware/wide-event"
+import { createWideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
+import { SentryExporter } from "./common/sentry-exporter"
 import {
 	adminActivityLogsRoutes,
 	adminAuthRoutes,
@@ -43,7 +44,7 @@ app.use("/*", async (c, next) => {
 	c.set("logger", logger.withContext({ requestId }))
 	await next()
 })
-app.use("/*", wideEventMiddleware)
+app.use("/*", createWideEventMiddleware([new SentryExporter()]))
 app.onError(errorHandler)
 
 app.get("/", (c) => c.text("PagePal API"))

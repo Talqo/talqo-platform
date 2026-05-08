@@ -28,6 +28,7 @@ export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 		} catch (err) {
 			event.status_code = err instanceof AppError ? err.statusCode : 500
 			event.outcome = "error"
+			event._originalError = err
 			event.error = {
 				type: err instanceof Error ? err.constructor.name : "UnknownError",
 				message: err instanceof Error ? err.message : String(err),

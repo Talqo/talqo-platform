@@ -56,6 +56,8 @@ export type WideEvent = {
 		from_path?: string
 		to_path?: string
 	}
+	// Not logged — carried so exporters can access the original exception for stack traces.
+	_originalError?: unknown
 }
 
 export type EventExporter = {

@@ -24,6 +24,7 @@
 		"@hono/zod-openapi": "^1.2.4",
 		"@hono/zod-validator": "^0.7.6",
 		"@scalar/hono-api-reference": "^0.10.5",
+		"@sentry/bun": "^10.52.0",
 		"ai": "^6.0.141",
 		"db": "workspace:*",
 		"drizzle-orm": "^0.45.1",
