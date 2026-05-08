@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
+export const DEFAULT_WELCOME_MESSAGE = "Hi! How can I help you today?"
+
 export type WidgetTheme = "light" | "dark"
 
 export type MessageRole = "user" | "assistant"
@@ -326,7 +328,7 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 			{
 				id: "welcome",
 				role: "assistant",
-				content: "Hi! How can I help you today?",
+				content: DEFAULT_WELCOME_MESSAGE,
 			},
 		],
 		position = "right",
@@ -602,7 +604,7 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 			{
 				id: "welcome",
 				role: "assistant",
-				content: "Hi! How can I help you today?",
+				content: DEFAULT_WELCOME_MESSAGE,
 			},
 		])
 		setShowRatingPrompt(false)

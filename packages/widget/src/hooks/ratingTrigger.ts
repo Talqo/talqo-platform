@@ -1,4 +1,4 @@
-import type { Message } from "./useWidget"
+import { DEFAULT_WELCOME_MESSAGE, type Message } from "./useWidget"
 
 export function shouldShowRatingPrompt(
 	messages: Message[],
@@ -8,8 +8,7 @@ export function shouldShowRatingPrompt(
 
 	const hasUserMessage = messages.some((m) => m.role === "user")
 	const hasAssistantResponse = messages.some(
-		(m) =>
-			m.role === "assistant" && m.content !== "Hi! How can I help you today?",
+		(m) => m.role === "assistant" && m.content !== DEFAULT_WELCOME_MESSAGE,
 	)
 
 	return hasUserMessage && hasAssistantResponse
