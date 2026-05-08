@@ -16,6 +16,9 @@ export const STORAGE_KEYS = {
 	// Auth
 	TOKEN: "token",
 	ADMIN_TOKEN: "admin_token",
+
+	// i18n
+	LANG: "pagepal:lang",
 } as const
 
 // Default values

@@ -4,6 +4,8 @@ import cs from "./locales/cs.json"
 import en from "./locales/en.json"
 import zh from "./locales/zh.json"
 
+const PAGEPAL_LANG_KEY = "pagepal:lang"
+
 const resources = {
 	en: { translation: en },
 	cs: { translation: cs },
@@ -14,7 +16,8 @@ i18n
 	.use(initReactI18next)
 	.init({
 		lng:
-			(typeof window !== "undefined" && localStorage.getItem("pagepal:lang")) ||
+			(typeof window !== "undefined" &&
+				localStorage.getItem(PAGEPAL_LANG_KEY)) ||
 			"en",
 		fallbackLng: "en",
 		resources,

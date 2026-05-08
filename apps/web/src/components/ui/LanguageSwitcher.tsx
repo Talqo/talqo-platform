@@ -1,6 +1,7 @@
 import { Globe } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
+import { STORAGE_KEYS } from "@/lib/constants"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,7 +20,7 @@ export function LanguageSwitcher() {
 
 	const changeLanguage = (lng: string) => {
 		i18n.changeLanguage(lng)
-		localStorage.setItem("pagepal:lang", lng)
+		localStorage.setItem(STORAGE_KEYS.LANG, lng)
 	}
 
 	return (
