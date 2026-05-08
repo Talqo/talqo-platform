@@ -10,6 +10,7 @@ import { errorHandler } from "./common/middleware/error-handler"
 import { wideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
 import {
+	adminActivityLogsRoutes,
 	adminAuthRoutes,
 	adminClientRoutes,
 	adminConversationRoutes,
@@ -83,6 +84,7 @@ v1.route("/admin/me", adminMeRoutes)
 v1.route("/admin/clients", adminClientRoutes)
 v1.route("/admin/analytics", adminAnalyticsRoutes)
 v1.route("/admin/conversations", adminConversationRoutes)
+v1.route("/admin/activity-logs", adminActivityLogsRoutes)
 v1.route("/admin/mcp/pre-made", adminMcpRoutes)
 
 // ─── Security scheme definitions ─────────────────────────────────────────────

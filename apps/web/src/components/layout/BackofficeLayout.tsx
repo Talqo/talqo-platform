@@ -56,7 +56,8 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 					{navItems.map((item) => {
 						const isActive =
 							location.pathname === item.href ||
-							location.pathname.startsWith(`${item.href}/`)
+							(item.href !== "/backoffice" &&
+								location.pathname.startsWith(`${item.href}/`))
 						return (
 							<Link
 								key={item.href}
