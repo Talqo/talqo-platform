@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { shouldShowRatingPrompt } from "./ratingTrigger"
+
+export const DEFAULT_WELCOME_MESSAGE = "Hi! How can I help you today?"
 
 export type WidgetTheme = "light" | "dark"
 
@@ -65,6 +68,12 @@ export type UseWidgetReturn = {
 	sendMessage: () => void
 	/** Clear all messages */
 	clearMessages: () => void
+	/** Whether to show the rating prompt */
+	showRatingPrompt: boolean
+	/** Whether a rating has been submitted */
+	ratingSubmitted: boolean
+	/** Submit a satisfaction rating */
+	submitRating: (rating: number) => void
 }
 
 // Namespaced localStorage key to avoid collisions with host pages
@@ -227,6 +236,25 @@ class WidgetApi {
 			reader.releaseLock()
 		}
 	}
+
+	async submitRating(
+		sessionId: string,
+		conversationId: string,
+		rating: number,
+	): Promise<void> {
+		const url = `${this.config.apiUrl}/widget/sessions/${sessionId}/conversations/${conversationId}`
+		const res = await fetch(url, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				"X-Widget-Token": this.config.widgetToken,
+			},
+			body: JSON.stringify({ rating }),
+		})
+		if (!res.ok) {
+			throw new Error(await this.parseErrorBody(res))
+		}
+	}
 }
 
 function parseSseBuffer(buffer: string): {
@@ -301,7 +329,7 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 			{
 				id: "welcome",
 				role: "assistant",
-				content: "Hi! How can I help you today?",
+				content: DEFAULT_WELCOME_MESSAGE,
 			},
 		],
 		position = "right",
@@ -317,10 +345,18 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 	const [isTyping, setIsTyping] = useState(false)
 	const [theme, setTheme] = useState<WidgetTheme>(defaultTheme)
 	const [error, setError] = useState<string | null>(null)
+	const [showRatingPrompt, setShowRatingPrompt] = useState(false)
+	const [ratingSubmitted, setRatingSubmitted] = useState(false)
 
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const isRightPosition = position === "right"
 	const isDark = theme === "dark"
+
+	useEffect(() => {
+		if (shouldShowRatingPrompt(messages, ratingSubmitted)) {
+			setShowRatingPrompt(true)
+		}
+	}, [messages, ratingSubmitted])
 
 	const { widgetToken, apiUrl } = apiConfig
 
@@ -530,6 +566,29 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 			})
 	}, [inputValue, isTyping])
 
+	const submitRating = useCallback((rating: number) => {
+		if (rating < 1 || rating > 5) {
+			setError("Rating must be between 1 and 5")
+			return
+		}
+		const session = sessionRef.current
+		const conversation = conversationRef.current
+		const api = apiRef.current
+		if (!session || !conversation || !api) {
+			setError("Chat not initialized yet. Please wait.")
+			return
+		}
+		api
+			.submitRating(session.id, conversation.id, rating)
+			.then(() => {
+				setRatingSubmitted(true)
+				setShowRatingPrompt(false)
+			})
+			.catch((err: unknown) => {
+				setError(err instanceof Error ? err.message : String(err))
+			})
+	}, [])
+
 	const clearMessages = useCallback(() => {
 		if (abortRef.current) {
 			abortRef.current.abort()
@@ -545,9 +604,11 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 			{
 				id: "welcome",
 				role: "assistant",
-				content: "Hi! How can I help you today?",
+				content: DEFAULT_WELCOME_MESSAGE,
 			},
 		])
+		setShowRatingPrompt(false)
+		setRatingSubmitted(false)
 
 		// Start a fresh conversation
 		conversationRef.current = null
@@ -584,6 +645,9 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		setInputValue,
 		sendMessage,
 		clearMessages,
+		showRatingPrompt,
+		ratingSubmitted,
+		submitRating,
 	}
 }
 
