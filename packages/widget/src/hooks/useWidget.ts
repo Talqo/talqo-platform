@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { shouldShowRatingPrompt } from "./ratingTrigger"
 
 export const DEFAULT_WELCOME_MESSAGE = "Hi! How can I help you today?"
 
@@ -352,8 +353,7 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 	const isDark = theme === "dark"
 
 	useEffect(() => {
-		const assistantCount = messages.filter((m) => m.role === "assistant").length
-		if (assistantCount >= 3 && !ratingSubmitted) {
+		if (shouldShowRatingPrompt(messages, ratingSubmitted)) {
 			setShowRatingPrompt(true)
 		}
 	}, [messages, ratingSubmitted])
