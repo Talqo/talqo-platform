@@ -258,7 +258,8 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			const { status } = c.req.valid("json")
 			const updated = await service.updateClientStatus(clientId, status)
 			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
-			if (wideEvent?.admin) {
+			if (wideEvent) {
+				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
 				wideEvent.admin.target_client_id = clientId
 				wideEvent.admin.action = status === "suspended" ? "suspend" : "enable"
 			}
@@ -295,7 +296,8 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			const { clientId } = c.req.valid("param")
 			const result = await service.impersonate(clientId)
 			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
-			if (wideEvent?.admin) {
+			if (wideEvent) {
+				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
 				wideEvent.admin.target_client_id = clientId
 				wideEvent.admin.action = "impersonate"
 			}
