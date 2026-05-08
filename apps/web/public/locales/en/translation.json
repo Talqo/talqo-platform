@@ -481,8 +481,7 @@
 			"impersonate": "Impersonate",
 			"suspend": "Suspend",
 			"reEnable": "Re-enable",
-			"platformDefault": "Platform Default",
-			"noTenants": "No tenants found"
+			"platformDefault": "Platform Default"
 		},
 		"conversationsTable": {
 			"client": "Client",
@@ -493,19 +492,11 @@
 			"noConversationsFound": "No conversations found",
 			"close": "Close",
 			"view": "View",
-			"noConversations": "No conversations found",
 			"failedToLoadConversation": "Failed to load conversation",
 			"noMessages": "No messages",
 			"chatPreviews": "Chat Previews",
 			"chatPreviewsDescription": "Browse and inspect end-user conversations (showing most recent 50)",
 			"ratingLabel": "Rating"
-		},
-		"chatPreviews": {
-			"title": "Chat Previews",
-			"description": "Browse and inspect end-user conversations (showing most recent 50)",
-			"rating": "Rating",
-			"failedToLoadConversation": "Failed to load conversation",
-			"noMessages": "No messages"
 		}
 	},
 	"auth": {

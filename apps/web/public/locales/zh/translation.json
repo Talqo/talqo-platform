@@ -611,8 +611,7 @@
 			"impersonate": "模拟",
 			"suspend": "暂停",
 			"reEnable": "重新启用",
-			"platformDefault": "平台默认",
-			"noTenants": "未找到租户"
+			"platformDefault": "平台默认"
 		},
 		"conversationsTable": {
 			"client": "客户",
@@ -623,19 +622,11 @@
 			"noConversationsFound": "未找到对话",
 			"close": "关闭",
 			"view": "查看",
-			"noConversations": "未找到对话",
 			"failedToLoadConversation": "加载对话失败",
 			"noMessages": "暂无消息",
 			"chatPreviews": "聊天预览",
 			"chatPreviewsDescription": "浏览并查看终端用户对话（显示最近 50 条）",
 			"ratingLabel": "评分"
-		},
-		"chatPreviews": {
-			"title": "聊天预览",
-			"description": "浏览并查看终端用户对话（显示最近 50 条）",
-			"rating": "评分",
-			"failedToLoadConversation": "加载对话失败",
-			"noMessages": "暂无消息"
 		}
 	}
 }

@@ -611,8 +611,7 @@
 			"impersonate": "Impersonovat",
 			"suspend": "Pozastavit",
 			"reEnable": "Znovu povolit",
-			"platformDefault": "Výchozí platforma",
-			"noTenants": "Nebyli nalezeni žádní tenanti"
+			"platformDefault": "Výchozí platforma"
 		},
 		"conversationsTable": {
 			"client": "Klient",
@@ -623,19 +622,11 @@
 			"noConversationsFound": "Nebyly nalezeny žádné konverzace",
 			"close": "Zavřít",
 			"view": "Zobrazit",
-			"noConversations": "Nebyly nalezeny žádné konverzace",
 			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
 			"noMessages": "Žádné zprávy",
 			"chatPreviews": "Náhledy chatů",
 			"chatPreviewsDescription": "Prohlížejte a kontrolujte konverzace koncových uživatelů (zobrazuje posledních 50)",
 			"ratingLabel": "Hodnocení"
-		},
-		"chatPreviews": {
-			"title": "Náhledy chatů",
-			"description": "Prohlížejte a kontrolujte konverzace koncových uživatelů (zobrazuje posledních 50)",
-			"rating": "Hodnocení",
-			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
-			"noMessages": "Žádné zprávy"
 		}
 	}
 }
