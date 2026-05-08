@@ -88,6 +88,105 @@
 	"chinese": "Chinese",
 	"showPassword": "Show password",
 	"hidePassword": "Hide password",
+	"common": {
+		"loading": "Loading...",
+		"saving": "Saving...",
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"add": "Add",
+		"edit": "Edit",
+		"close": "Close",
+		"open": "Open",
+		"copy": "Copy",
+		"copied": "Copied!",
+		"submit": "Submit",
+		"remove": "Remove",
+		"configure": "Configure",
+		"view": "View",
+		"tryAgain": "Try again",
+		"switchToLightTheme": "Switch to light theme",
+		"switchToDarkTheme": "Switch to dark theme",
+		"lightMode": "Light Mode",
+		"darkMode": "Dark Mode",
+		"logOut": "Log out",
+		"noData": "No data available",
+		"pagePal": "PagePal",
+		"failedToLoad": "Failed to load"
+	},
+	"clientDashboard": {
+		"nav": {
+			"clientDashboard": "Client Dashboard",
+			"overview": "Overview",
+			"botContext": "Bot Context",
+			"botConfiguration": "Bot Configuration",
+			"toolsMcp": "Tools MCP",
+			"widgetSetup": "Widget Setup",
+			"lightMode": "Light Mode",
+			"darkMode": "Dark Mode",
+			"unknownCompany": "Unknown Company",
+			"failedToLoad": "Failed to load"
+		}
+	},
+	"backoffice": {
+		"nav": {
+			"adminDashboard": "Admin Dashboard",
+			"tenants": "Tenants",
+			"chats": "Chats",
+			"activityLogs": "Activity Logs",
+			"lightMode": "Light Mode",
+			"darkMode": "Dark Mode",
+			"pagePalAdmin": "PagePal Admin",
+			"admin": "Admin",
+			"failedToLoad": "Failed to load"
+		},
+		"stats": {
+			"adminDashboard": "Admin Dashboard",
+			"adminDashboardDescription": "Manage tenants, users, and system settings",
+			"totalTenants": "Total Tenants",
+			"registeredTenants": "Registered tenants",
+			"activeClients": "Active Clients",
+			"currentlyActive": "Currently active",
+			"platformTokens": "Platform Tokens",
+			"totalConsumed": "Total consumed",
+			"totalCost": "Total Cost",
+			"platformSpend": "Platform spend",
+			"conversations": "Conversations",
+			"allTime": "All time",
+			"failedToLoadClients": "Failed to load clients",
+			"failedToLoadConversations": "Failed to load conversations"
+		},
+		"tenantsTable": {
+			"client": "Client",
+			"status": "Status",
+			"apiType": "API Type",
+			"tokenUsage": "Token Usage",
+			"actions": "Actions",
+			"active": "Active",
+			"suspended": "Suspended",
+			"noTenantsFound": "No tenants found",
+			"impersonate": "Impersonate",
+			"suspend": "Suspend",
+			"reEnable": "Re-enable"
+		},
+		"conversationsTable": {
+			"client": "Client",
+			"started": "Started",
+			"messages": "Messages",
+			"rating": "Rating",
+			"preview": "Preview",
+			"noConversationsFound": "No conversations found",
+			"close": "Close",
+			"view": "View"
+		},
+		"chatPreviews": {
+			"title": "Chat Previews",
+			"description": "Browse and inspect end-user conversations (showing most recent 50)",
+			"rating": "Rating",
+			"failedToLoadConversation": "Failed to load conversation",
+			"noMessages": "No messages"
+		}
+	},
 	"auth": {
 		"login": {
 			"title": "Log in",

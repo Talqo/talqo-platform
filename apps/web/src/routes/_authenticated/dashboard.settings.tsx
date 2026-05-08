@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { z } from "zod"
 import { PageContainer } from "@/components/layout"
 import { AccountSettingsTab, BillingSettingsTab } from "@/components/settings"
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings")({
 })
 
 function SettingsPage() {
+	const { t } = useTranslation()
 	const { tab } = Route.useSearch()
 	const navigate = useNavigate({ from: Route.fullPath })
 
@@ -27,10 +29,10 @@ function SettingsPage() {
 		<PageContainer>
 			<div>
 				<h1 className="font-bold text-2xl text-foreground tracking-tight">
-					Settings
+					{t("dashboard.settings.title")}
 				</h1>
 				<p className="text-muted-foreground">
-					Manage your account settings and billing information.
+					{t("dashboard.settings.subtitle")}
 				</p>
 			</div>
 
@@ -42,9 +44,15 @@ function SettingsPage() {
 				className="w-full"
 			>
 				<TabsList className="mb-4 flex-wrap gap-2">
-					<TabsTrigger value="account">Account</TabsTrigger>
-					<TabsTrigger value="billing">Usage & Billing</TabsTrigger>
-					<TabsTrigger value="ai-provider">AI Provider</TabsTrigger>
+					<TabsTrigger value="account">
+						{t("dashboard.settings.accountTab")}
+					</TabsTrigger>
+					<TabsTrigger value="billing">
+						{t("dashboard.settings.billingTab")}
+					</TabsTrigger>
+					<TabsTrigger value="ai-provider">
+						{t("dashboard.settings.aiProviderTab")}
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="account">

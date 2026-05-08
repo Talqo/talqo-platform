@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
 	useClientAnalyticsSummary,
 	useClientProfile,
@@ -27,6 +28,7 @@ function formatPeriod(period: string): string {
 }
 
 function AdminDashboard() {
+	const { t } = useTranslation()
 	const { data: profile } = useClientProfile()
 	const { data: currentUser, isSuccess } = useCurrentUser()
 	const [showPopup, setShowPopup] = useState(false)
@@ -69,29 +71,29 @@ function AdminDashboard() {
 	const avgRating =
 		summary?.avgSatisfactionRating != null
 			? `${summary.avgSatisfactionRating.toFixed(1)} / 5`
-			: "No data"
+			: t("dashboard.overview.noData")
 	const visitorEngagement =
 		summary && summary.totalPageviewSessions > 0
 			? `${((summary.uniqueUsers / summary.totalPageviewSessions) * 100).toFixed(1)}%`
-			: "No data"
+			: t("dashboard.overview.noData")
 
 	return (
 		<div className="space-y-6">
 			<PageHeader
-				title="Overview"
-				subtitle="Monitor your bot's usage and token consumption."
+				title={t("dashboard.overview.title")}
+				subtitle={t("dashboard.overview.subtitle")}
 			/>
 
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
 				<StatCard
-					title="Current Balance"
+					title={t("dashboard.overview.currentBalance")}
 					value={balanceValue}
-					subtitle="Available funds"
+					subtitle={t("dashboard.overview.availableFunds")}
 					icon="dollar"
 					action={
 						<Link
 							to="/dashboard/add-funds"
-							aria-label="Add funds"
+							aria-label={t("dashboard.overview.addFunds")}
 							className="flex items-center text-muted-foreground transition-colors hover:text-primary"
 						>
 							<PlusCircle size={18} />
@@ -99,25 +101,25 @@ function AdminDashboard() {
 					}
 				/>
 				<StatCard
-					title="Total Tokens"
+					title={t("dashboard.overview.totalTokens")}
 					value={totalTokens}
-					subtitle="All time"
+					subtitle={t("dashboard.overview.allTime")}
 					icon="zap"
 				/>
 				<StatCard
-					title="Questions Answered"
+					title={t("dashboard.overview.questionsAnswered")}
 					value={totalMessages}
-					subtitle="All time"
+					subtitle={t("dashboard.overview.allTime")}
 					icon="message"
 				/>
 				<StatCard
-					title="Active Connectors"
+					title={t("dashboard.overview.activeConnectors")}
 					value="2"
 					subtitle="Product DB, Internal Wiki"
 					icon="bot"
 				/>
 				<StatCard
-					title="Current Spend"
+					title={t("dashboard.overview.currentSpend")}
 					value="$12.50"
 					subtitle="Limit: $50.00 / month"
 					icon="card"
@@ -126,27 +128,27 @@ function AdminDashboard() {
 
 			<div className="grid gap-4 md:grid-cols-4">
 				<StatCard
-					title="Total Conversations"
+					title={t("dashboard.overview.totalConversations")}
 					value={totalConversations}
-					subtitle="All time"
+					subtitle={t("dashboard.overview.allTime")}
 					icon="message"
 				/>
 				<StatCard
-					title="Unique Users"
+					title={t("dashboard.overview.uniqueUsers")}
 					value={uniqueUsers}
-					subtitle="Sessions that chatted"
+					subtitle={t("dashboard.overview.sessionsThatChatted")}
 					icon="bot"
 				/>
 				<StatCard
-					title="Visitor Engagement"
+					title={t("dashboard.overview.visitorEngagement")}
 					value={visitorEngagement}
-					subtitle="Site visitors who chatted"
+					subtitle={t("dashboard.overview.siteVisitorsWhoChatted")}
 					icon="bot"
 				/>
 				<StatCard
-					title="Avg Satisfaction"
+					title={t("dashboard.overview.avgSatisfaction")}
 					value={avgRating}
-					subtitle="Satisfaction rating (1–5)"
+					subtitle={t("dashboard.overview.satisfactionRating")}
 					icon="zap"
 				/>
 			</div>
