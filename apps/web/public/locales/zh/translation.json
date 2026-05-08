@@ -285,7 +285,12 @@
 			"botAvatarLabel": "机器人头像",
 			"customAvatarUploaded": "已上传自定义头像",
 			"dropSvgHere": "拖拽 SVG 到此处或点击上传",
-			"uploadSquareSvg": "建议上传正方形 SVG 以获得最佳效果"
+			"uploadSquareSvg": "建议上传正方形 SVG 以获得最佳效果",
+			"onlySvgSupported": "仅支持 SVG 文件。",
+			"fileTooLarge": "文件过大，最大支持 {{maxSize}}KB。",
+			"invalidFileContent": "无效的文件内容，应为文本格式。",
+			"invalidSvgFile": "无效的 SVG 文件，文件必须以 <svg 标签开头并包含有效的 SVG 内容。",
+			"failedToReadFile": "读取文件失败，请重试。"
 		}
 	},
 	"charts": {

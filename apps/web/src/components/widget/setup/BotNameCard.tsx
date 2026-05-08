@@ -102,7 +102,9 @@ export function BotNameCard({
 			// Validate file size
 			if (file.size > MAX_AVATAR_SIZE_BYTES) {
 				setError(
-					`File too large. Maximum size is ${MAX_AVATAR_SIZE_BYTES / 1024}KB.`,
+					t("widget.botName.fileTooLarge", {
+						maxSize: MAX_AVATAR_SIZE_BYTES / 1024,
+					}),
 				)
 				return
 			}
@@ -113,16 +115,14 @@ export function BotNameCard({
 				const result = event.target?.result
 				// Validate result is a string before sanitizing
 				if (typeof result !== "string") {
-					setError("Invalid file content. Expected text format.")
+					setError(t("widget.botName.invalidFileContent"))
 					return
 				}
 				const svgContent = result
 				const sanitized = sanitizeSvg(svgContent)
 
 				if (!sanitized) {
-					setError(
-						"Invalid SVG file. File must start with <svg tag and contain valid SVG content.",
-					)
+					setError(t("widget.botName.invalidSvgFile"))
 					return
 				}
 
@@ -130,12 +130,12 @@ export function BotNameCard({
 			}
 
 			reader.onerror = () => {
-				setError("Failed to read file. Please try again.")
+				setError(t("widget.botName.failedToReadFile"))
 			}
 
 			reader.readAsText(file)
 		},
-		[onBotAvatarChange, sanitizeSvg],
+		[onBotAvatarChange, sanitizeSvg, t],
 	)
 
 	const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -156,14 +156,14 @@ export function BotNameCard({
 			const file = e.dataTransfer.files[0]
 			if (file) {
 				if (file.type !== "image/svg+xml") {
-					setError("Only SVG files are supported.")
+					setError(t("widget.botName.onlySvgSupported"))
 					return
 				}
 				setError(null)
 				readSvgFile(file)
 			}
 		},
-		[readSvgFile],
+		[readSvgFile, t],
 	)
 
 	const handleFileSelect = useCallback(
@@ -171,14 +171,14 @@ export function BotNameCard({
 			const file = e.target.files?.[0]
 			if (file) {
 				if (file.type !== "image/svg+xml") {
-					setError("Only SVG files are supported.")
+					setError(t("widget.botName.onlySvgSupported"))
 					return
 				}
 				setError(null)
 				readSvgFile(file)
 			}
 		},
-		[readSvgFile],
+		[readSvgFile, t],
 	)
 
 	const handleClearAvatar = () => {

@@ -36,7 +36,10 @@ type Client = {
 	createdAt: string
 }
 
-function mapClientsToTenants(clients: Client[]): Tenant[] {
+function mapClientsToTenants(
+	clients: Client[],
+	t: (key: string) => string,
+): Tenant[] {
 	const ALLOWED_STATUSES = new Set(["active", "suspended"])
 	return clients.map((client) => ({
 		id: client.id,
@@ -45,7 +48,7 @@ function mapClientsToTenants(clients: Client[]): Tenant[] {
 			client.status && ALLOWED_STATUSES.has(client.status)
 				? (client.status as "active" | "suspended")
 				: "active",
-		apiType: "Platform Default",
+		apiType: t("backoffice.tenantsTable.platformDefault"),
 		tokenUsage: "N/A",
 	}))
 }
@@ -168,7 +171,7 @@ function BackofficePage() {
 				</CardHeader>
 				<CardContent>
 					<TenantsTable
-						tenants={clients ? mapClientsToTenants(clients) : []}
+						tenants={clients ? mapClientsToTenants(clients, t) : []}
 						onSuspend={handleSuspend}
 						onReEnable={handleReEnable}
 						onImpersonate={handleImpersonate}

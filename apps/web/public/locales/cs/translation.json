@@ -285,7 +285,12 @@
 			"botAvatarLabel": "Avatar bota",
 			"customAvatarUploaded": "Vlastní avatar nahrán",
 			"dropSvgHere": "Přetáhněte SVG sem nebo klikněte pro nahrání",
-			"uploadSquareSvg": "Pro nejlepší výsledky nahrajte čtvercové SVG"
+			"uploadSquareSvg": "Pro nejlepší výsledky nahrajte čtvercové SVG",
+			"onlySvgSupported": "Jsou podporovány pouze SVG soubory.",
+			"fileTooLarge": "Soubor je příliš velký. Maximální velikost je {{maxSize}}KB.",
+			"invalidFileContent": "Neplatný obsah souboru. Očekáván textový formát.",
+			"invalidSvgFile": "Neplatný SVG soubor. Soubor musí začínat značkou <svg a obsahovat platný SVG obsah.",
+			"failedToReadFile": "Soubor se nepodařilo přečíst. Zkuste to znovu."
 		}
 	},
 	"charts": {

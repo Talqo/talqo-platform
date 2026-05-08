@@ -405,7 +405,7 @@ function ProviderConfigForm({
 					</Button>
 					{showCancel && onCancel && (
 						<Button type="button" variant="ghost" onClick={onCancel}>
-							{t("cancel")}
+							{t("common.cancel")}
 						</Button>
 					)}
 				</div>
