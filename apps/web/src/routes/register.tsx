@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2, Mail } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { useRegister, useResendVerificationEmail } from "@/api/hooks/useAuth"
 import { AuthHeader } from "@/components/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/register")({
 })
 
 function RegisterPage() {
+	const { t } = useTranslation()
 	const register = useRegister()
 	const resendVerification = useResendVerificationEmail()
 	const [showSuccess, setShowSuccess] = useState(false)
@@ -91,20 +93,20 @@ function RegisterPage() {
 							<div className="mb-4 flex justify-center">
 								<Mail className="h-12 w-12 text-primary" />
 							</div>
-							<CardTitle className="text-2xl">Check your email!</CardTitle>
+							<CardTitle className="text-2xl">
+								{t("auth.register.checkEmailTitle")}
+							</CardTitle>
 							<CardDescription>
-								We've sent a verification link to{" "}
-								<span className="font-medium text-foreground">
-									{registeredEmail}
-								</span>
-								. Click it to activate your account.
+								{t("auth.register.checkEmailDescription", {
+									email: registeredEmail,
+								})}
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							{resendSuccess && (
 								<Alert>
 									<AlertDescription>
-										Verification email sent. Please check your inbox.
+										{t("auth.register.verificationSent")}
 									</AlertDescription>
 								</Alert>
 							)}
@@ -119,19 +121,21 @@ function RegisterPage() {
 								{resendVerification.isPending ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Sending...
+										{t("auth.register.sending")}
 									</>
 								) : !canResend ? (
-									`Resend available in ${resendTimeout}s`
+									t("auth.register.resendIn", {
+										seconds: resendTimeout,
+									})
 								) : (
-									"Resend verification email"
+									t("auth.register.resendVerification")
 								)}
 							</Button>
 							<Button asChild className="w-full">
-								<Link to="/login">Go to login</Link>
+								<Link to="/login">{t("auth.login.title")}</Link>
 							</Button>
 							<Button asChild variant="ghost" className="w-full">
-								<Link to="/">Back to home</Link>
+								<Link to="/">{t("auth.register.backToHome")}</Link>
 							</Button>
 						</CardFooter>
 					</Card>
@@ -148,10 +152,10 @@ function RegisterPage() {
 				<Card>
 					<CardHeader className="space-y-1">
 						<CardTitle className="text-center text-2xl">
-							Create an account
+							{t("auth.register.title")}
 						</CardTitle>
 						<CardDescription className="text-center">
-							Enter your details below to create your account
+							{t("auth.register.description")}
 						</CardDescription>
 					</CardHeader>
 					<Form {...form}>
@@ -161,7 +165,7 @@ function RegisterPage() {
 									<Alert variant="destructive">
 										<AlertDescription>
 											{register.error.error?.message ||
-												"Registration failed. Please try again."}
+												t("auth.register.registrationFailed")}
 										</AlertDescription>
 									</Alert>
 								)}
@@ -174,7 +178,7 @@ function RegisterPage() {
 											<FormControl>
 												<Input
 													type="text"
-													placeholder="John Doe"
+													placeholder={t("auth.register.namePlaceholder")}
 													autoComplete="name"
 													{...field}
 												/>
@@ -192,7 +196,7 @@ function RegisterPage() {
 											<FormControl>
 												<Input
 													type="email"
-													placeholder="m@example.com"
+													placeholder={t("auth.register.emailPlaceholder")}
 													autoComplete="email"
 													{...field}
 												/>
@@ -223,7 +227,9 @@ function RegisterPage() {
 									name="confirmPassword"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Confirm Password</FormLabel>
+											<FormLabel>
+												{t("auth.register.confirmPassword")}
+											</FormLabel>
 											<FormControl>
 												<Input
 													type="password"
@@ -245,19 +251,19 @@ function RegisterPage() {
 									{register.isPending ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-											Creating account...
+											{t("auth.register.submitting")}
 										</>
 									) : (
-										"Create account"
+										t("auth.register.createAccount")
 									)}
 								</Button>
 								<div className="mt-4 text-center text-muted-foreground text-sm">
-									Already have an account?{" "}
+									{t("auth.register.hasAccount")}{" "}
 									<Link
 										to="/login"
 										className="rounded-md border border-primary/50 px-3 py-1 font-medium text-primary underline underline-offset-4 hover:border-primary hover:text-primary/80"
 									>
-										Log in
+										{t("auth.login.title")}
 									</Link>
 								</div>
 							</CardFooter>

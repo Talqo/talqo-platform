@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router"
 import { Bot, Moon, Sun } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useTheme } from "@/lib/useTheme"
 
 export function AuthHeader() {
 	const { theme, toggleTheme } = useTheme()
+	const { t } = useTranslation()
 
 	return (
 		<div className="mb-8 flex flex-col items-center">
@@ -21,7 +23,9 @@ export function AuthHeader() {
 					onClick={toggleTheme}
 					className="rounded-lg border-2 border-primary/50 p-2 text-muted-foreground hover:border-primary hover:text-foreground"
 					aria-label={
-						theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+						theme === "dark"
+							? t("common.switchToLightTheme")
+							: t("common.switchToDarkTheme")
 					}
 				>
 					{theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
