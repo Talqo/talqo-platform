@@ -144,3 +144,103 @@ adminAnalyticsRoutes.openapi(
 		return c.json(data, 200)
 	},
 )
+
+adminAnalyticsRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/summary",
+		tags: ["Admin"],
+		summary: "Platform-wide summary including active tenants and satisfaction",
+		security: [{ bearerAuth: [] }],
+		responses: {
+			200: {
+				description: "Admin summary",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.object({
+								totalTokens: z.number(),
+								totalCostUsd: z.string().nullable(),
+								activeClients: z.number(),
+								totalConversations: z.number(),
+								activeTenantsLast30Days: z.number(),
+								avgSatisfactionRating: z.number(),
+							}),
+						),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const data = await analyticsService.getAdminSummary()
+		return c.json(data, 200)
+	},
+)
+
+adminAnalyticsRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/tokens",
+		tags: ["Admin"],
+		summary: "Platform-wide token consumption over time",
+		security: [{ bearerAuth: [] }],
+		request: { query: analyticsQuerySchema },
+		responses: {
+			200: {
+				description: "Platform token usage data",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.array(
+								z.object({
+									period: z.string(),
+									tokensUsed: z.number(),
+									costUsd: z.string().nullable(),
+								}),
+							),
+						),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const query = c.req.valid("query")
+		const data = await analyticsService.getAdminTokenAnalytics(query)
+		return c.json(data, 200)
+	},
+)
+
+adminAnalyticsRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/conversations",
+		tags: ["Admin"],
+		summary: "Platform-wide conversation counts over time",
+		security: [{ bearerAuth: [] }],
+		request: { query: analyticsQuerySchema },
+		responses: {
+			200: {
+				description: "Platform conversation count data",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.array(
+								z.object({
+									period: z.string(),
+									conversationCount: z.number(),
+								}),
+							),
+						),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const query = c.req.valid("query")
+		const data = await analyticsService.getAdminConversationAnalytics(query)
+		return c.json(data, 200)
+	},
+)

@@ -1,4 +1,5 @@
 import createClient, { type Middleware } from "openapi-fetch"
+import { getApiBaseUrl } from "@/lib/api"
 import { AUTH } from "@/lib/constants"
 import type { paths } from "./generated/openapi"
 
@@ -16,7 +17,7 @@ const authMiddleware: Middleware = {
 }
 
 export const client = createClient<paths>({
-	baseUrl: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
+	baseUrl: getApiBaseUrl(),
 })
 
 client.use(authMiddleware)

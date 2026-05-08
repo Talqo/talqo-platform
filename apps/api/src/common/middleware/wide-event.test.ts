@@ -1,21 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test"
 import { Hono } from "hono"
 import type { ContentfulStatusCode } from "hono/utils/http-status"
-import { type AppVariables, logger } from "../logger"
-import { requestLogger } from "./request-logger"
+import type { AppVariables } from "../jwt"
+import { logger } from "../logger"
+import { wideEventMiddleware } from "./wide-event"
 
 function buildApp(status: ContentfulStatusCode = 200) {
 	const app = new Hono<{ Variables: AppVariables }>()
 	app.use("/*", async (c, next) => {
-		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
+		const requestId = crypto.randomUUID()
+		c.set("requestId", requestId)
+		c.set("logger", logger.withContext({ requestId }))
 		await next()
 	})
-	app.use("/*", requestLogger)
+	app.use("/*", wideEventMiddleware)
 	app.get("/test", (c) => c.text("ok", status))
 	return app
 }
 
-describe("requestLogger middleware", () => {
+describe("wideEventMiddleware", () => {
 	let stdoutSpy: ReturnType<typeof spyOn<typeof process.stdout, "write">>
 
 	beforeEach(() => {
@@ -36,9 +39,9 @@ describe("requestLogger middleware", () => {
 		expect(stdoutSpy).toHaveBeenCalledTimes(1)
 	})
 
-	it("sets message to 'HTTP request'", async () => {
+	it("sets message to 'wide_event'", async () => {
 		await buildApp().fetch(new Request("http://localhost/test"))
-		expect(parseEntry().message).toBe("HTTP request")
+		expect(parseEntry().message).toBe("wide_event")
 	})
 
 	it("logs correct method and path", async () => {
@@ -48,15 +51,15 @@ describe("requestLogger middleware", () => {
 		expect(entry.path).toBe("/test")
 	})
 
-	it("logs the response status code", async () => {
+	it("logs the response status_code", async () => {
 		await buildApp(201).fetch(new Request("http://localhost/test"))
-		expect(parseEntry().status).toBe(201)
+		expect(parseEntry().status_code).toBe(201)
 	})
 
-	it("logs durationMs as a non-negative number", async () => {
+	it("logs duration_ms as a non-negative number", async () => {
 		await buildApp().fetch(new Request("http://localhost/test"))
-		const { durationMs } = parseEntry()
-		expect(typeof durationMs).toBe("number")
-		expect(durationMs as number).toBeGreaterThanOrEqual(0)
+		const { duration_ms } = parseEntry()
+		expect(typeof duration_ms).toBe("number")
+		expect(duration_ms as number).toBeGreaterThanOrEqual(0)
 	})
 })

@@ -7,9 +7,10 @@ import { adminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
-import { requestLogger } from "./common/middleware/request-logger"
+import { wideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
 import {
+	adminActivityLogsRoutes,
 	adminAuthRoutes,
 	adminClientRoutes,
 	adminConversationRoutes,
@@ -33,13 +34,16 @@ import {
 } from "./modules/widget"
 
 const app = new OpenAPIHono<{ Variables: AppVariables }>()
+const v1 = new OpenAPIHono<{ Variables: AppVariables }>()
 
 app.use("/*", cors())
 app.use("/*", async (c, next) => {
-	c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
+	const requestId = crypto.randomUUID()
+	c.set("requestId", requestId)
+	c.set("logger", logger.withContext({ requestId }))
 	await next()
 })
-app.use("/*", requestLogger)
+app.use("/*", wideEventMiddleware)
 app.onError(errorHandler)
 
 app.get("/", (c) => c.text("PagePal API"))
@@ -49,59 +53,61 @@ app.get("/health", (c) => {
 })
 
 // ─── Client auth (unprotected) ────────────────────────────────────────────────
-app.route("/auth", authRoutes)
+v1.route("/auth", authRoutes)
 
 // ─── Client dashboard (protected) ────────────────────────────────────────────
-app.use("/client/*", clientAuth)
-app.route("/client", clientAccountRoutes)
-app.route("/client/me/bot-config", botConfigRoutes)
-app.route("/client/me/blacklist", blacklistRoutes)
-app.route("/client/me/mcp", clientMcpRoutes)
-app.route("/client/me/analytics", clientAnalyticsRoutes)
-app.route("/client/me/provider-config", providerConfigRoutes)
-app.route("/client/me/files", filesRoutes)
+v1.use("/client/*", clientAuth)
+v1.route("/client", clientAccountRoutes)
+v1.route("/client/me/bot-config", botConfigRoutes)
+v1.route("/client/me/blacklist", blacklistRoutes)
+v1.route("/client/me/mcp", clientMcpRoutes)
+v1.route("/client/me/analytics", clientAnalyticsRoutes)
+v1.route("/client/me/provider-config", providerConfigRoutes)
+v1.route("/client/me/files", filesRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
-app.use("/widget/*", widgetAuth)
-app.route("/widget/sessions", widgetSessionRoutes)
-app.route("/widget/sessions/:sessionId/conversations", widgetConversationRoutes)
-app.route(
+v1.use("/widget/*", widgetAuth)
+v1.route("/widget/sessions", widgetSessionRoutes)
+v1.route("/widget/sessions/:sessionId/conversations", widgetConversationRoutes)
+v1.route(
 	"/widget/sessions/:sessionId/conversations/:conversationId/messages",
 	widgetMessageRoutes,
 )
 
 // ─── Admin auth (unprotected) ────────────────────────────────────────────────
-app.route("/admin/auth", adminAuthRoutes)
+v1.route("/admin/auth", adminAuthRoutes)
 
 // ─── Admin dashboard (protected) ─────────────────────────────────────────────
-app.use("/admin/*", adminAuth)
-app.use("/admin/*", adminAuditLog)
-app.route("/admin/me", adminMeRoutes)
-app.route("/admin/clients", adminClientRoutes)
-app.route("/admin/analytics", adminAnalyticsRoutes)
-app.route("/admin/conversations", adminConversationRoutes)
-app.route("/admin/mcp/pre-made", adminMcpRoutes)
+v1.use("/admin/*", adminAuth)
+v1.use("/admin/*", adminAuditLog)
+v1.route("/admin/me", adminMeRoutes)
+v1.route("/admin/clients", adminClientRoutes)
+v1.route("/admin/analytics", adminAnalyticsRoutes)
+v1.route("/admin/conversations", adminConversationRoutes)
+v1.route("/admin/activity-logs", adminActivityLogsRoutes)
+v1.route("/admin/mcp/pre-made", adminMcpRoutes)
 
 // ─── Security scheme definitions ─────────────────────────────────────────────
-app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
+v1.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
 	type: "http",
 	scheme: "bearer",
 	bearerFormat: "JWT",
 })
-app.openAPIRegistry.registerComponent("securitySchemes", "widgetToken", {
+v1.openAPIRegistry.registerComponent("securitySchemes", "widgetToken", {
 	type: "apiKey",
 	in: "header",
 	name: "X-Widget-Token",
 })
 
 // ─── OpenAPI spec + docs UI ───────────────────────────────────────────────────
-app.doc("/openapi.json", {
+v1.doc("/openapi.json", {
 	openapi: "3.1.0",
 	info: {
 		title: "PagePal API",
 		version: "1.0.0",
 		description: "REST API for the PagePal embeddable AI chat widget platform",
 	},
+	servers: [{ url: "/v1" }],
 	tags: [
 		{ name: "Auth", description: "Client registration and login" },
 		{ name: "Client Account", description: "Profile, balance, usage settings" },
@@ -116,10 +122,13 @@ app.doc("/openapi.json", {
 	],
 })
 
+// Mount after all v1 routes and doc are registered — Hono copies routes at call time
+app.route("/v1", v1)
+
 // Type cast required: @scalar/types is a transitive dep and may not resolve in all TS setups
 app.get(
 	"/docs",
-	Scalar({ spec: { url: "/openapi.json" } } as Parameters<typeof Scalar>[0]),
+	Scalar({ spec: { url: "/v1/openapi.json" } } as Parameters<typeof Scalar>[0]),
 )
 
 export default app

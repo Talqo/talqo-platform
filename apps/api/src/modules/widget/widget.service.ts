@@ -3,6 +3,7 @@ import type { AiProviderConfig, McpServerConfig } from "shared"
 import { z } from "zod"
 import { config, getDefaultProviderConfig } from "../../common/config"
 import { decrypt } from "../../common/crypto"
+import { sendQuotaAlertEmail as defaultSendQuotaAlertEmail } from "../../common/email/email.service"
 import {
 	BadRequestError,
 	NotFoundError,
@@ -53,6 +54,7 @@ const providerConfigSchema = z.discriminatedUnion("type", [
 ])
 
 type StreamResponse = typeof streamResponse
+type SendQuotaAlertEmail = (to: string, usagePercent: number) => Promise<void>
 
 type WidgetServiceDeps = {
 	widgetRepository: WidgetRepository
@@ -60,6 +62,7 @@ type WidgetServiceDeps = {
 	providerConfigRepository: ProviderConfigRepository
 	mcpRepository: McpRepository
 	streamResponse?: StreamResponse
+	sendQuotaAlertEmail?: SendQuotaAlertEmail
 }
 
 export class WidgetService {
@@ -68,6 +71,7 @@ export class WidgetService {
 	private readonly providerConfigRepo: ProviderConfigRepository
 	private readonly mcpRepo: McpRepository
 	private readonly streamResponse: StreamResponse
+	private readonly sendQuotaAlertEmail: SendQuotaAlertEmail
 
 	constructor(deps: WidgetServiceDeps) {
 		this.repo = deps.widgetRepository
@@ -75,10 +79,16 @@ export class WidgetService {
 		this.providerConfigRepo = deps.providerConfigRepository
 		this.mcpRepo = deps.mcpRepository
 		this.streamResponse = deps.streamResponse ?? streamResponse
+		this.sendQuotaAlertEmail =
+			deps.sendQuotaAlertEmail ?? defaultSendQuotaAlertEmail
 	}
 
 	async createOrResumeSession(clientId: string, browserSessionId: string) {
-		return this.repo.findOrCreateSession(clientId, browserSessionId)
+		const { session, isNew } = await this.repo.findOrCreateSession(
+			clientId,
+			browserSessionId,
+		)
+		return { session, isNew }
 	}
 
 	async startConversation(clientId: string, sessionId: string) {
@@ -102,6 +112,8 @@ export class WidgetService {
 		userMessage: Awaited<ReturnType<WidgetRepository["createMessage"]>>
 		usage: Promise<{ input: number; output: number }>
 		isExternalProvider: boolean
+		provider: string
+		model: string
 	}> {
 		const dbMessages = await this.repo.getMessages(conversationId, clientId)
 		if (!dbMessages) throw new NotFoundError("Conversation not found")
@@ -110,6 +122,27 @@ export class WidgetService {
 				"CONVERSATION_LIMIT_REACHED",
 				"Conversation limit reached — please start a new conversation",
 			)
+		}
+
+		const clientSettings = await this.repo.getClientLimitSettings(clientId)
+		if (
+			clientSettings?.monthlyUsageLimit !== null &&
+			clientSettings?.monthlyUsageLimit !== undefined
+		) {
+			const now = new Date()
+			const monthlySpend = await this.repo.getMonthlySpend(
+				clientId,
+				now.getFullYear(),
+				now.getMonth() + 1,
+			)
+			if (
+				parseFloat(monthlySpend) >= parseFloat(clientSettings.monthlyUsageLimit)
+			) {
+				throw new BadRequestError(
+					"MONTHLY_LIMIT_REACHED",
+					"Monthly usage limit reached",
+				)
+			}
 		}
 
 		const { config: provider, isExternal } =
@@ -142,7 +175,14 @@ export class WidgetService {
 			maxSteps: 10,
 		})
 
-		return { stream, userMessage, usage, isExternalProvider: isExternal }
+		return {
+			stream,
+			userMessage,
+			usage,
+			isExternalProvider: isExternal,
+			provider: provider.type,
+			model: provider.model,
+		}
 	}
 
 	async saveAssistantMessage(
@@ -162,12 +202,41 @@ export class WidgetService {
 
 		if (tokensUsed !== undefined) {
 			const costUsd = computeCostUsd(tokensUsed)
+			const now = new Date()
+			const year = now.getFullYear()
+			const month = now.getMonth() + 1
+
+			const spendBefore = await this.repo.getMonthlySpend(clientId, year, month)
 			await this.repo.recordUsage(
 				clientId,
 				assistantMessage.id,
 				tokenCount,
 				costUsd,
 			)
+
+			const clientSettings = await this.repo.getClientLimitSettings(clientId)
+			if (clientSettings?.usageAlertThresholdUsd) {
+				const threshold = parseFloat(clientSettings.usageAlertThresholdUsd)
+				const spendAfter = await this.repo.getMonthlySpend(
+					clientId,
+					year,
+					month,
+				)
+				if (
+					parseFloat(spendBefore) < threshold &&
+					parseFloat(spendAfter) >= threshold
+				) {
+					const limit = clientSettings.monthlyUsageLimit
+						? parseFloat(clientSettings.monthlyUsageLimit)
+						: null
+					const usagePercent = limit
+						? Math.min(100, Math.round((parseFloat(spendAfter) / limit) * 100))
+						: 100
+					this.sendQuotaAlertEmail(clientSettings.email, usagePercent).catch(
+						() => {},
+					)
+				}
+			}
 		}
 
 		return assistantMessage

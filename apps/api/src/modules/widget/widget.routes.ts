@@ -15,6 +15,7 @@ import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas"
+import type { WideEvent } from "../../common/wide-event.types"
 import { widgetService } from "./index"
 
 // ─── Session routes ────────────────────────────────────────────────────────────
@@ -51,10 +52,13 @@ widgetSessionRoutes.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const { browserSessionId } = c.req.valid("json")
-		const session = await widgetService.createOrResumeSession(
+		const { session, isNew } = await widgetService.createOrResumeSession(
 			clientId,
 			browserSessionId,
 		)
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent)
+			wideEvent.widget = { session_id: session.id, is_new_session: isNew }
 		return c.json(session, 200)
 	},
 )
@@ -95,6 +99,12 @@ widgetConversationRoutes.openapi(
 			clientId,
 			sessionId,
 		)
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent)
+			wideEvent.widget = {
+				session_id: sessionId,
+				conversation_id: conversation.id,
+			}
 		return c.json(conversation, 201)
 	},
 )
@@ -179,6 +189,12 @@ widgetMessageRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { conversationId } = c.req.valid("param")
 		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent)
+			wideEvent.widget = {
+				session_id: c.req.param("sessionId"),
+				conversation_id: conversationId,
+			}
 		return c.json(msgs, 200)
 	},
 )
@@ -224,8 +240,21 @@ widgetMessageRoutes.openapi(
 		const { conversationId } = c.req.valid("param")
 		const { content } = c.req.valid("json")
 
-		const { stream, userMessage, usage, isExternalProvider } =
+		const { stream, userMessage, usage, isExternalProvider, provider, model } =
 			await widgetService.sendMessage(clientId, conversationId, content)
+
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent) {
+			wideEvent.widget = {
+				session_id: c.req.param("sessionId"),
+				conversation_id: conversationId,
+			}
+			wideEvent.ai = { provider, model }
+		}
+		const logger = c.get("logger" as never) as
+			| { info: (msg: string, meta?: Record<string, unknown>) => void }
+			| undefined
+		const requestId = c.get("requestId" as never) as string | undefined
 
 		return streamSSE(c, async (sse) => {
 			await sse.writeSSE({
@@ -270,6 +299,16 @@ widgetMessageRoutes.openapi(
 					fullContent,
 					tokensUsed,
 				)
+
+				if (tokensUsed) {
+					logger?.info("ai_usage", {
+						request_id: requestId,
+						conversation_id: conversationId,
+						prompt_tokens: tokensUsed.input,
+						completion_tokens: tokensUsed.output,
+						total_tokens: tokensUsed.input + tokensUsed.output,
+					})
+				}
 
 				await sse.writeSSE({
 					event: "done",

@@ -1,6 +1,7 @@
-import { and, eq, sql } from "drizzle-orm"
+import { and, eq, gte, lt, sql, sum } from "drizzle-orm"
 import type { DB } from "../../db"
 import {
+	clients,
 	conversations,
 	endUserSessions,
 	type messageRoleEnum,
@@ -22,11 +23,14 @@ export type IWidgetRepository = {
 		clientId: string,
 		browserSessionId: string,
 	): Promise<{
-		id: string
-		clientId: string
-		browserSessionId: string
-		createdAt: Date
-		lastActiveAt: Date
+		session: {
+			id: string
+			clientId: string
+			browserSessionId: string
+			createdAt: Date
+			lastActiveAt: Date
+		}
+		isNew: boolean
 	}>
 	getSession(
 		sessionId: string,
@@ -93,6 +97,16 @@ export type IWidgetRepository = {
 		tokensUsed: number,
 		costUsd: string,
 	): Promise<void>
+	getMonthlySpend(
+		clientId: string,
+		year: number,
+		month: number,
+	): Promise<string>
+	getClientLimitSettings(clientId: string): Promise<{
+		monthlyUsageLimit: string | null
+		usageAlertThresholdUsd: string | null
+		email: string
+	} | null>
 }
 
 export class InMemoryWidgetRepository implements IWidgetRepository {
@@ -133,7 +147,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 				sess.browserSessionId === browserSessionId
 			) {
 				sess.lastActiveAt = new Date()
-				return sess
+				return { session: sess, isNew: false }
 			}
 		}
 		this.idCounters.session++
@@ -146,7 +160,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			lastActiveAt: new Date(),
 		}
 		this.sessions.set(id, sess)
-		return sess
+		return { session: sess, isNew: true }
 	}
 
 	async getSession(sessionId: string, clientId: string) {
@@ -234,6 +248,17 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 	) {
 		this.usages.push({ clientId, messageId, tokensUsed, costUsd })
 	}
+
+	async getMonthlySpend(clientId: string, _year: number, _month: number) {
+		const total = this.usages
+			.filter((u) => u.clientId === clientId)
+			.reduce((acc, u) => acc + parseFloat(u.costUsd), 0)
+		return total.toFixed(6)
+	}
+
+	async getClientLimitSettings(_clientId: string) {
+		return null
+	}
 }
 
 export class WidgetRepository {
@@ -251,7 +276,9 @@ export class WidgetRepository {
 				set: { lastActiveAt: now },
 			})
 			.returning()
-		return session
+		// createdAt === lastActiveAt only when the row was just inserted
+		const isNew = session.createdAt.getTime() === session.lastActiveAt.getTime()
+		return { session, isNew }
 	}
 
 	async getSession(sessionId: string, clientId: string) {
@@ -368,5 +395,33 @@ export class WidgetRepository {
 		await this.db
 			.insert(usageRecords)
 			.values({ clientId, messageId, tokensUsed, costUsd })
+	}
+
+	async getMonthlySpend(clientId: string, year: number, month: number) {
+		const start = new Date(year, month - 1, 1)
+		const end = new Date(year, month, 1)
+		const [row] = await this.db
+			.select({ total: sum(usageRecords.costUsd) })
+			.from(usageRecords)
+			.where(
+				and(
+					eq(usageRecords.clientId, clientId),
+					gte(usageRecords.recordedAt, start),
+					lt(usageRecords.recordedAt, end),
+				),
+			)
+		return row?.total ?? "0"
+	}
+
+	async getClientLimitSettings(clientId: string) {
+		return this.db
+			.select({
+				monthlyUsageLimit: clients.monthlyUsageLimit,
+				usageAlertThresholdUsd: clients.usageAlertThresholdUsd,
+				email: clients.email,
+			})
+			.from(clients)
+			.where(eq(clients.id, clientId))
+			.then((rows) => rows[0] ?? null)
 	}
 }

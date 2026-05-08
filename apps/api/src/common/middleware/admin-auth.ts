@@ -4,6 +4,7 @@ import { db } from "../../db"
 import { adminUsers } from "../../db/schema"
 import { ForbiddenError, UnauthorizedError } from "../errors"
 import { verifyToken } from "../jwt"
+import type { WideEvent } from "../wide-event.types"
 
 // Validates Admin JWT from Authorization: Bearer <token>
 export const adminAuth: MiddlewareHandler = async (c, next) => {
@@ -30,6 +31,7 @@ export const adminAuth: MiddlewareHandler = async (c, next) => {
 	}
 
 	c.set("adminId" as never, payload.sub)
-
+	const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+	if (wideEvent) wideEvent.admin = { id: admin.id }
 	await next()
 }

@@ -30,9 +30,14 @@ export const billingSettingsSchema = z.object({
 	usageAlerts: z.boolean(),
 })
 
+export const deleteAccountBodySchema = z.object({
+	password: z.string().min(1),
+})
+
 export type UpdateProfileInput = z.infer<typeof updateProfileBodySchema>
 export type ChangePasswordInput = z.infer<typeof changePasswordBodySchema>
 export type AddFundsInput = z.infer<typeof addFundsBodySchema>
 export type UsageLimitInput = z.infer<typeof usageLimitBodySchema>
 export type UsageAlertInput = z.infer<typeof usageAlertBodySchema>
 export type BillingSettingsInput = z.infer<typeof billingSettingsSchema>
+export type DeleteAccountInput = z.infer<typeof deleteAccountBodySchema>

@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { getApiBaseUrl } from "@/lib/api"
 import { AUTH } from "@/lib/constants"
 import { client } from "../client"
-
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
 
 const FILES_KEY = ["files"] as const
 
@@ -40,7 +39,7 @@ export function useUploadFile() {
 			const token = localStorage.getItem(AUTH.TOKEN_KEY)
 			const fd = new FormData()
 			fd.append("file", file)
-			const res = await fetch(`${API_BASE}/client/me/files?path=/`, {
+			const res = await fetch(`${getApiBaseUrl()}/client/me/files?path=/`, {
 				method: "POST",
 				headers: token ? { Authorization: `Bearer ${token}` } : {},
 				body: fd,
