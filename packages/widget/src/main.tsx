@@ -210,7 +210,7 @@ function trackPageview(config: ResolvedWidgetConfig): void {
 	if (!config.widgetToken) return
 	const browserSessionId = getOrCreateBrowserSessionId()
 	if (!browserSessionId) return
-	fetch(`${config.apiUrl}/widget/sessions`, {
+	fetch(`${config.apiUrl}/v1/widget/sessions`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
