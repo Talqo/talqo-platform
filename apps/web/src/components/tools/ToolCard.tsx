@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import type { Tool } from "@/data/tools"
 import { ToolIcon } from "./ToolIcon"
@@ -9,6 +10,7 @@ type ToolCardProps = {
 }
 
 export function ToolCard({ tool, isAdded, onAdd }: ToolCardProps) {
+	const { t } = useTranslation()
 	return (
 		<div className="rounded-lg border border-border p-4 transition-colors hover:border-muted-foreground/50">
 			<div className="mb-2 flex items-center justify-between">
@@ -21,7 +23,7 @@ export function ToolCard({ tool, isAdded, onAdd }: ToolCardProps) {
 					}}
 					disabled={isAdded}
 				>
-					{isAdded ? "Added" : "+ Add"}
+					{isAdded ? t("tools.toolCard.added") : t("tools.toolCard.addTool")}
 				</Button>
 			</div>
 			<p className="font-medium">{tool.name}</p>

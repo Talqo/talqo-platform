@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Link } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { type BillingSettingsInput, billingSettingsSchema } from "shared"
 import {
 	useSetUsageAlert,
@@ -27,6 +28,7 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 
 export function BillingSettingsTab() {
+	const { t } = useTranslation()
 	const setUsageLimit = useSetUsageLimit()
 	const setUsageAlert = useSetUsageAlert()
 
@@ -43,7 +45,7 @@ export function BillingSettingsTab() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Usage & Limits</CardTitle>
+				<CardTitle>{t("settings.billing.title")}</CardTitle>
 			</CardHeader>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -53,7 +55,7 @@ export function BillingSettingsTab() {
 							name="monthlyLimit"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Monthly Limit (USD)</FormLabel>
+									<FormLabel>{t("settings.billing.monthlyLimit")}</FormLabel>
 									<FormControl>
 										<Input
 											type="number"
@@ -75,9 +77,9 @@ export function BillingSettingsTab() {
 							render={({ field }) => (
 								<FormItem className="flex items-center justify-between space-x-2 pt-2">
 									<div>
-										<FormLabel>Usage Alerts</FormLabel>
+										<FormLabel>{t("settings.billing.usageAlerts")}</FormLabel>
 										<p className="text-muted-foreground text-sm">
-											Email me when reaching 80% of limit
+											{t("settings.billing.usageAlertsDescription")}
 										</p>
 									</div>
 									<FormControl>
@@ -95,13 +97,13 @@ export function BillingSettingsTab() {
 							)}
 						/>
 						<p className="text-muted-foreground text-sm">
-							Want to use your own API key instead?{" "}
+							{t("settings.billing.ownApiKeyPrompt")}{" "}
 							<Link
 								to="/dashboard/settings"
 								search={{ tab: "ai-provider" }}
 								className="text-foreground underline underline-offset-2 hover:text-primary"
 							>
-								Configure it in the AI Provider tab.
+								{t("settings.billing.configureProvider")}
 							</Link>
 						</p>
 					</CardContent>
@@ -112,12 +114,14 @@ export function BillingSettingsTab() {
 						>
 							<img
 								src={upgradeImage}
-								alt="Upgrade plan"
+								alt={t("settings.billing.upgradePlan")}
 								className="h-full w-auto object-contain"
 							/>
 						</Link>
 						<Button type="submit" disabled={setUsageLimit.isPending}>
-							{setUsageLimit.isPending ? "Saving..." : "Save Settings"}
+							{setUsageLimit.isPending
+								? t("settings.billing.saving")
+								: t("settings.billing.saveSettings")}
 						</Button>
 					</CardFooter>
 				</form>

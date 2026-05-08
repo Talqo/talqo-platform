@@ -1,4 +1,5 @@
 import { Check, FileText, Pencil, Trash2, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { FileEntry } from "@/api/hooks/useFiles"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,6 +31,7 @@ export function FileListItem({
 	onEditChange,
 	onEditKeyDown,
 }: FileListItemProps) {
+	const { t } = useTranslation()
 	return (
 		<div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50">
 			<div className="flex min-w-0 flex-1 items-center gap-3">
@@ -52,7 +54,7 @@ export function FileListItem({
 								size="sm"
 								onClick={onConfirmEditing}
 								className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
-								aria-label="Confirm rename"
+								aria-label={t("botContext.fileListItem.confirmRename")}
 							>
 								<Check size={16} />
 							</Button>
@@ -61,7 +63,7 @@ export function FileListItem({
 								size="sm"
 								onClick={onCancelEditing}
 								className="h-8 w-8 p-0"
-								aria-label="Cancel rename"
+								aria-label={t("botContext.fileListItem.cancelRename")}
 							>
 								<X size={16} />
 							</Button>
@@ -72,10 +74,10 @@ export function FileListItem({
 					<div className="min-w-0 flex-1">
 						<p className="truncate font-medium text-sm">{file.name}</p>
 						<p className="text-muted-foreground text-xs">
-							{formatBytes(file.size ?? 0)} •{" "}
+							{formatBytes(file.size ?? 0)} -
 							{file.lastModified
 								? new Date(file.lastModified).toLocaleDateString()
-								: "—"}
+								: "-"}
 						</p>
 					</div>
 				)}
@@ -87,7 +89,7 @@ export function FileListItem({
 						size="sm"
 						onClick={() => onStartEditing(file)}
 						className="h-8 w-8 p-0"
-						aria-label="Rename file"
+						aria-label={t("botContext.fileListItem.renameFile")}
 					>
 						<Pencil size={16} />
 					</Button>
@@ -96,7 +98,7 @@ export function FileListItem({
 						size="sm"
 						onClick={() => onDelete(file.name)}
 						className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
-						aria-label="Delete file"
+						aria-label={t("botContext.fileListItem.deleteFile")}
 					>
 						<Trash2 size={16} />
 					</Button>

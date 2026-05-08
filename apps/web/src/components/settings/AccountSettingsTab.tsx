@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import type { UpdateProfileInput } from "shared"
 import { updateProfileBodySchema } from "shared"
 import {
@@ -29,6 +30,7 @@ import { Label } from "@/components/ui/label"
 import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas/auth"
 
 export function AccountSettingsTab() {
+	const { t } = useTranslation()
 	const { data: accountData } = useClientProfile()
 	const updateProfile = useUpdateClientProfile()
 	const changePassword = useChangePassword()
@@ -64,7 +66,7 @@ export function AccountSettingsTab() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Account Details</CardTitle>
+				<CardTitle>{t("settings.account.title")}</CardTitle>
 			</CardHeader>
 			<Form {...profileForm}>
 				<form
@@ -78,11 +80,11 @@ export function AccountSettingsTab() {
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>{t("email")}</FormLabel>
 									<FormControl>
 										<Input
 											type="email"
-											placeholder="you@example.com"
+											placeholder={t("settings.account.emailPlaceholder")}
 											{...field}
 										/>
 									</FormControl>
@@ -95,38 +97,44 @@ export function AccountSettingsTab() {
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>{t("name")}</FormLabel>
 									<FormControl>
-										<Input type="text" placeholder="Your name" {...field} />
+										<Input
+											type="text"
+											placeholder={t("settings.account.namePlaceholder")}
+											{...field}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
 						<div className="space-y-2">
-							<Label>API Key</Label>
+							<Label>{t("settings.account.apiKeyLabel")}</Label>
 							<div className="flex gap-2">
 								<Input
 									type="password"
-									placeholder="••••••••••••••••"
+									placeholder={t("settings.account.apiKeyPlaceholder")}
 									readOnly
 									className="flex-1"
 								/>
 								<Button variant="outline" size="sm" type="button" disabled>
-									Copy
+									{t("copy")}
 								</Button>
 								<Button variant="outline" size="sm" type="button" disabled>
-									Regenerate
+									{t("settings.account.regenerate")}
 								</Button>
 							</div>
 							<p className="text-muted-foreground text-sm">
-								Use this key to authenticate API requests.
+								{t("settings.account.apiKeyHelp")}
 							</p>
 						</div>
 					</CardContent>
 					<CardFooter className="flex justify-end">
 						<Button type="submit" disabled={updateProfile.isPending}>
-							{updateProfile.isPending ? "Saving..." : "Save Profile"}
+							{updateProfile.isPending
+								? t("settings.account.saving")
+								: t("settings.account.saveProfile")}
 						</Button>
 					</CardFooter>
 				</form>
@@ -156,7 +164,7 @@ export function AccountSettingsTab() {
 							name="currentPassword"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Current Password</FormLabel>
+									<FormLabel>{t("currentPassword")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -169,7 +177,7 @@ export function AccountSettingsTab() {
 							name="newPassword"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>New Password</FormLabel>
+									<FormLabel>{t("newPassword")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -182,7 +190,7 @@ export function AccountSettingsTab() {
 							name="confirmNewPassword"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Confirm New Password</FormLabel>
+									<FormLabel>{t("confirmNewPassword")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -197,7 +205,9 @@ export function AccountSettingsTab() {
 							variant="default"
 							disabled={changePassword.isPending}
 						>
-							{changePassword.isPending ? "Changing..." : "Change Password"}
+							{changePassword.isPending
+								? t("settings.account.changing")
+								: t("settings.account.changePassword")}
 						</Button>
 					</CardFooter>
 				</form>

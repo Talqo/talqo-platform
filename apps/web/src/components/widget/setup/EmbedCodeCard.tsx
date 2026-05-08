@@ -1,5 +1,6 @@
 import { Check, Code, Copy } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
@@ -21,6 +22,7 @@ export function EmbedCodeCard({
 	botName,
 	isLoading,
 }: EmbedCodeCardProps) {
+	const { t } = useTranslation()
 	const [copied, setCopied] = useState(false)
 	const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -39,8 +41,7 @@ export function EmbedCodeCard({
 		icons,
 	}
 
-	const placeholderCode = `// Loading your widget configuration...
-// Please wait while we fetch your widget token.`
+	const placeholderCode = t("widget.embedCode.placeholder")
 
 	// Build embed code only when widgetToken is available
 	let embedCode: string
@@ -89,7 +90,7 @@ export function EmbedCodeCard({
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<Code size={20} />
-					Embed Code
+					{t("widget.embedCode.title")}
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
@@ -109,24 +110,26 @@ export function EmbedCodeCard({
 						{copied ? (
 							<>
 								<Check size={16} className="mr-1" />
-								Copied!
+								{t("widget.embedCode.copied")}
 							</>
 						) : (
 							<>
 								<Copy size={16} className="mr-1" />
-								{isLoading ? "Loading..." : "Copy"}
+								{isLoading
+									? t("widget.embedCode.loading")
+									: t("widget.embedCode.copy")}
 							</>
 						)}
 					</Button>
 				</div>
 				<div className="text-muted-foreground text-sm">
-					<p className="font-semibold">Installation Instructions:</p>
+					<p className="font-semibold">
+						{t("widget.embedCode.installInstructions")}
+					</p>
 					<ol className="mt-2 list-inside list-decimal space-y-1">
-						<li>Copy the code above</li>
-						<li>
-							Paste it before the closing &lt;/body&gt; tag on your website
-						</li>
-						<li>The widget will appear on your site automatically</li>
+						<li>{t("widget.embedCode.step1")}</li>
+						<li>{t("widget.embedCode.step2")}</li>
+						<li>{t("widget.embedCode.step3")}</li>
 					</ol>
 				</div>
 			</CardContent>

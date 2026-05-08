@@ -1,6 +1,5 @@
 {
 	"dashboard": "Nástěnka",
-	"settings": "Nastavení",
 	"logout": "Odhlásit se",
 	"profile": "Profil",
 	"login": "Přihlášení",
@@ -11,12 +10,9 @@
 	"balance": "Zůstatek",
 	"usage": "Využití",
 	"analytics": "Analytika",
-	"botConfig": "Nastavení bota",
 	"files": "Soubory",
-	"blacklist": "Černá listina",
 	"provider": "AI poskytovatel",
 	"mcp": "Servery MCP",
-	"widget": "Widget",
 	"embedCode": "Vložený kód",
 	"appearance": "Vzhled",
 	"botName": "Jméno bota",
@@ -88,6 +84,242 @@
 	"chinese": "Čínština",
 	"showPassword": "Zobrazit heslo",
 	"hidePassword": "Skrýt heslo",
+	"settings": {
+		"account": {
+			"title": "Podrobnosti o účtu",
+			"emailPlaceholder": "vy@priklad.cz",
+			"namePlaceholder": "Vaše jméno",
+			"apiKeyLabel": "API klíč",
+			"apiKeyPlaceholder": "••••••••••••••••",
+			"regenerate": "Znovu vygenerovat",
+			"apiKeyHelp": "Použijte tento klíč k ověření API požadavků.",
+			"saving": "Ukládání...",
+			"saveProfile": "Uložit profil",
+			"changing": "Měnění...",
+			"changePassword": "Změnit heslo"
+		},
+		"billing": {
+			"title": "Využití a limity",
+			"monthlyLimit": "Měsíční limit (USD)",
+			"usageAlerts": "Upozornění na využití",
+			"usageAlertsDescription": "Poslat e-mail při dosažení 80 % limitu",
+			"ownApiKeyPrompt": "Chcete místo toho použít vlastní API klíč?",
+			"configureProvider": "Nastavte jej v záložce AI poskytovatel.",
+			"upgradePlan": "Upgradovat plán",
+			"saving": "Ukládání...",
+			"saveSettings": "Uložit nastavení"
+		},
+		"provider": {
+			"title": "AI poskytovatel",
+			"description": "Volitelně přineste vlastního AI poskytovatele a API klíč. Ve výchozím nastavení používá váš chatbot platformou hostovanou AI — není potřeba žádná konfigurace.",
+			"platformHosted": "Používání platformou hostované AI",
+			"platformHostedDescription": "Váš chatbot běží na spravované AI platformy. Není potřeba žádná konfigurace.",
+			"bringYourOwn": "Chcete použít vlastní API klíč? Můžete se připojit k OpenAI, Anthropic, Google Gemini nebo libovolnému kompatibilnímu koncovému bodu. Váš poskytovatel bude použit místo výchozího nastavení platformy.",
+			"configureCustom": "Nastavit vlastního poskytovatele",
+			"customActive": "Vlastní poskytovatel je aktivní",
+			"model": "Model",
+			"apiKeyMasked": "API klíč",
+			"baseUrl": "Základní URL",
+			"updated": "Aktualizováno",
+			"changeProvider": "Změnit poskytovatele",
+			"removing": "Odebírání…",
+			"remove": "Odebrat",
+			"removeFailed": "Nepodařilo se odebrat poskytovatele. Zkuste to znovu.",
+			"removeConfirm": "Odebrat vlastního AI poskytovatele? Váš chatbot se vrátí na výchozí nastavení platformy.",
+			"providerLabel": "Poskytovatel",
+			"selectProvider": "Vybrat poskytovatele",
+			"openai": "OpenAI",
+			"openaiCompatible": "Kompatibilní s OpenAI",
+			"googleGemini": "Google Gemini",
+			"anthropic": "Anthropic",
+			"apiKeyPlaceholder": "Vložte svůj API klíč",
+			"apiKeyEncrypted": "Ukládáno šifrovaně. Po uložení se zobrazí pouze poslední 4 znaky.",
+			"baseUrlRequired": "Základní URL",
+			"baseUrlPlaceholder": "https://my.host/v1",
+			"saveFailed": "Uložení se nezdařilo. Zkuste to znovu.",
+			"saving": "Ukládání…",
+			"saveProvider": "Uložit poskytovatele",
+			"loading": "Načítání…",
+			"loadFailed": "Nepodařilo se načíst konfiguraci poskytovatele. Obnovte stránku."
+		}
+	},
+	"botConfig": {
+		"pageTitle": "Nastavení bota",
+		"pageSubtitle": "Nastavte osobnost, chování a pravidla odpovědí vašeho bota.",
+		"personalityTitle": "Osobnost a chování bota",
+		"systemPromptLabel": "Systémový prompt",
+		"systemPromptPlaceholder": "Definujte chování a kontext své AI asistentky...",
+		"systemPromptDescription": "Pokyny, které definují, jak vaše AI asistentka odpovídá uživatelům.",
+		"defaultRoleLabel": "Výchozí role",
+		"defaultRolePlaceholder": "např. \"Zákaznický agent pro Acme Shop\"",
+		"defaultRoleDescription": "Role, kterou bot přijímá při odpovídání uživatelům.",
+		"toneStyleLabel": "Tón a komunikační styl",
+		"toneStylePlaceholder": "např. \"Profesionální, ale přátelský\"",
+		"toneStyleDescription": "Jak by měl bot znít v konverzacích s uživateli.",
+		"saving": "Ukládání...",
+		"saveConfiguration": "Uložit konfiguraci",
+		"configSaved": "Konfigurace uložena.",
+		"saveFailed": "Uložení se nezdařilo. Zkuste to znovu.",
+		"loadFailed": "Nepodařilo se načíst konfiguraci bota. Obnovte stránku."
+	},
+	"billing": {
+		"addFundsForm": {
+			"title": "Dobít zůstatek",
+			"description": "Zadejte částku a údaje o kartě pro dobití zůstatku.",
+			"amountUsd": "Částka (USD)",
+			"cardNumberPlaceholder": "1234 5678 9012 3456",
+			"expiryPlaceholder": "MM/RR",
+			"cvvPlaceholder": "123",
+			"nameOnCardPlaceholder": "Jana Nováková",
+			"processing": "Zpracovávání...",
+			"pay": "Zaplatit",
+			"failedToAddFunds": "Dobití se nezdařilo. Zkuste to znovu.",
+			"fundsAddedSuccess": "Zůstatek úspěšně dobit! Přesměrování..."
+		}
+	},
+	"blacklist": {
+		"title": "Černá listina slov",
+		"description": "Bot nebude používat ani reagovat na zakázané výrazy.",
+		"wordPlaceholder": "Napište slovo a stiskněte Enter nebo Přidat...",
+		"adding": "Přidávání...",
+		"add": "Přidat",
+		"notLoaded": "Černá listina ještě není načtená — počkejte prosím",
+		"emptyWord": "Zadejte neprázdné slovo.",
+		"duplicateWord": "\"{{word}}\" je již na černé listině.",
+		"addFailed": "Nepodařilo se přidat slovo. Zkuste to znovu.",
+		"removeFailed": "Nepodařilo se odebrat slovo. Zkuste to znovu.",
+		"loadFailed": "Nepodařilo se načíst černou listinu. Obnovte stránku.",
+		"noWords": "Zatím žádná zakázaná slova.",
+		"removeAriaLabel": "Odebrat \"{{word}}\" z černé listiny"
+	},
+	"widget": {
+		"setup": {
+			"errorTitle": "Chyba při načítání dat klienta",
+			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu."
+		},
+		"onboarding": {
+			"title": "Přidejte AI chat na svůj web",
+			"description": "Umožněte zákazníkům chatovat s AI přímo na vašem webu. Není potřeba programování!",
+			"whatYouCanDo": "Co můžete udělat:",
+			"customizeColors": "Přizpůsobte barvy své značce",
+			"choosePosition": "Zvolte pozici widgetu (vlevo nebo vpravo)",
+			"getEmbedCode": "Získejte kód jediným kliknutím",
+			"seePreview": "Podívejte se na náhled před nasazením",
+			"setUpNow": "Nastavit nyní",
+			"remindLater": "Připomenout později",
+			"dontShowAgain": "Příště nezobrazovat",
+			"saving": "Ukládání..."
+		},
+		"appearance": {
+			"title": "Vzhled",
+			"widgetPosition": "Pozice widgetu",
+			"bottomLeft": "Dole vlevo",
+			"bottomRight": "Dole vpravo",
+			"color": "Barva",
+			"lightMode": "Světlý režim",
+			"darkMode": "Tmavý režim",
+			"primaryColor": "Primární barva",
+			"background": "Pozadí",
+			"secondaryBackground": "Sekundární pozadí",
+			"textColor": "Barva textu",
+			"secondaryText": "Sekundární text",
+			"borderColor": "Barva ohraničení",
+			"headerTitle": "Nadpis hlavičky",
+			"userMessageText": "Text uživatelské zprávy",
+			"sendButtonIcon": "Ikona odesílacího tlačítka",
+			"footerText": "Text patičky"
+		},
+		"embedCode": {
+			"title": "Vložený kód",
+			"copied": "Zkopírováno!",
+			"copy": "Kopírovat",
+			"loading": "Načítání...",
+			"installInstructions": "Instrukce k instalaci:",
+			"step1": "Zkopírujte výše uvedený kód",
+			"step2": "Vložte jej před uzavírací značku </body> na vašem webu",
+			"step3": "Widget se na vašem webu zobrazí automaticky",
+			"placeholder": "// Načítání konfigurace widgetu...\n// Vyčkejte prosím, načítáme váš widget token."
+		},
+		"preview": {
+			"title": "Živý náhled",
+			"lightMode": "Světlý režim",
+			"darkMode": "Tmavý režim",
+			"botMessage": "Dobrý den! Jak vám mohu pomoci?",
+			"userMessage": "Ahoj!",
+			"typeAMessage": "Napište zprávu...",
+			"poweredBy": "Používá PagePal"
+		},
+		"botName": {
+			"title": "Identita bota",
+			"botNameLabel": "Jméno bota",
+			"botNamePlaceholder": "AI asistent",
+			"botNameHelp": "Toto jméno se zobrazí v hlavičce widgetu.",
+			"botAvatarLabel": "Avatar bota",
+			"customAvatarUploaded": "Vlastní avatar nahrán",
+			"dropSvgHere": "Přetáhněte SVG sem nebo klikněte pro nahrání",
+			"uploadSquareSvg": "Pro nejlepší výsledky nahrajte čtvercové SVG"
+		}
+	},
+	"charts": {
+		"tokenConsumption": {
+			"title": "Spotřeba tokenů",
+			"description": "Denní spotřeba tokenů za posledních 7 dní",
+			"ariaLabel": "Sloupcový graf zobrazující spotřebu tokenů za posledních 7 dní"
+		},
+		"questionsAsked": {
+			"title": "Položené otázky",
+			"description": "Interakce koncových uživatelů za posledních 7 dní",
+			"ariaLabel": "Čarový graf zobrazující položené otázky za posledních 7 dní"
+		}
+	},
+	"tools": {
+		"toolCard": {
+			"added": "Přidáno",
+			"addTool": "+ Přidat"
+		},
+		"usedToolItem": {
+			"configure": "Nastavit",
+			"configurationComingSoon": "Nastavení již brzy"
+		},
+		"toolsTab": {
+			"title": "MCP nástroje",
+			"currentlyUsed": "Aktuálně použité",
+			"preconfigured": "Přednastavené nástroje",
+			"seeMoreMcp": "Více MCP nástrojů",
+			"browseDirectory": "Prohlédněte si oficiální adresář MCP serverů",
+			"saveToolConfiguration": "Uložit konfiguraci nástrojů",
+			"persistenceComingSoon": "Perzistence již brzy"
+		}
+	},
+	"botContext": {
+		"fileList": {
+			"contextFiles": "Kontextové soubory ({{count}})",
+			"addFile": "Přidat",
+			"dropFilesHere": "Přetáhněte soubory sem"
+		},
+		"fileListEmpty": {
+			"title": "Zatím žádné soubory",
+			"description": "Přetáhněte textové soubory sem nebo použijte tlačítko + k přidání"
+		},
+		"fileListItem": {
+			"confirmRename": "Potvrdit přejmenování",
+			"cancelRename": "Zrušit přejmenování",
+			"renameFile": "Přejmenovat soubor",
+			"deleteFile": "Smazat soubor",
+			"duplicateName": "Soubor s tímto názvem již existuje",
+			"renameFailed": "Přejmenování se nezdařilo. Zkuste to znovu."
+		},
+		"uploadErrorAlert": {
+			"failedToUpload": "Nepodařilo se nahrát {{count}} soubor",
+			"failedToUpload_plural": "Nepodařilo se nahrát {{count}} souborů",
+			"fileAlreadyExists": "Soubor s tímto názvem již existuje",
+			"invalidFileType": "Neplatný typ souboru",
+			"dismissErrors": "Zavřít chyby"
+		},
+		"dragOverlay": {
+			"dropFilesHere": "Přetáhněte soubory sem"
+		}
+	},
 	"auth": {
 		"login": {
 			"title": "Přihlásit se",

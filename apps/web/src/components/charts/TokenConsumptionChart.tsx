@@ -1,4 +1,5 @@
 import { BarChart3 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import {
 	Bar,
 	BarChart,
@@ -22,14 +23,15 @@ type TokenConsumptionChartProps = {
 }
 
 export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
+	const { t } = useTranslation()
 	const hasData = data.length > 0
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Token Consumption</CardTitle>
+				<CardTitle>{t("charts.tokenConsumption.title")}</CardTitle>
 				<CardDescription>
-					Daily token usage over the last 7 days
+					{t("charts.tokenConsumption.description")}
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="h-[300px]">
@@ -38,7 +40,7 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 						<BarChart
 							data={data}
 							role="img"
-							aria-label="Bar chart showing token consumption over the last 7 days"
+							aria-label={t("charts.tokenConsumption.ariaLabel")}
 						>
 							<CartesianGrid
 								strokeDasharray="3 3"
@@ -76,7 +78,7 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 				) : (
 					<output className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
 						<BarChart3 size={48} className="opacity-50" />
-						<p>No data available</p>
+						<p>{t("common.noData")}</p>
 					</output>
 				)}
 			</CardContent>

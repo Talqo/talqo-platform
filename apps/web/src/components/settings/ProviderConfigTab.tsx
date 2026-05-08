@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Plug } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import type { ProviderType } from "shared"
 import {
 	type ProviderConfigResponse,
@@ -41,18 +42,22 @@ import {
 	providerConfigFormSchema,
 } from "@/schemas/provider-config"
 
-const PROVIDER_LABELS: Record<ProviderType, string> = {
-	openai: "OpenAI",
-	openai_compatible: "OpenAI Compatible",
-	google: "Google Gemini",
-	anthropic: "Anthropic",
-}
-
 const MODEL_PLACEHOLDERS: Record<ProviderType, string> = {
 	openai: "gpt-4o, gpt-4o-mini",
 	openai_compatible: "depends on endpoint",
 	google: "gemini-2.0-flash, gemini-1.5-pro",
 	anthropic: "claude-sonnet-4-6, claude-haiku-4-5",
+}
+
+function ProviderLabel({ type }: { type: ProviderType }) {
+	const { t } = useTranslation()
+	const labels: Record<ProviderType, string> = {
+		openai: t("settings.provider.openai"),
+		openai_compatible: t("settings.provider.openaiCompatible"),
+		google: t("settings.provider.googleGemini"),
+		anthropic: t("settings.provider.anthropic"),
+	}
+	return <>{labels[type]}</>
 }
 
 function ProviderBadge({ type }: { type: ProviderType }) {
@@ -66,12 +71,13 @@ function ProviderBadge({ type }: { type: ProviderType }) {
 		<span
 			className={`inline-flex items-center rounded border px-2 py-0.5 font-mono text-xs ${colors[type]}`}
 		>
-			{PROVIDER_LABELS[type]}
+			<ProviderLabel type={type} />
 		</span>
 	)
 }
 
 function PlatformDefaultState({ onConfigure }: { onConfigure: () => void }) {
+	const { t } = useTranslation()
 	return (
 		<div className="space-y-4">
 			<div className="rounded-lg border border-border bg-muted/20 p-4">
@@ -81,23 +87,20 @@ function PlatformDefaultState({ onConfigure }: { onConfigure: () => void }) {
 					</div>
 					<div>
 						<p className="font-medium text-foreground text-sm">
-							Using platform-hosted AI
+							{t("settings.provider.platformHosted")}
 						</p>
 						<p className="mt-0.5 text-muted-foreground text-sm">
-							Your chatbot is running on the platform's managed AI. No
-							configuration needed.
+							{t("settings.provider.platformHostedDescription")}
 						</p>
 					</div>
 				</div>
 			</div>
 			<div className="mt-4 rounded-lg border border-border border-dashed p-4">
 				<p className="mb-3 text-muted-foreground text-sm">
-					Want to use your own API key? You can connect OpenAI, Anthropic,
-					Google Gemini, or any OpenAI-compatible endpoint. Your provider will
-					be used instead of the platform default.
+					{t("settings.provider.bringYourOwn")}
 				</p>
 				<Button variant="outline" size="sm" onClick={onConfigure}>
-					Configure custom provider
+					{t("settings.provider.configureCustom")}
 				</Button>
 			</div>
 		</div>
@@ -117,30 +120,31 @@ function ActiveProviderState({
 	deleting: boolean
 	deleteError?: Error | null
 }) {
+	const { t } = useTranslation()
 	return (
 		<div className="space-y-4">
 			<div className="rounded-lg border border-border bg-muted/30 p-4">
 				<div className="mb-3 flex items-center justify-between">
 					<span className="font-medium text-foreground text-sm">
-						Custom provider active
+						{t("settings.provider.customActive")}
 					</span>
 					<ProviderBadge type={config.providerType} />
 				</div>
 				<dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
 					<dt className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-						Model
+						{t("settings.provider.model")}
 					</dt>
 					<dd className="font-mono text-foreground">{config.model}</dd>
 
 					<dt className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-						API Key
+						{t("settings.provider.apiKeyMasked")}
 					</dt>
 					<dd className="font-mono text-foreground">{config.apiKeyMasked}</dd>
 
 					{config.baseUrl && (
 						<>
 							<dt className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-								Base URL
+								{t("settings.provider.baseUrl")}
 							</dt>
 							<dd className="break-all font-mono text-foreground">
 								{config.baseUrl}
@@ -149,7 +153,7 @@ function ActiveProviderState({
 					)}
 
 					<dt className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
-						Updated
+						{t("settings.provider.updated")}
 					</dt>
 					<dd className="text-muted-foreground">
 						{new Date(config.updatedAt).toLocaleString()}
@@ -158,7 +162,7 @@ function ActiveProviderState({
 			</div>
 			<div className="flex gap-2">
 				<Button variant="outline" size="sm" onClick={onEdit}>
-					Change provider
+					{t("settings.provider.changeProvider")}
 				</Button>
 				<Button
 					variant="ghost"
@@ -167,12 +171,14 @@ function ActiveProviderState({
 					onClick={onDelete}
 					disabled={deleting}
 				>
-					{deleting ? "Removing…" : "Remove"}
+					{deleting
+						? t("settings.provider.removing")
+						: t("settings.provider.remove")}
 				</Button>
 			</div>
 			{deleteError && (
 				<p className="text-destructive text-sm">
-					Failed to remove provider. Please try again.
+					{t("settings.provider.removeFailed")}
 				</p>
 			)}
 		</div>
@@ -190,6 +196,7 @@ function ProviderConfigForm({
 	onSaved: () => void
 	showCancel: boolean
 }) {
+	const { t } = useTranslation()
 	const upsert = useUpsertProviderConfig()
 
 	const form = useForm<ProviderConfigFormValues>({
@@ -248,7 +255,7 @@ function ProviderConfigForm({
 					name="providerType"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Provider</FormLabel>
+							<FormLabel>{t("settings.provider.providerLabel")}</FormLabel>
 							<Select
 								value={field.value}
 								onValueChange={(v) => {
@@ -260,7 +267,9 @@ function ProviderConfigForm({
 							>
 								<FormControl>
 									<SelectTrigger id="provider-type" className="w-full">
-										<SelectValue placeholder="Select provider" />
+										<SelectValue
+											placeholder={t("settings.provider.selectProvider")}
+										/>
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
@@ -273,13 +282,13 @@ function ProviderConfigForm({
 												height={16}
 												className="dark:invert"
 											/>
-											OpenAI
+											{t("settings.provider.openai")}
 										</span>
 									</SelectItem>
 									<SelectItem value="openai_compatible">
 										<span className="flex items-center gap-2">
 											<Plug size={16} />
-											OpenAI Compatible
+											{t("settings.provider.openaiCompatible")}
 										</span>
 									</SelectItem>
 									<SelectItem value="google">
@@ -291,7 +300,7 @@ function ProviderConfigForm({
 												height={16}
 												className="dark:invert"
 											/>
-											Google Gemini
+											{t("settings.provider.googleGemini")}
 										</span>
 									</SelectItem>
 									<SelectItem value="anthropic">
@@ -303,7 +312,7 @@ function ProviderConfigForm({
 												height={16}
 												className="dark:invert"
 											/>
-											Anthropic
+											{t("settings.provider.anthropic")}
 										</span>
 									</SelectItem>
 								</SelectContent>
@@ -318,18 +327,17 @@ function ProviderConfigForm({
 					name="apiKey"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>API Key</FormLabel>
+							<FormLabel>{t("settings.provider.apiKeyMasked")}</FormLabel>
 							<FormControl>
 								<Input
 									type="password"
 									autoComplete="new-password"
-									placeholder="Paste your API key"
+									placeholder={t("settings.provider.apiKeyPlaceholder")}
 									{...field}
 								/>
 							</FormControl>
 							<p className="text-muted-foreground text-xs">
-								Stored encrypted. Only the last 4 characters are shown after
-								saving.
+								{t("settings.provider.apiKeyEncrypted")}
 							</p>
 							<FormMessage />
 						</FormItem>
@@ -341,7 +349,7 @@ function ProviderConfigForm({
 					name="model"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Model</FormLabel>
+							<FormLabel>{t("settings.provider.model")}</FormLabel>
 							<FormControl>
 								<Input
 									type="text"
@@ -361,7 +369,7 @@ function ProviderConfigForm({
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									Base URL{" "}
+									{t("settings.provider.baseUrlRequired")}{" "}
 									<span className="text-destructive" aria-hidden="true">
 										*
 									</span>
@@ -369,7 +377,7 @@ function ProviderConfigForm({
 								<FormControl>
 									<Input
 										type="url"
-										placeholder="https://my.host/v1"
+										placeholder={t("settings.provider.baseUrlPlaceholder")}
 										{...field}
 									/>
 								</FormControl>
@@ -381,17 +389,19 @@ function ProviderConfigForm({
 
 				{upsert.error && (
 					<p className="text-destructive text-sm">
-						Failed to save. Please try again.
+						{t("settings.provider.saveFailed")}
 					</p>
 				)}
 
 				<div className="flex gap-2 pt-1">
 					<Button type="submit" disabled={upsert.isPending}>
-						{upsert.isPending ? "Saving…" : "Save provider"}
+						{upsert.isPending
+							? t("settings.provider.saving")
+							: t("settings.provider.saveProvider")}
 					</Button>
 					{showCancel && onCancel && (
 						<Button type="button" variant="ghost" onClick={onCancel}>
-							Cancel
+							{t("cancel")}
 						</Button>
 					)}
 				</div>
@@ -401,6 +411,7 @@ function ProviderConfigForm({
 }
 
 export function ProviderConfigTab() {
+	const { t } = useTranslation()
 	const { data: savedConfig, isLoading, error } = useProviderConfig()
 	const deleteMutation = useDeleteProviderConfig()
 	const [configuring, setConfiguring] = useState(false)
@@ -409,7 +420,9 @@ export function ProviderConfigTab() {
 		return (
 			<Card>
 				<CardContent className="pt-6">
-					<p className="text-muted-foreground text-sm">Loading…</p>
+					<p className="text-muted-foreground text-sm">
+						{t("settings.provider.loading")}
+					</p>
 				</CardContent>
 			</Card>
 		)
@@ -420,7 +433,7 @@ export function ProviderConfigTab() {
 			<Card>
 				<CardContent className="pt-6">
 					<p className="text-destructive text-sm">
-						Failed to load provider config. Please refresh the page.
+						{t("settings.provider.loadFailed")}
 					</p>
 				</CardContent>
 			</Card>
@@ -430,11 +443,8 @@ export function ProviderConfigTab() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>AI Provider</CardTitle>
-				<CardDescription>
-					Optionally bring your own AI provider and API key. By default your
-					chatbot uses the platform-hosted AI — no setup required.
-				</CardDescription>
+				<CardTitle>{t("settings.provider.title")}</CardTitle>
+				<CardDescription>{t("settings.provider.description")}</CardDescription>
 			</CardHeader>
 
 			<CardContent>
@@ -444,11 +454,7 @@ export function ProviderConfigTab() {
 							config={savedConfig}
 							onEdit={() => setConfiguring(true)}
 							onDelete={() => {
-								if (
-									window.confirm(
-										"Remove your custom AI provider? Your chatbot will revert to the platform default.",
-									)
-								) {
+								if (window.confirm(t("settings.provider.removeConfirm"))) {
 									deleteMutation.mutate()
 								}
 							}}
