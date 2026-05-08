@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import {
 	adminAccessLogResponseSchema,
 	clientSummarySchema,
@@ -11,6 +11,7 @@ import {
 	paginationQuerySchema,
 } from "shared"
 import { NotFoundError, UnauthorizedError } from "../../common/errors"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -21,7 +22,7 @@ import type { AdminService } from "./admin.service"
 // ─── Admin auth (unprotected) ──────────────────────────────────────────────────
 
 export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({
@@ -103,7 +104,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 // ─── Admin current user (protected) ───────────────────────────────────────────
 
 export function createAdminMeRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	// GET /admin/me - Get current admin profile
 	router.openapi(
@@ -157,7 +158,7 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 // ─── Admin client management (protected) ──────────────────────────────────────
 
 export function createAdminClientRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({
@@ -322,7 +323,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 export function createAdminActivityLogsRouter(
 	service: AdminService,
 ): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({
@@ -360,7 +361,7 @@ export function createAdminActivityLogsRouter(
 export function createAdminConversationRouter(
 	service: AdminService,
 ): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({

@@ -1,4 +1,3 @@
-import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { cors } from "hono/cors"
 import type { AppVariables } from "./common/jwt"
@@ -9,6 +8,7 @@ import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
 import { createWideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
+import { createRouter } from "./common/router"
 import { SentryExporter } from "./common/sentry-exporter"
 import {
 	adminActivityLogsRoutes,
@@ -36,8 +36,8 @@ import {
 } from "./modules/widget"
 import { widgetConfigClientRoutes } from "./modules/widget-config"
 
-const app = new OpenAPIHono<{ Variables: AppVariables }>()
-const v1 = new OpenAPIHono<{ Variables: AppVariables }>()
+const app = createRouter<{ Variables: AppVariables }>()
+const v1 = createRouter<{ Variables: AppVariables }>()
 
 app.use("/*", cors())
 app.use("/*", async (c, next) => {

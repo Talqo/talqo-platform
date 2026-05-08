@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import {
 	ForgotPasswordSchema,
 	LoginSchema,
@@ -14,6 +14,7 @@ import {
 	UnauthorizedError,
 } from "../../common/errors"
 import type { AppVariables } from "../../common/jwt"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -23,7 +24,7 @@ import type { AuthService } from "./auth.service"
 export function createAuthRouter(
 	service: AuthService,
 ): OpenAPIHono<{ Variables: AppVariables }> {
-	const router = new OpenAPIHono<{ Variables: AppVariables }>()
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({

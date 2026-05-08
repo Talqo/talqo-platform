@@ -1,6 +1,7 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import { customServerResponseSchema, preMadeServerResponseSchema } from "db/dto"
 import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -11,7 +12,7 @@ const serverIdParam = z.object({ serverId: z.string().uuid() })
 
 // ─── Client MCP routes ─────────────────────────────────────────────────────────
 
-export const clientMcpRoutes = new OpenAPIHono()
+export const clientMcpRoutes = createRouter()
 
 clientMcpRoutes.openapi(
 	createRoute({
@@ -262,7 +263,7 @@ clientMcpRoutes.openapi(
 
 // ─── Admin MCP routes ──────────────────────────────────────────────────────────
 
-export const adminMcpRoutes = new OpenAPIHono()
+export const adminMcpRoutes = createRouter()
 
 adminMcpRoutes.openapi(
 	createRoute({
