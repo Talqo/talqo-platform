@@ -7,6 +7,7 @@ import {
 	MessageSquare,
 } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
 	useAdminClients,
 	useAdminPlatformStats,
@@ -55,6 +56,7 @@ export const Route = createFileRoute("/backoffice/")({
 
 function BackofficePage() {
 	const navigate = useNavigate()
+	const { t } = useTranslation()
 	const { data: clients, isLoading, error } = useAdminClients({ limit: 50 })
 	const { data: stats } = useAdminPlatformStats()
 	const updateStatus = useUpdateClientStatus()
@@ -99,7 +101,9 @@ function BackofficePage() {
 	if (error) {
 		return (
 			<div className="flex h-[400px] items-center justify-center">
-				<p className="text-muted-foreground">Failed to load clients</p>
+				<p className="text-muted-foreground">
+					{t("backoffice.stats.failedToLoadClients")}
+				</p>
 			</div>
 		)
 	}
@@ -107,56 +111,60 @@ function BackofficePage() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="font-bold text-3xl tracking-tight">Admin Dashboard</h1>
+				<h1 className="font-bold text-3xl tracking-tight">
+					{t("backoffice.stats.adminDashboard")}
+				</h1>
 				<p className="text-muted-foreground">
-					Manage tenants, users, and system settings
+					{t("backoffice.stats.adminDashboardDescription")}
 				</p>
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<BackOfficeStatCard
-					title="Total Tenants"
+					title={t("backoffice.stats.totalTenants")}
 					value={clients?.length?.toString() ?? "0"}
-					subtitle="Registered tenants"
+					subtitle={t("backoffice.stats.registeredTenants")}
 					icon={Building2}
 				/>
 				<BackOfficeStatCard
-					title="Active Clients"
+					title={t("backoffice.stats.activeClients")}
 					value={stats?.activeClients?.toString() ?? "—"}
-					subtitle="Currently active"
+					subtitle={t("backoffice.stats.currentlyActive")}
 					icon={Building2}
 				/>
 				<BackOfficeStatCard
-					title="Platform Tokens"
+					title={t("backoffice.stats.platformTokens")}
 					value={
 						stats?.totalTokens != null
 							? Number(stats.totalTokens).toLocaleString()
 							: "—"
 					}
-					subtitle="Total consumed"
+					subtitle={t("backoffice.stats.totalConsumed")}
 					icon={BarChart3}
 				/>
 				<BackOfficeStatCard
-					title="Total Cost"
+					title={t("backoffice.stats.totalCost")}
 					value={(() => {
 						const cost = Number(stats?.totalCostUsd)
 						return Number.isFinite(cost) ? `$${cost.toFixed(2)}` : "—"
 					})()}
-					subtitle="Platform spend"
+					subtitle={t("backoffice.stats.platformSpend")}
 					icon={DollarSign}
 				/>
 				<BackOfficeStatCard
-					title="Conversations"
+					title={t("backoffice.stats.conversations")}
 					value={stats?.totalConversations?.toString() ?? "—"}
-					subtitle="All time"
+					subtitle={t("backoffice.stats.allTime")}
 					icon={MessageSquare}
 				/>
 			</div>
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Tenants</CardTitle>
-					<CardDescription>Manage all tenants in the system</CardDescription>
+					<CardTitle>{t("backoffice.stats.tenants")}</CardTitle>
+					<CardDescription>
+						{t("backoffice.stats.manageTenants")}
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<TenantsTable

@@ -11,6 +11,7 @@ import {
 	Sun,
 	Wrench,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useLogout } from "@/api/hooks/useAuth"
 import { useClientProfile } from "@/api/hooks/useClientAccount"
 import { Button } from "@/components/ui/button"
@@ -24,14 +25,39 @@ export function DashboardLayout() {
 	const logout = useLogout()
 	const { theme, toggleTheme } = useTheme()
 	const { data: profile, isLoading, isError, error } = useClientProfile()
+	const { t } = useTranslation()
 
 	const navItems = [
-		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-		{ icon: FileText, label: "Bot Context", href: "/dashboard/bot-context" },
-		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
-		{ icon: Wrench, label: "Tools MCP", href: "/dashboard/tools" },
-		{ icon: Code, label: "Widget Setup", href: "/dashboard/widget-setup" },
-		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
+		{
+			icon: LayoutDashboard,
+			label: t("clientDashboard.nav.overview"),
+			href: "/dashboard",
+		},
+		{
+			icon: FileText,
+			label: t("clientDashboard.nav.botContext"),
+			href: "/dashboard/bot-context",
+		},
+		{
+			icon: Bot,
+			label: t("clientDashboard.nav.botConfiguration"),
+			href: "/dashboard/bot-config",
+		},
+		{
+			icon: Wrench,
+			label: t("clientDashboard.nav.toolsMcp"),
+			href: "/dashboard/tools",
+		},
+		{
+			icon: Code,
+			label: t("clientDashboard.nav.widgetSetup"),
+			href: "/dashboard/widget-setup",
+		},
+		{
+			icon: Settings,
+			label: t("settings.account.title"),
+			href: "/dashboard/settings",
+		},
 	]
 
 	const handleLogout = () => {
@@ -49,11 +75,13 @@ export function DashboardLayout() {
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
 						<Bot size={20} />
 					</div>
-					<span className="font-semibold text-card-foreground">PagePal</span>
+					<span className="font-semibold text-card-foreground">
+						{t("common.pagePal")}
+					</span>
 				</Link>
 				<div className="flex flex-col gap-1 p-4">
 					<div className="mb-2 px-2 font-semibold text-muted-foreground text-xs uppercase">
-						Client Dashboard
+						{t("clientDashboard.nav.clientDashboard")}
 					</div>
 					{navItems.map((item) => {
 						const isActive = location.pathname === item.href
@@ -84,7 +112,9 @@ export function DashboardLayout() {
 					>
 						{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
 						<span className="ml-2">
-							{theme === "dark" ? "Light Mode" : "Dark Mode"}
+							{theme === "dark"
+								? t("clientDashboard.nav.lightMode")
+								: t("clientDashboard.nav.darkMode")}
 						</span>
 					</Button>
 					<Button
@@ -94,7 +124,7 @@ export function DashboardLayout() {
 						className="w-full justify-start text-destructive hover:text-destructive/80"
 					>
 						<LogOut size={18} />
-						<span className="ml-2">Log out</span>
+						<span className="ml-2">{t("common.logOut")}</span>
 					</Button>
 				</div>
 			</aside>
@@ -114,11 +144,11 @@ export function DashboardLayout() {
 									className="text-destructive text-xs"
 									title={error?.message}
 								>
-									Failed to load
+									{t("clientDashboard.nav.failedToLoad")}
 								</span>
 							) : (
 								<span className="font-medium text-card-foreground">
-									{profile?.name || "Unknown Company"}
+									{profile?.name || t("clientDashboard.nav.unknownCompany")}
 								</span>
 							)}
 						</div>

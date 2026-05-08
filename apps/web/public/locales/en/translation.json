@@ -1,5 +1,26 @@
 {
-	"dashboard": "Dashboard",
+	"dashboard": {
+		"overview": {
+			"title": "Dashboard Overview",
+			"subtitle": "Welcome back. Here's what's happening with your bot.",
+			"currentBalance": "Current Balance",
+			"availableFunds": "Available Funds",
+			"addFunds": "Add Funds",
+			"totalTokens": "Total Tokens",
+			"allTime": "All Time",
+			"questionsAnswered": "Questions Answered",
+			"activeConnectors": "Active Connectors",
+			"currentSpend": "Current Spend",
+			"totalConversations": "Total Conversations",
+			"uniqueUsers": "Unique Users",
+			"sessionsThatChatted": "Sessions that chatted",
+			"visitorEngagement": "Visitor Engagement",
+			"siteVisitorsWhoChatted": "Site visitors who chatted",
+			"avgSatisfaction": "Avg. Satisfaction",
+			"satisfactionRating": "Satisfaction Rating",
+			"noData": "No data available"
+		}
+	},
 	"logout": "Log out",
 	"profile": "Profile",
 	"login": "Login",
@@ -262,7 +283,21 @@
 		"logOut": "Log out",
 		"noData": "No data available",
 		"pagePal": "PagePal",
-		"failedToLoad": "Failed to load"
+		"failedToLoad": "Failed to load",
+		"processing": "Processing...",
+		"sending": "Sending...",
+		"confirm": "Confirm",
+		"back": "Back",
+		"next": "Next",
+		"expand": "Expand",
+		"minimize": "Minimize",
+		"clear": "Clear",
+		"regenerate": "Regenerate",
+		"refreshPage": "Refresh page",
+		"pleaseTryAgain": "Please try again",
+		"switchToLightMode": "Switch to light mode",
+		"switchToDarkMode": "Switch to dark mode",
+		"logIn": "Log in"
 	},
 	"settings": {
 		"account": {
@@ -412,7 +447,9 @@
 			"conversations": "Conversations",
 			"allTime": "All time",
 			"failedToLoadClients": "Failed to load clients",
-			"failedToLoadConversations": "Failed to load conversations"
+			"failedToLoadConversations": "Failed to load conversations",
+			"tenants": "Tenants",
+			"manageTenants": "Manage all tenants in the system"
 		},
 		"tenantsTable": {
 			"client": "Client",
@@ -425,7 +462,9 @@
 			"noTenantsFound": "No tenants found",
 			"impersonate": "Impersonate",
 			"suspend": "Suspend",
-			"reEnable": "Re-enable"
+			"reEnable": "Re-enable",
+			"platformDefault": "Platform Default",
+			"noTenants": "No tenants found"
 		},
 		"conversationsTable": {
 			"client": "Client",
@@ -435,7 +474,13 @@
 			"preview": "Preview",
 			"noConversationsFound": "No conversations found",
 			"close": "Close",
-			"view": "View"
+			"view": "View",
+			"noConversations": "No conversations found",
+			"failedToLoadConversation": "Failed to load conversation",
+			"noMessages": "No messages",
+			"chatPreviews": "Chat Previews",
+			"chatPreviewsDescription": "Browse and inspect end-user conversations (showing most recent 50)",
+			"ratingLabel": "Rating"
 		},
 		"chatPreviews": {
 			"title": "Chat Previews",

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -19,6 +20,8 @@ export function TenantsTable({
 	onImpersonate,
 	pendingId,
 }: TenantsTableProps) {
+	const { t } = useTranslation()
+
 	return (
 		<Card className="overflow-hidden dark:border-zinc-800 dark:bg-zinc-900">
 			<div className="overflow-x-auto">
@@ -26,19 +29,19 @@ export function TenantsTable({
 					<thead className="border-zinc-200 border-b bg-zinc-50 text-xs text-zinc-700 uppercase dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-400">
 						<tr>
 							<th scope="col" className="px-6 py-3">
-								Client
+								{t("backoffice.tenantsTable.client")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Status
+								{t("backoffice.tenantsTable.status")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								API Type
+								{t("backoffice.tenantsTable.apiType")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Token Usage
+								{t("backoffice.tenantsTable.tokenUsage")}
 							</th>
 							<th scope="col" className="px-6 py-3 text-right">
-								Actions
+								{t("backoffice.tenantsTable.actions")}
 							</th>
 						</tr>
 					</thead>
@@ -58,7 +61,7 @@ export function TenantsTable({
 									colSpan={5}
 									className="px-6 py-4 text-center text-zinc-500 dark:text-zinc-400"
 								>
-									No tenants found
+									{t("backoffice.tenantsTable.noTenants")}
 								</td>
 							</tr>
 						) : (
@@ -73,11 +76,11 @@ export function TenantsTable({
 									<td className="px-6 py-4">
 										{tenant.status === "active" ? (
 											<Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400">
-												Active
+												{t("backoffice.tenantsTable.active")}
 											</Badge>
 										) : (
 											<Badge className="bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400">
-												Suspended
+												{t("backoffice.tenantsTable.suspended")}
 											</Badge>
 										)}
 									</td>
@@ -97,7 +100,7 @@ export function TenantsTable({
 											{pendingId === tenant.id ? (
 												<Spinner size="sm" className="mr-1" />
 											) : null}
-											Impersonate
+											{t("backoffice.tenantsTable.impersonate")}
 										</Button>
 										{tenant.status === "active" ? (
 											<Button
@@ -107,7 +110,7 @@ export function TenantsTable({
 												disabled={pendingId === tenant.id}
 												onClick={() => onSuspend?.(tenant.id)}
 											>
-												Suspend
+												{t("backoffice.tenantsTable.suspend")}
 											</Button>
 										) : (
 											<Button
@@ -117,7 +120,7 @@ export function TenantsTable({
 												disabled={pendingId === tenant.id}
 												onClick={() => onReEnable?.(tenant.id)}
 											>
-												Re-enable
+												{t("backoffice.tenantsTable.reEnable")}
 											</Button>
 										)}
 									</td>
