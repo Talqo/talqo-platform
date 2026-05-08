@@ -9,6 +9,7 @@ import {
 	createSessionBodySchema,
 	rateConversationBodySchema,
 	sendMessageBodySchema,
+	widgetVisualConfigSchema,
 } from "shared"
 import { widgetRateLimit } from "../../common/middleware/widget-rate-limit"
 import {
@@ -16,6 +17,7 @@ import {
 	successResponseSchema,
 } from "../../common/schemas"
 import type { WideEvent } from "../../common/wide-event.types"
+import { widgetConfigService } from "../widget-config"
 import { widgetService } from "./index"
 
 // ─── Session routes ────────────────────────────────────────────────────────────
@@ -325,5 +327,39 @@ widgetMessageRoutes.openapi(
 				return
 			}
 		})
+	},
+)
+
+// ─── Widget config routes ──────────────────────────────────────────────────────
+
+export const widgetConfigRoutes = new OpenAPIHono()
+
+widgetConfigRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/config",
+		tags: ["Widget"],
+		summary: "Get widget visual configuration",
+		security: [{ widgetToken: [] }],
+		responses: {
+			200: {
+				description: "Widget visual configuration",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(widgetVisualConfigSchema),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		const config = await widgetConfigService.getConfig(clientId)
+		c.header(
+			"Cache-Control",
+			"public, max-age=3600, stale-while-revalidate=86400",
+		)
+		c.header("Vary", "X-Widget-Token")
+		return c.json(config, 200)
 	},
 )

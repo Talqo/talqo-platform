@@ -18,7 +18,7 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-1.1 | End user can send text messages to the bot and receive AI-generated responses | High | Approved | Done |
+| FR-1.1 | End user can send text messages to the bot and receive AI-generated responses (rendered as markdown) | High | Approved | Done |
 | FR-1.2 | Conversation history is persisted server-side and survives page reloads via browser session ID | High | Approved | Done |
 | FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved | Done |
 | FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved | Done |
@@ -80,7 +80,7 @@
 | FR-2.18 | Dashboard displays graphs of token consumption over time | Medium | Approved | Done |
 | FR-2.19 | Dashboard displays the total number of end-user questions over time | Medium | Approved | Done |
 | FR-2.20 | Dashboard supports light and dark mode | High | Approved | Done |
-| FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved | Not started |
+| FR-2.21 | Client can view end-user conversations to assess how the widget is serving their customers | High | Approved | In progress |
 | FR-2.22 | Dashboard displays a breakdown of conversation categories (e.g. product inquiries, order issues, returns, general FAQ) | Low | Approved | Not started |
 | FR-2.23 | Dashboard displays conversion metrics | Low | Approved | Out of scope |
 | FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved | Done |
@@ -110,11 +110,11 @@
 
 ### NFR-1: Architecture
 
-| ID | Requirement | Notes | Priority |
-|----|-------------|-------|----------|
-| NFR-1.1 | The widget must be deployable via a script tag or iframe so it can be embedded on any website, including static pages, without requiring a specific framework | Enables integration into any website regardless of tech stack | High |
-| NFR-1.2 | The widget component allows for visual customization (accent colour, bot avatar, widget position) | | Medium |
-| NFR-1.3 | Client documentation (integration guide, configuration reference) must be provided | Markdown or hosted docs | High |
+| ID | Requirement | Notes | Priority | Completion |
+|----|-------------|-------|----------|------------|
+| NFR-1.1 | The widget must be deployable via a script tag or iframe so it can be embedded on any website, including static pages, without requiring a specific framework | Enables integration into any website regardless of tech stack | High | Done |
+| NFR-1.2 | The widget component allows for visual customization (accent colour, bot avatar, widget position) | Managed in dashboard, fetched at runtime | Medium | Done |
+| NFR-1.3 | Client documentation (integration guide, configuration reference) must be provided | Markdown or hosted docs | High | Not started |
 
 ### NFR-2: Safety & Content Policy
 
