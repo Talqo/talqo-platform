@@ -1,5 +1,6 @@
 export { WidgetHeader } from "./WidgetHeader"
 export { WidgetInput } from "./WidgetInput"
+export { WidgetMarkdownContent } from "./WidgetMarkdownContent"
 export { WidgetMessage } from "./WidgetMessage"
 export { WidgetMessageList } from "./WidgetMessageList"
 export { WidgetPanel } from "./WidgetPanel"

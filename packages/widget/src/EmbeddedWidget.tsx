@@ -2,6 +2,7 @@ import { getInitialTheme } from "./hooks/useWidget"
 import {
 	WidgetHeader,
 	WidgetInput,
+	WidgetMarkdownContent,
 	WidgetMessage,
 	WidgetMessageList,
 	WidgetPanel,
@@ -109,7 +110,13 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 									<AvatarIcon size={20} iconSvg={botAvatarSvg} />
 								</div>
 							)}
-							<div className={"aiw-message-content"}>{msg.content}</div>
+							<div className={"aiw-message-content"}>
+								{msg.role === "assistant" ? (
+									<WidgetMarkdownContent content={msg.content} />
+								) : (
+									msg.content
+								)}
+							</div>
 						</WidgetMessage>
 					))}
 					{widget.isTyping && (
