@@ -124,7 +124,7 @@ export function AccountSettingsTab() {
 									className="flex-1"
 								/>
 								<Button variant="outline" size="sm" type="button" disabled>
-									{t("copy")}
+									{t("common.copy")}
 								</Button>
 								<Button variant="outline" size="sm" type="button" disabled>
 									{t("settings.account.regenerate")}
@@ -195,7 +195,7 @@ export function AccountSettingsTab() {
 							name="confirmNewPassword"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("confirmNewPassword")}</FormLabel>
+									<FormLabel>{t("common.confirmNewPassword")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>

@@ -61,7 +61,7 @@ export function TenantsTable({
 									colSpan={5}
 									className="px-6 py-4 text-center text-zinc-500 dark:text-zinc-400"
 								>
-									{t("backoffice.tenantsTable.noTenants")}
+									{t("backoffice.tenantsTable.noTenantsFound")}
 								</td>
 							</tr>
 						) : (
