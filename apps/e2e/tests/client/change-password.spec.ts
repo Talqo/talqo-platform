@@ -3,8 +3,6 @@ import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
 
 const NEW_PASSWORD = "newpass123"
 
-test.describe.configure({ mode: "serial" })
-
 test.describe("Change password flow", () => {
 	test.afterEach(async ({ page }) => {
 		// Only revert if the settings form is mounted; otherwise the test

@@ -1,3 +1,5 @@
-// Default avatar sentinel value - used across widget setup components
-// This must match the default in packages/widget/src/main.tsx
-export const DEFAULT_BOT_AVATAR = "bot"
+import { defaultWidgetVisualConfig } from "shared"
+
+// Must match HARDCODED_DEFAULTS in packages/widget/src/main.tsx (widget has no shared dep)
+export const DEFAULT_BOT_AVATAR = defaultWidgetVisualConfig.icons.botAvatar
+export const DEFAULT_BOT_NAME = defaultWidgetVisualConfig.botName

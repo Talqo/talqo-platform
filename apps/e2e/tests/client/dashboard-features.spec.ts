@@ -67,10 +67,7 @@ test.describe("Client dashboard features", () => {
 			page.getByRole("heading", { name: "Live Preview" }),
 		).toBeVisible()
 
-		const previewCard = page
-			.locator("div.rounded-xl.border")
-			.filter({ hasText: "Live Preview" })
-			.first()
+		const previewCard = page.getByTestId("live-preview-card")
 		await expect(
 			previewCard.getByText("Hi! How can I help you today?", {
 				exact: true,

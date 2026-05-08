@@ -29,10 +29,12 @@ import { filesRoutes } from "./modules/files"
 import { adminMcpRoutes, clientMcpRoutes } from "./modules/mcp"
 import { providerConfigRoutes } from "./modules/provider-config"
 import {
+	widgetConfigRoutes,
 	widgetConversationRoutes,
 	widgetMessageRoutes,
 	widgetSessionRoutes,
 } from "./modules/widget"
+import { widgetConfigClientRoutes } from "./modules/widget-config"
 
 const app = new OpenAPIHono<{ Variables: AppVariables }>()
 const v1 = new OpenAPIHono<{ Variables: AppVariables }>()
@@ -65,9 +67,11 @@ v1.route("/client/me/mcp", clientMcpRoutes)
 v1.route("/client/me/analytics", clientAnalyticsRoutes)
 v1.route("/client/me/provider-config", providerConfigRoutes)
 v1.route("/client/me/files", filesRoutes)
+v1.route("/client/me/widget-config", widgetConfigClientRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 v1.use("/widget/*", widgetAuth)
+v1.route("/widget", widgetConfigRoutes)
 v1.route("/widget/sessions", widgetSessionRoutes)
 v1.route("/widget/sessions/:sessionId/conversations", widgetConversationRoutes)
 v1.route(
@@ -119,6 +123,7 @@ v1.doc("/openapi.json", {
 		{ name: "Provider Config", description: "AI provider configuration" },
 		{ name: "Files", description: "File management" },
 		{ name: "Widget", description: "End-user chat widget" },
+		{ name: "Widget Config", description: "Widget visual configuration" },
 		{ name: "Admin", description: "Platform administration" },
 	],
 })

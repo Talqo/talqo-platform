@@ -1,6 +1,6 @@
 {
-	"id": "afa17af7-39ac-44ae-a805-8377d316971e",
-	"prevId": "d309d6a4-c75d-42f6-8329-d36bfc6c6761",
+	"id": "81451715-06f4-4ea6-b6fa-334fcd338a0f",
+	"prevId": "afa17af7-39ac-44ae-a805-8377d316971e",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -927,6 +927,87 @@
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.widget_configs": {
+			"name": "widget_configs",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"bot_name": {
+					"name": "bot_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'AI Assistant'"
+				},
+				"position": {
+					"name": "position",
+					"type": "varchar(10)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'right'"
+				},
+				"light_colors": {
+					"name": "light_colors",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"dark_colors": {
+					"name": "dark_colors",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"icons": {
+					"name": "icons",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"widget_configs_client_id_clients_id_fk": {
+					"name": "widget_configs_client_id_clients_id_fk",
+					"tableFrom": "widget_configs",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"widget_configs_client_id_unique": {
+					"name": "widget_configs_client_id_unique",
+					"nullsNotDistinct": false,
+					"columns": ["client_id"]
+				}
+			},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
