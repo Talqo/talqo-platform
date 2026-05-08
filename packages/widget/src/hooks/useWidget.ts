@@ -163,7 +163,7 @@ class WidgetApi {
 	}
 
 	async createOrResumeSession(browserSessionId: string): Promise<SessionData> {
-		return this.fetchJson<SessionData>("/v1/widget/sessions", {
+		return this.fetchJson<SessionData>("/widget/sessions", {
 			method: "POST",
 			body: JSON.stringify({ browserSessionId }),
 		})
@@ -171,7 +171,7 @@ class WidgetApi {
 
 	async startConversation(sessionId: string): Promise<ConversationData> {
 		return this.fetchJson<ConversationData>(
-			`/v1/widget/sessions/${sessionId}/conversations`,
+			`/widget/sessions/${sessionId}/conversations`,
 			{ method: "POST" },
 		)
 	}
@@ -183,7 +183,7 @@ class WidgetApi {
 		onEvent: (event: SseEvent) => void,
 		signal?: AbortSignal,
 	): Promise<void> {
-		const url = `${this.config.apiUrl}/v1/widget/sessions/${sessionId}/conversations/${conversationId}/messages`
+		const url = `${this.config.apiUrl}/widget/sessions/${sessionId}/conversations/${conversationId}/messages`
 		const res = await fetch(url, {
 			method: "POST",
 			headers: {
@@ -242,7 +242,7 @@ class WidgetApi {
 		conversationId: string,
 		rating: number,
 	): Promise<void> {
-		const url = `${this.config.apiUrl}/v1/widget/sessions/${sessionId}/conversations/${conversationId}`
+		const url = `${this.config.apiUrl}/widget/sessions/${sessionId}/conversations/${conversationId}`
 		const res = await fetch(url, {
 			method: "PATCH",
 			headers: {

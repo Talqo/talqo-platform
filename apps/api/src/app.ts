@@ -63,20 +63,10 @@ app.route("/client/me/files", filesRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 app.use("/widget/*", widgetAuth)
-app.use("/v1/widget/*", widgetAuth)
 app.route("/widget/sessions", widgetSessionRoutes)
 app.route("/widget/sessions/:sessionId/conversations", widgetConversationRoutes)
 app.route(
 	"/widget/sessions/:sessionId/conversations/:conversationId/messages",
-	widgetMessageRoutes,
-)
-app.route("/v1/widget/sessions", widgetSessionRoutes)
-app.route(
-	"/v1/widget/sessions/:sessionId/conversations",
-	widgetConversationRoutes,
-)
-app.route(
-	"/v1/widget/sessions/:sessionId/conversations/:conversationId/messages",
 	widgetMessageRoutes,
 )
 
