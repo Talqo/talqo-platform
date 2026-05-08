@@ -441,6 +441,7 @@
 			"invalidTitle": "Neplatný odkaz",
 			"invalidDescription": "Tento odkaz pro obnovení hesla je neplatný nebo vypršel.",
 			"requestNew": "Vyžádejte si nový odkaz pro obnovení hesla.",
+			"requestNewLink": "Vyžádat nový odkaz",
 			"failed": "Obnovení hesla selhalo. Zkuste to znovu.",
 			"linkInvalidOrExpired": "Tento odkaz je neplatný nebo vypršel. Vyžádejte si nový.",
 			"linkAlreadyUsed": "Tento odkaz již byl použit. Vyžádejte si nový.",
@@ -475,8 +476,8 @@
 			"description": "Vložte plně přizpůsobitelný, kontextově aware AI chatbot přímo na váš web. Připojte vlastní znalostní báze a umožněte zákazníkům okamžitě najít odpovědi.",
 			"startForFree": "Začněte zdarma",
 			"viewDocumentation": "Zobrazit dokumentaci",
-			"line1": "The intelligent chat widget",
-			"line2": "for your business."
+			"line1": "Inteligentní chatovací widget",
+			"line2": "pro vaše podnikání."
 		},
 		"header": {
 			"switchToLightTheme": "Přepnout na světlý motiv",

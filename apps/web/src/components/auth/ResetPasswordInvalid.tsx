@@ -34,7 +34,9 @@ export function ResetPasswordInvalid() {
 					</AlertDescription>
 				</Alert>
 				<Button asChild className="w-full">
-					<Link to="/forgot-password">{t("requestNewLink")}</Link>
+					<Link to="/forgot-password">
+						{t("auth.resetPassword.requestNewLink")}
+					</Link>
 				</Button>
 			</CardContent>
 		</Card>

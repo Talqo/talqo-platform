@@ -441,6 +441,7 @@
 			"invalidTitle": "链接无效",
 			"invalidDescription": "此密码重置链接无效或已过期。",
 			"requestNew": "请申请新的密码重置链接。",
+			"requestNewLink": "申请新链接",
 			"failed": "重置密码失败，请重试。",
 			"linkInvalidOrExpired": "此链接无效或已过期，请申请新的链接。",
 			"linkAlreadyUsed": "此链接已被使用，请申请新的链接。",

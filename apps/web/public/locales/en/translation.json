@@ -564,6 +564,7 @@
 			"invalidTitle": "Invalid link",
 			"invalidDescription": "This password reset link is invalid or has expired.",
 			"requestNew": "Please request a new password reset link.",
+			"requestNewLink": "Request new link",
 			"failed": "Failed to reset password. Please try again.",
 			"linkInvalidOrExpired": "This link is invalid or has expired. Please request a new one.",
 			"linkAlreadyUsed": "This link has already been used. Please request a new one.",

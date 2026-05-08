@@ -10,13 +10,18 @@ const resources = {
 	zh: { translation: zh },
 }
 
-i18n.use(initReactI18next).init({
-	lng:
-		(typeof window !== "undefined" && localStorage.getItem("pagepal:lang")) ||
-		"en",
-	fallbackLng: "en",
-	resources,
-	interpolation: { escapeValue: false },
-})
+i18n
+	.use(initReactI18next)
+	.init({
+		lng:
+			(typeof window !== "undefined" && localStorage.getItem("pagepal:lang")) ||
+			"en",
+		fallbackLng: "en",
+		resources,
+		interpolation: { escapeValue: false },
+	})
+	.catch((err) => {
+		console.error("Widget i18n initialization failed:", err)
+	})
 
 export default i18n
