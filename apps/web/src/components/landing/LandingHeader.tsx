@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { Bot, Moon, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
 import { useTheme } from "@/lib/useTheme"
 
 export function LandingHeader() {
@@ -29,6 +30,7 @@ export function LandingHeader() {
 				>
 					{theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
 				</button>
+				<LanguageSwitcher />
 				<Link
 					to="/login"
 					className="font-medium text-muted-foreground text-sm hover:text-foreground"
