@@ -3093,6 +3093,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/activity-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List admin activity logs (impersonate, suspend, re-enable) */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Activity logs */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            adminId: string;
+                            adminEmail: string;
+                            /** Format: uuid */
+                            clientId: string | null;
+                            clientName: string | null;
+                            clientEmail: string | null;
+                            actionType: string;
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/mcp/pre-made": {
         parameters: {
             query?: never;

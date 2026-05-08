@@ -96,6 +96,7 @@
 | FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | Done |
 | FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved | In progress |
 | FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
+| FR-3.4.1 | Platform admin can view a log of impersonate, suspend, and re-enable actions in the back-office | Medium | Approved | Done |
 | FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |
 | FR-3.5.2 | Platform admin can view the number of active tenants (clients with at least one conversation in the past 30 days) | Low | Approved | Done |
 | FR-3.5.3 | Platform admin can view platform-wide error rates (percentage of failed API and MCP requests) | Low | Approved | Not started |

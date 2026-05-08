@@ -1,5 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { clientSummarySchema, messageResponseSchema } from "db/dto"
+import {
+	adminAccessLogResponseSchema,
+	clientSummarySchema,
+	messageResponseSchema,
+} from "db/dto"
 import {
 	clientStatusUpdateSchema,
 	conversationSummarySchema,
@@ -245,6 +249,10 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const { status } = c.req.valid("json")
+			c.set(
+				"auditActionLabel" as never,
+				(status === "suspended" ? "suspend" : "re-enable") as never,
+			)
 			const updated = await service.updateClientStatus(clientId, status)
 			return c.json(updated, 200)
 		},
@@ -277,8 +285,47 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const { clientId } = c.req.valid("param")
+			c.set("auditActionLabel" as never, "impersonate" as never)
 			const result = await service.impersonate(clientId)
 			return c.json(result, 200)
+		},
+	)
+
+	return router
+}
+
+// ─── Admin activity logs (protected) ─────────────────────────────────────────
+
+export function createAdminActivityLogsRouter(
+	service: AdminService,
+): OpenAPIHono {
+	const router = new OpenAPIHono()
+
+	router.openapi(
+		createRoute({
+			method: "get",
+			path: "/",
+			tags: ["Admin"],
+			summary: "List admin activity logs (impersonate, suspend, re-enable)",
+			security: [{ bearerAuth: [] }],
+			request: { query: paginationQuerySchema },
+			responses: {
+				200: {
+					description: "Activity logs",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(
+								z.array(adminAccessLogResponseSchema),
+							),
+						},
+					},
+				},
+			},
+		}),
+		async (c) => {
+			const { limit, offset } = c.req.valid("query")
+			const logs = await service.listActivityLogs(limit, offset)
+			return c.json(logs, 200)
 		},
 	)
 

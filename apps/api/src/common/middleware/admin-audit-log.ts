@@ -19,7 +19,8 @@ export const adminAuditLog: MiddlewareHandler = async (c, next) => {
 	if (!adminId) return
 
 	const clientId = c.req.path.match(CLIENT_ID_PATTERN)?.[1]
-	const actionType = `${method} ${c.req.path}`
+	const actionLabel = c.get("auditActionLabel" as never) as string | undefined
+	const actionType = actionLabel ?? `${method} ${c.req.path}`
 
 	try {
 		await db.insert(adminAccessLogs).values({ adminId, clientId, actionType })
