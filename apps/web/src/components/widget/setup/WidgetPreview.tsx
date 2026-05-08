@@ -46,7 +46,7 @@ export function WidgetPreview({
 	const themeColors = isDark ? colors.dark : colors.light
 
 	return (
-		<Card>
+		<Card data-testid="live-preview-card">
 			<CardHeader className="flex flex-row items-center justify-between">
 				<CardTitle>Live Preview</CardTitle>
 				<Button

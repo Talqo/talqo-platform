@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { fillAndSubmitAdminLogin } from "../helpers/admin"
-import { SEEDED_USERS } from "../helpers/auth"
+import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
 
 test.describe("Admin suspend and re-enable tenant", () => {
 	test.afterEach(async ({ page }) => {
@@ -13,6 +12,11 @@ test.describe("Admin suspend and re-enable tenant", () => {
 			const isVisible = await reEnableBtn.isVisible().catch(() => false)
 			if (isVisible) {
 				await reEnableBtn.click({ force: true })
+				// Confirm re-enable in the AlertDialog
+				await page
+					.getByRole("alertdialog")
+					.getByRole("button", { name: "Re-enable" })
+					.click()
 				await expect(row.getByText("Active")).toBeVisible()
 			}
 		} catch {
@@ -23,7 +27,7 @@ test.describe("Admin suspend and re-enable tenant", () => {
 	test("admin suspends and re-enables a tenant from the backoffice", async ({
 		page,
 	}) => {
-		await fillAndSubmitAdminLogin(
+		await fillAndSubmitLogin(
 			page,
 			SEEDED_USERS.admin.email,
 			SEEDED_USERS.admin.password,
@@ -38,19 +42,27 @@ test.describe("Admin suspend and re-enable tenant", () => {
 		await expect(tenantRow).toBeVisible()
 		await expect(tenantRow.getByText("Active")).toBeVisible()
 
-		// Suspend
+		// Suspend — clicking the table button opens a confirmation dialog
 		await tenantRow
 			.getByRole("button", { name: "Suspend" })
 			.click({ force: true })
+		await page
+			.getByRole("alertdialog")
+			.getByRole("button", { name: "Suspend" })
+			.click()
 		await expect(tenantRow.getByText("Suspended")).toBeVisible()
 		await expect(
 			tenantRow.getByRole("button", { name: "Re-enable" }),
 		).toBeVisible()
 
-		// Re-enable
+		// Re-enable — same confirmation dialog pattern
 		await tenantRow
 			.getByRole("button", { name: "Re-enable" })
 			.click({ force: true })
+		await page
+			.getByRole("alertdialog")
+			.getByRole("button", { name: "Re-enable" })
+			.click()
 		await expect(tenantRow.getByText("Active")).toBeVisible()
 		await expect(
 			tenantRow.getByRole("button", { name: "Suspend" }),
