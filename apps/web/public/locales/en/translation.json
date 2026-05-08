@@ -355,7 +355,10 @@
 			"saving": "Saving…",
 			"saveProvider": "Save provider",
 			"loading": "Loading…",
-			"loadFailed": "Failed to load provider config. Please refresh the page."
+			"loadFailed": "Failed to load provider config. Please refresh the page.",
+			"apiKeyRequired": "API key is required",
+			"modelRequired": "Model is required",
+			"baseUrlRequiredError": "Base URL is required for OpenAI Compatible"
 		}
 	},
 	"botConfig": {
@@ -389,7 +392,11 @@
 			"processing": "Processing...",
 			"pay": "Pay",
 			"failedToAddFunds": "Failed to add funds. Please try again.",
-			"fundsAddedSuccess": "Funds added successfully! Redirecting..."
+			"fundsAddedSuccess": "Funds added successfully! Redirecting...",
+			"invalidCardNumber": "Invalid card number",
+			"invalidExpiry": "Invalid expiry (MM/YY)",
+			"invalidCvv": "Invalid CVV",
+			"nameRequired": "Name is required"
 		}
 	},
 	"blacklist": {
@@ -518,7 +525,9 @@
 			"resendIn": "Resend available in {{seconds}}s",
 			"resendVerification": "Resend verification email",
 			"sending": "Sending...",
-			"backToHome": "Back to home"
+			"backToHome": "Back to home",
+			"confirmPasswordRequired": "Please confirm your password",
+			"passwordsDoNotMatch": "Passwords do not match"
 		},
 		"forgotPassword": {
 			"title": "Forgot password?",
@@ -530,6 +539,12 @@
 			"backToLogin": "Back to login",
 			"successTitle": "Check your email",
 			"successDescription": "If an account exists with {{email}}, we've sent a password reset link to your inbox."
+		},
+		"passwordChange": {
+			"currentPasswordRequired": "Current password is required",
+			"passwordMinLength": "Password must be at least 8 characters",
+			"confirmNewPasswordRequired": "Please confirm your new password",
+			"passwordsDoNotMatch": "Passwords do not match"
 		},
 		"resetPassword": {
 			"title": "Reset password",
@@ -547,7 +562,8 @@
 			"failed": "Failed to reset password. Please try again.",
 			"linkInvalidOrExpired": "This link is invalid or has expired. Please request a new one.",
 			"linkAlreadyUsed": "This link has already been used. Please request a new one.",
-			"unableToVerify": "Unable to verify link. Please try again later."
+			"unableToVerify": "Unable to verify link. Please try again later.",
+			"passwordMinLength": "Must be at least 8 characters"
 		},
 		"verifyEmail": {
 			"verifyingTitle": "Verifying your email...",

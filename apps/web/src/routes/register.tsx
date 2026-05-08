@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2, Mail } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useRegister, useResendVerificationEmail } from "@/api/hooks/useAuth"
@@ -25,7 +25,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { type RegisterFormType, registerSchema } from "@/schemas"
+import { createRegisterSchema, type RegisterFormType } from "@/schemas"
 
 export const Route = createFileRoute("/register")({
 	component: RegisterPage,
@@ -53,6 +53,8 @@ function RegisterPage() {
 		}
 		return undefined
 	}, [resendTimeout, canResend])
+
+	const registerSchema = useMemo(() => createRegisterSchema(t), [t])
 
 	const form = useForm<RegisterFormType>({
 		resolver: zodResolver(registerSchema),

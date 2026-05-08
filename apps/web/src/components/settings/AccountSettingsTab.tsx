@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import type { UpdateProfileInput } from "shared"
@@ -27,7 +27,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { type PasswordChangeSchema, passwordChangeSchema } from "@/schemas/auth"
+import {
+	createPasswordChangeSchema,
+	type PasswordChangeSchema,
+} from "@/schemas/auth"
 
 export function AccountSettingsTab() {
 	const { t } = useTranslation()
@@ -40,6 +43,8 @@ export function AccountSettingsTab() {
 		defaultValues: { email: "", name: "" },
 		mode: "onBlur",
 	})
+
+	const passwordChangeSchema = useMemo(() => createPasswordChangeSchema(t), [t])
 
 	const passwordForm = useForm<PasswordChangeSchema>({
 		resolver: zodResolver(passwordChangeSchema),

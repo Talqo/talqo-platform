@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -20,8 +21,8 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import {
+	createResetPasswordFormSchema,
 	type ResetPasswordFormValues,
-	resetPasswordFormSchema,
 } from "@/schemas/auth"
 import { PasswordInput } from "./PasswordInput"
 
@@ -37,6 +38,10 @@ export function ResetPasswordForm({
 	error,
 }: ResetPasswordFormProps) {
 	const { t } = useTranslation()
+	const resetPasswordFormSchema = useMemo(
+		() => createResetPasswordFormSchema(t),
+		[t],
+	)
 	const form = useForm<ResetPasswordFormValues>({
 		resolver: zodResolver(resetPasswordFormSchema),
 		defaultValues: { password: "" },

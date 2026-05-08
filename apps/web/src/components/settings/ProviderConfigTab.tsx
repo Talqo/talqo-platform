@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plug } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import type { ProviderType } from "shared"
@@ -38,8 +38,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select"
 import {
+	createProviderConfigFormSchema,
 	type ProviderConfigFormValues,
-	providerConfigFormSchema,
 } from "@/schemas/provider-config"
 
 const MODEL_PLACEHOLDERS: Record<ProviderType, string> = {
@@ -198,6 +198,10 @@ function ProviderConfigForm({
 }) {
 	const { t } = useTranslation()
 	const upsert = useUpsertProviderConfig()
+	const providerConfigFormSchema = useMemo(
+		() => createProviderConfigFormSchema(t),
+		[t],
+	)
 
 	const form = useForm<ProviderConfigFormValues>({
 		resolver: zodResolver(providerConfigFormSchema),

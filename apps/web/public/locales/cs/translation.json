@@ -161,7 +161,10 @@
 			"saving": "Ukládání…",
 			"saveProvider": "Uložit poskytovatele",
 			"loading": "Načítání…",
-			"loadFailed": "Nepodařilo se načíst konfiguraci poskytovatele. Obnovte stránku."
+			"loadFailed": "Nepodařilo se načíst konfiguraci poskytovatele. Obnovte stránku.",
+			"apiKeyRequired": "API klíč je povinný",
+			"modelRequired": "Model je povinný",
+			"baseUrlRequiredError": "Základní URL je povinná pro OpenAI Compatible"
 		}
 	},
 	"botConfig": {
@@ -195,7 +198,11 @@
 			"processing": "Zpracovávání...",
 			"pay": "Zaplatit",
 			"failedToAddFunds": "Dobití se nezdařilo. Zkuste to znovu.",
-			"fundsAddedSuccess": "Zůstatek úspěšně dobit! Přesměrování..."
+			"fundsAddedSuccess": "Zůstatek úspěšně dobit! Přesměrování...",
+			"invalidCardNumber": "Neplatné číslo karty",
+			"invalidExpiry": "Neplatná platnost (MM/RR)",
+			"invalidCvv": "Neplatný CVV",
+			"nameRequired": "Jméno je povinné"
 		}
 	},
 	"blacklist": {
@@ -395,7 +402,9 @@
 			"resendIn": "Opětovné odeslání za {{seconds}}s",
 			"resendVerification": "Znovu odeslat ověřovací e-mail",
 			"sending": "Odesílání...",
-			"backToHome": "Zpět na domovskou stránku"
+			"backToHome": "Zpět na domovskou stránku",
+			"confirmPasswordRequired": "Potvrďte své heslo",
+			"passwordsDoNotMatch": "Hesla se neshodují"
 		},
 		"forgotPassword": {
 			"title": "Zapomněli jste heslo?",
@@ -407,6 +416,12 @@
 			"backToLogin": "Zpět na přihlášení",
 			"successTitle": "Zkontrolujte svůj e-mail",
 			"successDescription": "Pokud existuje účet s {{email}}, odeslali jsme odkaz pro obnovení hesla do vaší schránky."
+		},
+		"passwordChange": {
+			"currentPasswordRequired": "Současné heslo je povinné",
+			"passwordMinLength": "Heslo musí mít alespoň 8 znaků",
+			"confirmNewPasswordRequired": "Potvrďte nové heslo",
+			"passwordsDoNotMatch": "Hesla se neshodují"
 		},
 		"resetPassword": {
 			"title": "Obnovit heslo",
@@ -424,7 +439,8 @@
 			"failed": "Obnovení hesla selhalo. Zkuste to znovu.",
 			"linkInvalidOrExpired": "Tento odkaz je neplatný nebo vypršel. Vyžádejte si nový.",
 			"linkAlreadyUsed": "Tento odkaz již byl použit. Vyžádejte si nový.",
-			"unableToVerify": "Odkaz se nepodařilo ověřit. Zkuste to později znovu."
+			"unableToVerify": "Odkaz se nepodařilo ověřit. Zkuste to později znovu.",
+			"passwordMinLength": "Heslo musí mít alespoň 8 znaků"
 		},
 		"verifyEmail": {
 			"verifyingTitle": "Ověřování e-mailu...",

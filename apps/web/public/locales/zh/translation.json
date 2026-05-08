@@ -161,7 +161,10 @@
 			"saving": "保存中…",
 			"saveProvider": "保存提供商",
 			"loading": "加载中…",
-			"loadFailed": "加载提供商配置失败，请刷新页面。"
+			"loadFailed": "加载提供商配置失败，请刷新页面。",
+			"apiKeyRequired": "API 密钥必填",
+			"modelRequired": "模型必填",
+			"baseUrlRequiredError": "OpenAI Compatible 必须填写基础 URL"
 		}
 	},
 	"botConfig": {
@@ -195,7 +198,11 @@
 			"processing": "处理中...",
 			"pay": "支付",
 			"failedToAddFunds": "充值失败，请重试。",
-			"fundsAddedSuccess": "充值成功！正在跳转..."
+			"fundsAddedSuccess": "充值成功！正在跳转...",
+			"invalidCardNumber": "无效卡号",
+			"invalidExpiry": "无效有效期 (MM/YY)",
+			"invalidCvv": "无效 CVV",
+			"nameRequired": "姓名必填"
 		}
 	},
 	"blacklist": {
@@ -395,7 +402,9 @@
 			"resendIn": "{{seconds}} 秒后可重新发送",
 			"resendVerification": "重新发送验证邮件",
 			"sending": "正在发送...",
-			"backToHome": "返回首页"
+			"backToHome": "返回首页",
+			"confirmPasswordRequired": "请确认密码",
+			"passwordsDoNotMatch": "密码不一致"
 		},
 		"forgotPassword": {
 			"title": "忘记密码？",
@@ -407,6 +416,12 @@
 			"backToLogin": "返回登录",
 			"successTitle": "请查收您的邮件",
 			"successDescription": "如果存在使用 {{email}} 的账户，我们已向您的收件箱发送密码重置链接。"
+		},
+		"passwordChange": {
+			"currentPasswordRequired": "当前密码必填",
+			"passwordMinLength": "密码至少需要 8 个字符",
+			"confirmNewPasswordRequired": "请确认新密码",
+			"passwordsDoNotMatch": "密码不一致"
 		},
 		"resetPassword": {
 			"title": "重置密码",
@@ -424,7 +439,8 @@
 			"failed": "重置密码失败，请重试。",
 			"linkInvalidOrExpired": "此链接无效或已过期，请申请新的链接。",
 			"linkAlreadyUsed": "此链接已被使用，请申请新的链接。",
-			"unableToVerify": "无法验证链接，请稍后重试。"
+			"unableToVerify": "无法验证链接，请稍后重试。",
+			"passwordMinLength": "密码至少需要 8 个字符"
 		},
 		"verifyEmail": {
 			"verifyingTitle": "正在验证您的邮箱...",

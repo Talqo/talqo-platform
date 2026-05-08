@@ -3,29 +3,44 @@ import { z } from "zod"
 
 export const loginSchema = LoginSchema
 
-export const registerSchema = RegisterSchema.extend({
-	confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-	message: "Passwords do not match",
-	path: ["confirmPassword"],
-})
+export const createRegisterSchema = (t: (key: string) => string) =>
+	RegisterSchema.extend({
+		confirmPassword: z
+			.string()
+			.min(1, t("auth.register.confirmPasswordRequired")),
+	}).refine((data) => data.password === data.confirmPassword, {
+		message: t("auth.register.passwordsDoNotMatch"),
+		path: ["confirmPassword"],
+	})
+
+export const registerSchema = createRegisterSchema(() => "")
 export type RegisterFormType = z.infer<typeof registerSchema>
 
-export const resetPasswordFormSchema = z.object({
-	password: z.string().min(8, "Must be at least 8 characters"),
-})
+export const createResetPasswordFormSchema = (t: (key: string) => string) =>
+	z.object({
+		password: z.string().min(8, t("auth.resetPassword.passwordMinLength")),
+	})
 
+export const resetPasswordFormSchema = createResetPasswordFormSchema(() => "")
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
-export const passwordChangeSchema = z
-	.object({
-		currentPassword: z.string().min(1, "Current password is required"),
-		newPassword: z.string().min(8, "Password must be at least 8 characters"),
-		confirmNewPassword: z.string().min(1, "Please confirm your new password"),
-	})
-	.refine((data) => data.newPassword === data.confirmNewPassword, {
-		message: "Passwords do not match",
-		path: ["confirmNewPassword"],
-	})
+export const createPasswordChangeSchema = (t: (key: string) => string) =>
+	z
+		.object({
+			currentPassword: z
+				.string()
+				.min(1, t("auth.passwordChange.currentPasswordRequired")),
+			newPassword: z
+				.string()
+				.min(8, t("auth.passwordChange.passwordMinLength")),
+			confirmNewPassword: z
+				.string()
+				.min(1, t("auth.passwordChange.confirmNewPasswordRequired")),
+		})
+		.refine((data) => data.newPassword === data.confirmNewPassword, {
+			message: t("auth.passwordChange.passwordsDoNotMatch"),
+			path: ["confirmNewPassword"],
+		})
 
+export const passwordChangeSchema = createPasswordChangeSchema(() => "")
 export type PasswordChangeSchema = z.infer<typeof passwordChangeSchema>
