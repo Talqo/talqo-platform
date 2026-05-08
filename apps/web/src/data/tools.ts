@@ -6,56 +6,49 @@ export type Tool = {
 	icon: string
 }
 
-export const DEFAULT_USED_TOOLS: Tool[] = [
-	{
-		id: "1",
-		name: "Product Database",
-		color: "blue",
-		icon: "DB",
-	},
+const DEFAULT_USED_TOOL_KEYS = [
+	{ id: "1", key: "productDatabase", color: "blue" as const, icon: "DB" },
 	{
 		id: "2",
-		name: "Custom Knowledge Base",
-		color: "green",
+		key: "customKnowledgeBase",
+		color: "green" as const,
 		icon: "JSON",
 	},
 ]
 
-export const PRECONFIGURED_TOOLS: Tool[] = [
-	{
-		id: "cal",
-		name: "Calendar",
-		description: "Schedule management",
-		color: "yellow",
-		icon: "CAL",
-	},
-	{
-		id: "doc",
-		name: "Document Search",
-		description: "File content search",
-		color: "red",
-		icon: "DOC",
-	},
-	{
-		id: "sql",
-		name: "SQL Database",
-		description: "Database queries",
-		color: "green",
-		icon: "SQL",
-	},
-	{
-		id: "api",
-		name: "REST API",
-		description: "Custom API endpoints",
-		color: "blue",
-		icon: "API",
-	},
+const PRECONFIGURED_TOOL_KEYS = [
+	{ id: "cal", key: "calendar", color: "yellow" as const, icon: "CAL" },
+	{ id: "doc", key: "documentSearch", color: "red" as const, icon: "DOC" },
+	{ id: "sql", key: "sqlDatabase", color: "green" as const, icon: "SQL" },
+	{ id: "api", key: "restApi", color: "blue" as const, icon: "API" },
 ]
 
-export function getToolDescription(name: string): string {
-	if (name.includes("Database")) return "Read-only connector"
-	if (name.includes("Knowledge")) return "Static fallback info"
-	return "Tool connector"
+export const getDefaultUsedTools = (t: (key: string) => string): Tool[] =>
+	DEFAULT_USED_TOOL_KEYS.map((tool) => ({
+		id: tool.id,
+		name: t(`tools.toolNames.${tool.key}`),
+		color: tool.color,
+		icon: tool.icon,
+	}))
+
+export const getPreconfiguredTools = (t: (key: string) => string): Tool[] =>
+	PRECONFIGURED_TOOL_KEYS.map((tool) => ({
+		id: tool.id,
+		name: t(`tools.toolNames.${tool.key}`),
+		description: t(`tools.toolDescriptions.${tool.key}`),
+		color: tool.color,
+		icon: tool.icon,
+	}))
+
+export function getToolDescription(
+	name: string,
+	t: (key: string) => string,
+): string {
+	if (name.includes(t("tools.toolNames.productDatabase")))
+		return t("tools.toolDescriptions.readOnlyConnector")
+	if (name.includes(t("tools.toolNames.customKnowledgeBase")))
+		return t("tools.toolDescriptions.staticFallbackInfo")
+	return t("tools.toolDescriptions.toolConnector")
 }
 
 export function generateToolId(): string {

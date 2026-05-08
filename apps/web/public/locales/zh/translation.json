@@ -270,6 +270,15 @@
 			"title": "提问数量",
 			"description": "过去 7 天的终端用户交互",
 			"ariaLabel": "显示过去 7 天提问数量的折线图"
+		},
+		"dayNames": {
+			"mon": "周一",
+			"tue": "周二",
+			"wed": "周三",
+			"thu": "周四",
+			"fri": "周五",
+			"sat": "周六",
+			"sun": "周日"
 		}
 	},
 	"tools": {
@@ -289,6 +298,23 @@
 			"browseDirectory": "浏览官方 MCP 服务器目录",
 			"saveToolConfiguration": "保存工具配置",
 			"persistenceComingSoon": "持久化功能即将推出"
+		},
+		"toolNames": {
+			"calendar": "日历",
+			"documentSearch": "文档搜索",
+			"sqlDatabase": "SQL 数据库",
+			"restApi": "REST API",
+			"productDatabase": "产品数据库",
+			"customKnowledgeBase": "自定义知识库"
+		},
+		"toolDescriptions": {
+			"calendar": "日程管理",
+			"documentSearch": "文件内容搜索",
+			"sqlDatabase": "数据库查询",
+			"restApi": "自定义 API 端点",
+			"readOnlyConnector": "只读连接器",
+			"staticFallbackInfo": "静态备用信息",
+			"toolConnector": "工具连接器"
 		}
 	},
 	"botContext": {
@@ -401,5 +427,43 @@
 			"verificationSent": "验证邮件已发送，请查收收件箱。",
 			"registerAgain": "重新注册"
 		}
+	},
+	"landing": {
+		"heroSection": {
+			"description": "将完全可定制、具备上下文感知能力的 AI 聊天机器人直接嵌入您的网站。连接您自己的知识库，让客户即时找到答案。",
+			"startForFree": "免费开始",
+			"viewDocumentation": "查看文档",
+			"line1": "The intelligent chat widget",
+			"line2": "for your business."
+		},
+		"header": {
+			"switchToLightTheme": "切换到浅色主题",
+			"switchToDarkTheme": "切换到深色主题"
+		},
+		"footer": {
+			"copyright": "PagePal。保留所有权利。"
+		},
+		"features": {
+			"speedTitle": "闪电般快速",
+			"speedDescription": "由先进的 AI 模型驱动的即时响应。让您的用户无需等待即可保持参与。",
+			"customizableTitle": "可定制的上下文",
+			"customizableDescription": "连接 MCP 源，定义自定义规则，并限制术语以适合您的品牌。",
+			"embedTitle": "随处嵌入",
+			"embedDescription": "简单的 React 和 JS 嵌入代码。几分钟内即可启动并运行您的小部件。",
+			"switchToLightTheme": "切换到浅色主题",
+			"switchToDarkTheme": "切换到深色主题"
+		}
+	},
+	"adminStats": {
+		"currentBalance": "Current Balance",
+		"availableFunds": "Available funds",
+		"totalTokens": "Total Tokens",
+		"tokensChange": "+20.1% from last month",
+		"questionsAnswered": "Questions Answered",
+		"questionsChange": "+15% from last month",
+		"activeConnectors": "Active Connectors",
+		"connectorsSubtitle": "Product DB, Internal Wiki",
+		"currentSpend": "Current Spend",
+		"spendSubtitle": "Limit: 0.00 / month"
 	}
 }

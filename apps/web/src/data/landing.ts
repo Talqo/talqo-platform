@@ -8,29 +8,26 @@ export type Feature = {
 	color: "blue" | "green" | "purple"
 }
 
-export const FEATURES: Feature[] = [
+export const getFeatures = (t: (key: string) => string): Feature[] => [
 	{
 		id: "speed",
 		icon: Zap,
-		title: "Lightning Fast",
-		description:
-			"Instant responses powered by advanced AI models. Keep your users engaged without waiting.",
+		title: t("landing.features.speedTitle"),
+		description: t("landing.features.speedDescription"),
 		color: "blue",
 	},
 	{
 		id: "customizable",
 		icon: Shield,
-		title: "Customizable Context",
-		description:
-			"Connect MCP sources, define custom rules, and restrict terminology to suit your brand.",
+		title: t("landing.features.customizableTitle"),
+		description: t("landing.features.customizableDescription"),
 		color: "green",
 	},
 	{
 		id: "embed",
 		icon: MessageSquare,
-		title: "Embed Anywhere",
-		description:
-			"Simple React and JS embed codes. Get your widget up and running in minutes.",
+		title: t("landing.features.embedTitle"),
+		description: t("landing.features.embedDescription"),
 		color: "purple",
 	},
 ]

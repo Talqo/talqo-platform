@@ -1,5 +1,6 @@
 import { AnimatePresence } from "motion/react"
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { ToolAnimation, ToolCard, UsedToolItem } from "@/components/tools"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,30 +11,33 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import {
-	DEFAULT_USED_TOOLS,
 	generateToolId,
-	PRECONFIGURED_TOOLS,
+	getDefaultUsedTools,
+	getPreconfiguredTools,
 	type Tool,
 } from "@/data/tools"
 import { useAnimationTimeout } from "@/hooks"
 
 export function ToolsTab() {
+	const { t } = useTranslation()
 	const [movingTool, setMovingTool] = useState<{
 		id: string
 		icon: string
 		startX: number
 		startY: number
 	} | null>(null)
-	const [usedTools, setUsedTools] = useState<Tool[]>(DEFAULT_USED_TOOLS)
+	const [usedTools, setUsedTools] = useState<Tool[]>(getDefaultUsedTools(t))
 	const [pendingToolNames, setPendingToolNames] = useState<Set<string>>(
 		new Set(),
 	)
+
+	const preconfiguredTools = useMemo(() => getPreconfiguredTools(t), [t])
 
 	const { setAnimationTimeout, clearAnimationTimeout } = useAnimationTimeout()
 
 	const isToolAdded = useCallback(
 		(toolName: string) =>
-			usedTools.some((t) => t.name === toolName) ||
+			usedTools.some((tool) => tool.name === toolName) ||
 			pendingToolNames.has(toolName),
 		[usedTools, pendingToolNames],
 	)
@@ -76,11 +80,13 @@ export function ToolsTab() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Tools (MCP)</CardTitle>
+				<CardTitle>{t("tools.toolsTab.title")}</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<div>
-					<h3 className="mb-3 font-medium text-sm">Currently Used Tools</h3>
+					<h3 className="mb-3 font-medium text-sm">
+						{t("tools.toolsTab.currentlyUsed")}
+					</h3>
 					<div className="overflow-hidden rounded-lg border border-border">
 						<AnimatePresence>
 							{usedTools.map((tool) => (
@@ -91,9 +97,11 @@ export function ToolsTab() {
 				</div>
 
 				<div>
-					<h3 className="mb-3 font-medium text-sm">Pre-configured Tools</h3>
+					<h3 className="mb-3 font-medium text-sm">
+						{t("tools.toolsTab.preconfigured")}
+					</h3>
 					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-						{PRECONFIGURED_TOOLS.map((tool) => (
+						{preconfiguredTools.map((tool) => (
 							<ToolCard
 								key={tool.id}
 								tool={tool}
@@ -111,11 +119,11 @@ export function ToolsTab() {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							See More MCP Servers →
+							{t("tools.toolsTab.seeMoreMcp")}
 						</a>
 					</Button>
 					<p className="mt-2 text-center text-muted-foreground text-sm">
-						Browse the official MCP server directory
+						{t("tools.toolsTab.browseDirectory")}
 					</p>
 				</div>
 
@@ -133,10 +141,10 @@ export function ToolsTab() {
 			<CardFooter className="flex justify-end">
 				<Button
 					disabled
-					title="Tool configuration persistence coming soon"
+					title={t("tools.toolsTab.persistenceComingSoon")}
 					variant="default"
 				>
-					Save Tool Configuration
+					{t("tools.toolsTab.saveToolConfiguration")}
 				</Button>
 			</CardFooter>
 		</Card>

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { AnimatePresence } from "motion/react"
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { PageContainer } from "@/components/layout"
 import { ToolAnimation, ToolCard, UsedToolItem } from "@/components/tools"
@@ -13,9 +13,9 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import {
-	DEFAULT_USED_TOOLS,
 	generateToolId,
-	PRECONFIGURED_TOOLS,
+	getDefaultUsedTools,
+	getPreconfiguredTools,
 	type Tool,
 } from "@/data/tools"
 import { useAnimationTimeout } from "@/hooks"
@@ -32,10 +32,12 @@ function ToolsPage() {
 		startX: number
 		startY: number
 	} | null>(null)
-	const [usedTools, setUsedTools] = useState<Tool[]>(DEFAULT_USED_TOOLS)
+	const [usedTools, setUsedTools] = useState<Tool[]>(getDefaultUsedTools(t))
 	const [pendingToolNames, setPendingToolNames] = useState<Set<string>>(
 		new Set(),
 	)
+
+	const preconfiguredTools = useMemo(() => getPreconfiguredTools(t), [t])
 
 	const { setAnimationTimeout, clearAnimationTimeout } = useAnimationTimeout()
 
@@ -87,10 +89,7 @@ function ToolsPage() {
 				<h1 className="font-bold text-2xl text-foreground tracking-tight">
 					{t("dashboard.tools.title")}
 				</h1>
-				<p className="text-muted-foreground">
-					Manage MCP (Model Context Protocol) tools and integrations for your
-					bot.
-				</p>
+				<p className="text-muted-foreground">{t("dashboard.tools.subtitle")}</p>
 			</div>
 
 			<Card>
@@ -116,7 +115,7 @@ function ToolsPage() {
 							{t("tools.toolsTab.preconfigured")}
 						</h3>
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-							{PRECONFIGURED_TOOLS.map((tool) => (
+							{preconfiguredTools.map((tool) => (
 								<ToolCard
 									key={tool.id}
 									tool={tool}

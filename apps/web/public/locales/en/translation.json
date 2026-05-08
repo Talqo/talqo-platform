@@ -162,6 +162,15 @@
 			"title": "Questions Asked",
 			"description": "End-user interactions over the last 7 days",
 			"ariaLabel": "Line chart showing questions asked over the last 7 days"
+		},
+		"dayNames": {
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat",
+			"sun": "Sun"
 		}
 	},
 	"tools": {
@@ -181,6 +190,23 @@
 			"browseDirectory": "Browse the official MCP servers directory",
 			"saveToolConfiguration": "Save Tool Configuration",
 			"persistenceComingSoon": "Persistence coming soon"
+		},
+		"toolNames": {
+			"calendar": "Calendar",
+			"documentSearch": "Document Search",
+			"sqlDatabase": "SQL Database",
+			"restApi": "REST API",
+			"productDatabase": "Product Database",
+			"customKnowledgeBase": "Custom Knowledge Base"
+		},
+		"toolDescriptions": {
+			"calendar": "Schedule management",
+			"documentSearch": "File content search",
+			"sqlDatabase": "Database queries",
+			"restApi": "Custom API endpoints",
+			"readOnlyConnector": "Read-only connector",
+			"staticFallbackInfo": "Static fallback info",
+			"toolConnector": "Tool connector"
 		}
 	},
 	"botContext": {
@@ -500,5 +526,43 @@
 			"verificationSent": "Verification email sent. Please check your inbox.",
 			"registerAgain": "Register again"
 		}
+	},
+	"landing": {
+		"heroSection": {
+			"description": "Embed a fully customizable, context-aware AI chatbot directly into your website. Connect your own knowledge bases and let your customers find answers instantly.",
+			"startForFree": "Start for free",
+			"viewDocumentation": "View Documentation",
+			"line1": "The intelligent chat widget",
+			"line2": "for your business."
+		},
+		"header": {
+			"switchToLightTheme": "Switch to light theme",
+			"switchToDarkTheme": "Switch to dark theme"
+		},
+		"footer": {
+			"copyright": "PagePal. All rights reserved."
+		},
+		"features": {
+			"speedTitle": "Lightning Fast",
+			"speedDescription": "Instant responses powered by advanced AI models. Keep your users engaged without waiting.",
+			"customizableTitle": "Customizable Context",
+			"customizableDescription": "Connect MCP sources, define custom rules, and restrict terminology to suit your brand.",
+			"embedTitle": "Embed Anywhere",
+			"embedDescription": "Simple React and JS embed codes. Get your widget up and running in minutes.",
+			"switchToLightTheme": "Switch to light theme",
+			"switchToDarkTheme": "Switch to dark theme"
+		}
+	},
+	"adminStats": {
+		"currentBalance": "Current Balance",
+		"availableFunds": "Available funds",
+		"totalTokens": "Total Tokens",
+		"tokensChange": "+20.1% from last month",
+		"questionsAnswered": "Questions Answered",
+		"questionsChange": "+15% from last month",
+		"activeConnectors": "Active Connectors",
+		"connectorsSubtitle": "Product DB, Internal Wiki",
+		"currentSpend": "Current Spend",
+		"spendSubtitle": "Limit: 0.00 / month"
 	}
 }

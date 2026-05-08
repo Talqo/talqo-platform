@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router"
 import { Bot, Moon, Sun } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/lib/useTheme"
 
 export function LandingHeader() {
 	const { theme, toggleTheme } = useTheme()
+	const { t } = useTranslation()
 
 	return (
 		<header className="sticky top-0 z-50 flex h-16 items-center border-border border-b bg-background px-6">
@@ -20,7 +22,9 @@ export function LandingHeader() {
 					onClick={toggleTheme}
 					className="text-muted-foreground hover:text-foreground"
 					aria-label={
-						theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+						theme === "dark"
+							? t("landing.header.switchToLightTheme")
+							: t("landing.header.switchToDarkTheme")
 					}
 				>
 					{theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
@@ -29,10 +33,10 @@ export function LandingHeader() {
 					to="/login"
 					className="font-medium text-muted-foreground text-sm hover:text-foreground"
 				>
-					Log in
+					{t("login")}
 				</Link>
 				<Button asChild>
-					<Link to="/register">Get Started</Link>
+					<Link to="/register">{t("getStarted")}</Link>
 				</Button>
 			</nav>
 		</header>

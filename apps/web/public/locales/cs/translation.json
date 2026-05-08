@@ -270,6 +270,15 @@
 			"title": "Položené otázky",
 			"description": "Interakce koncových uživatelů za posledních 7 dní",
 			"ariaLabel": "Čarový graf zobrazující položené otázky za posledních 7 dní"
+		},
+		"dayNames": {
+			"mon": "Po",
+			"tue": "Út",
+			"wed": "St",
+			"thu": "Čt",
+			"fri": "Pá",
+			"sat": "So",
+			"sun": "Ne"
 		}
 	},
 	"tools": {
@@ -289,6 +298,23 @@
 			"browseDirectory": "Prohlédněte si oficiální adresář MCP serverů",
 			"saveToolConfiguration": "Uložit konfiguraci nástrojů",
 			"persistenceComingSoon": "Perzistence již brzy"
+		},
+		"toolNames": {
+			"calendar": "Kalendář",
+			"documentSearch": "Hledání v dokumentech",
+			"sqlDatabase": "SQL databáze",
+			"restApi": "REST API",
+			"productDatabase": "Databáze produktů",
+			"customKnowledgeBase": "Vlastní znalostní báze"
+		},
+		"toolDescriptions": {
+			"calendar": "Správa plánu",
+			"documentSearch": "Vyhledávání v obsahu souborů",
+			"sqlDatabase": "Dotazy na databázi",
+			"restApi": "Vlastní API endpointy",
+			"readOnlyConnector": "Pouze pro čtení",
+			"staticFallbackInfo": "Statické záložní informace",
+			"toolConnector": "Nástrojový konektor"
 		}
 	},
 	"botContext": {
@@ -401,5 +427,43 @@
 			"verificationSent": "Ověřovací e-mail odeslán. Zkontrolujte svou schránku.",
 			"registerAgain": "Zaregistrovat se znovu"
 		}
+	},
+	"landing": {
+		"heroSection": {
+			"description": "Vložte plně přizpůsobitelný, kontextově aware AI chatbot přímo na váš web. Připojte vlastní znalostní báze a umožněte zákazníkům okamžitě najít odpovědi.",
+			"startForFree": "Začněte zdarma",
+			"viewDocumentation": "Zobrazit dokumentaci",
+			"line1": "The intelligent chat widget",
+			"line2": "for your business."
+		},
+		"header": {
+			"switchToLightTheme": "Přepnout na světlý motiv",
+			"switchToDarkTheme": "Přepnout na tmavý motiv"
+		},
+		"footer": {
+			"copyright": "PagePal. Všechna práva vyhrazena."
+		},
+		"features": {
+			"speedTitle": "Bleskově rychlé",
+			"speedDescription": "Okamžité odpovědi poháněné pokročilými AI modely. Udržujte uživatele zapojené bez čekání.",
+			"customizableTitle": "Přizpůsobitelný kontext",
+			"customizableDescription": "Připojte MCP zdroje, definujte vlastní pravidla a omezte terminologii tak, aby odpovídala vaší značce.",
+			"embedTitle": "Vložit kamkoli",
+			"embedDescription": "Jednoduché React a JS embed kódy. Nasaďte widget během minut.",
+			"switchToLightTheme": "Přepnout na světlý motiv",
+			"switchToDarkTheme": "Přepnout na tmavý motiv"
+		}
+	},
+	"adminStats": {
+		"currentBalance": "Current Balance",
+		"availableFunds": "Available funds",
+		"totalTokens": "Total Tokens",
+		"tokensChange": "+20.1% from last month",
+		"questionsAnswered": "Questions Answered",
+		"questionsChange": "+15% from last month",
+		"activeConnectors": "Active Connectors",
+		"connectorsSubtitle": "Product DB, Internal Wiki",
+		"currentSpend": "Current Spend",
+		"spendSubtitle": "Limit: 0.00 / month"
 	}
 }

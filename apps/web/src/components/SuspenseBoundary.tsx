@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import { useTranslation } from "react-i18next"
 import { LoadingOverlay } from "./ui/spinner"
 
 /**
@@ -15,9 +16,17 @@ export function SuspenseBoundary({
 	children,
 	fallback,
 }: SuspenseBoundaryProps) {
+	const { t } = useTranslation()
+
 	return (
 		<Suspense
-			fallback={fallback ?? <LoadingOverlay>Loading content...</LoadingOverlay>}
+			fallback={
+				fallback ?? (
+					<LoadingOverlay>
+						{t("error.suspenseBoundary.loadingContent")}
+					</LoadingOverlay>
+				)
+			}
 		>
 			{children}
 		</Suspense>
@@ -29,8 +38,16 @@ export function SuspenseBoundary({
  * This is used in route configurations
  */
 export function RouteSuspense({ children }: { children: React.ReactNode }) {
+	const { t } = useTranslation()
+
 	return (
-		<Suspense fallback={<LoadingOverlay>Loading page...</LoadingOverlay>}>
+		<Suspense
+			fallback={
+				<LoadingOverlay>
+					{t("error.suspenseBoundary.loadingPage")}
+				</LoadingOverlay>
+			}
+		>
 			{children}
 		</Suspense>
 	)
