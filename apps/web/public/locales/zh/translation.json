@@ -19,6 +19,12 @@
 			"avgSatisfaction": "平均满意度",
 			"satisfactionRating": "满意度评分",
 			"noData": "暂无数据"
+		},
+		"botContext": {
+			"title": "机器人上下文",
+			"subtitle": "管理机器人用作上下文的文件。",
+			"failedToLoadFiles": "加载文件失败",
+			"unexpectedError": "发生未知错误"
 		}
 	},
 	"logout": "退出登录",

@@ -19,6 +19,12 @@
 			"avgSatisfaction": "Avg. Satisfaction",
 			"satisfactionRating": "Satisfaction Rating",
 			"noData": "No data available"
+		},
+		"botContext": {
+			"title": "Bot Context",
+			"subtitle": "Manage the files your bot uses for context.",
+			"failedToLoadFiles": "Failed to load files",
+			"unexpectedError": "An unexpected error occurred"
 		}
 	},
 	"logout": "Log out",

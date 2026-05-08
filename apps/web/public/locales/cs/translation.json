@@ -19,6 +19,12 @@
 			"avgSatisfaction": "Prům. spokojenost",
 			"satisfactionRating": "Hodnocení spokojenosti",
 			"noData": "Žádná data k dispozici"
+		},
+		"botContext": {
+			"title": "Kontext bota",
+			"subtitle": "Spravujte soubory, které bot používá jako kontext.",
+			"failedToLoadFiles": "Nepodařilo se načíst soubory",
+			"unexpectedError": "Došlo k neočekávané chybě"
 		}
 	},
 	"logout": "Odhlásit se",
