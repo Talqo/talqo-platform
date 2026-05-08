@@ -10,11 +10,12 @@ import {
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
-import { NotFoundError } from "../../common/errors"
+import { NotFoundError, UnauthorizedError } from "../../common/errors"
 import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas"
+import type { WideEvent } from "../../common/wide-event.types"
 import type { AdminService } from "./admin.service"
 
 // ─── Admin auth (unprotected) ──────────────────────────────────────────────────
@@ -59,7 +60,17 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const body = c.req.valid("json")
-			const result = await service.login(body)
+			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			let result: Awaited<ReturnType<typeof service.login>>
+			try {
+				result = await service.login(body)
+				if (wideEvent) wideEvent.auth = { outcome: "logged_in" }
+			} catch (err) {
+				if (err instanceof UnauthorizedError) {
+					if (wideEvent) wideEvent.auth = { outcome: "invalid_credentials" }
+				}
+				throw err
+			}
 			return c.json(result, 200)
 		},
 	)
@@ -254,6 +265,12 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 				(status === "suspended" ? "suspend" : "re-enable") as never,
 			)
 			const updated = await service.updateClientStatus(clientId, status)
+			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			if (wideEvent) {
+				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
+				wideEvent.admin.target_client_id = clientId
+				wideEvent.admin.action = status === "suspended" ? "suspend" : "enable"
+			}
 			return c.json(updated, 200)
 		},
 	)
@@ -287,6 +304,12 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			const { clientId } = c.req.valid("param")
 			c.set("auditActionLabel" as never, "impersonate" as never)
 			const result = await service.impersonate(clientId)
+			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			if (wideEvent) {
+				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
+				wideEvent.admin.target_client_id = clientId
+				wideEvent.admin.action = "impersonate"
+			}
 			return c.json(result, 200)
 		},
 	)

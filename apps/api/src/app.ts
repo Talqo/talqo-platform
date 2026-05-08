@@ -7,7 +7,7 @@ import { adminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
-import { requestLogger } from "./common/middleware/request-logger"
+import { wideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
 import {
 	adminActivityLogsRoutes,
@@ -38,10 +38,12 @@ const v1 = new OpenAPIHono<{ Variables: AppVariables }>()
 
 app.use("/*", cors())
 app.use("/*", async (c, next) => {
-	c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
+	const requestId = crypto.randomUUID()
+	c.set("requestId", requestId)
+	c.set("logger", logger.withContext({ requestId }))
 	await next()
 })
-app.use("/*", requestLogger)
+app.use("/*", wideEventMiddleware)
 app.onError(errorHandler)
 
 app.get("/", (c) => c.text("PagePal API"))

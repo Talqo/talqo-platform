@@ -23,11 +23,14 @@ export type IWidgetRepository = {
 		clientId: string,
 		browserSessionId: string,
 	): Promise<{
-		id: string
-		clientId: string
-		browserSessionId: string
-		createdAt: Date
-		lastActiveAt: Date
+		session: {
+			id: string
+			clientId: string
+			browserSessionId: string
+			createdAt: Date
+			lastActiveAt: Date
+		}
+		isNew: boolean
 	}>
 	getSession(
 		sessionId: string,
@@ -144,7 +147,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 				sess.browserSessionId === browserSessionId
 			) {
 				sess.lastActiveAt = new Date()
-				return sess
+				return { session: sess, isNew: false }
 			}
 		}
 		this.idCounters.session++
@@ -157,7 +160,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			lastActiveAt: new Date(),
 		}
 		this.sessions.set(id, sess)
-		return sess
+		return { session: sess, isNew: true }
 	}
 
 	async getSession(sessionId: string, clientId: string) {
@@ -273,7 +276,9 @@ export class WidgetRepository {
 				set: { lastActiveAt: now },
 			})
 			.returning()
-		return session
+		// createdAt === lastActiveAt only when the row was just inserted
+		const isNew = session.createdAt.getTime() === session.lastActiveAt.getTime()
+		return { session, isNew }
 	}
 
 	async getSession(sessionId: string, clientId: string) {
