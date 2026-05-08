@@ -1,13 +1,13 @@
 import { Globe } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
-import { STORAGE_KEYS } from "@/lib/constants"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { STORAGE_KEYS } from "@/lib/constants"
 
 const LANGUAGES = [
 	{ code: "en", label: "english" },
@@ -36,9 +36,7 @@ export function LanguageSwitcher() {
 					<DropdownMenuItem
 						key={lang.code}
 						onClick={() => changeLanguage(lang.code)}
-						className={
-							i18n.language === lang.code ? "bg-accent" : ""
-						}
+						className={i18n.language === lang.code ? "bg-accent" : ""}
 					>
 						{t(lang.label)}
 					</DropdownMenuItem>

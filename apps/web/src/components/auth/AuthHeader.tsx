@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Bot, Moon, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher"
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher"
 import { useTheme } from "@/lib/useTheme"
 
 export function AuthHeader() {
