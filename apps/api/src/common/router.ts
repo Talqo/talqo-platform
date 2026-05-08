@@ -7,19 +7,18 @@ export function createRouter<E extends Env = Env>() {
 		// automatic form validation, but its default hook returns 400. Other
 		// targets (query, json, param) keep the library default of 400.
 		defaultHook: (result, c) => {
-			if (!result.success && result.target === "form") {
-				return c.json(
-					{
-						error: {
-							code: "VALIDATION_ERROR",
-							message: result.error.issues
-								.map((i: { message: string }) => i.message)
-								.join(", "),
-						},
+			if (result.success || result.target !== "form") return
+			return c.json(
+				{
+					error: {
+						code: "VALIDATION_ERROR",
+						message: result.error.issues
+							.map((i: { message: string }) => i.message)
+							.join(", "),
 					},
-					422,
-				)
-			}
+				},
+				422,
+			)
 		},
 	})
 }
