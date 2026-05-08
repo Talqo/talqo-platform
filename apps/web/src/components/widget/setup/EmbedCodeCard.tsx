@@ -2,25 +2,13 @@ import { Check, Code, Copy } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
 type EmbedCodeCardProps = {
 	widgetToken: string | undefined
-	position: "left" | "right"
-	colors: WidgetColorsConfig
-	icons: WidgetIcons
-	botName: string
 	isLoading: boolean
 }
 
-export function EmbedCodeCard({
-	widgetToken,
-	position,
-	colors,
-	icons,
-	botName,
-	isLoading,
-}: EmbedCodeCardProps) {
+export function EmbedCodeCard({ widgetToken, isLoading }: EmbedCodeCardProps) {
 	const [copied, setCopied] = useState(false)
 	const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -30,32 +18,24 @@ export function EmbedCodeCard({
 			? "http://localhost:5174/widget-bundle.js"
 			: "https://dev.pagepal.dyn.cloud.e-infra.cz/widget-bundle.js")
 
-	const configObject = {
-		widgetToken,
-		position,
-		botName,
-		colors: colors.light,
-		darkColors: colors.dark,
-		icons,
-	}
-
 	const placeholderCode = `// Loading your widget configuration...
 // Please wait while we fetch your widget token.`
 
-	// Build embed code only when widgetToken is available
 	let embedCode: string
 	if (isLoading || !widgetToken) {
 		embedCode = placeholderCode
 	} else {
+		const configObject = { token: widgetToken }
 		// Escape script-sensitive sequences to prevent XSS and Unicode separators
 		const configJson = JSON.stringify(configObject, null, 2)
+			.replace(/\n/g, "\n  ")
 			.replace(/</g, "\\x3c")
 			.replace(/>/g, "\\x3e")
 			.replace(/\u2028/g, "\\u2028") // Line separator
 			.replace(/\u2029/g, "\\u2029") // Paragraph separator
 
 		embedCode = `<script>
-  window.__AI_WIDGET_CONFIG__ = ${configJson};
+  window.__PAGEPAL__ = ${configJson};
 </script>
 <script async defer src="${scriptUrl}"></script>`
 	}

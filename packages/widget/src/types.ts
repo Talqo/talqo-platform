@@ -1,24 +1,5 @@
-/**
- * Configuration for the embedded AI widget
- * Customers set this via window.__AI_WIDGET_CONFIG__
- */
-export type WidgetConfig = {
-	/** Widget token for API authentication */
-	widgetToken: string
-	/** API base URL for widget requests */
-	apiUrl: string
-	/** Theme colors - omit to use defaults */
-	colors?: Partial<WidgetColors>
-	/** Dark mode colors - if not provided, will be auto-generated from light colors */
-	darkColors?: Partial<WidgetColors>
-	/** Custom icons configuration - icon names or SVG strings */
-	icons?: Partial<WidgetIcons>
-	/** Widget positioning */
-	position?: "left" | "right"
-	/** Initial open state */
-	defaultOpen?: boolean
-	/** Bot name shown in header - default: "AI Assistant" */
-	botName?: string
+export type PagePalConfig = {
+	token: string
 }
 
 export type WidgetColors = {
@@ -40,7 +21,7 @@ export type WidgetColors = {
 	userMessageText: string
 	/** Send button icon color - default: #ffffff */
 	sendButtonIcon: string
-	/** Footer text color - default: rgba(255, 255, 255, 0.8) */
+	/** Footer text color - default: #ffffff */
 	footerText: string
 }
 
@@ -49,15 +30,16 @@ export type WidgetIcons = {
 	botAvatar: string
 }
 
-/** Validated config with defaults applied */
-export type ResolvedWidgetConfig = Required<
-	Omit<WidgetConfig, "colors" | "darkColors" | "icons" | "botName">
-> & {
+/** Internal resolved config with all fields populated */
+export type ResolvedWidgetConfig = {
+	widgetToken: string
+	apiUrl: string
 	colors: WidgetColors
-	/** Dark mode colors - always populated by resolveConfig */
 	darkColors: WidgetColors
 	icons: WidgetIcons
 	botName: string
+	position: "left" | "right"
+	defaultOpen: boolean
 }
 
 export type WidgetTheme = "light" | "dark"

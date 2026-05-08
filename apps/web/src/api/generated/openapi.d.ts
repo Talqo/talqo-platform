@@ -2102,6 +2102,242 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/me/widget-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get widget visual configuration */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Widget visual configuration */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @default AI Assistant */
+                            botName: string;
+                            /**
+                             * @default right
+                             * @enum {string}
+                             */
+                            position: "left" | "right";
+                            lightColors: {
+                                primary: string;
+                                bgPrimary: string;
+                                bgSecondary: string;
+                                textPrimary: string;
+                                textSecondary: string;
+                                border: string;
+                                headerTitleText: string;
+                                userMessageText: string;
+                                sendButtonIcon: string;
+                                footerText: string;
+                            };
+                            darkColors: {
+                                primary: string;
+                                bgPrimary: string;
+                                bgSecondary: string;
+                                textPrimary: string;
+                                textSecondary: string;
+                                border: string;
+                                headerTitleText: string;
+                                userMessageText: string;
+                                sendButtonIcon: string;
+                                footerText: string;
+                            };
+                            icons: {
+                                botAvatar: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        /** Save widget visual configuration */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @default AI Assistant */
+                        botName?: string;
+                        /**
+                         * @default right
+                         * @enum {string}
+                         */
+                        position?: "left" | "right";
+                        lightColors: {
+                            primary: string;
+                            bgPrimary: string;
+                            bgSecondary: string;
+                            textPrimary: string;
+                            textSecondary: string;
+                            border: string;
+                            headerTitleText: string;
+                            userMessageText: string;
+                            sendButtonIcon: string;
+                            footerText: string;
+                        };
+                        darkColors: {
+                            primary: string;
+                            bgPrimary: string;
+                            bgSecondary: string;
+                            textPrimary: string;
+                            textSecondary: string;
+                            border: string;
+                            headerTitleText: string;
+                            userMessageText: string;
+                            sendButtonIcon: string;
+                            footerText: string;
+                        };
+                        icons: {
+                            botAvatar: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Saved widget visual configuration */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @default AI Assistant */
+                            botName: string;
+                            /**
+                             * @default right
+                             * @enum {string}
+                             */
+                            position: "left" | "right";
+                            lightColors: {
+                                primary: string;
+                                bgPrimary: string;
+                                bgSecondary: string;
+                                textPrimary: string;
+                                textSecondary: string;
+                                border: string;
+                                headerTitleText: string;
+                                userMessageText: string;
+                                sendButtonIcon: string;
+                                footerText: string;
+                            };
+                            darkColors: {
+                                primary: string;
+                                bgPrimary: string;
+                                bgSecondary: string;
+                                textPrimary: string;
+                                textSecondary: string;
+                                border: string;
+                                headerTitleText: string;
+                                userMessageText: string;
+                                sendButtonIcon: string;
+                                footerText: string;
+                            };
+                            icons: {
+                                botAvatar: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/widget/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get widget visual configuration */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Widget visual configuration */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @default AI Assistant */
+                            botName: string;
+                            /**
+                             * @default right
+                             * @enum {string}
+                             */
+                            position: "left" | "right";
+                            lightColors: {
+                                primary: string;
+                                bgPrimary: string;
+                                bgSecondary: string;
+                                textPrimary: string;
+                                textSecondary: string;
+                                border: string;
+                                headerTitleText: string;
+                                userMessageText: string;
+                                sendButtonIcon: string;
+                                footerText: string;
+                            };
+                            darkColors: {
+                                primary: string;
+                                bgPrimary: string;
+                                bgSecondary: string;
+                                textPrimary: string;
+                                textSecondary: string;
+                                border: string;
+                                headerTitleText: string;
+                                userMessageText: string;
+                                sendButtonIcon: string;
+                                footerText: string;
+                            };
+                            icons: {
+                                botAvatar: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/widget/sessions": {
         parameters: {
             query?: never;

@@ -110,11 +110,11 @@
 
 ### NFR-1: Architecture
 
-| ID | Requirement | Notes | Priority |
-|----|-------------|-------|----------|
-| NFR-1.1 | The widget must be deployable via a script tag or iframe so it can be embedded on any website, including static pages, without requiring a specific framework | Enables integration into any website regardless of tech stack | High |
-| NFR-1.2 | The widget component allows for visual customization (accent colour, bot avatar, widget position) | | Medium |
-| NFR-1.3 | Client documentation (integration guide, configuration reference) must be provided | Markdown or hosted docs | High |
+| ID | Requirement | Notes | Priority | Completion |
+|----|-------------|-------|----------|------------|
+| NFR-1.1 | The widget must be deployable via a script tag or iframe so it can be embedded on any website, including static pages, without requiring a specific framework | Enables integration into any website regardless of tech stack | High | Done |
+| NFR-1.2 | The widget component allows for visual customization (accent colour, bot avatar, widget position) | Managed in dashboard, fetched at runtime | Medium | Done |
+| NFR-1.3 | Client documentation (integration guide, configuration reference) must be provided | Markdown or hosted docs | High | Not started |
 
 ### NFR-2: Safety & Content Policy
 

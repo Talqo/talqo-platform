@@ -111,6 +111,7 @@
 
 /* Dark mode colors */
 .aiw-root[data-theme="dark"] {
+	--widget-primary: var(--widget-dark-primary);
 	--widget-bg-primary: var(--widget-dark-bg-primary);
 	--widget-bg-secondary: var(--widget-dark-bg-secondary);
 	--widget-text-primary: var(--widget-dark-text-primary);

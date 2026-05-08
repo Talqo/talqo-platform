@@ -24,18 +24,8 @@
         // Only load widget in development - check BOTH hostname AND port
         if (window.location.hostname === 'localhost' && window.location.port === '5173') {
           // Use a test widgetToken for development
-          window.__AI_WIDGET_CONFIG__ = {
-            widgetToken: '00000000-0000-4000-8001-000000000010',
-            apiUrl: 'http://localhost:3000',
-            position: 'right',
-            colors: {
-              primary: 'hsl(142 76% 36%)',
-              bgPrimary: '#ffffff',
-              bgSecondary: 'hsl(240 5% 96%)',
-              textPrimary: 'hsl(240 6% 10%)',
-              textSecondary: 'hsl(240 4% 46%)',
-              border: 'hsl(240 6% 90%)'
-            }
+          window.__PAGEPAL__ = {
+            token: '00000000-0000-4000-8001-000000000010'
           };
 
           // Load widget bundle from dev server - Vite preview serves from root
