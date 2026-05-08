@@ -1,5 +1,5 @@
 export function getApiBaseUrl(): string {
-	const raw = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
+	const raw = import.meta.env.VITE_API_URL ?? "http://localhost:3000/v1"
 	let url: URL
 	try {
 		url = new URL(raw)
@@ -13,5 +13,5 @@ export function getApiBaseUrl(): string {
 			`Invalid VITE_API_URL: "${raw}". URL must use http or https protocol.`,
 		)
 	}
-	return `${raw.replace(/\/$/, "")}/v1`
+	return url.href.replace(/\/$/, "")
 }
