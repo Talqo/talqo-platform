@@ -24,7 +24,7 @@ export function UsedToolItem({ tool }: UsedToolItemProps) {
 				<div>
 					<p className="font-medium">{tool.name}</p>
 					<p className="text-muted-foreground text-sm">
-						{getToolDescription(tool.name, t)}
+						{getToolDescription(tool.key, t)}
 					</p>
 				</div>
 			</div>

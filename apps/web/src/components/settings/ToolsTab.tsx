@@ -27,29 +27,27 @@ export function ToolsTab() {
 		startY: number
 	} | null>(null)
 	const [usedTools, setUsedTools] = useState<Tool[]>(getDefaultUsedTools(t))
-	const [pendingToolNames, setPendingToolNames] = useState<Set<string>>(
-		new Set(),
-	)
+	const [pendingToolKeys, setPendingToolKeys] = useState<Set<string>>(new Set())
 
 	const preconfiguredTools = useMemo(() => getPreconfiguredTools(t), [t])
 
 	const { setAnimationTimeout, clearAnimationTimeout } = useAnimationTimeout()
 
 	const isToolAdded = useCallback(
-		(toolName: string) =>
-			usedTools.some((tool) => tool.name === toolName) ||
-			pendingToolNames.has(toolName),
-		[usedTools, pendingToolNames],
+		(toolKey: string) =>
+			usedTools.some((tool) => tool.key === toolKey) ||
+			pendingToolKeys.has(toolKey),
+		[usedTools, pendingToolKeys],
 	)
 
 	const handleAddTool = useCallback(
 		(tool: Tool, event: React.MouseEvent) => {
-			if (isToolAdded(tool.name)) {
+			if (isToolAdded(tool.key)) {
 				return
 			}
 
 			// Track pending addition to prevent duplicates during animation
-			setPendingToolNames((prev) => new Set(prev).add(tool.name))
+			setPendingToolKeys((prev) => new Set(prev).add(tool.key))
 
 			clearAnimationTimeout()
 
@@ -67,9 +65,9 @@ export function ToolsTab() {
 			setAnimationTimeout(() => {
 				setUsedTools((prev) => [...prev, { ...tool, id: generateToolId() }])
 				setMovingTool(null)
-				setPendingToolNames((prev) => {
+				setPendingToolKeys((prev) => {
 					const next = new Set(prev)
-					next.delete(tool.name)
+					next.delete(tool.key)
 					return next
 				})
 			}, 1000)
@@ -105,7 +103,7 @@ export function ToolsTab() {
 							<ToolCard
 								key={tool.id}
 								tool={tool}
-								isAdded={isToolAdded(tool.name)}
+								isAdded={isToolAdded(tool.key)}
 								onAdd={handleAddTool}
 							/>
 						))}

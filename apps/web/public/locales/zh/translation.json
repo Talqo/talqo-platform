@@ -504,16 +504,16 @@
 		}
 	},
 	"adminStats": {
-		"currentBalance": "Current Balance",
-		"availableFunds": "Available funds",
-		"totalTokens": "Total Tokens",
-		"tokensChange": "+20.1% from last month",
-		"questionsAnswered": "Questions Answered",
-		"questionsChange": "+15% from last month",
-		"activeConnectors": "Active Connectors",
-		"connectorsSubtitle": "Product DB, Internal Wiki",
-		"currentSpend": "Current Spend",
-		"spendSubtitle": "Limit: 0.00 / month"
+		"currentBalance": "当前余额",
+		"availableFunds": "可用资金",
+		"totalTokens": "Token 总计",
+		"tokensChange": "较上月 +20.1%",
+		"questionsAnswered": "已回答问题",
+		"questionsChange": "较上月 +15%",
+		"activeConnectors": "活跃连接器",
+		"connectorsSubtitle": "产品数据库、内部 wiki",
+		"currentSpend": "当前支出",
+		"spendSubtitle": "限额：0.00 / 月"
 	},
 	"common": {
 		"loading": "加载中...",

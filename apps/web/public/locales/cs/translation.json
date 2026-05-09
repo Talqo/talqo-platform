@@ -504,16 +504,16 @@
 		}
 	},
 	"adminStats": {
-		"currentBalance": "Current Balance",
-		"availableFunds": "Available funds",
-		"totalTokens": "Total Tokens",
-		"tokensChange": "+20.1% from last month",
-		"questionsAnswered": "Questions Answered",
-		"questionsChange": "+15% from last month",
-		"activeConnectors": "Active Connectors",
-		"connectorsSubtitle": "Product DB, Internal Wiki",
-		"currentSpend": "Current Spend",
-		"spendSubtitle": "Limit: 0.00 / month"
+		"currentBalance": "Aktuální zůstatek",
+		"availableFunds": "Dostupné prostředky",
+		"totalTokens": "Celkem tokenů",
+		"tokensChange": "+20,1 % oproti minulému měsíci",
+		"questionsAnswered": "Zodpovězené otázky",
+		"questionsChange": "+15 % oproti minulému měsíci",
+		"activeConnectors": "Aktivní konektory",
+		"connectorsSubtitle": "Databáze produktů, Interní wiki",
+		"currentSpend": "Aktuální výdaje",
+		"spendSubtitle": "Limit: 0,00 / měsíc"
 	},
 	"common": {
 		"loading": "Načítání...",

@@ -1,5 +1,6 @@
 export type Tool = {
 	id: string
+	key: string
 	name: string
 	description?: string
 	color: "blue" | "green" | "purple" | "red" | "yellow"
@@ -26,6 +27,7 @@ const PRECONFIGURED_TOOL_KEYS = [
 export const getDefaultUsedTools = (t: (key: string) => string): Tool[] =>
 	DEFAULT_USED_TOOL_KEYS.map((tool) => ({
 		id: tool.id,
+		key: tool.key,
 		name: t(`tools.toolNames.${tool.key}`),
 		color: tool.color,
 		icon: tool.icon,
@@ -34,6 +36,7 @@ export const getDefaultUsedTools = (t: (key: string) => string): Tool[] =>
 export const getPreconfiguredTools = (t: (key: string) => string): Tool[] =>
 	PRECONFIGURED_TOOL_KEYS.map((tool) => ({
 		id: tool.id,
+		key: tool.key,
 		name: t(`tools.toolNames.${tool.key}`),
 		description: t(`tools.toolDescriptions.${tool.key}`),
 		color: tool.color,
@@ -41,12 +44,12 @@ export const getPreconfiguredTools = (t: (key: string) => string): Tool[] =>
 	}))
 
 export function getToolDescription(
-	name: string,
+	key: string,
 	t: (key: string) => string,
 ): string {
-	if (name.includes(t("tools.toolNames.productDatabase")))
+	if (key === "productDatabase")
 		return t("tools.toolDescriptions.readOnlyConnector")
-	if (name.includes(t("tools.toolNames.customKnowledgeBase")))
+	if (key === "customKnowledgeBase")
 		return t("tools.toolDescriptions.staticFallbackInfo")
 	return t("tools.toolDescriptions.toolConnector")
 }
