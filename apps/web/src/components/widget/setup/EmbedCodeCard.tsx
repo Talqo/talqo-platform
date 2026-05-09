@@ -60,7 +60,9 @@ export function EmbedCodeCard({ widgetToken, isLoading }: EmbedCodeCardProps) {
 			}
 			copiedTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
 		} catch (err) {
-			console.error("Failed to copy to clipboard:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to copy to clipboard:", err)
+			}
 			setCopied(false)
 		}
 	}

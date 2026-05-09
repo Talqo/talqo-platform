@@ -69,7 +69,9 @@ export function BlacklistManager() {
 			form.reset()
 			setListError(null)
 		} catch (err) {
-			console.error("Failed to add word:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to add word:", err)
+			}
 			form.setError("word", {
 				message: t("blacklist.addFailed"),
 			})
@@ -81,7 +83,9 @@ export function BlacklistManager() {
 			await removeWord.mutateAsync(wordId)
 			setListError(null)
 		} catch (err) {
-			console.error("Failed to remove word:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to remove word:", err)
+			}
 			setListError(t("blacklist.removeFailed"))
 		}
 	}

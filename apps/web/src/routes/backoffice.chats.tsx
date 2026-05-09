@@ -114,7 +114,7 @@ function BackofficeChatsPage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-[400px] items-center justify-center">
+			<div className="flex min-h-[300px] flex-1 items-center justify-center">
 				<Spinner size="lg" className="text-primary" />
 			</div>
 		)
@@ -122,7 +122,7 @@ function BackofficeChatsPage() {
 
 	if (error) {
 		return (
-			<div className="flex h-[400px] items-center justify-center">
+			<div className="flex min-h-[300px] flex-1 items-center justify-center">
 				<p className="text-muted-foreground">
 					{t("backoffice.stats.failedToLoadConversations")}
 				</p>
