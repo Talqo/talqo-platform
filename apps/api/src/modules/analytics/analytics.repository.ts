@@ -18,6 +18,12 @@ import {
 	usageRecords,
 } from "../../db/schema"
 
+const granularityLiteral = {
+	day: sql`'day'`,
+	week: sql`'week'`,
+	month: sql`'month'`,
+} as const
+
 export type Granularity = "day" | "week" | "month"
 
 export class AnalyticsRepository {
@@ -29,7 +35,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${usageRecords.recordedAt})`
+		const bucket = sql<string>`date_trunc(${granularityLiteral[granularity]}, ${usageRecords.recordedAt})`
 		return this.db
 			.select({
 				period: bucket,
@@ -54,7 +60,7 @@ export class AnalyticsRepository {
 		to: Date,
 		granularity: Granularity,
 	) {
-		const bucket = sql<string>`date_trunc(${granularity}, ${messages.createdAt})`
+		const bucket = sql<string>`date_trunc(${granularityLiteral[granularity]}, ${messages.createdAt})`
 		return this.db
 			.select({
 				period: bucket,
@@ -150,6 +156,69 @@ export class AnalyticsRepository {
 			totalConversations: convStats?.totalConversations ?? 0,
 		}
 	}
+
+	async getActiveTenantCount(days: number) {
+		const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+		const [row] = await this.db
+			.select({ count: countDistinct(conversations.clientId) })
+			.from(conversations)
+			.where(gte(conversations.startedAt, cutoff))
+		return row?.count ?? 0
+	}
+
+	async getPlatformTokenUsageOverTime(
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	) {
+		const bucket = sql<string>`date_trunc(${granularityLiteral[granularity]}, ${usageRecords.recordedAt})`
+		return this.db
+			.select({
+				period: bucket,
+				tokensUsed: sum(usageRecords.tokensUsed).mapWith(Number),
+				costUsd: sum(usageRecords.costUsd),
+			})
+			.from(usageRecords)
+			.where(
+				and(
+					gte(usageRecords.recordedAt, from),
+					lte(usageRecords.recordedAt, to),
+				),
+			)
+			.groupBy(bucket)
+			.orderBy(bucket)
+	}
+
+	async getPlatformConversationCountsOverTime(
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	) {
+		const bucket = sql<string>`date_trunc(${granularityLiteral[granularity]}, ${conversations.startedAt})`
+		return this.db
+			.select({
+				period: bucket,
+				conversationCount: count(conversations.id),
+			})
+			.from(conversations)
+			.where(
+				and(
+					gte(conversations.startedAt, from),
+					lte(conversations.startedAt, to),
+				),
+			)
+			.groupBy(bucket)
+			.orderBy(bucket)
+	}
+
+	async getAvgPlatformSatisfaction() {
+		const [row] = await this.db
+			.select({
+				avgRating: avg(conversations.satisfactionRating).mapWith(Number),
+			})
+			.from(conversations)
+		return row?.avgRating ?? 0
+	}
 }
 
 type TokenUsageRow = {
@@ -173,6 +242,10 @@ export class InMemoryAnalyticsRepository
 			| "getMessageCounts"
 			| "getClientSummary"
 			| "getPlatformStats"
+			| "getActiveTenantCount"
+			| "getPlatformTokenUsageOverTime"
+			| "getPlatformConversationCountsOverTime"
+			| "getAvgPlatformSatisfaction"
 		>
 {
 	tokenUsage: TokenUsageRow[] = []
@@ -191,6 +264,11 @@ export class InMemoryAnalyticsRepository
 		activeClients: 0,
 		totalConversations: 0,
 	}
+	activeTenantCount = 0
+	platformTokenUsage: TokenUsageRow[] = []
+	platformConversationCounts: { period: string; conversationCount: number }[] =
+		[]
+	avgPlatformSatisfaction = 0
 
 	lastTokenUsageArgs?: {
 		clientId: string
@@ -205,6 +283,8 @@ export class InMemoryAnalyticsRepository
 		granularity: string
 	}
 	lastClientSummaryClientId?: string
+	lastPlatformTokenUsageArgs?: { from: Date; to: Date; granularity: string }
+	lastPlatformConvCountsArgs?: { from: Date; to: Date; granularity: string }
 
 	async getTokenUsage(
 		clientId: string,
@@ -233,5 +313,31 @@ export class InMemoryAnalyticsRepository
 
 	async getPlatformStats() {
 		return this.platformStats
+	}
+
+	async getActiveTenantCount(_days: number) {
+		return this.activeTenantCount
+	}
+
+	async getPlatformTokenUsageOverTime(
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	) {
+		this.lastPlatformTokenUsageArgs = { from, to, granularity }
+		return this.platformTokenUsage
+	}
+
+	async getPlatformConversationCountsOverTime(
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	) {
+		this.lastPlatformConvCountsArgs = { from, to, granularity }
+		return this.platformConversationCounts
+	}
+
+	async getAvgPlatformSatisfaction() {
+		return this.avgPlatformSatisfaction
 	}
 }

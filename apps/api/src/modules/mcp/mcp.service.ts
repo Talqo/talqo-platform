@@ -1,3 +1,4 @@
+import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
 import { NotFoundError } from "../../common/errors"
 import type { McpRepository } from "./mcp.repository"
 
@@ -10,11 +11,11 @@ export class McpService {
 		return this.repo.listPreMadeServers()
 	}
 
-	async createPreMadeServer(mcpConfig: unknown) {
+	async createPreMadeServer(mcpConfig: McpServerConfigInput) {
 		return this.repo.createPreMadeServer(mcpConfig)
 	}
 
-	async updatePreMadeServer(serverId: string, mcpConfig: unknown) {
+	async updatePreMadeServer(serverId: string, mcpConfig: McpServerConfigInput) {
 		const updated = await this.repo.updatePreMadeServer(serverId, mcpConfig)
 		if (!updated) throw new NotFoundError("Pre-made MCP server not found")
 		return updated
@@ -48,14 +49,14 @@ export class McpService {
 		return this.repo.listCustomServers(clientId)
 	}
 
-	async createCustomServer(clientId: string, mcpConfig: unknown) {
+	async createCustomServer(clientId: string, mcpConfig: McpRemoteServerConfig) {
 		return this.repo.createCustomServer(clientId, mcpConfig)
 	}
 
 	async updateCustomServer(
 		clientId: string,
 		serverId: string,
-		mcpConfig: unknown,
+		mcpConfig: McpRemoteServerConfig,
 	) {
 		const updated = await this.repo.updateCustomServer(
 			serverId,

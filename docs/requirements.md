@@ -39,7 +39,7 @@
 | FR-2.2 | Client can log in and log out of the dashboard | High | Approved | Done |
 | FR-2.3 | Client can embed the widget on their website via a script tag or iframe (no framework dependency required) | High | Approved | Done |
 | FR-2.4 | Client can reset their password via a link sent to their registered email address | High | Approved | Done |
-| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Not started |
+| FR-2.5 | Client can permanently delete their account and all associated data | Medium | Approved | Done |
 | FR-2.5a | Client can rotate the widget token to invalidate the old embed code | Medium | Approved | Done |
 
 #### FR-2b: API configuration
@@ -54,8 +54,8 @@
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
 | FR-2.8 | Client can add funds to their account | Medium | Approved | Done |
-| FR-2.9 | Client can set a monthly limit (in USD) for API usage | Low | Approved | In progress |
-| FR-2.10 | Client can configure email notifications when a usage threshold is reached | Low | Approved | In progress |
+| FR-2.9 | Client can set a monthly limit (in USD) for API usage | Low | Approved | Done |
+| FR-2.10 | Client can configure email notifications when a usage threshold is reached | Low | Approved | Done |
 
 #### FR-2d: Bot configuration
 
@@ -70,8 +70,8 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | In progress |
-| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | In progress |
+| FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | Done |
+| FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | Done |
 
 #### FR-2f: Analytics & appearance
 
@@ -97,11 +97,11 @@
 | FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved | In progress |
 | FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
 | FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |
-| FR-3.5.2 | Platform admin can view the number of active tenants (clients with at least one conversation in the past 30 days) | Low | Approved | Not started |
+| FR-3.5.2 | Platform admin can view the number of active tenants (clients with at least one conversation in the past 30 days) | Low | Approved | Done |
 | FR-3.5.3 | Platform admin can view platform-wide error rates (percentage of failed API and MCP requests) | Low | Approved | Not started |
-| FR-3.6 | Platform admin can view a graph of official (platform) API key usage over time | Low | Approved | Not started |
-| FR-3.7 | Platform admin can view a graph of total conversation count across all tenants over time | Low | Approved | Not started |
-| FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all tenants | Low | Approved | Not started |
+| FR-3.6 | Platform admin can view a graph of official (platform) API key usage over time | Low | Approved | Done |
+| FR-3.7 | Platform admin can view a graph of total conversation count across all tenants over time | Low | Approved | Done |
+| FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all tenants | Low | Approved | Done |
 
 ---
 

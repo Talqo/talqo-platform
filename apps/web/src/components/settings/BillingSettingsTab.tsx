@@ -1,9 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Link } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { type BillingSettingsInput, billingSettingsSchema } from "shared"
 import {
+	useClientProfile,
 	useSetUsageAlert,
 	useSetUsageLimit,
 } from "@/api/hooks/useClientAccount"
@@ -29,18 +31,38 @@ import { Switch } from "@/components/ui/switch"
 
 export function BillingSettingsTab() {
 	const { t } = useTranslation()
+	const { data: profile } = useClientProfile()
 	const setUsageLimit = useSetUsageLimit()
 	const setUsageAlert = useSetUsageAlert()
 
 	const form = useForm<BillingSettingsInput>({
 		resolver: zodResolver(billingSettingsSchema),
-		defaultValues: { monthlyLimit: 50, usageAlerts: true },
+		defaultValues: { monthlyLimit: 50, usageAlerts: false },
 		mode: "onBlur",
 	})
 
+	useEffect(() => {
+		if (profile) {
+			form.reset(
+				{
+					monthlyLimit: profile.monthlyUsageLimit
+						? parseFloat(profile.monthlyUsageLimit)
+						: 50,
+					usageAlerts: profile.usageAlertThresholdUsd !== null,
+				},
+				{ keepDirtyValues: true },
+			)
+		}
+	}, [profile, form])
+
 	const onSubmit = (values: BillingSettingsInput) => {
 		setUsageLimit.mutate({ limit: values.monthlyLimit })
+		setUsageAlert.mutate({
+			thresholdUsd: values.usageAlerts ? values.monthlyLimit * 0.8 : null,
+		})
 	}
+
+	const isPending = setUsageLimit.isPending || setUsageAlert.isPending
 
 	return (
 		<Card>
@@ -85,12 +107,7 @@ export function BillingSettingsTab() {
 									<FormControl>
 										<Switch
 											checked={field.value}
-											onCheckedChange={(checked) => {
-												field.onChange(checked)
-												setUsageAlert.mutate({
-													thresholdUsd: checked ? 40 : null,
-												})
-											}}
+											onCheckedChange={field.onChange}
 										/>
 									</FormControl>
 								</FormItem>
@@ -118,8 +135,8 @@ export function BillingSettingsTab() {
 								className="h-full w-auto object-contain"
 							/>
 						</Link>
-						<Button type="submit" disabled={setUsageLimit.isPending}>
-							{setUsageLimit.isPending
+						<Button type="submit" disabled={isPending}>
+							{isPending
 								? t("settings.billing.saving")
 								: t("settings.billing.saveSettings")}
 						</Button>

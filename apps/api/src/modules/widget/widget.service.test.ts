@@ -93,6 +93,8 @@ function createMockRepo() {
 			}
 		}),
 		recordUsage: mock(async () => {}),
+		getMonthlySpend: mock(async () => "0"),
+		getClientLimitSettings: mock(async () => null),
 	}
 }
 
@@ -168,6 +170,8 @@ describe("WidgetService", () => {
 		repo.getMessageCount.mockClear?.()
 		repo.createMessage.mockClear?.()
 		repo.recordUsage.mockClear?.()
+		repo.getMonthlySpend.mockClear?.()
+		repo.getClientLimitSettings.mockClear?.()
 		mockStreamResponse.mockClear()
 	})
 
@@ -289,6 +293,18 @@ describe("WidgetService", () => {
 			await expect(
 				widgetService.sendMessage("client-1", "conv-1", "Hello"),
 			).rejects.toHaveProperty("code", "CONVERSATION_LIMIT_REACHED")
+		})
+
+		it("throws MONTHLY_LIMIT_REACHED when monthly spend equals or exceeds limit", async () => {
+			repo.getClientLimitSettings = mock(async () => ({
+				monthlyUsageLimit: "10.0000",
+				usageAlertThresholdUsd: null,
+				email: "client@example.com",
+			}))
+			repo.getMonthlySpend = mock(async () => "10.0000")
+			await expect(
+				widgetService.sendMessage("client-1", "conv-1", "Hello"),
+			).rejects.toHaveProperty("code", "MONTHLY_LIMIT_REACHED")
 		})
 
 		it("throws PROVIDER_NOT_CONFIGURED when no provider exists and no default", async () => {

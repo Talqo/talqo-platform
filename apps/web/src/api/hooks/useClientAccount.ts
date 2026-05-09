@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import { AUTH } from "@/lib/constants"
 import { client } from "../client"
 import type { ApiError } from "./useAuth"
 
@@ -54,6 +56,7 @@ export function useAddFunds() {
 }
 
 export function useSetUsageLimit() {
+	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (body: { limit: number | null }) => {
 			const { data, error } = await client.PATCH("/client/me/usage-limit", {
@@ -62,10 +65,12 @@ export function useSetUsageLimit() {
 			if (error) throw error
 			return data
 		},
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
 	})
 }
 
 export function useSetUsageAlert() {
+	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (body: { thresholdUsd: number | null }) => {
 			const { data, error } = await client.PATCH("/client/me/usage-alert", {
@@ -73,6 +78,25 @@ export function useSetUsageAlert() {
 			})
 			if (error) throw error
 			return data
+		},
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
+	})
+}
+
+export function useDeleteAccount() {
+	const navigate = useNavigate()
+	const qc = useQueryClient()
+	return useMutation<{ message: string }, ApiError, { password: string }>({
+		mutationFn: async (body) => {
+			const { data, error } = await client.DELETE("/client/me", { body })
+			if (error) throw error
+			return data
+		},
+		onSuccess: () => {
+			localStorage.removeItem(AUTH.TOKEN_KEY)
+			localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY)
+			qc.clear()
+			navigate({ to: "/login" })
 		},
 	})
 }

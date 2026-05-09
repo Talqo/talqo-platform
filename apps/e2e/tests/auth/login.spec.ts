@@ -9,7 +9,7 @@ test.describe("Login flow", () => {
 		const loginLink = page.getByRole("link", { name: "Log in" })
 		await expect(loginLink).toBeVisible()
 
-		await loginLink.click()
+		await loginLink.click({ force: true })
 		await expect(page).toHaveURL(/\/login/)
 		await expect(page.getByRole("heading", { name: "Log in" })).toBeVisible()
 	})

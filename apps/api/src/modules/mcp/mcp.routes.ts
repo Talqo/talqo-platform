@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { customServerResponseSchema, preMadeServerResponseSchema } from "db/dto"
-import { mcpConfigBodySchema } from "shared"
+import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -65,7 +65,7 @@ clientMcpRoutes.openapi(
 clientMcpRoutes.openapi(
 	createRoute({
 		method: "post",
-		path: "/pre-made/:serverId",
+		path: "/pre-made/{serverId}",
 		tags: ["MCP"],
 		summary: "Enable a pre-made MCP server",
 		security: [{ bearerAuth: [] }],
@@ -96,7 +96,7 @@ clientMcpRoutes.openapi(
 clientMcpRoutes.openapi(
 	createRoute({
 		method: "delete",
-		path: "/pre-made/:serverId",
+		path: "/pre-made/{serverId}",
 		tags: ["MCP"],
 		summary: "Disable a pre-made MCP server",
 		security: [{ bearerAuth: [] }],
@@ -187,7 +187,7 @@ clientMcpRoutes.openapi(
 clientMcpRoutes.openapi(
 	createRoute({
 		method: "patch",
-		path: "/custom/:serverId",
+		path: "/custom/{serverId}",
 		tags: ["MCP"],
 		summary: "Update a custom MCP server",
 		security: [{ bearerAuth: [] }],
@@ -232,7 +232,7 @@ clientMcpRoutes.openapi(
 clientMcpRoutes.openapi(
 	createRoute({
 		method: "delete",
-		path: "/custom/:serverId",
+		path: "/custom/{serverId}",
 		tags: ["MCP"],
 		summary: "Delete a custom MCP server",
 		security: [{ bearerAuth: [] }],
@@ -299,7 +299,7 @@ adminMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: mcpConfigBodySchema,
+						schema: adminMcpConfigBodySchema,
 					},
 				},
 			},
@@ -334,7 +334,7 @@ adminMcpRoutes.openapi(
 			body: {
 				content: {
 					"application/json": {
-						schema: mcpConfigBodySchema,
+						schema: adminMcpConfigBodySchema,
 					},
 				},
 			},

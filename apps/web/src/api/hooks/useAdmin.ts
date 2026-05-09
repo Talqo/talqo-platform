@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import type { McpServerConfigInput } from "shared"
 import { client } from "../client"
+import type { ApiError } from "./useAuth"
 
 export function useAdminProfile() {
 	return useQuery({
@@ -42,14 +44,12 @@ export function useAdminClient(clientId: string) {
 
 export function useUpdateClientStatus() {
 	const qc = useQueryClient()
-	return useMutation({
-		mutationFn: async ({
-			clientId,
-			status,
-		}: {
-			clientId: string
-			status: "active" | "suspended"
-		}) => {
+	return useMutation<
+		unknown,
+		ApiError,
+		{ clientId: string; status: "active" | "suspended" }
+	>({
+		mutationFn: async ({ clientId, status }) => {
 			const { data, error } = await client.PATCH(
 				"/admin/clients/{clientId}/status",
 				{ params: { path: { clientId } }, body: { status } },
@@ -82,6 +82,56 @@ export function useAdminPlatformStats() {
 		queryKey: ["admin", "analytics"],
 		queryFn: async () => {
 			const { data, error } = await client.GET("/admin/analytics", {})
+			if (error) throw error
+			return data
+		},
+	})
+}
+
+export function useAdminAnalyticsSummary() {
+	return useQuery({
+		queryKey: ["admin", "analytics", "summary"],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/analytics/summary", {})
+			if (error) throw error
+			return data
+		},
+	})
+}
+
+export function useAdminTokenAnalytics(
+	params: {
+		from?: string
+		to?: string
+		granularity?: "day" | "week" | "month"
+	} = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "analytics", "tokens", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/analytics/tokens", {
+				params: { query: params },
+			})
+			if (error) throw error
+			return data
+		},
+	})
+}
+
+export function useAdminConversationAnalytics(
+	params: {
+		from?: string
+		to?: string
+		granularity?: "day" | "week" | "month"
+	} = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "analytics", "conversations", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET(
+				"/admin/analytics/conversations",
+				{ params: { query: params } },
+			)
 			if (error) throw error
 			return data
 		},
@@ -136,7 +186,7 @@ export function useAdminPreMadeServers() {
 export function useAdminCreatePreMadeServer() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: async (body: { mcpConfig: unknown }) => {
+		mutationFn: async (body: { mcpConfig: McpServerConfigInput }) => {
 			const { data, error } = await client.POST("/admin/mcp/pre-made", {
 				body,
 			})
@@ -156,7 +206,7 @@ export function useAdminUpdatePreMadeServer() {
 			mcpConfig,
 		}: {
 			serverId: string
-			mcpConfig: unknown
+			mcpConfig: McpServerConfigInput
 		}) => {
 			const { data, error } = await client.PATCH(
 				"/admin/mcp/pre-made/{serverId}",

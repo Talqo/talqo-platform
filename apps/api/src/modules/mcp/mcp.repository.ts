@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm"
+import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
 import type { DB } from "../../db"
 import {
 	clientPreMadeMcp,
@@ -23,7 +24,7 @@ export class McpRepository {
 			.then((rows) => rows[0] ?? null)
 	}
 
-	async createPreMadeServer(mcpConfig: unknown) {
+	async createPreMadeServer(mcpConfig: McpServerConfigInput) {
 		const [row] = await this.db
 			.insert(preMadeMcpServers)
 			.values({ mcpConfig })
@@ -31,7 +32,7 @@ export class McpRepository {
 		return row
 	}
 
-	async updatePreMadeServer(id: string, mcpConfig: unknown) {
+	async updatePreMadeServer(id: string, mcpConfig: McpServerConfigInput) {
 		const [row] = await this.db
 			.update(preMadeMcpServers)
 			.set({ mcpConfig })
@@ -104,7 +105,7 @@ export class McpRepository {
 			.then((rows) => rows[0] ?? null)
 	}
 
-	async createCustomServer(clientId: string, mcpConfig: unknown) {
+	async createCustomServer(clientId: string, mcpConfig: McpRemoteServerConfig) {
 		const [row] = await this.db
 			.insert(customMcpServers)
 			.values({ clientId, mcpConfig })
@@ -112,7 +113,11 @@ export class McpRepository {
 		return row
 	}
 
-	async updateCustomServer(id: string, clientId: string, mcpConfig: unknown) {
+	async updateCustomServer(
+		id: string,
+		clientId: string,
+		mcpConfig: McpRemoteServerConfig,
+	) {
 		const [row] = await this.db
 			.update(customMcpServers)
 			.set({ mcpConfig })

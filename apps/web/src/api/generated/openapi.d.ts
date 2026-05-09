@@ -200,6 +200,20 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Account suspended */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -477,7 +491,6 @@ export interface paths {
                             lastActive: string | null;
                             createdAt: string;
                             widgetSetupDismissed: boolean;
-                            widgetToken: string;
                         };
                     };
                 };
@@ -485,7 +498,63 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /** Permanently delete account and all associated data */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        password: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Account deleted */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Password incorrect */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Client not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         /** Update client profile */
@@ -755,6 +824,58 @@ export interface paths {
                     content: {
                         "application/json": {
                             message: string;
+                        };
+                    };
+                };
+                /** @description Client not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/client/me/widget-token/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rotate widget token */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Widget token rotated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            widgetToken: string;
                         };
                     };
                 };
@@ -1086,7 +1207,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/client/me/mcp/pre-made/:serverId": {
+    "/client/me/mcp/pre-made/{serverId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1224,7 +1345,23 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };
@@ -1252,7 +1389,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/client/me/mcp/custom/:serverId": {
+    "/client/me/mcp/custom/{serverId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1316,7 +1453,23 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };
@@ -1949,7 +2102,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/{clientId}/sessions": {
+    "/widget/sessions": {
         parameters: {
             query?: never;
             header?: never;
@@ -1999,7 +2152,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/{clientId}/sessions/{sessionId}/conversations": {
+    "/widget/sessions/{sessionId}/conversations": {
         parameters: {
             query?: never;
             header?: never;
@@ -2013,7 +2166,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    sessionId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -2058,7 +2213,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/{clientId}/sessions/{sessionId}/conversations/{conversationId}": {
+    "/widget/sessions/{sessionId}/conversations/:conversationId": {
         parameters: {
             query?: never;
             header?: never;
@@ -2068,45 +2223,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Reset (delete) a conversation */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    conversationId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Conversation reset */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            message: string;
-                        };
-                    };
-                };
-                /** @description Conversation not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            error: {
-                                code: string;
-                                message: string;
-                            };
-                        };
-                    };
-                };
-            };
-        };
+        delete?: never;
         options?: never;
         head?: never;
         /** Submit satisfaction rating */
@@ -2163,7 +2280,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/widget/{clientId}/sessions/{sessionId}/conversations/{conversationId}/messages": {
+    "/widget/sessions/{sessionId}/conversations/{conversationId}/messages": {
         parameters: {
             query?: never;
             header?: never;
@@ -2175,7 +2292,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    conversationId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -2221,7 +2340,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    conversationId: string;
+                };
                 cookie?: never;
             };
             requestBody?: {
@@ -2232,40 +2353,34 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description Message sent and assistant response returned */
+                /** @description SSE stream of AI response */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            userMessage: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                conversationId: string;
-                                /** @enum {string} */
-                                role: "user" | "assistant" | "system";
-                                content: string;
-                                tokenCount: number;
-                                createdAt: string;
-                            };
-                            assistantMessage: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                conversationId: string;
-                                /** @enum {string} */
-                                role: "user" | "assistant" | "system";
-                                content: string;
-                                tokenCount: number;
-                                createdAt: string;
-                            };
+                        "text/event-stream": {
+                            event: string;
+                            data: string;
                         };
                     };
                 };
                 /** @description Conversation not found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Rate limit exceeded */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2726,6 +2841,136 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/analytics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Platform-wide summary including active tenants and satisfaction */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Admin summary */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            totalTokens: number;
+                            totalCostUsd: string | null;
+                            activeClients: number;
+                            totalConversations: number;
+                            activeTenantsLast30Days: number;
+                            avgSatisfactionRating: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Platform-wide token consumption over time */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                    granularity?: "day" | "week" | "month";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Platform token usage data */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            period: string;
+                            tokensUsed: number;
+                            costUsd: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Platform-wide conversation counts over time */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                    granularity?: "day" | "week" | "month";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Platform conversation count data */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            period: string;
+                            conversationCount: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/conversations": {
         parameters: {
             query?: never;
@@ -2892,7 +3137,31 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "stdio";
+                            command: string;
+                            args?: string[];
+                            env?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };
@@ -2982,7 +3251,31 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        mcpConfig?: unknown;
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "stdio";
+                            command: string;
+                            args?: string[];
+                            env?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "sse";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
                     };
                 };
             };

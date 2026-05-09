@@ -44,3 +44,9 @@ export const createPasswordChangeSchema = (t: (key: string) => string) =>
 
 export const passwordChangeSchema = createPasswordChangeSchema(() => "")
 export type PasswordChangeSchema = z.infer<typeof passwordChangeSchema>
+
+export const deleteAccountSchema = z.object({
+	password: z.string().min(1, "Password is required"),
+})
+
+export type DeleteAccountSchema = z.infer<typeof deleteAccountSchema>

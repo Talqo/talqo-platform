@@ -151,6 +151,10 @@ export function createAuthRouter(
 					description: "Invalid credentials",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
+				403: {
+					description: "Account suspended",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 			},
 		}),
 		async (c) => {
