@@ -28,7 +28,7 @@ export function ResetPasswordSuccess() {
 			</CardHeader>
 			<CardContent>
 				<Button asChild className="w-full">
-					<Link to="/login">{t("goToLogin")}</Link>
+					<Link to="/login">{t("auth.login.goToLogin")}</Link>
 				</Button>
 			</CardContent>
 		</Card>

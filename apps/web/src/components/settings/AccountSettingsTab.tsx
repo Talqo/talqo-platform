@@ -85,7 +85,7 @@ export function AccountSettingsTab() {
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("email")}</FormLabel>
+									<FormLabel>{t("common.email")}</FormLabel>
 									<FormControl>
 										<Input
 											type="email"
@@ -102,7 +102,7 @@ export function AccountSettingsTab() {
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("name")}</FormLabel>
+									<FormLabel>{t("common.name")}</FormLabel>
 									<FormControl>
 										<Input
 											type="text"

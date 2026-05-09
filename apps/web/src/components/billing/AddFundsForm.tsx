@@ -118,7 +118,7 @@ export function AddFundsForm() {
 							name="cardNumber"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("cardNumber")}</FormLabel>
+									<FormLabel>{t("common.cardNumber")}</FormLabel>
 									<FormControl>
 										<Input
 											inputMode="numeric"

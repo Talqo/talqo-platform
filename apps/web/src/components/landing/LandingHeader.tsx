@@ -35,7 +35,7 @@ export function LandingHeader() {
 					to="/login"
 					className="font-medium text-muted-foreground text-sm hover:text-foreground"
 				>
-					{t("login")}
+					{t("auth.login.title")}
 				</Link>
 				<Button asChild>
 					<Link to="/register">{t("getStarted")}</Link>
