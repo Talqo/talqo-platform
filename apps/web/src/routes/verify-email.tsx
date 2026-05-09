@@ -71,11 +71,13 @@ function VerifyEmailPage() {
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
 	const [resendEmail, setResendEmail] = useState("")
 	const [resendSuccess, setResendSuccess] = useState(false)
+	const [resendError, setResendError] = useState<string | null>(null)
 	const [resendTimeout, setResendTimeout] = useState(0)
 	const [canResend, setCanResend] = useState(true)
 	const verifyEmail = useVerifyEmail()
 	const resendVerification = useResendVerificationEmail()
 	const processedRef = useRef(false)
+	const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	useEffect(() => {
 		if (resendTimeout > 0) {
@@ -96,10 +98,15 @@ function VerifyEmailPage() {
 		try {
 			await resendVerification.mutateAsync({ email: resendEmail })
 			setResendSuccess(true)
+			setResendError(null)
 			setCanResend(false)
 			setResendTimeout(60)
-		} catch {
+		} catch (err) {
+			if (import.meta.env.DEV) {
+				console.error("Failed to resend verification email:", err)
+			}
 			setResendSuccess(false)
+			setResendError(t("auth.verifyEmail.resendFailed"))
 		}
 	}
 
@@ -123,7 +130,7 @@ function VerifyEmailPage() {
 				if (data.token) {
 					localStorage.setItem(AUTH.TOKEN_KEY, data.token)
 				}
-				setTimeout(() => {
+				navigateTimeoutRef.current = setTimeout(() => {
 					navigate({ to: "/dashboard" })
 				}, 2000)
 			} catch (err) {
@@ -144,6 +151,11 @@ function VerifyEmailPage() {
 		}
 
 		verify(token)
+		return () => {
+			if (navigateTimeoutRef.current) {
+				clearTimeout(navigateTimeoutRef.current)
+			}
+		}
 		// Only run when token changes (on initial load with token from URL)
 	}, [token, navigate, verifyEmail, t])
 
@@ -263,6 +275,11 @@ function VerifyEmailPage() {
 										t("auth.verifyEmail.resendVerification")
 									)}
 								</Button>
+								{resendError && (
+									<Alert variant="destructive">
+										<AlertDescription>{resendError}</AlertDescription>
+									</Alert>
+								)}
 							</>
 						)}
 					</div>

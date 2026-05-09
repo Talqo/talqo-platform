@@ -567,6 +567,7 @@
 			"resendVerification": "Resend verification email",
 			"sending": "Sending...",
 			"verificationSent": "Verification email sent. Please check your inbox.",
+			"resendFailed": "Resend failed. Please try again.",
 			"registerAgain": "Register again"
 		}
 	},

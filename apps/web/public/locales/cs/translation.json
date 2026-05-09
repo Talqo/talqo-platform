@@ -450,6 +450,7 @@
 			"resendVerification": "Znovu odeslat ověřovací e-mail",
 			"sending": "Odesílání...",
 			"verificationSent": "Ověřovací e-mail odeslán. Zkontrolujte svou schránku.",
+			"resendFailed": "Znovu odeslání selhalo. Zkuste to znovu.",
 			"registerAgain": "Zaregistrovat se znovu"
 		}
 	},
