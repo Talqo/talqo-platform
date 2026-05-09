@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Lock } from "lucide-react"
 import type { FocusEvent } from "react"
 import { useId, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,11 +24,12 @@ export function PasswordInput({
 	value,
 	onChange,
 	onBlur,
-	placeholder = "Enter password",
+	placeholder,
 	autoComplete = "new-password",
 	disabled = false,
 	helpText,
 }: PasswordInputProps) {
+	const { t } = useTranslation()
 	const [showPassword, setShowPassword] = useState(false)
 	const generatedId = useId()
 	const inputId = id ?? generatedId
@@ -55,7 +57,7 @@ export function PasswordInput({
 					size="icon"
 					className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2"
 					onClick={() => setShowPassword(!showPassword)}
-					aria-label={showPassword ? "Hide password" : "Show password"}
+					aria-label={showPassword ? t("hidePassword") : t("showPassword")}
 					aria-pressed={showPassword}
 					disabled={disabled}
 				>

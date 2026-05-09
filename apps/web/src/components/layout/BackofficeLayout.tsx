@@ -7,8 +7,10 @@ import {
 	ScrollText,
 	Sun,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useAdminProfile } from "@/api/hooks/useAdmin"
 import { useAdminLogout } from "@/api/hooks/useAuth"
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useTheme } from "@/lib/useTheme"
@@ -23,11 +25,24 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 	const logout = useAdminLogout()
 	const { theme, toggleTheme } = useTheme()
 	const { data: adminProfile, isLoading, isError, error } = useAdminProfile()
+	const { t } = useTranslation()
 
 	const navItems = [
-		{ icon: Building2, label: "Tenants", href: "/backoffice" },
-		{ icon: MessageSquare, label: "Chats", href: "/backoffice/chats" },
-		{ icon: ScrollText, label: "Activity Logs", href: "/backoffice/logs" },
+		{
+			icon: Building2,
+			label: t("backoffice.nav.tenants"),
+			href: "/backoffice",
+		},
+		{
+			icon: MessageSquare,
+			label: t("backoffice.nav.chats"),
+			href: "/backoffice/chats",
+		},
+		{
+			icon: ScrollText,
+			label: t("backoffice.nav.activityLogs"),
+			href: "/backoffice/logs",
+		},
 	]
 
 	const handleLogout = () => {
@@ -46,12 +61,12 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 						<Building2 size={20} />
 					</div>
 					<span className="font-semibold text-card-foreground">
-						PagePal Admin
+						{t("backoffice.nav.pagePalAdmin")}
 					</span>
 				</Link>
 				<div className="flex flex-col gap-1 p-4">
 					<div className="mb-2 px-2 font-semibold text-muted-foreground text-xs uppercase">
-						Admin Dashboard
+						{t("backoffice.nav.adminDashboard")}
 					</div>
 					{navItems.map((item) => {
 						const isActive =
@@ -85,7 +100,9 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 					>
 						{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
 						<span className="ml-2">
-							{theme === "dark" ? "Light Mode" : "Dark Mode"}
+							{theme === "dark"
+								? t("backoffice.nav.lightMode")
+								: t("backoffice.nav.darkMode")}
 						</span>
 					</Button>
 					<Button
@@ -95,7 +112,7 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 						className="w-full justify-start text-destructive hover:text-destructive/80"
 					>
 						<LogOut size={18} />
-						<span className="ml-2">Log out</span>
+						<span className="ml-2">{t("common.logOut")}</span>
 					</Button>
 				</div>
 			</aside>
@@ -104,18 +121,24 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 			<div className="flex flex-1 flex-col">
 				{/* Top Header with Admin Info */}
 				<header className="flex h-16 items-center justify-end border-border border-b bg-card px-6">
-					<div className="flex items-center gap-2 text-sm">
-						{isLoading ? (
-							<Skeleton className="h-4 w-32" />
-						) : isError ? (
-							<span className="text-destructive text-xs" title={error?.message}>
-								Failed to load
-							</span>
-						) : (
-							<span className="font-medium text-card-foreground">
-								{adminProfile?.email || "Admin"}
-							</span>
-						)}
+					<div className="flex items-center gap-4">
+						<LanguageSwitcher />
+						<div className="flex items-center gap-2 text-sm">
+							{isLoading ? (
+								<Skeleton className="h-4 w-32" />
+							) : isError ? (
+								<span
+									className="text-destructive text-xs"
+									title={error?.message}
+								>
+									{t("backoffice.nav.failedToLoad")}
+								</span>
+							) : (
+								<span className="font-medium text-card-foreground">
+									{adminProfile?.email || t("backoffice.nav.admin")}
+								</span>
+							)}
+						</div>
 					</div>
 				</header>
 				<main className="flex-1 overflow-auto bg-background p-8">

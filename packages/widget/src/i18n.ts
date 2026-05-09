@@ -1,0 +1,30 @@
+import i18n from "i18next"
+import { initReactI18next } from "react-i18next"
+import cs from "./locales/cs.json"
+import en from "./locales/en.json"
+import zh from "./locales/zh.json"
+
+const PAGEPAL_LANG_KEY = "pagepal:lang"
+
+const resources = {
+	en: { translation: en },
+	cs: { translation: cs },
+	zh: { translation: zh },
+}
+
+i18n
+	.use(initReactI18next)
+	.init({
+		lng:
+			(typeof window !== "undefined" &&
+				localStorage.getItem(PAGEPAL_LANG_KEY)) ||
+			"en",
+		fallbackLng: "en",
+		resources,
+		interpolation: { escapeValue: false },
+	})
+	.catch((err) => {
+		console.error("Widget i18n initialization failed:", err)
+	})
+
+export default i18n

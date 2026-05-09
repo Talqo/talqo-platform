@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Link } from "@tanstack/react-router"
 import { ArrowLeft, Loader2, Mail } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import type { ForgotPasswordInput } from "shared"
 import { ForgotPasswordSchema } from "shared"
 import type { ApiError } from "@/api/hooks/useAuth"
@@ -35,6 +36,7 @@ export function ForgotPasswordForm({
 	isPending,
 	error,
 }: ForgotPasswordFormProps) {
+	const { t } = useTranslation()
 	const form = useForm<ForgotPasswordInput>({
 		resolver: zodResolver(ForgotPasswordSchema),
 		defaultValues: { email: "" },
@@ -44,10 +46,11 @@ export function ForgotPasswordForm({
 	return (
 		<Card>
 			<CardHeader className="space-y-1">
-				<CardTitle className="text-center text-2xl">Forgot password?</CardTitle>
+				<CardTitle className="text-center text-2xl">
+					{t("auth.forgotPassword.title")}
+				</CardTitle>
 				<CardDescription className="text-center">
-					Enter your email address and we&apos;ll send you a link to reset your
-					password.
+					{t("auth.forgotPassword.description")}
 				</CardDescription>
 			</CardHeader>
 			<Form {...form}>
@@ -67,7 +70,7 @@ export function ForgotPasswordForm({
 											<Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 											<Input
 												type="email"
-												placeholder="m@example.com"
+												placeholder={t("auth.forgotPassword.emailPlaceholder")}
 												autoComplete="email"
 												className="pl-10"
 												{...field}
@@ -81,8 +84,7 @@ export function ForgotPasswordForm({
 						{error && (
 							<Alert variant="destructive">
 								<AlertDescription>
-									Failed to send reset link. Please try again or contact
-									support.
+									{t("auth.forgotPassword.error")}
 								</AlertDescription>
 							</Alert>
 						)}
@@ -90,16 +92,16 @@ export function ForgotPasswordForm({
 							{isPending ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Sending...
+									{t("auth.forgotPassword.sending")}
 								</>
 							) : (
-								"Send reset link"
+								t("auth.forgotPassword.sendResetLink")
 							)}
 						</Button>
 						<Button asChild variant="ghost" className="w-full">
 							<Link to="/login">
 								<ArrowLeft className="mr-2 h-4 w-4" />
-								Back to login
+								{t("auth.forgotPassword.backToLogin")}
 							</Link>
 						</Button>
 					</CardContent>

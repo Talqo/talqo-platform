@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useResetPassword, useVerifyResetTokenQuery } from "@/api/hooks/useAuth"
 import {
 	AuthCard,
@@ -24,6 +25,7 @@ type ResetState =
 	| { status: "error"; message: string }
 
 function ResetPasswordPage() {
+	const { t } = useTranslation()
 	const { token } = Route.useSearch()
 	const navigate = useNavigate()
 	const [state, setState] = useState<ResetState>({ status: "loading" })
@@ -62,13 +64,13 @@ function ResetPasswordPage() {
 			} else {
 				setState({
 					status: "error",
-					message: "Unable to verify link. Please try again later.",
+					message: t("auth.resetPassword.unableToVerify"),
 				})
 			}
 		} else if (token && !isVerifying) {
 			setState({ status: "ready" })
 		}
-	}, [isVerifying, isVerifyError, verifyError, token])
+	}, [isVerifying, isVerifyError, verifyError, token, t])
 
 	useEffect(() => {
 		return () => {
@@ -95,14 +97,12 @@ function ResetPasswordPage() {
 				},
 				onError: (err) => {
 					const code = err.error?.code || "UNKNOWN_ERROR"
-					let message = "Failed to reset password. Please try again."
+					let message = t("auth.resetPassword.failed")
 
 					if (code === "INVALID_TOKEN" || code === "TOKEN_EXPIRED") {
-						message =
-							"This link is invalid or has expired. Please request a new one."
+						message = t("auth.resetPassword.linkInvalidOrExpired")
 					} else if (code === "TOKEN_ALREADY_USED") {
-						message =
-							"This link has already been used. Please request a new one."
+						message = t("auth.resetPassword.linkAlreadyUsed")
 					}
 
 					setState({ status: "error", message })

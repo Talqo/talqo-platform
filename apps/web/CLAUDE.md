@@ -46,6 +46,12 @@ src/
 - **`@` alias** maps to `src/` — always use `@/` for internal imports
 - **shadcn components**: add via `bunx shadcn@latest add <component>`, never edit `src/components/ui/` by hand
 - **Form handling**: use `react-hook-form` with `zodResolver` from `@hookform/resolvers/zod`. Wrap fields with shadcn `Form`/`FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage`. Frontend schemas live in `src/schemas/` and extend `shared` schemas
+- **i18n / translations**: `react-i18next` is configured in `src/lib/i18n.ts`. Translation files live in `public/locales/{en,cs,zh}/translation.json`. When adding any new user-facing string in a component, you MUST:
+  1. import `useTranslation` from `"react-i18next"` and call `const { t } = useTranslation()`
+  2. add the translation key to ALL three locale files (`en`, `cs`, `zh`) under the appropriate namespace
+  3. use `t("namespace.key")` instead of a hard-coded string
+  4. key naming: camelCase, dot-namespaced by feature (e.g. `auth.login.title`, `dashboard.overview.subtitle`, `widget.appearance.primaryColor`)
+  5. if the string is already used in multiple places, check `common.*` for a shared key before adding a new one
 - **No tests** — `bun run test` is no-op placeholder
 - **`VITE_API_URL`** env var sets API base URL (defaults to `http://localhost:3000`)
 - **`queryClient`** defaults: `staleTime: 60 s`, `retry: 1`

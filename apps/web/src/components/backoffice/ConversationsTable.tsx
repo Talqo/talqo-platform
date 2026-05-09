@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import type { ConversationSummary } from "shared"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,8 @@ export function ConversationsTable({
 	selectedId,
 	onSelect,
 }: ConversationsTableProps) {
+	const { t } = useTranslation()
+
 	return (
 		<Card className="overflow-hidden dark:border-zinc-800 dark:bg-zinc-900">
 			<div className="overflow-x-auto">
@@ -29,19 +32,19 @@ export function ConversationsTable({
 					<thead className="border-zinc-200 border-b bg-zinc-50 text-xs text-zinc-700 uppercase dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-400">
 						<tr>
 							<th scope="col" className="px-6 py-3">
-								Client
+								{t("backoffice.conversationsTable.client")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Started
+								{t("backoffice.conversationsTable.started")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Messages
+								{t("backoffice.conversationsTable.messages")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Rating
+								{t("backoffice.conversationsTable.rating")}
 							</th>
 							<th scope="col" className="px-6 py-3 text-right">
-								Preview
+								{t("backoffice.conversationsTable.preview")}
 							</th>
 						</tr>
 					</thead>
@@ -61,7 +64,7 @@ export function ConversationsTable({
 									colSpan={5}
 									className="px-6 py-4 text-center text-zinc-500 dark:text-zinc-400"
 								>
-									No conversations found
+									{t("backoffice.conversationsTable.noConversationsFound")}
 								</td>
 							</tr>
 						) : (
@@ -98,7 +101,9 @@ export function ConversationsTable({
 											size="sm"
 											onClick={() => onSelect(conv.id)}
 										>
-											{selectedId === conv.id ? "Close" : "View"}
+											{selectedId === conv.id
+												? t("backoffice.conversationsTable.close")
+												: t("backoffice.conversationsTable.view")}
 										</Button>
 									</td>
 								</tr>

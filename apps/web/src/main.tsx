@@ -2,6 +2,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { DEFAULTS, STORAGE_KEYS } from "@/lib/constants"
+import "@/lib/i18n"
 import "./index.css"
 
 // Initialize theme on load before React renders

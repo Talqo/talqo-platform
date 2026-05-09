@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
 	useCurrentUser,
 	useUpdateWidgetConfig,
@@ -34,6 +35,7 @@ import {
 type Feedback = { type: "success" | "error"; message: string }
 
 export function WidgetSetup() {
+	const { t } = useTranslation()
 	const {
 		data: client,
 		isLoading: isClientLoading,
@@ -134,10 +136,9 @@ export function WidgetSetup() {
 				{clientError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Error loading client data</AlertTitle>
+						<AlertTitle>{t("widget.setup.errorTitle")}</AlertTitle>
 						<AlertDescription>
-							{clientError.message ??
-								"Failed to load client information. Please try again."}
+							{clientError.message || t("widget.setup.errorDescription")}
 						</AlertDescription>
 					</Alert>
 				)}

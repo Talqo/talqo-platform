@@ -1,6 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,8 +21,8 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import {
+	createResetPasswordFormSchema,
 	type ResetPasswordFormValues,
-	resetPasswordFormSchema,
 } from "@/schemas/auth"
 import { PasswordInput } from "./PasswordInput"
 
@@ -35,6 +37,11 @@ export function ResetPasswordForm({
 	isPending,
 	error,
 }: ResetPasswordFormProps) {
+	const { t } = useTranslation()
+	const resetPasswordFormSchema = useMemo(
+		() => createResetPasswordFormSchema(t),
+		[t],
+	)
 	const form = useForm<ResetPasswordFormValues>({
 		resolver: zodResolver(resetPasswordFormSchema),
 		defaultValues: { password: "" },
@@ -44,9 +51,11 @@ export function ResetPasswordForm({
 	return (
 		<Card className="w-full max-w-sm">
 			<CardHeader className="space-y-1">
-				<CardTitle className="text-center text-2xl">Reset password</CardTitle>
+				<CardTitle className="text-center text-2xl">
+					{t("auth.resetPassword.title")}
+				</CardTitle>
 				<CardDescription className="text-center">
-					Enter your new password below.
+					{t("auth.resetPassword.description")}
 				</CardDescription>
 			</CardHeader>
 			<Form {...form}>
@@ -65,13 +74,13 @@ export function ResetPasswordForm({
 							name="password"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>New password</FormLabel>
+									<FormLabel>{t("auth.resetPassword.newPassword")}</FormLabel>
 									<FormControl>
 										<PasswordInput
 											value={field.value}
 											onChange={field.onChange}
 											onBlur={field.onBlur}
-											placeholder="Enter new password"
+											placeholder={t("auth.resetPassword.placeholder")}
 											autoComplete="new-password"
 											disabled={isPending}
 										/>
@@ -84,10 +93,10 @@ export function ResetPasswordForm({
 							{isPending ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Resetting...
+									{t("auth.resetPassword.submitting")}
 								</>
 							) : (
-								"Reset password"
+								t("auth.resetPassword.title")
 							)}
 						</Button>
 					</CardContent>

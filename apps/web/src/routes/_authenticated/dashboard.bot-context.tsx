@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { AlertCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import {
 	useDeleteFile,
 	useFiles,
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/bot-context")({
 })
 
 function BotContextPage() {
+	const { t } = useTranslation()
 	const { data: files = [], isLoading, isError, error } = useFiles()
 	const uploadFile = useUploadFile()
 	const deleteFile = useDeleteFile()
@@ -64,22 +66,21 @@ function BotContextPage() {
 		<PageContainer>
 			<div>
 				<h1 className="font-bold text-2xl text-foreground tracking-tight">
-					Bot Context
+					{t("dashboard.botContext.title")}
 				</h1>
 				<p className="text-muted-foreground">
-					Upload and manage text files that provide context for your AI
-					assistant.
+					{t("dashboard.botContext.subtitle")}
 				</p>
 			</div>
 
 			{isError && (
 				<Alert variant="destructive">
 					<AlertCircle size={18} />
-					<AlertTitle>Failed to load files</AlertTitle>
+					<AlertTitle>{t("dashboard.botContext.failedToLoadFiles")}</AlertTitle>
 					<AlertDescription>
 						{error instanceof Error
 							? error.message
-							: "An unexpected error occurred. Please try again."}
+							: t("dashboard.botContext.unexpectedError")}
 					</AlertDescription>
 				</Alert>
 			)}
