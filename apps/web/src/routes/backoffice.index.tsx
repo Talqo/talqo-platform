@@ -162,7 +162,7 @@ function BackofficePage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-[400px] items-center justify-center">
+			<div className="flex min-h-[300px] flex-1 items-center justify-center">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
 			</div>
 		)
@@ -170,7 +170,7 @@ function BackofficePage() {
 
 	if (error) {
 		return (
-			<div className="flex h-[400px] items-center justify-center">
+			<div className="flex min-h-[300px] flex-1 items-center justify-center">
 				<p className="text-muted-foreground">
 					{t("backoffice.stats.failedToLoadClients")}
 				</p>

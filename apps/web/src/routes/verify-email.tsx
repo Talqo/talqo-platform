@@ -71,11 +71,13 @@ function VerifyEmailPage() {
 	const [state, setState] = useState<VerificationState>({ status: "loading" })
 	const [resendEmail, setResendEmail] = useState("")
 	const [resendSuccess, setResendSuccess] = useState(false)
+	const [resendError, setResendError] = useState<string | null>(null)
 	const [resendTimeout, setResendTimeout] = useState(0)
 	const [canResend, setCanResend] = useState(true)
 	const verifyEmail = useVerifyEmail()
 	const resendVerification = useResendVerificationEmail()
 	const processedRef = useRef(false)
+	const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	useEffect(() => {
 		if (resendTimeout > 0) {
@@ -91,25 +93,24 @@ function VerifyEmailPage() {
 		return undefined
 	}, [resendTimeout, canResend])
 
-	const handleResend = () => {
+	const handleResend = async () => {
 		if (!resendEmail || !canResend) return
-		resendVerification.mutate(
-			{ email: resendEmail },
-			{
-				onSuccess: () => {
-					setResendSuccess(true)
-					setCanResend(false)
-					setResendTimeout(60)
-				},
-				onError: () => {
-					setResendSuccess(false)
-				},
-			},
-		)
+		try {
+			await resendVerification.mutateAsync({ email: resendEmail })
+			setResendSuccess(true)
+			setResendError(null)
+			setCanResend(false)
+			setResendTimeout(60)
+		} catch (err) {
+			if (import.meta.env.DEV) {
+				console.error("Failed to resend verification email:", err)
+			}
+			setResendSuccess(false)
+			setResendError(t("auth.verifyEmail.resendFailed"))
+		}
 	}
 
 	useEffect(() => {
-		// Guard: only run once (prevents StrictMode double execution)
 		if (processedRef.current) return
 		processedRef.current = true
 
@@ -122,20 +123,17 @@ function VerifyEmailPage() {
 			return
 		}
 
-		// Call verify endpoint using mutateAsync for better promise handling
-		verifyEmail
-			.mutateAsync({ token })
-			.then((data) => {
+		async function verify(verifyToken: string) {
+			try {
+				const data = await verifyEmail.mutateAsync({ token: verifyToken })
 				setState({ status: "success" })
 				if (data.token) {
 					localStorage.setItem(AUTH.TOKEN_KEY, data.token)
 				}
-				// Navigate after 2 seconds
-				setTimeout(() => {
+				navigateTimeoutRef.current = setTimeout(() => {
 					navigate({ to: "/dashboard" })
 				}, 2000)
-			})
-			.catch((err) => {
+			} catch (err) {
 				const error = err as ApiError
 				const code = error.error?.code || "UNKNOWN_ERROR"
 				let message = t("auth.verifyEmail.verificationFailed")
@@ -149,8 +147,15 @@ function VerifyEmailPage() {
 				}
 
 				setState({ status: "error", code, message })
-			})
-		// navigate and verifyEmail are stable references from TanStack Router/Query
+			}
+		}
+
+		verify(token)
+		return () => {
+			if (navigateTimeoutRef.current) {
+				clearTimeout(navigateTimeoutRef.current)
+			}
+		}
 		// Only run when token changes (on initial load with token from URL)
 	}, [token, navigate, verifyEmail, t])
 
@@ -270,6 +275,11 @@ function VerifyEmailPage() {
 										t("auth.verifyEmail.resendVerification")
 									)}
 								</Button>
+								{resendError && (
+									<Alert variant="destructive">
+										<AlertDescription>{resendError}</AlertDescription>
+									</Alert>
+								)}
 							</>
 						)}
 					</div>
