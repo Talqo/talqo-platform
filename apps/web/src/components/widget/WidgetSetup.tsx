@@ -1,8 +1,6 @@
 import { AlertCircle } from "lucide-react"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { useCurrentUser } from "@/api/hooks"
 import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
 	useCurrentUser,
 	useUpdateWidgetConfig,
@@ -140,7 +138,7 @@ export function WidgetSetup() {
 						<AlertCircle className="h-4 w-4" />
 						<AlertTitle>{t("widget.setup.errorTitle")}</AlertTitle>
 						<AlertDescription>
-							{error.message || t("widget.setup.errorDescription")}
+							{clientError.message || t("widget.setup.errorDescription")}
 						</AlertDescription>
 					</Alert>
 				)}

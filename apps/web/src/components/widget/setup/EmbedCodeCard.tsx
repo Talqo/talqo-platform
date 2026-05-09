@@ -9,14 +9,7 @@ type EmbedCodeCardProps = {
 	isLoading: boolean
 }
 
-export function EmbedCodeCard({
-	widgetToken,
-	position,
-	colors,
-	icons,
-	botName,
-	isLoading,
-}: EmbedCodeCardProps) {
+export function EmbedCodeCard({ widgetToken, isLoading }: EmbedCodeCardProps) {
 	const { t } = useTranslation()
 	const [copied, setCopied] = useState(false)
 	const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -26,15 +19,6 @@ export function EmbedCodeCard({
 		(import.meta.env.DEV
 			? "http://localhost:5174/widget-bundle.js"
 			: "https://dev.pagepal.dyn.cloud.e-infra.cz/widget-bundle.js")
-
-	const configObject = {
-		widgetToken,
-		position,
-		botName,
-		colors: colors.light,
-		darkColors: colors.dark,
-		icons,
-	}
 
 	const placeholderCode = t("widget.embedCode.placeholder")
 
