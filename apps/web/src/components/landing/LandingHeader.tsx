@@ -38,7 +38,7 @@ export function LandingHeader() {
 					{t("auth.login.title")}
 				</Link>
 				<Button asChild>
-					<Link to="/register">{t("getStarted")}</Link>
+					<Link to="/register">{t("landing.header.getStarted")}</Link>
 				</Button>
 			</nav>
 		</header>

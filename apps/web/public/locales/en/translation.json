@@ -73,7 +73,6 @@
 	"requestNewLink": "Request new link",
 	"checkYourEmail": "Check your email",
 	"resetPassword": "Reset password",
-	"getStarted": "Get Started",
 	"startForFree": "Start for free",
 	"somethingWentWrong": "Something went wrong",
 	"errorLoadingClientData": "Error loading client data",
@@ -581,7 +580,8 @@
 		},
 		"header": {
 			"switchToLightTheme": "Switch to light theme",
-			"switchToDarkTheme": "Switch to dark theme"
+			"switchToDarkTheme": "Switch to dark theme",
+			"getStarted": "Get Started"
 		},
 		"footer": {
 			"copyright": "PagePal. All rights reserved."

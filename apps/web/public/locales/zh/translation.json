@@ -73,7 +73,6 @@
 	"requestNewLink": "申请新链接",
 	"checkYourEmail": "请查收邮件",
 	"resetPassword": "重置密码",
-	"getStarted": "开始使用",
 	"startForFree": "免费开始",
 	"somethingWentWrong": "出了点问题",
 	"errorLoadingClientData": "加载客户数据时出错",
@@ -464,7 +463,8 @@
 		},
 		"header": {
 			"switchToLightTheme": "切换到浅色主题",
-			"switchToDarkTheme": "切换到深色主题"
+			"switchToDarkTheme": "切换到深色主题",
+			"getStarted": "开始使用"
 		},
 		"footer": {
 			"copyright": "PagePal。保留所有权利。"

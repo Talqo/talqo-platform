@@ -73,7 +73,6 @@
 	"requestNewLink": "Vyžádat nový odkaz",
 	"checkYourEmail": "Zkontrolujte svůj e-mail",
 	"resetPassword": "Obnovit heslo",
-	"getStarted": "Začít",
 	"startForFree": "Začněte zdarma",
 	"somethingWentWrong": "Něco se pokazilo",
 	"errorLoadingClientData": "Chyba při načítání dat klienta",
@@ -464,7 +463,8 @@
 		},
 		"header": {
 			"switchToLightTheme": "Přepnout na světlý motiv",
-			"switchToDarkTheme": "Přepnout na tmavý motiv"
+			"switchToDarkTheme": "Přepnout na tmavý motiv",
+			"getStarted": "Začít"
 		},
 		"footer": {
 			"copyright": "PagePal. Všechna práva vyhrazena."
