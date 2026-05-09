@@ -14,10 +14,10 @@ Standalone chat widget. Embeds on customer sites as single self-contained IIFE b
 Customers configure widget before `<script>` tag loads:
 
 ```js
-window.__AI_WIDGET_CONFIG__ = { widgetToken: "...", apiUrl: "..." }
+window.__PAGEPAL__ = { token: "..." }
 ```
 
-Required fields: `widgetToken`, `apiUrl`. See `src/types.ts` for the full `WidgetConfig` interface.
+Required fields: `token`. Visual config (colors, botName, position, icons) is fetched from the API at init time via `GET /widget/config` (authenticated with `X-Widget-Token`). Falls back to hardcoded defaults on fetch failure. See `src/types.ts` for `PagePalConfig` and `ResolvedWidgetConfig`.
 
 ## Theming
 

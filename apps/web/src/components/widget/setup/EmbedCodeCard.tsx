@@ -3,14 +3,9 @@ import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { WidgetColorsConfig, WidgetIcons } from "./types"
 
 type EmbedCodeCardProps = {
 	widgetToken: string | undefined
-	position: "left" | "right"
-	colors: WidgetColorsConfig
-	icons: WidgetIcons
-	botName: string
 	isLoading: boolean
 }
 
@@ -43,20 +38,21 @@ export function EmbedCodeCard({
 
 	const placeholderCode = t("widget.embedCode.placeholder")
 
-	// Build embed code only when widgetToken is available
 	let embedCode: string
 	if (isLoading || !widgetToken) {
 		embedCode = placeholderCode
 	} else {
+		const configObject = { token: widgetToken }
 		// Escape script-sensitive sequences to prevent XSS and Unicode separators
 		const configJson = JSON.stringify(configObject, null, 2)
+			.replace(/\n/g, "\n  ")
 			.replace(/</g, "\\x3c")
 			.replace(/>/g, "\\x3e")
 			.replace(/\u2028/g, "\\u2028") // Line separator
 			.replace(/\u2029/g, "\\u2029") // Paragraph separator
 
 		embedCode = `<script>
-  window.__AI_WIDGET_CONFIG__ = ${configJson};
+  window.__PAGEPAL__ = ${configJson};
 </script>
 <script async defer src="${scriptUrl}"></script>`
 	}

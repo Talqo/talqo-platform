@@ -84,7 +84,11 @@ export class WidgetService {
 	}
 
 	async createOrResumeSession(clientId: string, browserSessionId: string) {
-		return this.repo.findOrCreateSession(clientId, browserSessionId)
+		const { session, isNew } = await this.repo.findOrCreateSession(
+			clientId,
+			browserSessionId,
+		)
+		return { session, isNew }
 	}
 
 	async startConversation(clientId: string, sessionId: string) {
@@ -108,6 +112,8 @@ export class WidgetService {
 		userMessage: Awaited<ReturnType<WidgetRepository["createMessage"]>>
 		usage: Promise<{ input: number; output: number }>
 		isExternalProvider: boolean
+		provider: string
+		model: string
 	}> {
 		const dbMessages = await this.repo.getMessages(conversationId, clientId)
 		if (!dbMessages) throw new NotFoundError("Conversation not found")
@@ -169,7 +175,14 @@ export class WidgetService {
 			maxSteps: 10,
 		})
 
-		return { stream, userMessage, usage, isExternalProvider: isExternal }
+		return {
+			stream,
+			userMessage,
+			usage,
+			isExternalProvider: isExternal,
+			provider: provider.type,
+			model: provider.model,
+		}
 	}
 
 	async saveAssistantMessage(

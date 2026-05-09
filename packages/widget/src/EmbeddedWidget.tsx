@@ -2,6 +2,7 @@ import { getInitialTheme } from "./hooks/useWidget"
 import {
 	WidgetHeader,
 	WidgetInput,
+	WidgetMarkdownContent,
 	WidgetMessage,
 	WidgetMessageList,
 	WidgetPanel,
@@ -109,11 +110,34 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 									<AvatarIcon size={20} iconSvg={botAvatarSvg} />
 								</div>
 							)}
-							<div className={"aiw-message-content"}>{msg.content}</div>
+							<div className={"aiw-message-content"}>
+								{msg.role === "assistant" ? (
+									<WidgetMarkdownContent content={msg.content} />
+								) : (
+									msg.content
+								)}
+							</div>
 						</WidgetMessage>
 					))}
 					{widget.isTyping && (
 						<WidgetTypingIndicator className={"aiw-typing"} />
+					)}
+					{widget.showRatingPrompt && (
+						<div className={"aiw-rating"}>
+							<p>Rate this conversation</p>
+							<div className={"aiw-rating-stars"}>
+								{[1, 2, 3, 4, 5].map((star) => (
+									<button
+										key={star}
+										type="button"
+										onClick={() => widget.submitRating(star)}
+										aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+									>
+										★
+									</button>
+								))}
+							</div>
+						</div>
 					)}
 				</WidgetMessageList>
 

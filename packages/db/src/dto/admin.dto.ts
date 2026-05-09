@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { adminUsers } from "../schema/admin"
+import { adminAccessLogs, adminUsers } from "../schema/admin"
 import { clients } from "../schema/client"
 
 export const adminUserResponseSchema = createSelectSchema(adminUsers, {
@@ -27,5 +27,20 @@ export const clientSummarySchema = createSelectSchema(clients, {
 	createdAt: true,
 })
 
+export const adminAccessLogResponseSchema = createSelectSchema(
+	adminAccessLogs,
+	{
+		actionType: z.string(),
+		createdAt: z.string(),
+	},
+).extend({
+	adminEmail: z.string(),
+	clientName: z.string().nullable(),
+	clientEmail: z.string().nullable(),
+})
+
 export type AdminUserResponse = z.infer<typeof adminUserResponseSchema>
 export type ClientSummary = z.infer<typeof clientSummarySchema>
+export type AdminAccessLogResponse = z.infer<
+	typeof adminAccessLogResponseSchema
+>

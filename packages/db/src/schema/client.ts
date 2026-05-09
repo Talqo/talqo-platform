@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm"
 import {
 	boolean,
+	jsonb,
 	numeric,
 	pgEnum,
 	pgTable,
@@ -99,6 +100,24 @@ export const botConfigs = pgTable("bot_configs", {
 	systemPrompt: text("system_prompt"),
 	defaultRole: varchar("default_role", { length: 255 }),
 	toneStyle: varchar("tone_style", { length: 255 }),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.defaultNow()
+		.notNull(),
+})
+
+export const widgetConfigs = pgTable("widget_configs", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	clientId: uuid("client_id")
+		.notNull()
+		.unique()
+		.references(() => clients.id, { onDelete: "cascade" }),
+	botName: varchar("bot_name", { length: 255 })
+		.notNull()
+		.default("AI Assistant"),
+	position: varchar("position", { length: 10 }).notNull().default("right"),
+	lightColors: jsonb("light_colors").$type<Record<string, string>>().notNull(),
+	darkColors: jsonb("dark_colors").$type<Record<string, string>>().notNull(),
+	icons: jsonb("icons").$type<Record<string, string>>().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),

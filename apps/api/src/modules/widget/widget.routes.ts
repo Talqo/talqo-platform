@@ -9,12 +9,15 @@ import {
 	createSessionBodySchema,
 	rateConversationBodySchema,
 	sendMessageBodySchema,
+	widgetVisualConfigSchema,
 } from "shared"
 import { widgetRateLimit } from "../../common/middleware/widget-rate-limit"
 import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas"
+import type { WideEvent } from "../../common/wide-event.types"
+import { widgetConfigService } from "../widget-config"
 import { widgetService } from "./index"
 
 // ─── Session routes ────────────────────────────────────────────────────────────
@@ -51,10 +54,13 @@ widgetSessionRoutes.openapi(
 	async (c) => {
 		const clientId = c.get("clientId" as never) as string
 		const { browserSessionId } = c.req.valid("json")
-		const session = await widgetService.createOrResumeSession(
+		const { session, isNew } = await widgetService.createOrResumeSession(
 			clientId,
 			browserSessionId,
 		)
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent)
+			wideEvent.widget = { session_id: session.id, is_new_session: isNew }
 		return c.json(session, 200)
 	},
 )
@@ -95,6 +101,12 @@ widgetConversationRoutes.openapi(
 			clientId,
 			sessionId,
 		)
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent)
+			wideEvent.widget = {
+				session_id: sessionId,
+				conversation_id: conversation.id,
+			}
 		return c.json(conversation, 201)
 	},
 )
@@ -179,6 +191,12 @@ widgetMessageRoutes.openapi(
 		const clientId = c.get("clientId" as never) as string
 		const { conversationId } = c.req.valid("param")
 		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent)
+			wideEvent.widget = {
+				session_id: c.req.param("sessionId"),
+				conversation_id: conversationId,
+			}
 		return c.json(msgs, 200)
 	},
 )
@@ -224,8 +242,21 @@ widgetMessageRoutes.openapi(
 		const { conversationId } = c.req.valid("param")
 		const { content } = c.req.valid("json")
 
-		const { stream, userMessage, usage, isExternalProvider } =
+		const { stream, userMessage, usage, isExternalProvider, provider, model } =
 			await widgetService.sendMessage(clientId, conversationId, content)
+
+		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		if (wideEvent) {
+			wideEvent.widget = {
+				session_id: c.req.param("sessionId"),
+				conversation_id: conversationId,
+			}
+			wideEvent.ai = { provider, model }
+		}
+		const logger = c.get("logger" as never) as
+			| { info: (msg: string, meta?: Record<string, unknown>) => void }
+			| undefined
+		const requestId = c.get("requestId" as never) as string | undefined
 
 		return streamSSE(c, async (sse) => {
 			await sse.writeSSE({
@@ -247,7 +278,10 @@ widgetMessageRoutes.openapi(
 						data: JSON.stringify({ content: value }),
 					})
 				}
-			} catch {
+			} catch (err) {
+				;(
+					c.get("logger" as never) as { error: (...args: unknown[]) => void }
+				).error("Widget stream error", { error: String(err) })
 				await reader.cancel().catch(() => {})
 				await sse.writeSSE({
 					event: "error",
@@ -268,6 +302,16 @@ widgetMessageRoutes.openapi(
 					tokensUsed,
 				)
 
+				if (tokensUsed) {
+					logger?.info("ai_usage", {
+						request_id: requestId,
+						conversation_id: conversationId,
+						prompt_tokens: tokensUsed.input,
+						completion_tokens: tokensUsed.output,
+						total_tokens: tokensUsed.input + tokensUsed.output,
+					})
+				}
+
 				await sse.writeSSE({
 					event: "done",
 					data: JSON.stringify(assistantMessage),
@@ -283,5 +327,39 @@ widgetMessageRoutes.openapi(
 				return
 			}
 		})
+	},
+)
+
+// ─── Widget config routes ──────────────────────────────────────────────────────
+
+export const widgetConfigRoutes = new OpenAPIHono()
+
+widgetConfigRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/config",
+		tags: ["Widget"],
+		summary: "Get widget visual configuration",
+		security: [{ widgetToken: [] }],
+		responses: {
+			200: {
+				description: "Widget visual configuration",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(widgetVisualConfigSchema),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		const config = await widgetConfigService.getConfig(clientId)
+		c.header(
+			"Cache-Control",
+			"public, max-age=3600, stale-while-revalidate=86400",
+		)
+		c.header("Vary", "X-Widget-Token")
+		return c.json(config, 200)
 	},
 )

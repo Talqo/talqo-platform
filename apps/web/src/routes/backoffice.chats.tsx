@@ -5,6 +5,7 @@ import {
 	useAdminConversation,
 	useAdminConversations,
 } from "@/api/hooks/useAdmin"
+import { MarkdownContent } from "@/components/backoffice"
 import { ConversationsTable } from "@/components/backoffice/ConversationsTable"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -41,7 +42,11 @@ function MessageBubble({
 							: "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
 				}`}
 			>
-				<p className="whitespace-pre-wrap">{content}</p>
+				{role === "assistant" ? (
+					<MarkdownContent content={content} />
+				) : (
+					<p className="whitespace-pre-wrap">{content}</p>
+				)}
 				<p className="mt-1 text-right text-[10px] opacity-60">
 					{new Date(createdAt).toLocaleTimeString(undefined, {
 						timeStyle: "short",

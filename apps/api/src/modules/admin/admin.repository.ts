@@ -1,6 +1,7 @@
-import { and, count, desc, eq, sum } from "drizzle-orm"
+import { and, count, desc, eq, inArray, sum } from "drizzle-orm"
 import type { DB } from "../../db"
 import {
+	adminAccessLogs,
 	adminUsers,
 	clients,
 	conversations,
@@ -125,6 +126,33 @@ export class AdminRepository {
 				clients.email,
 			)
 			.orderBy(desc(conversations.startedAt))
+			.limit(limit)
+			.offset(offset)
+	}
+
+	async listActivityLogs({ limit, offset }: { limit: number; offset: number }) {
+		return this.db
+			.select({
+				id: adminAccessLogs.id,
+				adminId: adminAccessLogs.adminId,
+				adminEmail: adminUsers.email,
+				clientId: adminAccessLogs.clientId,
+				clientName: clients.name,
+				clientEmail: clients.email,
+				actionType: adminAccessLogs.actionType,
+				createdAt: adminAccessLogs.createdAt,
+			})
+			.from(adminAccessLogs)
+			.innerJoin(adminUsers, eq(adminUsers.id, adminAccessLogs.adminId))
+			.leftJoin(clients, eq(clients.id, adminAccessLogs.clientId))
+			.where(
+				inArray(adminAccessLogs.actionType, [
+					"impersonate",
+					"suspend",
+					"re-enable",
+				]),
+			)
+			.orderBy(desc(adminAccessLogs.createdAt))
 			.limit(limit)
 			.offset(offset)
 	}

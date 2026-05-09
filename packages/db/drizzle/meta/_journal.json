@@ -92,6 +92,13 @@
 			"when": 1776940177206,
 			"tag": "0013_cool_white_tiger",
 			"breakpoints": true
+		},
+		{
+			"idx": 13,
+			"version": "7",
+			"when": 1777900595772,
+			"tag": "0013_grey_shatterstar",
+			"breakpoints": true
 		}
 	]
 }
