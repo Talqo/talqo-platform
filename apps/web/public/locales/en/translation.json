@@ -78,10 +78,12 @@
 	"somethingWentWrong": "Something went wrong",
 	"errorLoadingClientData": "Error loading client data",
 	"failedToLoadClientInfo": "Failed to load client information. Please try again.",
-	"language": "Language",
-	"english": "English",
-	"czech": "Czech",
-	"chinese": "Chinese",
+	"languages": {
+		"language": "Language",
+		"english": "English",
+		"czech": "Czech",
+		"chinese": "Chinese"
+	},
 	"showPassword": "Show password",
 	"hidePassword": "Hide password",
 	"widget": {

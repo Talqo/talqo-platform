@@ -78,10 +78,12 @@
 	"somethingWentWrong": "出了点问题",
 	"errorLoadingClientData": "加载客户数据时出错",
 	"failedToLoadClientInfo": "无法加载客户信息，请重试。",
-	"language": "语言",
-	"english": "英语",
-	"czech": "捷克语",
-	"chinese": "中文",
+	"languages": {
+		"language": "语言",
+		"english": "英语",
+		"czech": "捷克语",
+		"chinese": "中文"
+	},
 	"showPassword": "显示密码",
 	"hidePassword": "隐藏密码",
 	"settings": {

@@ -78,10 +78,12 @@
 	"somethingWentWrong": "Něco se pokazilo",
 	"errorLoadingClientData": "Chyba při načítání dat klienta",
 	"failedToLoadClientInfo": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu.",
-	"language": "Jazyk",
-	"english": "Angličtina",
-	"czech": "Čeština",
-	"chinese": "Čínština",
+	"languages": {
+		"language": "Jazyk",
+		"english": "Angličtina",
+		"czech": "Čeština",
+		"chinese": "Čínština"
+	},
 	"showPassword": "Zobrazit heslo",
 	"hidePassword": "Skrýt heslo",
 	"settings": {

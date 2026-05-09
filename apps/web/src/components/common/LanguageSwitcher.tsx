@@ -10,9 +10,9 @@ import {
 import { STORAGE_KEYS } from "@/lib/constants"
 
 const LANGUAGES = [
-	{ code: "en", label: "english" },
-	{ code: "cs", label: "czech" },
-	{ code: "zh", label: "chinese" },
+	{ code: "en", label: "languages.english" },
+	{ code: "cs", label: "languages.czech" },
+	{ code: "zh", label: "languages.chinese" },
 ]
 
 export function LanguageSwitcher() {
