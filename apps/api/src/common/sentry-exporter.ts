@@ -30,25 +30,20 @@ export class SentryExporter implements EventExporter {
 				attrs["admin.target_client_id"] = event.admin.target_client_id
 			if (event.admin.action) attrs["admin.action"] = event.admin.action
 		}
-		if (event.widget) {
-			if (event.widget.session_id)
-				attrs["widget.session_id"] = event.widget.session_id
-			if (event.widget.conversation_id)
-				attrs["widget.conversation_id"] = event.widget.conversation_id
-			if (event.widget.is_new_session !== undefined)
-				attrs["widget.is_new_session"] = event.widget.is_new_session
-		}
+		if (event.widget?.session_id)
+			attrs["widget.session_id"] = event.widget.session_id
+		if (event.widget?.conversation_id)
+			attrs["widget.conversation_id"] = event.widget.conversation_id
+		if (event.widget?.is_new_session !== undefined)
+			attrs["widget.is_new_session"] = event.widget.is_new_session
 		if (event.ai) {
 			attrs["ai.provider"] = event.ai.provider
 			attrs["ai.model"] = event.ai.model
 		}
-		if (event.file) {
-			if (event.file.path) attrs["file.path"] = event.file.path
-			if (event.file.size_bytes)
-				attrs["file.size_bytes"] = event.file.size_bytes
-			if (event.file.from_path) attrs["file.from_path"] = event.file.from_path
-			if (event.file.to_path) attrs["file.to_path"] = event.file.to_path
-		}
+		if (event.file?.path) attrs["file.path"] = event.file.path
+		if (event.file?.size_bytes) attrs["file.size_bytes"] = event.file.size_bytes
+		if (event.file?.from_path) attrs["file.from_path"] = event.file.from_path
+		if (event.file?.to_path) attrs["file.to_path"] = event.file.to_path
 		if (event.error) {
 			attrs["error.type"] = event.error.type
 			attrs["error.message"] = event.error.message
@@ -63,6 +58,7 @@ export class SentryExporter implements EventExporter {
 				scope.setTag("path", event.path)
 				if (event.status_code !== undefined)
 					scope.setTag("status_code", String(event.status_code))
+				scope.setContext("wide_event", attrs)
 				Sentry.captureException(event._originalError)
 			})
 		}
