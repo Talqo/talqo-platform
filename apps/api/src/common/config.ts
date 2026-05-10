@@ -129,6 +129,7 @@ const parsed = envSchema.safeParse({
 	DEFAULT_LLM_MODEL: normalizeEmpty(process.env.DEFAULT_LLM_MODEL),
 	DEFAULT_LLM_BASE_URL: normalizeEmpty(process.env.DEFAULT_LLM_BASE_URL),
 	TRUSTED_PROXY_IPS: normalizeEmpty(process.env.TRUSTED_PROXY_IPS),
+	SENTRY_DSN: normalizeEmpty(process.env.SENTRY_DSN),
 })
 
 if (!parsed.success) {
