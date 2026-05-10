@@ -39,9 +39,10 @@ export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 			throw err
 		} finally {
 			event.duration_ms = Date.now() - start
+			const { _originalError: _, ...loggableEvent } = event
 			c.get("logger").info(
 				"wide_event",
-				event as unknown as Record<string, unknown>,
+				loggableEvent as unknown as Record<string, unknown>,
 			)
 			for (const exporter of exporters) {
 				try {
