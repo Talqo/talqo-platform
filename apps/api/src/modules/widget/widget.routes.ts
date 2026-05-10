@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import {
 	conversationResponseSchema,
 	messageResponseSchema,
@@ -12,6 +12,7 @@ import {
 	widgetVisualConfigSchema,
 } from "shared"
 import { widgetRateLimit } from "../../common/middleware/widget-rate-limit"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -22,7 +23,7 @@ import { widgetService } from "./index"
 
 // ─── Session routes ────────────────────────────────────────────────────────────
 
-export const widgetSessionRoutes = new OpenAPIHono()
+export const widgetSessionRoutes = createRouter()
 
 widgetSessionRoutes.openapi(
 	createRoute({
@@ -67,7 +68,7 @@ widgetSessionRoutes.openapi(
 
 // ─── Conversation routes ───────────────────────────────────────────────────────
 
-export const widgetConversationRoutes = new OpenAPIHono()
+export const widgetConversationRoutes = createRouter()
 
 widgetConversationRoutes.openapi(
 	createRoute({
@@ -158,7 +159,7 @@ widgetConversationRoutes.openapi(
 
 // ─── Message routes ────────────────────────────────────────────────────────────
 
-export const widgetMessageRoutes = new OpenAPIHono()
+export const widgetMessageRoutes = createRouter()
 
 widgetMessageRoutes.use(widgetRateLimit)
 
@@ -332,7 +333,7 @@ widgetMessageRoutes.openapi(
 
 // ─── Widget config routes ──────────────────────────────────────────────────────
 
-export const widgetConfigRoutes = new OpenAPIHono()
+export const widgetConfigRoutes = createRouter()
 
 widgetConfigRoutes.openapi(
 	createRoute({

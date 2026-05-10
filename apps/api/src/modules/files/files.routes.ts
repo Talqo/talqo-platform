@@ -1,4 +1,4 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import {
 	fileMoveBodySchema,
 	filePathBodySchema,
@@ -8,6 +8,7 @@ import {
 } from "shared"
 import { ValidationError } from "../../common/errors"
 import type { AppVariables } from "../../common/jwt"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
@@ -68,7 +69,7 @@ function relativePath(clientId: string, key: string): string {
 // ─── Router factory ───────────────────────────────────────────────────────────
 
 export function createFilesRouter(service: FilesService) {
-	const router = new OpenAPIHono<{ Variables: AppVariables }>()
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	// ─── GET / — list directory ───────────────────────────────────────────────
 

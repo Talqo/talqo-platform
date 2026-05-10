@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react"
 import { AlertCircle } from "lucide-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -59,8 +60,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
 	}
 
 	componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-		// Log to error reporting service
-		console.error("Error caught by boundary:", error, errorInfo)
+		Sentry.captureException(error, {
+			extra: { componentStack: errorInfo.componentStack },
+		})
 	}
 
 	render() {

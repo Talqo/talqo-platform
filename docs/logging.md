@@ -58,3 +58,7 @@ app.use("/*", createWideEventMiddleware([myExporter]))
 ```
 
 The default export (`wideEventMiddleware`) uses no extra exporters. Exporter failures are caught and suppressed — they cannot affect the response or mask the original error.
+
+## Sentry
+
+When `SENTRY_DSN` is set, `SentryExporter` is registered automatically and captures unhandled errors to Sentry. It fires only when `outcome === "error"` and an `Error` object is available — no per-request noise. Opt-in: leave `SENTRY_DSN` unset to disable entirely.

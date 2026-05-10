@@ -28,6 +28,7 @@ export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 		} catch (err) {
 			event.status_code = err instanceof AppError ? err.statusCode : 500
 			event.outcome = "error"
+			event._originalError = err
 			event.error = {
 				type: err instanceof Error ? err.constructor.name : "UnknownError",
 				message: err instanceof Error ? err.message : String(err),
@@ -38,9 +39,10 @@ export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 			throw err
 		} finally {
 			event.duration_ms = Date.now() - start
+			const { _originalError: _, ...loggableEvent } = event
 			c.get("logger").info(
 				"wide_event",
-				event as unknown as Record<string, unknown>,
+				loggableEvent as unknown as Record<string, unknown>,
 			)
 			for (const exporter of exporters) {
 				try {
