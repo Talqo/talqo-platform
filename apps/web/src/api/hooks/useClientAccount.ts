@@ -83,6 +83,36 @@ export function useSetUsageAlert() {
 	})
 }
 
+export function useClientConversations(
+	params: { limit?: number; offset?: number } = {},
+) {
+	return useQuery({
+		queryKey: ["client", "conversations", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/client/me/conversations", {
+				params: { query: params },
+			})
+			if (error) throw error
+			return data
+		},
+	})
+}
+
+export function useClientConversation(conversationId: string) {
+	return useQuery({
+		queryKey: ["client", "conversations", conversationId],
+		queryFn: async () => {
+			const { data, error } = await client.GET(
+				"/client/me/conversations/{conversationId}",
+				{ params: { path: { conversationId } } },
+			)
+			if (error) throw error
+			return data
+		},
+		enabled: !!conversationId,
+	})
+}
+
 export function useDeleteAccount() {
 	const navigate = useNavigate()
 	const qc = useQueryClient()

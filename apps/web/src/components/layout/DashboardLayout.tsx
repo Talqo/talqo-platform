@@ -7,6 +7,7 @@ import {
 	FileText,
 	LayoutDashboard,
 	LogOut,
+	MessageSquare,
 	Moon,
 	Settings,
 	Sun,
@@ -64,6 +65,11 @@ export function DashboardLayout() {
 			icon: Code,
 			label: t("clientDashboard.nav.widgetSetup"),
 			href: "/dashboard/widget-setup",
+		},
+		{
+			icon: MessageSquare,
+			label: t("clientDashboard.nav.chatPreviews"),
+			href: "/dashboard/chats",
 		},
 		{
 			icon: Settings,
