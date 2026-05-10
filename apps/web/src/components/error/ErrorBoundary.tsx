@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react"
 import { AlertCircle } from "lucide-react"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -9,6 +10,34 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+
+function ErrorFallback() {
+	const { t } = useTranslation()
+
+	return (
+		<div className="flex min-h-[400px] items-center justify-center p-4">
+			<Card className="max-w-md">
+				<CardHeader>
+					<div className="flex items-center gap-2">
+						<AlertCircle className="h-5 w-5 text-destructive" />
+						<CardTitle>{t("error.errorBoundary.title")}</CardTitle>
+					</div>
+					<CardDescription>
+						{t("error.errorBoundary.description")}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<p className="mb-4 text-muted-foreground text-sm">
+						{t("error.errorBoundary.message")}
+					</p>
+					<Button onClick={() => window.location.reload()}>
+						{t("error.errorBoundary.tryAgain")}
+					</Button>
+				</CardContent>
+			</Card>
+		</div>
+	)
+}
 
 type Props = {
 	children: React.ReactNode
@@ -42,33 +71,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 				return this.props.fallback
 			}
 
-			return (
-				<div className="flex min-h-[400px] items-center justify-center p-4">
-					<Card className="max-w-md">
-						<CardHeader>
-							<div className="flex items-center gap-2">
-								<AlertCircle className="h-5 w-5 text-destructive" />
-								<CardTitle>Something went wrong</CardTitle>
-							</div>
-							<CardDescription>
-								An error occurred while rendering this component.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<p className="mb-4 text-muted-foreground text-sm">
-								An unexpected error occurred. Please try reloading the page.
-							</p>
-							<Button
-								onClick={() => {
-									this.setState({ hasError: false })
-								}}
-							>
-								Try again
-							</Button>
-						</CardContent>
-					</Card>
-				</div>
-			)
+			return <ErrorFallback />
 		}
 
 		return this.props.children

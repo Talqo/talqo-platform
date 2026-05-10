@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { X } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import type { AddWordInput } from "shared"
 import { addWordBodySchema } from "shared"
 import {
@@ -25,6 +26,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function BlacklistManager() {
+	const { t } = useTranslation()
 	const { data: words, isLoading, isError } = useBlacklist()
 	const addWord = useAddBlacklistWord()
 	const removeWord = useRemoveBlacklistWord()
@@ -39,7 +41,7 @@ export function BlacklistManager() {
 	const onSubmit = async (values: AddWordInput) => {
 		if (!words) {
 			form.setError("word", {
-				message: "Blacklist not loaded yet — please wait",
+				message: t("blacklist.notLoaded"),
 			})
 			return
 		}
@@ -47,7 +49,7 @@ export function BlacklistManager() {
 		const trimmed = values.word.trim()
 		if (trimmed.length === 0) {
 			form.setError("word", {
-				message: "Please enter a non-empty word.",
+				message: t("blacklist.emptyWord"),
 			})
 			return
 		}
@@ -57,7 +59,7 @@ export function BlacklistManager() {
 		)
 		if (isDuplicate) {
 			form.setError("word", {
-				message: `"${trimmed}" is already in the blacklist.`,
+				message: t("blacklist.duplicateWord", { word: trimmed }),
 			})
 			return
 		}
@@ -67,9 +69,11 @@ export function BlacklistManager() {
 			form.reset()
 			setListError(null)
 		} catch (err) {
-			console.error("Failed to add word:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to add word:", err)
+			}
 			form.setError("word", {
-				message: "Failed to add word. Please try again.",
+				message: t("blacklist.addFailed"),
 			})
 		}
 	}
@@ -79,19 +83,21 @@ export function BlacklistManager() {
 			await removeWord.mutateAsync(wordId)
 			setListError(null)
 		} catch (err) {
-			console.error("Failed to remove word:", err)
-			setListError("Failed to remove word. Please try again.")
+			if (import.meta.env.DEV) {
+				console.error("Failed to remove word:", err)
+			}
+			setListError(t("blacklist.removeFailed"))
 		}
 	}
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Word Blacklist</CardTitle>
+				<CardTitle>{t("blacklist.title")}</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<p className="text-muted-foreground text-sm">
-					The bot will not use or engage with blacklisted terms.
+					{t("blacklist.description")}
 				</p>
 
 				<Form {...form}>
@@ -101,11 +107,11 @@ export function BlacklistManager() {
 							name="word"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className="sr-only">Word</FormLabel>
+									<FormLabel className="sr-only">{t("word")}</FormLabel>
 									<div className="flex gap-2">
 										<FormControl>
 											<Input
-												placeholder="Type a word and press Enter or Add..."
+												placeholder={t("blacklist.wordPlaceholder")}
 												disabled={addWord.isPending}
 												{...field}
 											/>
@@ -115,7 +121,9 @@ export function BlacklistManager() {
 											variant="outline"
 											disabled={addWord.isPending || isLoading || !words}
 										>
-											{addWord.isPending ? "Adding..." : "Add"}
+											{addWord.isPending
+												? t("blacklist.adding")
+												: t("blacklist.add")}
 										</Button>
 									</div>
 									<FormMessage />
@@ -134,9 +142,7 @@ export function BlacklistManager() {
 					</div>
 				) : isError ? (
 					<Alert variant="destructive">
-						<AlertDescription>
-							Failed to load blacklist. Please refresh the page.
-						</AlertDescription>
+						<AlertDescription>{t("blacklist.loadFailed")}</AlertDescription>
 					</Alert>
 				) : listError ? (
 					<Alert variant="destructive">
@@ -152,7 +158,9 @@ export function BlacklistManager() {
 									onClick={() => handleRemove(w.id)}
 									disabled={removeWord.isPending}
 									className="ml-0.5 rounded-full opacity-60 hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none"
-									aria-label={`Remove "${w.word}" from blacklist`}
+									aria-label={t("blacklist.removeAriaLabel", {
+										word: w.word,
+									})}
 								>
 									<X className="h-3 w-3" />
 								</button>
@@ -161,7 +169,7 @@ export function BlacklistManager() {
 					</div>
 				) : (
 					<p className="text-muted-foreground text-sm">
-						No blacklisted words yet.
+						{t("blacklist.noWords")}
 					</p>
 				)}
 			</CardContent>

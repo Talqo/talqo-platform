@@ -1,5 +1,6 @@
 import { FileText, Plus, Upload } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import type { FileEntry } from "@/api/hooks/useFiles"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -30,6 +31,7 @@ export function FileList({
 	onDelete,
 	onFilesUploaded,
 }: FileListProps) {
+	const { t } = useTranslation()
 	const [editing, setEditing] = useState<EditingState | null>(null)
 	const [renameError, setRenameError] = useState<string | null>(null)
 	const [uploadErrors, setUploadErrors] = useState<UploadError[]>([])
@@ -111,11 +113,11 @@ export function FileList({
 			setEditing(null)
 			setRenameError(null)
 		} else if (result.error === "duplicate") {
-			setRenameError("A file with this name already exists")
+			setRenameError(t("botContext.fileListItem.duplicateName"))
 		} else {
-			setRenameError("Rename failed. Please try again.")
+			setRenameError(t("botContext.fileListItem.renameFailed"))
 		}
-	}, [editing, onRename])
+	}, [editing, onRename, t])
 
 	const handleEditChange = useCallback((value: string) => {
 		setEditing((prev) => (prev ? { ...prev, editValue: value } : null))
@@ -142,7 +144,7 @@ export function FileList({
 				<div className="border-primary/20 border-b bg-primary/5 py-4 text-center">
 					<div className="flex items-center justify-center gap-2 font-medium text-primary text-sm">
 						<Upload size={16} />
-						Drop files here
+						{t("botContext.fileList.dropFilesHere")}
 					</div>
 				</div>
 			)}
@@ -150,7 +152,7 @@ export function FileList({
 				<CardTitle className="flex items-center justify-between text-base">
 					<span className="flex items-center gap-2">
 						<FileText size={18} />
-						Context Files ({files.length})
+						{t("botContext.fileList.contextFiles", { count: files.length })}
 					</span>
 					<Button
 						variant="outline"
@@ -159,7 +161,9 @@ export function FileList({
 						className="h-8 gap-1"
 					>
 						<Plus size={16} />
-						<span className="hidden sm:inline">Add</span>
+						<span className="hidden sm:inline">
+							{t("botContext.fileList.addFile")}
+						</span>
 					</Button>
 					<input
 						ref={fileInputRef}

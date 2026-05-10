@@ -1,6 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { EmbeddedWidget } from "./EmbeddedWidget"
+import "./i18n"
 import type {
 	PagePalConfig,
 	ResolvedWidgetConfig,

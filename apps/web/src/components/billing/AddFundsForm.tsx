@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { useAddFunds } from "@/api/hooks"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -21,7 +23,10 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { type AddFundsFormValues, addFundsFormSchema } from "@/schemas/billing"
+import {
+	type AddFundsFormValues,
+	createAddFundsFormSchema,
+} from "@/schemas/billing"
 
 function formatCardNumber(value: string) {
 	return value
@@ -38,8 +43,10 @@ function formatExpiry(value: string) {
 }
 
 export function AddFundsForm() {
+	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const addFunds = useAddFunds()
+	const addFundsFormSchema = useMemo(() => createAddFundsFormSchema(t), [t])
 
 	const form = useForm<AddFundsFormValues>({
 		resolver: zodResolver(addFundsFormSchema),
@@ -69,9 +76,9 @@ export function AddFundsForm() {
 	return (
 		<Card className="mx-auto w-full max-w-md">
 			<CardHeader>
-				<CardTitle>Add Funds</CardTitle>
+				<CardTitle>{t("billing.addFundsForm.title")}</CardTitle>
 				<CardDescription>
-					Enter an amount and your card details to top up your balance.
+					{t("billing.addFundsForm.description")}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -82,7 +89,7 @@ export function AddFundsForm() {
 							name="amount"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Amount (USD)</FormLabel>
+									<FormLabel>{t("billing.addFundsForm.amountUsd")}</FormLabel>
 									<FormControl>
 										<div className="relative">
 											<span className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">
@@ -111,11 +118,13 @@ export function AddFundsForm() {
 							name="cardNumber"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Card Number</FormLabel>
+									<FormLabel>{t("common.cardNumber")}</FormLabel>
 									<FormControl>
 										<Input
 											inputMode="numeric"
-											placeholder="1234 5678 9012 3456"
+											placeholder={t(
+												"billing.addFundsForm.cardNumberPlaceholder",
+											)}
 											autoComplete="cc-number"
 											value={field.value}
 											onBlur={field.onBlur}
@@ -135,11 +144,13 @@ export function AddFundsForm() {
 								name="expiry"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Expiry</FormLabel>
+										<FormLabel>{t("expiry")}</FormLabel>
 										<FormControl>
 											<Input
 												inputMode="numeric"
-												placeholder="MM/YY"
+												placeholder={t(
+													"billing.addFundsForm.expiryPlaceholder",
+												)}
 												autoComplete="cc-exp"
 												value={field.value}
 												onBlur={field.onBlur}
@@ -157,11 +168,11 @@ export function AddFundsForm() {
 								name="cvv"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>CVV</FormLabel>
+										<FormLabel>{t("cvv")}</FormLabel>
 										<FormControl>
 											<Input
 												inputMode="numeric"
-												placeholder="123"
+												placeholder={t("billing.addFundsForm.cvvPlaceholder")}
 												maxLength={3}
 												autoComplete="cc-csc"
 												{...field}
@@ -183,10 +194,12 @@ export function AddFundsForm() {
 							name="nameOnCard"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name on Card</FormLabel>
+									<FormLabel>{t("nameOnCard")}</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="Jane Smith"
+											placeholder={t(
+												"billing.addFundsForm.nameOnCardPlaceholder",
+											)}
 											autoComplete="cc-name"
 											{...field}
 										/>
@@ -199,7 +212,7 @@ export function AddFundsForm() {
 						{addFunds.isError && (
 							<Alert variant="destructive">
 								<AlertDescription>
-									Failed to add funds. Please try again.
+									{t("billing.addFundsForm.failedToAddFunds")}
 								</AlertDescription>
 							</Alert>
 						)}
@@ -207,7 +220,7 @@ export function AddFundsForm() {
 						{addFunds.isSuccess && (
 							<Alert>
 								<AlertDescription>
-									Funds added successfully! Redirecting...
+									{t("billing.addFundsForm.fundsAddedSuccess")}
 								</AlertDescription>
 							</Alert>
 						)}
@@ -220,10 +233,10 @@ export function AddFundsForm() {
 							{addFunds.isPending ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Processing...
+									{t("billing.addFundsForm.processing")}
 								</>
 							) : (
-								`Pay $${amountValue > 0 ? Number(amountValue).toFixed(2) : "0.00"}`
+								`${t("billing.addFundsForm.pay")} $${amountValue > 0 ? Number(amountValue).toFixed(2) : "0.00"}`
 							)}
 						</Button>
 					</form>

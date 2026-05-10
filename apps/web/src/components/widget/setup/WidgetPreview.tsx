@@ -1,5 +1,6 @@
 import { Bot, Moon, Sun } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -42,13 +43,14 @@ export function WidgetPreview({
 	botName,
 	position,
 }: WidgetPreviewProps) {
+	const { t } = useTranslation()
 	const [isDark, setIsDark] = useState(false)
 	const themeColors = isDark ? colors.dark : colors.light
 
 	return (
 		<Card data-testid="live-preview-card">
 			<CardHeader className="flex flex-row items-center justify-between">
-				<CardTitle>Live Preview</CardTitle>
+				<CardTitle>{t("widget.preview.title")}</CardTitle>
 				<Button
 					variant="outline"
 					size="sm"
@@ -56,7 +58,9 @@ export function WidgetPreview({
 					className="gap-2"
 				>
 					{isDark ? <Sun size={16} /> : <Moon size={16} />}
-					{isDark ? "Light Mode" : "Dark Mode"}
+					{isDark
+						? t("widget.preview.lightMode")
+						: t("widget.preview.darkMode")}
 				</Button>
 			</CardHeader>
 			<CardContent>
@@ -157,7 +161,7 @@ export function WidgetPreview({
 											border: `1px solid ${themeColors.border}`,
 										}}
 									>
-										Hi! How can I help you today?
+										{t("widget.preview.botMessage")}
 									</div>
 								</div>
 
@@ -170,7 +174,7 @@ export function WidgetPreview({
 											color: themeColors.userMessageText,
 										}}
 									>
-										Hello!
+										{t("widget.preview.userMessage")}
 									</div>
 								</div>
 							</div>
@@ -191,7 +195,7 @@ export function WidgetPreview({
 										color: themeColors.textSecondary,
 									}}
 								>
-									Type a message...
+									{t("widget.preview.typeAMessage")}
 								</div>
 								<div
 									className="flex h-9 w-9 items-center justify-center rounded-lg"
@@ -212,7 +216,7 @@ export function WidgetPreview({
 									color: themeColors.footerText,
 								}}
 							>
-								Powered by PagePal
+								{t("widget.preview.poweredBy")}
 							</div>
 						</div>
 

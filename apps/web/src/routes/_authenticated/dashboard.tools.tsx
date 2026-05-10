@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { PencilIcon, PlusIcon, TrashIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { McpServerConfig } from "shared"
 import {
 	useCustomServers,
@@ -49,10 +50,10 @@ function serverTypeBadge(mcpConfig: unknown) {
 }
 
 function ToolsPage() {
+	const { t } = useTranslation()
 	const { data: allPreMade, isLoading: loadingPreMade } = usePreMadeServers()
 	const { data: enabledPreMade } = useEnabledPreMadeServers()
 	const { data: customServers, isLoading: loadingCustom } = useCustomServers()
-
 	const enableMutation = useEnablePreMadeServer()
 	const disableMutation = useDisablePreMadeServer()
 	const deleteMutation = useDeleteCustomServer()
@@ -63,7 +64,7 @@ function ToolsPage() {
 		<PageContainer>
 			<div>
 				<h1 className="font-bold text-2xl text-foreground tracking-tight">
-					Tools
+					MCP Tools
 				</h1>
 				<p className="text-muted-foreground">
 					Manage MCP (Model Context Protocol) tools and integrations for your
@@ -71,7 +72,6 @@ function ToolsPage() {
 				</p>
 			</div>
 
-			{/* ─── Pre-made servers ─────────────────────────────── */}
 			<Card>
 				<CardHeader>
 					<CardTitle>Pre-configured Servers</CardTitle>
@@ -122,7 +122,6 @@ function ToolsPage() {
 				</CardContent>
 			</Card>
 
-			{/* ─── Custom servers ───────────────────────────────── */}
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between">
 					<CardTitle>Custom Servers</CardTitle>
@@ -130,7 +129,7 @@ function ToolsPage() {
 						trigger={
 							<Button size="sm">
 								<PlusIcon className="mr-1 size-4" />
-								Add server
+								{t("common.add")}
 							</Button>
 						}
 					/>
@@ -163,7 +162,7 @@ function ToolsPage() {
 											trigger={
 												<Button size="sm" variant="ghost">
 													<PencilIcon className="size-4" />
-													<span className="sr-only">Edit</span>
+													<span className="sr-only">{t("common.edit")}</span>
 												</Button>
 											}
 											serverId={server.id}
@@ -177,7 +176,7 @@ function ToolsPage() {
 											onClick={() => deleteMutation.mutate(server.id)}
 										>
 											<TrashIcon className="size-4" />
-											<span className="sr-only">Delete</span>
+											<span className="sr-only">{t("common.delete")}</span>
 										</Button>
 									</div>
 								</div>

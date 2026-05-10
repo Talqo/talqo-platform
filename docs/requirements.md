@@ -23,7 +23,7 @@
 | FR-1.3 | Widget can be minimised and reopened without losing the conversation state | High | Approved | Done |
 | FR-1.4 | Widget displays a typing indicator while the bot is generating a response | High | Approved | Done |
 | FR-1.5 | End user can clear / reset the current conversation | Low | Approved | Done |
-| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved | In progress |
+| FR-1.6 | End user can rate their satisfaction at the end of a conversation (e.g. thumbs up/down or star rating) | Low | Approved | Done |
 | FR-1.7 | Widget enforces IP-based hourly rate limiting to prevent abuse | High | Approved | Done |
 | FR-1.8 | Widget enforces a per-conversation message limit before requiring a new conversation | High | Approved | Done |
 
@@ -156,7 +156,7 @@
 ## Out of Scope
 
 - Real-time human handoff / live agent chat (listed as a bonus sidequest, not a core deliverable)
-- Multi-language UI localisation (beyond what the client configures via system prompt)
+- Multi-language UI localisation (SCRUM-96) — English, Czech, Chinese. All frontend strings wired via `react-i18next`; language switcher available in auth header
 - Payment processing integration (subscription billing is assumed to be handled externally)
 - **FR-2.23 — Conversion metrics**: "Conversion" is undefined for a generic chat widget — whether a conversation led to a purchase, signup, or resolved ticket depends entirely on the client's own backend. Tracking it would require each client to send conversion events back to the platform via a webhook or JS SDK, which is infrastructure that was never scoped. Without a contract for what constitutes a conversion and a mechanism to receive that signal, the metric cannot be computed.
 
