@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { AlertCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,25 +12,31 @@ import {
 } from "@/components/ui/card"
 
 export function ResetPasswordInvalid() {
+	const { t } = useTranslation()
+
 	return (
 		<Card className="w-full max-w-sm">
 			<CardHeader className="text-center">
 				<div className="mb-4 flex justify-center">
 					<AlertCircle className="h-12 w-12 text-destructive" />
 				</div>
-				<CardTitle className="text-2xl">Invalid link</CardTitle>
+				<CardTitle className="text-2xl">
+					{t("auth.resetPassword.invalidTitle")}
+				</CardTitle>
 				<CardDescription>
-					This password reset link is invalid or has expired.
+					{t("auth.resetPassword.invalidDescription")}
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<Alert variant="destructive">
 					<AlertDescription>
-						Please request a new password reset link.
+						{t("auth.resetPassword.requestNew")}
 					</AlertDescription>
 				</Alert>
 				<Button asChild className="w-full">
-					<Link to="/forgot-password">Request new link</Link>
+					<Link to="/forgot-password">
+						{t("auth.resetPassword.requestNewLink")}
+					</Link>
 				</Button>
 			</CardContent>
 		</Card>

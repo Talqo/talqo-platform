@@ -1,4 +1,3 @@
-import { OpenAPIHono } from "@hono/zod-openapi"
 import { Scalar } from "@scalar/hono-api-reference"
 import { cors } from "hono/cors"
 import type { AppVariables } from "./common/jwt"
@@ -7,9 +6,12 @@ import { adminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
-import { requestLogger } from "./common/middleware/request-logger"
+import { createWideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
+import { createRouter } from "./common/router"
+import { SentryExporter } from "./common/sentry-exporter"
 import {
+	adminActivityLogsRoutes,
 	adminAuthRoutes,
 	adminClientRoutes,
 	adminConversationRoutes,
@@ -27,20 +29,24 @@ import { filesRoutes } from "./modules/files"
 import { adminMcpRoutes, clientMcpRoutes } from "./modules/mcp"
 import { providerConfigRoutes } from "./modules/provider-config"
 import {
+	widgetConfigRoutes,
 	widgetConversationRoutes,
 	widgetMessageRoutes,
 	widgetSessionRoutes,
 } from "./modules/widget"
+import { widgetConfigClientRoutes } from "./modules/widget-config"
 
-const app = new OpenAPIHono<{ Variables: AppVariables }>()
-const v1 = new OpenAPIHono<{ Variables: AppVariables }>()
+const app = createRouter<{ Variables: AppVariables }>()
+const v1 = createRouter<{ Variables: AppVariables }>()
 
 app.use("/*", cors())
 app.use("/*", async (c, next) => {
-	c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
+	const requestId = crypto.randomUUID()
+	c.set("requestId", requestId)
+	c.set("logger", logger.withContext({ requestId }))
 	await next()
 })
-app.use("/*", requestLogger)
+app.use("/*", createWideEventMiddleware([new SentryExporter()]))
 app.onError(errorHandler)
 
 app.get("/", (c) => c.text("PagePal API"))
@@ -61,9 +67,11 @@ v1.route("/client/me/mcp", clientMcpRoutes)
 v1.route("/client/me/analytics", clientAnalyticsRoutes)
 v1.route("/client/me/provider-config", providerConfigRoutes)
 v1.route("/client/me/files", filesRoutes)
+v1.route("/client/me/widget-config", widgetConfigClientRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 v1.use("/widget/*", widgetAuth)
+v1.route("/widget", widgetConfigRoutes)
 v1.route("/widget/sessions", widgetSessionRoutes)
 v1.route("/widget/sessions/:sessionId/conversations", widgetConversationRoutes)
 v1.route(
@@ -81,6 +89,7 @@ v1.route("/admin/me", adminMeRoutes)
 v1.route("/admin/clients", adminClientRoutes)
 v1.route("/admin/analytics", adminAnalyticsRoutes)
 v1.route("/admin/conversations", adminConversationRoutes)
+v1.route("/admin/activity-logs", adminActivityLogsRoutes)
 v1.route("/admin/mcp/pre-made", adminMcpRoutes)
 
 // ─── Security scheme definitions ─────────────────────────────────────────────
@@ -114,6 +123,7 @@ v1.doc("/openapi.json", {
 		{ name: "Provider Config", description: "AI provider configuration" },
 		{ name: "Files", description: "File management" },
 		{ name: "Widget", description: "End-user chat widget" },
+		{ name: "Widget Config", description: "Widget visual configuration" },
 		{ name: "Admin", description: "Platform administration" },
 	],
 })

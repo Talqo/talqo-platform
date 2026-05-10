@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import {
 	type BotConfigFields as BotConfigSchema,
 	botConfigFieldsSchema,
@@ -47,6 +48,7 @@ type BotConfigFormInnerProps = {
 }
 
 function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
+	const { t } = useTranslation()
 	const updateBotConfig = useUpdateBotConfig()
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
 	const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -75,13 +77,18 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 				defaultRole: toApi(values.defaultRole),
 				toneStyle: toApi(values.toneStyle),
 			})
-			setFeedback({ type: "success", message: "Configuration saved." })
+			setFeedback({
+				type: "success",
+				message: t("botConfig.configSaved"),
+			})
 			clearFeedback()
 		} catch (err) {
-			console.error("Failed to save bot config:", err)
+			if (import.meta.env.DEV) {
+				console.error("Failed to save bot config:", err)
+			}
 			setFeedback({
 				type: "error",
-				message: "Failed to save. Please try again.",
+				message: t("botConfig.saveFailed"),
 			})
 		}
 	}
@@ -89,7 +96,7 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Bot Personality & Behavior</CardTitle>
+				<CardTitle>{t("botConfig.personalityTitle")}</CardTitle>
 			</CardHeader>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -107,17 +114,16 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 							name="systemPrompt"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>System Prompt</FormLabel>
+									<FormLabel>{t("botConfig.systemPromptLabel")}</FormLabel>
 									<FormControl>
 										<Textarea
 											className="min-h-40"
-											placeholder="Define the behavior and context for your AI assistant..."
+											placeholder={t("botConfig.systemPromptPlaceholder")}
 											{...field}
 										/>
 									</FormControl>
 									<FormDescription>
-										Instructions that define how your AI assistant responds to
-										users.
+										{t("botConfig.systemPromptDescription")}
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -129,15 +135,15 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 							name="defaultRole"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Default Role</FormLabel>
+									<FormLabel>{t("botConfig.defaultRoleLabel")}</FormLabel>
 									<FormControl>
 										<Input
-											placeholder='e.g. "Customer support agent for Acme Shop"'
+											placeholder={t("botConfig.defaultRolePlaceholder")}
 											{...field}
 										/>
 									</FormControl>
 									<FormDescription>
-										The role your bot assumes when responding to users.
+										{t("botConfig.defaultRoleDescription")}
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -149,15 +155,15 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 							name="toneStyle"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Tone & Communication Style</FormLabel>
+									<FormLabel>{t("botConfig.toneStyleLabel")}</FormLabel>
 									<FormControl>
 										<Input
-											placeholder='e.g. "Professional but friendly"'
+											placeholder={t("botConfig.toneStylePlaceholder")}
 											{...field}
 										/>
 									</FormControl>
 									<FormDescription>
-										How the bot should sound in conversations with users.
+										{t("botConfig.toneStyleDescription")}
 									</FormDescription>
 									<FormMessage />
 								</FormItem>
@@ -166,7 +172,9 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 					</CardContent>
 					<CardFooter className="flex justify-end">
 						<Button type="submit" disabled={form.formState.isSubmitting}>
-							{form.formState.isSubmitting ? "Saving..." : "Save Configuration"}
+							{form.formState.isSubmitting
+								? t("botConfig.saving")
+								: t("botConfig.saveConfiguration")}
 						</Button>
 					</CardFooter>
 				</form>
@@ -203,6 +211,7 @@ function BotConfigFormSkeleton() {
 }
 
 export function BotConfigForm() {
+	const { t } = useTranslation()
 	const { data, isLoading, isError } = useBotConfig()
 	const [initialValues, setInitialValues] = useState<BotConfigSchema | null>(
 		null,
@@ -221,9 +230,7 @@ export function BotConfigForm() {
 	if (isError) {
 		return (
 			<Alert variant="destructive">
-				<AlertDescription>
-					Failed to load bot configuration. Please refresh the page.
-				</AlertDescription>
+				<AlertDescription>{t("botConfig.loadFailed")}</AlertDescription>
 			</Alert>
 		)
 	}

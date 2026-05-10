@@ -1,6 +1,6 @@
 export { AppearanceCard } from "./AppearanceCard"
 export { BotNameCard } from "./BotNameCard"
-export { DEFAULT_BOT_AVATAR } from "./constants"
+export { DEFAULT_BOT_AVATAR, DEFAULT_BOT_NAME } from "./constants"
 export { EmbedCodeCard } from "./EmbedCodeCard"
 export type { WidgetColors, WidgetColorsConfig, WidgetIcons } from "./types"
 export { defaultColors, defaultIcons } from "./types"

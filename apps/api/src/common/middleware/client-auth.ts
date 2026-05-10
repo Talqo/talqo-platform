@@ -5,6 +5,7 @@ import { clients } from "../../db/schema"
 import { ForbiddenError, UnauthorizedError } from "../errors"
 import { verifyToken } from "../jwt"
 import type { Logger } from "../logger"
+import type { WideEvent } from "../wide-event.types"
 
 // Validates Client JWT from Authorization: Bearer <token>
 // Also accepts impersonation JWTs issued by POST /admin/clients/:id/impersonate (FR-3.3)
@@ -44,5 +45,13 @@ export const clientAuth: MiddlewareHandler = async (c, next) => {
 	}
 
 	c.set("clientId" as never, payload.sub)
+	const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+	if (wideEvent) {
+		wideEvent.client = {
+			id: client.id,
+			status: client.status as "active" | "suspended",
+			...(payload.imp ? { is_impersonated: true as const } : {}),
+		}
+	}
 	await next()
 }

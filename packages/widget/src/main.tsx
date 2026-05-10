@@ -1,123 +1,114 @@
 import { StrictMode } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { EmbeddedWidget } from "./EmbeddedWidget"
-import type { ResolvedWidgetConfig, WidgetColors, WidgetConfig } from "./types"
+import "./i18n"
+import type {
+	PagePalConfig,
+	ResolvedWidgetConfig,
+	WidgetColors,
+	WidgetIcons,
+} from "./types"
 import "./theme/default.css"
+
+const API_URL = import.meta.env.VITE_API_URL ?? ""
 
 // Global config type augmentation
 declare global {
 	// biome-ignore lint/style/useConsistentTypeDefinitions: declaration merging required for global Window augmentation
 	interface Window {
-		__AI_WIDGET_CONFIG__?: WidgetConfig
+		__PAGEPAL__?: PagePalConfig
 	}
 }
 
 // Module-level reference to track mounted root
 let mountedRoot: Root | null = null
 
-const DEFAULT_COLORS: WidgetColors = {
-	primary: "hsl(220 14% 46%)", // Neutral gray (neutral-600), must be provided by customer
-	bgPrimary: "#ffffff",
-	bgSecondary: "hsl(220 14% 96%)", // Neutral gray (gray-100)
-	textPrimary: "hsl(220 14% 10%)", // Neutral dark (gray-900)
-	textSecondary: "hsl(220 9% 46%)", // Neutral gray (gray-500)
-	border: "hsl(220 13% 91%)", // Neutral border (gray-200)
-	headerTitleText: "#ffffff",
-	userMessageText: "#ffffff",
-	sendButtonIcon: "#ffffff",
-	footerText: "rgba(255, 255, 255, 0.8)",
+const HARDCODED_DEFAULTS: ResolvedWidgetConfig = {
+	widgetToken: "",
+	apiUrl: API_URL,
+	colors: {
+		primary: "#16a34a",
+		bgPrimary: "#ffffff",
+		bgSecondary: "#f3f4f6",
+		textPrimary: "#111827",
+		textSecondary: "#6b7280",
+		border: "#e5e7eb",
+		headerTitleText: "#ffffff",
+		userMessageText: "#ffffff",
+		sendButtonIcon: "#ffffff",
+		footerText: "#ffffff",
+	},
+	darkColors: {
+		primary: "#16a34a",
+		bgPrimary: "#09090b",
+		bgSecondary: "#27272a",
+		textPrimary: "#fafafa",
+		textSecondary: "#a1a1aa",
+		border: "#27272a",
+		headerTitleText: "#ffffff",
+		userMessageText: "#ffffff",
+		sendButtonIcon: "#ffffff",
+		footerText: "#ffffff",
+	},
+	position: "right",
+	defaultOpen: false,
+	botName: "AI Assistant",
+	icons: { botAvatar: "bot" },
 }
 
-function resolveColors(
-	userColors: Partial<WidgetColors> | undefined,
-): WidgetColors {
-	return {
-		primary: userColors?.primary ?? DEFAULT_COLORS.primary,
-		bgPrimary: userColors?.bgPrimary ?? DEFAULT_COLORS.bgPrimary,
-		bgSecondary: userColors?.bgSecondary ?? DEFAULT_COLORS.bgSecondary,
-		textPrimary: userColors?.textPrimary ?? DEFAULT_COLORS.textPrimary,
-		textSecondary: userColors?.textSecondary ?? DEFAULT_COLORS.textSecondary,
-		border: userColors?.border ?? DEFAULT_COLORS.border,
-		headerTitleText:
-			userColors?.headerTitleText ?? DEFAULT_COLORS.headerTitleText,
-		userMessageText:
-			userColors?.userMessageText ?? DEFAULT_COLORS.userMessageText,
-		sendButtonIcon: userColors?.sendButtonIcon ?? DEFAULT_COLORS.sendButtonIcon,
-		footerText: userColors?.footerText ?? DEFAULT_COLORS.footerText,
-	}
+type WidgetConfigApiResponse = {
+	botName: string
+	position: string
+	lightColors: Record<string, string>
+	darkColors: Record<string, string>
+	icons: Record<string, string>
 }
 
-function resolveDarkColors(
-	lightColors: WidgetColors,
-	userDarkColors: Partial<WidgetColors> | undefined,
-): WidgetColors {
-	// If user provided custom dark colors, use them; otherwise auto-generate
-	if (userDarkColors) {
-		return {
-			primary: userDarkColors.primary ?? lightColors.primary,
-			bgPrimary: userDarkColors.bgPrimary ?? "hsl(240 10% 3.9%)",
-			bgSecondary: userDarkColors.bgSecondary ?? "hsl(240 4% 16%)",
-			textPrimary: userDarkColors.textPrimary ?? "hsl(0 0% 98%)",
-			textSecondary: userDarkColors.textSecondary ?? "hsl(240 5% 65%)",
-			border: userDarkColors.border ?? "hsl(240 4% 16%)",
-			headerTitleText:
-				userDarkColors.headerTitleText ?? lightColors.headerTitleText,
-			userMessageText:
-				userDarkColors.userMessageText ?? lightColors.userMessageText,
-			sendButtonIcon:
-				userDarkColors.sendButtonIcon ?? lightColors.sendButtonIcon,
-			footerText: userDarkColors.footerText ?? lightColors.footerText,
-		}
-	}
-
-	// Auto-generate dark colors based on light colors
-	return {
-		primary: lightColors.primary,
-		bgPrimary: "hsl(240 10% 3.9%)",
-		bgSecondary: "hsl(240 4% 16%)",
-		textPrimary: "hsl(0 0% 98%)",
-		textSecondary: "hsl(240 5% 65%)",
-		border: "hsl(240 4% 16%)",
-		headerTitleText: lightColors.headerTitleText,
-		userMessageText: lightColors.userMessageText,
-		sendButtonIcon: lightColors.sendButtonIcon,
-		footerText: lightColors.footerText,
-	}
-}
-
-function resolveConfig(): ResolvedWidgetConfig {
-	const userConfig = window.__AI_WIDGET_CONFIG__
-
-	if (!userConfig?.widgetToken) {
-		throw new Error(
-			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.widgetToken",
-		)
-	}
-
-	const apiUrl = userConfig.apiUrl || import.meta.env.VITE_API_URL
-	if (!apiUrl) {
-		throw new Error(
-			"[AI Widget] Missing required config: window.__AI_WIDGET_CONFIG__.apiUrl or VITE_API_URL environment variable",
-		)
-	}
-
-	const lightColors = resolveColors(userConfig.colors)
-	const resolvedDarkColors = resolveDarkColors(
-		lightColors,
-		userConfig.darkColors,
+function isWidgetConfigApiResponse(
+	data: unknown,
+): data is WidgetConfigApiResponse {
+	return (
+		typeof data === "object" &&
+		data !== null &&
+		"botName" in data &&
+		"lightColors" in data &&
+		"darkColors" in data &&
+		"icons" in data
 	)
+}
 
-	return {
-		widgetToken: userConfig.widgetToken,
-		apiUrl,
-		colors: lightColors,
-		darkColors: resolvedDarkColors,
-		position: userConfig.position ?? "right",
-		defaultOpen: userConfig.defaultOpen ?? false,
-		botName: userConfig.botName ?? "AI Assistant",
-		icons: {
-			botAvatar: userConfig.icons?.botAvatar ?? "bot",
-		},
+async function fetchWidgetConfig(token: string): Promise<ResolvedWidgetConfig> {
+	const controller = new AbortController()
+	const timer = setTimeout(() => controller.abort(), 5000)
+	try {
+		const res = await fetch(`${API_URL}/widget/config`, {
+			headers: { "X-Widget-Token": token },
+			signal: controller.signal,
+		})
+		clearTimeout(timer)
+		if (!res.ok)
+			return { ...HARDCODED_DEFAULTS, widgetToken: token, apiUrl: API_URL }
+		const raw: unknown = await res.json()
+		if (!isWidgetConfigApiResponse(raw)) {
+			return { ...HARDCODED_DEFAULTS, widgetToken: token, apiUrl: API_URL }
+		}
+		return {
+			widgetToken: token,
+			apiUrl: API_URL,
+			colors: (raw.lightColors as WidgetColors) ?? HARDCODED_DEFAULTS.colors,
+			darkColors:
+				(raw.darkColors as WidgetColors) ?? HARDCODED_DEFAULTS.darkColors,
+			position:
+				raw.position === "left" || raw.position === "right"
+					? raw.position
+					: HARDCODED_DEFAULTS.position,
+			defaultOpen: HARDCODED_DEFAULTS.defaultOpen,
+			botName: raw.botName ?? HARDCODED_DEFAULTS.botName,
+			icons: (raw.icons as WidgetIcons) ?? HARDCODED_DEFAULTS.icons,
+		}
+	} catch {
+		clearTimeout(timer)
+		return { ...HARDCODED_DEFAULTS, widgetToken: token, apiUrl: API_URL }
 	}
 }
 
@@ -152,7 +143,7 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	)
 	root.style.setProperty("--widget-footer-text", config.colors.footerText)
 
-	// Dark mode colors - config.darkColors is always populated by resolveConfig
+	// Dark mode colors
 	root.style.setProperty("--widget-dark-primary", config.darkColors.primary)
 	root.style.setProperty(
 		"--widget-dark-bg-primary",
@@ -206,55 +197,54 @@ function getOrCreateBrowserSessionId(): string | null {
 	}
 }
 
-function trackPageview(config: ResolvedWidgetConfig): void {
-	if (!config.widgetToken) return
+function trackPageview(token: string, apiUrl: string): void {
+	if (!token) return
 	const browserSessionId = getOrCreateBrowserSessionId()
 	if (!browserSessionId) return
-	fetch(`${config.apiUrl}/widget/sessions`, {
+	fetch(`${apiUrl}/widget/sessions`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			"X-Widget-Token": config.widgetToken,
+			"X-Widget-Token": token,
 		},
 		body: JSON.stringify({ browserSessionId }),
 	}).catch(() => {})
 }
 
-function init(): void {
-	// Prevent double initialization if root already exists
-	if (mountedRoot) {
+async function init(): Promise<void> {
+	if (mountedRoot) return
+
+	const token = window.__PAGEPAL__?.token
+	if (!token) {
+		console.error("[PagePal] Missing required config: window.__PAGEPAL__.token")
 		return
 	}
 
 	try {
-		const config = resolveConfig()
-		trackPageview(config)
+		const config = await fetchWidgetConfig(token)
+		trackPageview(token, API_URL)
 		const container = injectCSSVariables(config)
-
-		// Check if React root already exists on container
-		if ((container as HTMLElement & { __aiWidgetRoot?: Root }).__aiWidgetRoot) {
+		if ((container as HTMLElement & { __aiWidgetRoot?: Root }).__aiWidgetRoot)
 			return
-		}
-
 		const root = createRoot(container)
-		// Store reference to prevent double initialization
 		;(container as HTMLElement & { __aiWidgetRoot?: Root }).__aiWidgetRoot =
 			root
 		mountedRoot = root
-
 		root.render(
 			<StrictMode>
 				<EmbeddedWidget config={config} />
 			</StrictMode>,
 		)
 	} catch (error) {
-		console.error("[AI Widget] Failed to initialize:", error)
+		console.error("[PagePal] Failed to initialize:", error)
 	}
 }
 
 // Auto-initialize when DOM is ready
 if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", init)
+	document.addEventListener("DOMContentLoaded", () => {
+		void init()
+	})
 } else {
-	init()
+	void init()
 }

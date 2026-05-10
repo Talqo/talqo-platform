@@ -7,9 +7,6 @@ export type Logger = {
 	withContext: (context: Record<string, unknown>) => Logger
 }
 
-// AppVariables is used to type Hono context across the app — keeps Variables in sync with logger
-export type AppVariables = { logger: Logger }
-
 function makeLogger(boundContext: Record<string, unknown> = {}): Logger {
 	function log(
 		level: LogLevel,

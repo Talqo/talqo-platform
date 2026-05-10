@@ -1,4 +1,5 @@
 import { MessageSquare } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import {
 	CartesianGrid,
 	Line,
@@ -22,23 +23,24 @@ type QuestionsAskedChartProps = {
 }
 
 export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
+	const { t } = useTranslation()
 	const hasData = data.length > 0
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Questions Asked</CardTitle>
+				<CardTitle>{t("charts.questionsAsked.title")}</CardTitle>
 				<CardDescription>
-					End-user interactions over the last 7 days
+					{t("charts.questionsAsked.description")}
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="h-[300px]">
+			<CardContent className="min-h-[200px] flex-1">
 				{hasData ? (
 					<ResponsiveContainer width="100%" height="100%">
 						<LineChart
 							data={data}
 							role="img"
-							aria-label="Line chart showing questions asked over the last 7 days"
+							aria-label={t("charts.questionsAsked.ariaLabel")}
 						>
 							<CartesianGrid
 								strokeDasharray="3 3"
@@ -81,7 +83,7 @@ export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
 				) : (
 					<output className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
 						<MessageSquare size={48} className="opacity-50" />
-						<p>No data available</p>
+						<p>{t("common.noData")}</p>
 					</output>
 				)}
 			</CardContent>

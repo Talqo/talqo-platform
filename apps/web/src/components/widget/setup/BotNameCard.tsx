@@ -1,6 +1,7 @@
 import DOMPurify from "isomorphic-dompurify"
 import { Bot, Upload, X } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,6 +23,7 @@ export function BotNameCard({
 	onBotNameChange,
 	onBotAvatarChange,
 }: BotNameCardProps) {
+	const { t } = useTranslation()
 	const [isDragging, setIsDragging] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
@@ -100,7 +102,9 @@ export function BotNameCard({
 			// Validate file size
 			if (file.size > MAX_AVATAR_SIZE_BYTES) {
 				setError(
-					`File too large. Maximum size is ${MAX_AVATAR_SIZE_BYTES / 1024}KB.`,
+					t("widget.botName.fileTooLarge", {
+						maxSize: MAX_AVATAR_SIZE_BYTES / 1024,
+					}),
 				)
 				return
 			}
@@ -111,16 +115,14 @@ export function BotNameCard({
 				const result = event.target?.result
 				// Validate result is a string before sanitizing
 				if (typeof result !== "string") {
-					setError("Invalid file content. Expected text format.")
+					setError(t("widget.botName.invalidFileContent"))
 					return
 				}
 				const svgContent = result
 				const sanitized = sanitizeSvg(svgContent)
 
 				if (!sanitized) {
-					setError(
-						"Invalid SVG file. File must start with <svg tag and contain valid SVG content.",
-					)
+					setError(t("widget.botName.invalidSvgFile"))
 					return
 				}
 
@@ -128,12 +130,12 @@ export function BotNameCard({
 			}
 
 			reader.onerror = () => {
-				setError("Failed to read file. Please try again.")
+				setError(t("widget.botName.failedToReadFile"))
 			}
 
 			reader.readAsText(file)
 		},
-		[onBotAvatarChange, sanitizeSvg],
+		[onBotAvatarChange, sanitizeSvg, t],
 	)
 
 	const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -154,14 +156,14 @@ export function BotNameCard({
 			const file = e.dataTransfer.files[0]
 			if (file) {
 				if (file.type !== "image/svg+xml") {
-					setError("Only SVG files are supported.")
+					setError(t("widget.botName.onlySvgSupported"))
 					return
 				}
 				setError(null)
 				readSvgFile(file)
 			}
 		},
-		[readSvgFile],
+		[readSvgFile, t],
 	)
 
 	const handleFileSelect = useCallback(
@@ -169,14 +171,14 @@ export function BotNameCard({
 			const file = e.target.files?.[0]
 			if (file) {
 				if (file.type !== "image/svg+xml") {
-					setError("Only SVG files are supported.")
+					setError(t("widget.botName.onlySvgSupported"))
 					return
 				}
 				setError(null)
 				readSvgFile(file)
 			}
 		},
-		[readSvgFile],
+		[readSvgFile, t],
 	)
 
 	const handleClearAvatar = () => {
@@ -196,31 +198,33 @@ export function BotNameCard({
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<Bot size={20} />
-					Bot Identity
+					{t("widget.botName.title")}
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6">
 				{/* Bot Name */}
 				<div className="space-y-3">
 					<Label htmlFor="bot-name" className="font-medium">
-						Bot Name
+						{t("widget.botName.botNameLabel")}
 					</Label>
 					<Input
 						id="bot-name"
 						type="text"
 						value={botName}
 						onChange={(e) => onBotNameChange(e.target.value)}
-						placeholder="AI Assistant"
+						placeholder={t("widget.botName.botNamePlaceholder")}
 						maxLength={100}
 					/>
 					<p className="text-muted-foreground text-xs">
-						This name will be displayed in the widget header.
+						{t("widget.botName.botNameHelp")}
 					</p>
 				</div>
 
 				{/* Avatar Upload */}
 				<div className="space-y-3">
-					<Label className="mb-2 block font-medium">Bot Avatar</Label>
+					<Label className="mb-2 block font-medium">
+						{t("widget.botName.botAvatarLabel")}
+					</Label>
 					{error && (
 						<div className="rounded-md bg-destructive/10 p-3 font-medium text-destructive text-sm">
 							{error}
@@ -240,7 +244,9 @@ export function BotNameCard({
 								}}
 							/>
 							<div className="flex-1">
-								<p className="font-medium text-sm">Custom avatar uploaded</p>
+								<p className="font-medium text-sm">
+									{t("widget.botName.customAvatarUploaded")}
+								</p>
 								<p className="text-muted-foreground text-xs">SVG</p>
 							</div>
 							<Button
@@ -264,7 +270,7 @@ export function BotNameCard({
 							onDragLeave={handleDragLeave}
 							onDrop={handleDrop}
 							onClick={handleClickUpload}
-							aria-label="Upload SVG avatar"
+							aria-label={t("widget.botName.botAvatarLabel")}
 						>
 							<input
 								ref={fileInputRef}
@@ -279,10 +285,10 @@ export function BotNameCard({
 								</div>
 								<div>
 									<p className="font-medium text-sm">
-										Drop SVG here or click to upload
+										{t("widget.botName.dropSvgHere")}
 									</p>
 									<p className="text-muted-foreground text-xs">
-										Upload a square SVG for best results
+										{t("widget.botName.uploadSquareSvg")}
 									</p>
 								</div>
 							</div>

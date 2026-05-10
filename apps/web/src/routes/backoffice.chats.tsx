@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
 	useAdminConversation,
 	useAdminConversations,
 } from "@/api/hooks/useAdmin"
+import { MarkdownContent } from "@/components/backoffice"
 import { ConversationsTable } from "@/components/backoffice/ConversationsTable"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -40,7 +42,11 @@ function MessageBubble({
 							: "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
 				}`}
 			>
-				<p className="whitespace-pre-wrap">{content}</p>
+				{role === "assistant" ? (
+					<MarkdownContent content={content} />
+				) : (
+					<p className="whitespace-pre-wrap">{content}</p>
+				)}
 				<p className="mt-1 text-right text-[10px] opacity-60">
 					{new Date(createdAt).toLocaleTimeString(undefined, {
 						timeStyle: "short",
@@ -53,6 +59,7 @@ function MessageBubble({
 
 function ConversationPreview({ conversationId }: { conversationId: string }) {
 	const { data, isLoading, error } = useAdminConversation(conversationId)
+	const { t } = useTranslation()
 
 	if (isLoading) {
 		return (
@@ -65,7 +72,7 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 	if (error) {
 		return (
 			<p className="py-6 text-center text-muted-foreground text-sm">
-				Failed to load conversation
+				{t("backoffice.conversationsTable.failedToLoadConversation")}
 			</p>
 		)
 	}
@@ -75,7 +82,9 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 	return (
 		<div className="space-y-2 p-4">
 			{data.messages.length === 0 ? (
-				<p className="text-center text-sm text-zinc-500">No messages</p>
+				<p className="text-center text-sm text-zinc-500">
+					{t("backoffice.conversationsTable.noMessages")}
+				</p>
 			) : (
 				data.messages.map((msg) => (
 					<MessageBubble
@@ -97,6 +106,7 @@ function BackofficeChatsPage() {
 		error,
 	} = useAdminConversations({ limit: 50 })
 	const [selectedId, setSelectedId] = useState<string | undefined>()
+	const { t } = useTranslation()
 
 	function handleSelect(id: string) {
 		setSelectedId((prev) => (prev === id ? undefined : id))
@@ -104,7 +114,7 @@ function BackofficeChatsPage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-[400px] items-center justify-center">
+			<div className="flex min-h-[300px] flex-1 items-center justify-center">
 				<Spinner size="lg" className="text-primary" />
 			</div>
 		)
@@ -112,8 +122,10 @@ function BackofficeChatsPage() {
 
 	if (error) {
 		return (
-			<div className="flex h-[400px] items-center justify-center">
-				<p className="text-muted-foreground">Failed to load conversations</p>
+			<div className="flex min-h-[300px] flex-1 items-center justify-center">
+				<p className="text-muted-foreground">
+					{t("backoffice.stats.failedToLoadConversations")}
+				</p>
 			</div>
 		)
 	}
@@ -123,9 +135,11 @@ function BackofficeChatsPage() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="font-bold text-3xl tracking-tight">Chat Previews</h1>
+				<h1 className="font-bold text-3xl tracking-tight">
+					{t("backoffice.conversationsTable.chatPreviews")}
+				</h1>
 				<p className="text-muted-foreground">
-					Browse and inspect end-user conversations (showing most recent 50)
+					{t("backoffice.conversationsTable.chatPreviewsDescription")}
 				</p>
 			</div>
 
@@ -146,7 +160,7 @@ function BackofficeChatsPage() {
 										selected.clientId}
 								</CardTitle>
 								<CardDescription>
-									Started{" "}
+									{t("backoffice.conversationsTable.started")}{" "}
 									{new Date(selected.startedAt).toLocaleString(undefined, {
 										dateStyle: "medium",
 										timeStyle: "short",
@@ -155,7 +169,8 @@ function BackofficeChatsPage() {
 							</div>
 							{selected.satisfactionRating != null && (
 								<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-									Rating: {selected.satisfactionRating} / 5
+									{t("backoffice.conversationsTable.ratingLabel")}:{" "}
+									{selected.satisfactionRating} / 5
 								</Badge>
 							)}
 						</div>

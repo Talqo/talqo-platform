@@ -1,13 +1,14 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import { blacklistWordResponseSchema } from "db/dto"
 import { addWordBodySchema } from "shared"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas"
 import { blacklistService } from "./index"
 
-const router = new OpenAPIHono()
+const router = createRouter()
 
 router.openapi(
 	createRoute({

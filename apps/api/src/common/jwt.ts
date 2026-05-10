@@ -2,6 +2,7 @@ import { jwtVerify, SignJWT } from "jose"
 import { config } from "./config"
 import { UnauthorizedError } from "./errors"
 import type { Logger } from "./logger"
+import type { WideEvent } from "./wide-event.types"
 
 export type TokenRole = "client" | "admin"
 
@@ -9,6 +10,8 @@ export type AppVariables = {
 	adminId: string
 	clientId: string
 	logger: Logger
+	requestId: string
+	wideEvent: WideEvent
 }
 
 export type TokenPayload = {

@@ -1,11 +1,12 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
 import { analyticsQuerySchema } from "shared"
+import { createRouter } from "../../common/router"
 import { successResponseSchema } from "../../common/schemas"
 import { analyticsService } from "./index"
 
 // ─── Client analytics ──────────────────────────────────────────────────────────
 
-export const clientAnalyticsRoutes = new OpenAPIHono()
+export const clientAnalyticsRoutes = createRouter()
 
 clientAnalyticsRoutes.openapi(
 	createRoute({
@@ -112,7 +113,7 @@ clientAnalyticsRoutes.openapi(
 
 // ─── Admin analytics ───────────────────────────────────────────────────────────
 
-export const adminAnalyticsRoutes = new OpenAPIHono()
+export const adminAnalyticsRoutes = createRouter()
 
 adminAnalyticsRoutes.openapi(
 	createRoute({

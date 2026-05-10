@@ -1,3 +1,4 @@
+import "./common/sentry"
 import app from "./app"
 import { config } from "./common/config"
 
