@@ -30,7 +30,9 @@ export function DashboardLayout() {
 	const { data: profile, isLoading, isError, error } = useClientProfile()
 	const { t } = useTranslation()
 
-	const isImpersonating = !!localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
+	const adminToken = localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
+	const clientToken = localStorage.getItem(AUTH.TOKEN_KEY)
+	const isImpersonating = !!adminToken && !!clientToken
 
 	function handleExitImpersonation() {
 		localStorage.removeItem(AUTH.TOKEN_KEY)
