@@ -4,14 +4,16 @@ export type ChartDataPoint = {
 	questions: number
 }
 
-export const WEEKLY_STATS_DATA: ChartDataPoint[] = [
-	{ name: "Mon", tokens: 4000, questions: 240 },
-	{ name: "Tue", tokens: 3000, questions: 139 },
-	{ name: "Wed", tokens: 2000, questions: 980 },
-	{ name: "Thu", tokens: 2780, questions: 390 },
-	{ name: "Fri", tokens: 1890, questions: 480 },
-	{ name: "Sat", tokens: 2390, questions: 380 },
-	{ name: "Sun", tokens: 3490, questions: 430 },
+export const getWeeklyStatsData = (
+	t: (key: string) => string,
+): ChartDataPoint[] => [
+	{ name: t("charts.dayNames.mon"), tokens: 4000, questions: 240 },
+	{ name: t("charts.dayNames.tue"), tokens: 3000, questions: 139 },
+	{ name: t("charts.dayNames.wed"), tokens: 2000, questions: 980 },
+	{ name: t("charts.dayNames.thu"), tokens: 2780, questions: 390 },
+	{ name: t("charts.dayNames.fri"), tokens: 1890, questions: 480 },
+	{ name: t("charts.dayNames.sat"), tokens: 2390, questions: 380 },
+	{ name: t("charts.dayNames.sun"), tokens: 3490, questions: 430 },
 ]
 
 export type StatIcon = "dollar" | "zap" | "message" | "bot" | "card"
@@ -27,35 +29,35 @@ export type StatCardData = {
  * Admin dashboard statistics data
  * Icons map to StatCard component icons
  */
-export const ADMIN_STATS: StatCardData[] = [
+export const getAdminStats = (t: (key: string) => string): StatCardData[] => [
 	{
-		title: "Current Balance",
+		title: t("adminStats.currentBalance"),
 		value: "$37.50",
-		subtitle: "Available funds",
+		subtitle: t("adminStats.availableFunds"),
 		icon: "dollar",
 	},
 	{
-		title: "Total Tokens",
+		title: t("adminStats.totalTokens"),
 		value: "19,550",
-		subtitle: "+20.1% from last month",
+		subtitle: t("adminStats.tokensChange"),
 		icon: "zap",
 	},
 	{
-		title: "Questions Answered",
+		title: t("adminStats.questionsAnswered"),
 		value: "3,039",
-		subtitle: "+15% from last month",
+		subtitle: t("adminStats.questionsChange"),
 		icon: "message",
 	},
 	{
-		title: "Active Connectors",
+		title: t("adminStats.activeConnectors"),
 		value: "2",
-		subtitle: "Product DB, Internal Wiki",
+		subtitle: t("adminStats.connectorsSubtitle"),
 		icon: "bot",
 	},
 	{
-		title: "Current Spend",
+		title: t("adminStats.currentSpend"),
 		value: "$12.50",
-		subtitle: "Limit: $50.00 / month",
+		subtitle: t("adminStats.spendSubtitle"),
 		icon: "card",
 	},
 ]

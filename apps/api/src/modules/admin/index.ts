@@ -1,6 +1,7 @@
 import { db } from "../../db"
 import { AdminRepository } from "./admin.repository"
 import {
+	createAdminActivityLogsRouter,
 	createAdminAuthRouter,
 	createAdminClientRouter,
 	createAdminConversationRouter,
@@ -16,3 +17,5 @@ export const adminClientRoutes = createAdminClientRouter(adminService)
 export const adminMeRoutes = createAdminMeRouter(adminService)
 export const adminConversationRoutes =
 	createAdminConversationRouter(adminService)
+export const adminActivityLogsRoutes =
+	createAdminActivityLogsRouter(adminService)

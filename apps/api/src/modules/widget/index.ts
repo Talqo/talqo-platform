@@ -17,6 +17,7 @@ export const widgetService = new WidgetService({
 })
 
 export {
+	widgetConfigRoutes,
 	widgetConversationRoutes,
 	widgetMessageRoutes,
 	widgetSessionRoutes,

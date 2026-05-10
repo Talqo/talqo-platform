@@ -1,6 +1,7 @@
 import { Monitor } from "lucide-react"
 import type { ChangeEvent } from "react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -142,19 +143,6 @@ function ColorRow({
 	)
 }
 
-const COLOR_LABELS: { key: keyof WidgetColors; label: string }[] = [
-	{ key: "primary", label: "Primary Color" },
-	{ key: "bgPrimary", label: "Background" },
-	{ key: "bgSecondary", label: "Secondary Background" },
-	{ key: "textPrimary", label: "Text Color" },
-	{ key: "textSecondary", label: "Secondary Text" },
-	{ key: "border", label: "Border Color" },
-	{ key: "headerTitleText", label: "Header Title" },
-	{ key: "userMessageText", label: "User Message Text" },
-	{ key: "sendButtonIcon", label: "Send Button Icon" },
-	{ key: "footerText", label: "Footer Text" },
-]
-
 export function AppearanceCard({
 	colors,
 	position,
@@ -162,17 +150,34 @@ export function AppearanceCard({
 	onDarkColorChange,
 	onPositionChange,
 }: AppearanceCardProps) {
+	const { t } = useTranslation()
+
+	const colorLabels: { key: keyof WidgetColors; label: string }[] = [
+		{ key: "primary", label: t("widget.appearance.primaryColor") },
+		{ key: "bgPrimary", label: t("widget.appearance.background") },
+		{ key: "bgSecondary", label: t("widget.appearance.secondaryBackground") },
+		{ key: "textPrimary", label: t("widget.appearance.textColor") },
+		{ key: "textSecondary", label: t("widget.appearance.secondaryText") },
+		{ key: "border", label: t("widget.appearance.borderColor") },
+		{ key: "headerTitleText", label: t("widget.appearance.headerTitle") },
+		{ key: "userMessageText", label: t("widget.appearance.userMessageText") },
+		{ key: "sendButtonIcon", label: t("widget.appearance.sendButtonIcon") },
+		{ key: "footerText", label: t("widget.appearance.footerText") },
+	]
+
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<Monitor size={20} />
-					Appearance
+					{t("widget.appearance.title")}
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<fieldset className="space-y-2">
-					<legend className="font-medium text-sm">Widget Position</legend>
+					<legend className="font-medium text-sm">
+						{t("widget.appearance.widgetPosition")}
+					</legend>
 					<div className="flex gap-2">
 						<Button
 							type="button"
@@ -180,7 +185,7 @@ export function AppearanceCard({
 							variant={position === "left" ? "default" : "outline"}
 							onClick={() => onPositionChange("left")}
 						>
-							Bottom Left
+							{t("widget.appearance.bottomLeft")}
 						</Button>
 						<Button
 							type="button"
@@ -188,26 +193,28 @@ export function AppearanceCard({
 							variant={position === "right" ? "default" : "outline"}
 							onClick={() => onPositionChange("right")}
 						>
-							Bottom Right
+							{t("widget.appearance.bottomRight")}
 						</Button>
 					</div>
 				</fieldset>
 
 				<div className="space-y-4">
 					<div className="grid grid-cols-[120px_1fr_1fr] gap-4 border-b pb-2">
-						<span className="font-medium text-sm">Color</span>
+						<span className="font-medium text-sm">
+							{t("widget.appearance.color")}
+						</span>
 						<div className="flex items-center gap-2 font-medium text-sm">
 							<div className="h-4 w-4 rounded-full border border-gray-200 bg-white" />
-							Light Mode
+							{t("widget.appearance.lightMode")}
 						</div>
 						<div className="flex items-center gap-2 font-medium text-sm">
 							<div className="h-4 w-4 rounded-full border border-gray-600 bg-gray-900" />
-							Dark Mode
+							{t("widget.appearance.darkMode")}
 						</div>
 					</div>
 
 					<div className="space-y-4">
-						{COLOR_LABELS.map((item) => (
+						{colorLabels.map((item) => (
 							<ColorRow
 								key={item.key}
 								label={item.label}

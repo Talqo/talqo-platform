@@ -1,5 +1,6 @@
-import { Link, Outlet, useLocation } from "@tanstack/react-router"
+import { Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router"
 import {
+	ArrowLeftFromLine,
 	Bot,
 	Building2,
 	Code,
@@ -12,27 +13,69 @@ import {
 	Sun,
 	Wrench,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useLogout } from "@/api/hooks/useAuth"
 import { useClientProfile } from "@/api/hooks/useClientAccount"
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { AUTH } from "@/lib/constants"
 import { useTheme } from "@/lib/useTheme"
 import { cn } from "@/lib/utils"
 
 export function DashboardLayout() {
 	const location = useLocation()
+	const navigate = useNavigate()
 	const logout = useLogout()
 	const { theme, toggleTheme } = useTheme()
 	const { data: profile, isLoading, isError, error } = useClientProfile()
+	const { t } = useTranslation()
+
+	const adminToken = localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
+	const clientToken = localStorage.getItem(AUTH.TOKEN_KEY)
+	const isImpersonating = !!adminToken && !!clientToken
+
+	function handleExitImpersonation() {
+		localStorage.removeItem(AUTH.TOKEN_KEY)
+		navigate({ to: "/backoffice" })
+	}
 
 	const navItems = [
-		{ icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-		{ icon: FileText, label: "Bot Context", href: "/dashboard/bot-context" },
-		{ icon: Bot, label: "Bot Configuration", href: "/dashboard/bot-config" },
-		{ icon: Wrench, label: "Tools MCP", href: "/dashboard/tools" },
-		{ icon: Code, label: "Widget Setup", href: "/dashboard/widget-setup" },
-		{ icon: MessageSquare, label: "Chat Previews", href: "/dashboard/chats" },
-		{ icon: Settings, label: "Settings", href: "/dashboard/settings" },
+		{
+			icon: LayoutDashboard,
+			label: t("clientDashboard.nav.overview"),
+			href: "/dashboard",
+		},
+		{
+			icon: FileText,
+			label: t("clientDashboard.nav.botContext"),
+			href: "/dashboard/bot-context",
+		},
+		{
+			icon: Bot,
+			label: t("clientDashboard.nav.botConfiguration"),
+			href: "/dashboard/bot-config",
+		},
+		{
+			icon: Wrench,
+			label: t("clientDashboard.nav.toolsMcp"),
+			href: "/dashboard/tools",
+		},
+		{
+			icon: Code,
+			label: t("clientDashboard.nav.widgetSetup"),
+			href: "/dashboard/widget-setup",
+		},
+		{
+			icon: MessageSquare,
+			label: t("clientDashboard.nav.chatPreviews"),
+			href: "/dashboard/chats",
+		},
+		{
+			icon: Settings,
+			label: t("settings.account.title"),
+			href: "/dashboard/settings",
+		},
 	]
 
 	const handleLogout = () => {
@@ -50,11 +93,13 @@ export function DashboardLayout() {
 					<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
 						<Bot size={20} />
 					</div>
-					<span className="font-semibold text-card-foreground">PagePal</span>
+					<span className="font-semibold text-card-foreground">
+						{t("common.pagePal")}
+					</span>
 				</Link>
 				<div className="flex flex-col gap-1 p-4">
 					<div className="mb-2 px-2 font-semibold text-muted-foreground text-xs uppercase">
-						Client Dashboard
+						{t("clientDashboard.nav.clientDashboard")}
 					</div>
 					{navItems.map((item) => {
 						const isActive = location.pathname === item.href
@@ -85,7 +130,9 @@ export function DashboardLayout() {
 					>
 						{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
 						<span className="ml-2">
-							{theme === "dark" ? "Light Mode" : "Dark Mode"}
+							{theme === "dark"
+								? t("clientDashboard.nav.lightMode")
+								: t("clientDashboard.nav.darkMode")}
 						</span>
 					</Button>
 					<Button
@@ -95,28 +142,50 @@ export function DashboardLayout() {
 						className="w-full justify-start text-destructive hover:text-destructive/80"
 					>
 						<LogOut size={18} />
-						<span className="ml-2">Log out</span>
+						<span className="ml-2">{t("common.logOut")}</span>
 					</Button>
 				</div>
 			</aside>
 
 			{/* Main Content */}
 			<div className="flex flex-1 flex-col">
+				{isImpersonating && (
+					<div className="flex items-center justify-between bg-amber-50 px-6 py-2 dark:bg-amber-900/20">
+						<p className="text-amber-800 text-sm dark:text-amber-300">
+							Viewing as client (admin impersonation)
+						</p>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={handleExitImpersonation}
+							className="border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/40"
+						>
+							<ArrowLeftFromLine size={14} className="mr-1.5" />
+							Exit to backoffice
+						</Button>
+					</div>
+				)}
 				{/* Top Header with User Info */}
 				<header className="flex h-16 items-center justify-end border-border border-b bg-card px-6">
-					<div className="flex items-center gap-2 text-sm">
-						<Building2 size={16} className="text-muted-foreground" />
-						{isLoading ? (
-							<Skeleton className="h-4 w-32" />
-						) : isError ? (
-							<span className="text-destructive text-xs" title={error?.message}>
-								Failed to load
-							</span>
-						) : (
-							<span className="font-medium text-card-foreground">
-								{profile?.name || "Unknown Company"}
-							</span>
-						)}
+					<div className="flex items-center gap-4">
+						<LanguageSwitcher />
+						<div className="flex items-center gap-2 text-sm">
+							<Building2 size={16} className="text-muted-foreground" />
+							{isLoading ? (
+								<Skeleton className="h-4 w-32" />
+							) : isError ? (
+								<span
+									className="text-destructive text-xs"
+									title={error?.message}
+								>
+									{t("clientDashboard.nav.failedToLoad")}
+								</span>
+							) : (
+								<span className="font-medium text-card-foreground">
+									{profile?.name || t("clientDashboard.nav.unknownCompany")}
+								</span>
+							)}
+						</div>
 					</div>
 				</header>
 				<main className="flex-1 overflow-auto bg-background p-8">

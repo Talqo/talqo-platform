@@ -1,4 +1,5 @@
 import { motion } from "motion/react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import type { Tool } from "@/data/tools"
 import { getToolDescription } from "@/data/tools"
@@ -9,6 +10,7 @@ type UsedToolItemProps = {
 }
 
 export function UsedToolItem({ tool }: UsedToolItemProps) {
+	const { t } = useTranslation()
 	return (
 		<motion.div
 			layout
@@ -22,7 +24,7 @@ export function UsedToolItem({ tool }: UsedToolItemProps) {
 				<div>
 					<p className="font-medium">{tool.name}</p>
 					<p className="text-muted-foreground text-sm">
-						{getToolDescription(tool.name)}
+						{getToolDescription(tool.key, t)}
 					</p>
 				</div>
 			</div>
@@ -31,9 +33,9 @@ export function UsedToolItem({ tool }: UsedToolItemProps) {
 					size="sm"
 					variant="outline"
 					disabled
-					title="Configuration coming soon"
+					title={t("tools.usedToolItem.configurationComingSoon")}
 				>
-					Configure
+					{t("tools.usedToolItem.configure")}
 				</Button>
 			</div>
 		</motion.div>

@@ -70,6 +70,10 @@ export class AdminService {
 		return conv
 	}
 
+	async listActivityLogs(limit: number, offset: number) {
+		return this.repo.listActivityLogs({ limit, offset })
+	}
+
 	async impersonate(clientId: string) {
 		const client = await this.repo.getClientDetail(clientId)
 		if (!client) throw new NotFoundError("Client not found")

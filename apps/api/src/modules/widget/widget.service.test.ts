@@ -41,9 +41,12 @@ function createMockRepo() {
 	let msgCounter = 0
 	return {
 		findOrCreateSession: mock(async () => ({
-			id: "sess-1",
-			clientId: "client-1",
-			browserSessionId: "browser-1",
+			session: {
+				id: "sess-1",
+				clientId: "client-1",
+				browserSessionId: "browser-1",
+			},
+			isNew: false,
 		})),
 		getSession: mock(async () => ({
 			id: "sess-1",
@@ -185,7 +188,7 @@ describe("WidgetService", () => {
 				"client-1",
 				"browser-1",
 			)
-			expect(result.id).toBe("sess-1")
+			expect(result.session.id).toBe("sess-1")
 		})
 	})
 

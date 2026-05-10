@@ -29,6 +29,10 @@ dist/
 # Private files for personal use
 /private/
 
+# Superpowers runtime artifacts
+.superpowers/**/server.pid
+.superpowers/**/server.log
+
 # Git worktrees
 .worktrees/
 .claude/worktrees/

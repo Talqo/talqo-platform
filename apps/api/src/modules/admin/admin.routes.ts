@@ -1,22 +1,29 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { clientSummarySchema, messageResponseSchema } from "db/dto"
+import type { OpenAPIHono } from "@hono/zod-openapi"
+import { createRoute, z } from "@hono/zod-openapi"
+import {
+	adminAccessLogResponseSchema,
+	clientSummarySchema,
+	messageResponseSchema,
+} from "db/dto"
 import {
 	clientStatusUpdateSchema,
 	conversationSummarySchema,
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
-import { NotFoundError } from "../../common/errors"
+import { NotFoundError, UnauthorizedError } from "../../common/errors"
+import { createRouter } from "../../common/router"
 import {
 	errorResponseSchema,
 	successResponseSchema,
 } from "../../common/schemas"
+import type { WideEvent } from "../../common/wide-event.types"
 import type { AdminService } from "./admin.service"
 
 // ─── Admin auth (unprotected) ──────────────────────────────────────────────────
 
 export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({
@@ -55,7 +62,17 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const body = c.req.valid("json")
-			const result = await service.login(body)
+			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			let result: Awaited<ReturnType<typeof service.login>>
+			try {
+				result = await service.login(body)
+				if (wideEvent) wideEvent.auth = { outcome: "logged_in" }
+			} catch (err) {
+				if (err instanceof UnauthorizedError) {
+					if (wideEvent) wideEvent.auth = { outcome: "invalid_credentials" }
+				}
+				throw err
+			}
 			return c.json(result, 200)
 		},
 	)
@@ -88,7 +105,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 // ─── Admin current user (protected) ───────────────────────────────────────────
 
 export function createAdminMeRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	// GET /admin/me - Get current admin profile
 	router.openapi(
@@ -142,7 +159,7 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 // ─── Admin client management (protected) ──────────────────────────────────────
 
 export function createAdminClientRouter(service: AdminService): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({
@@ -245,7 +262,17 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		async (c) => {
 			const { clientId } = c.req.valid("param")
 			const { status } = c.req.valid("json")
+			c.set(
+				"auditActionLabel" as never,
+				(status === "suspended" ? "suspend" : "re-enable") as never,
+			)
 			const updated = await service.updateClientStatus(clientId, status)
+			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			if (wideEvent) {
+				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
+				wideEvent.admin.target_client_id = clientId
+				wideEvent.admin.action = status === "suspended" ? "suspend" : "enable"
+			}
 			return c.json(updated, 200)
 		},
 	)
@@ -277,8 +304,53 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const { clientId } = c.req.valid("param")
+			c.set("auditActionLabel" as never, "impersonate" as never)
 			const result = await service.impersonate(clientId)
+			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			if (wideEvent) {
+				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
+				wideEvent.admin.target_client_id = clientId
+				wideEvent.admin.action = "impersonate"
+			}
 			return c.json(result, 200)
+		},
+	)
+
+	return router
+}
+
+// ─── Admin activity logs (protected) ─────────────────────────────────────────
+
+export function createAdminActivityLogsRouter(
+	service: AdminService,
+): OpenAPIHono {
+	const router = createRouter()
+
+	router.openapi(
+		createRoute({
+			method: "get",
+			path: "/",
+			tags: ["Admin"],
+			summary: "List admin activity logs (impersonate, suspend, re-enable)",
+			security: [{ bearerAuth: [] }],
+			request: { query: paginationQuerySchema },
+			responses: {
+				200: {
+					description: "Activity logs",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(
+								z.array(adminAccessLogResponseSchema),
+							),
+						},
+					},
+				},
+			},
+		}),
+		async (c) => {
+			const { limit, offset } = c.req.valid("query")
+			const logs = await service.listActivityLogs(limit, offset)
+			return c.json(logs, 200)
 		},
 	)
 
@@ -290,7 +362,7 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 export function createAdminConversationRouter(
 	service: AdminService,
 ): OpenAPIHono {
-	const router = new OpenAPIHono()
+	const router = createRouter()
 
 	router.openapi(
 		createRoute({

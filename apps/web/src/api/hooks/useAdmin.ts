@@ -60,11 +60,13 @@ export function useUpdateClientStatus() {
 		onSuccess: (_result, { clientId }) => {
 			qc.invalidateQueries({ queryKey: ["admin", "clients", clientId] })
 			qc.invalidateQueries({ queryKey: ["admin", "clients"] })
+			qc.invalidateQueries({ queryKey: ["admin", "activity-logs"] })
 		},
 	})
 }
 
 export function useImpersonateClient() {
+	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: async (clientId: string) => {
 			const { data, error } = await client.POST(
@@ -73,6 +75,9 @@ export function useImpersonateClient() {
 			)
 			if (error) throw error
 			return data
+		},
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ["admin", "activity-logs"] })
 		},
 	})
 }
@@ -217,6 +222,21 @@ export function useAdminUpdatePreMadeServer() {
 		},
 		onSuccess: () =>
 			qc.invalidateQueries({ queryKey: ["admin", "mcp", "pre-made"] }),
+	})
+}
+
+export function useAdminActivityLogs(
+	params: { limit?: number; offset?: number } = {},
+) {
+	return useQuery({
+		queryKey: ["admin", "activity-logs", params],
+		queryFn: async () => {
+			const { data, error } = await client.GET("/admin/activity-logs", {
+				params: { query: params },
+			})
+			if (error) throw error
+			return data
+		},
 	})
 }
 
