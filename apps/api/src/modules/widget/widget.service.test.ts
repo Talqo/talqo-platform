@@ -1,19 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 
 // --- Mock config/crypto ---
-mock.module("../../common/config", () => ({
+mock.module("@/common/config", () => ({
 	config: { WIDGET_CONVERSATION_MAX_MESSAGES: 50 },
 	getDefaultProviderConfig: mock(() => null),
 }))
 
-mock.module("../../common/crypto", () => ({
+mock.module("@/common/crypto", () => ({
 	decrypt: mock((s: string) => s),
 }))
 
 // --- Post-hoc imports ---
 
-import { NotFoundError } from "../../common/errors"
-import { PLATFORM_SYSTEM_PROMPT } from "../agent/agent.platform-prompt"
+import { NotFoundError } from "@/common/errors"
+import { PLATFORM_SYSTEM_PROMPT } from "@/modules/agent/agent.platform-prompt"
 import { WidgetService } from "./widget.service"
 
 type StreamResponseFn =
@@ -334,7 +334,7 @@ describe("WidgetService", () => {
 		})
 
 		it("returns isExternalProvider=false when using default provider", async () => {
-			const { getDefaultProviderConfig } = await import("../../common/config")
+			const { getDefaultProviderConfig } = await import("@/common/config")
 			;(getDefaultProviderConfig as ReturnType<typeof mock>).mockImplementation(
 				() => ({
 					type: "openai_compatible",

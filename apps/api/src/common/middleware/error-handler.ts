@@ -1,6 +1,6 @@
 import type { ErrorHandler } from "hono"
-import { AppError } from "../errors"
-import { logger } from "../logger"
+import { AppError } from "@/common/errors"
+import { logger } from "@/common/logger"
 
 export const errorHandler: ErrorHandler = (err, c) => {
 	if (err instanceof AppError) {

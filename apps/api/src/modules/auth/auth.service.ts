@@ -1,14 +1,14 @@
 import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
-} from "../../common/email/email.service"
+} from "@/common/email/email.service"
 import {
 	AuthConflictError,
 	ForbiddenError,
 	UnauthorizedError,
-} from "../../common/errors"
-import { signToken } from "../../common/jwt"
-import { logger } from "../../common/logger"
+} from "@/common/errors"
+import { signToken } from "@/common/jwt"
+import { logger } from "@/common/logger"
 import type { IAuthRepository } from "./auth.repository"
 
 export class AuthService {

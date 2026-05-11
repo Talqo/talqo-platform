@@ -1,6 +1,6 @@
 import type { ProviderType } from "shared"
-import { decrypt, encrypt } from "../../common/crypto"
-import { NotFoundError } from "../../common/errors"
+import { decrypt, encrypt } from "@/common/crypto"
+import { NotFoundError } from "@/common/errors"
 import type { ProviderConfigRepository } from "./provider-config.repository"
 
 type UpsertInput = {

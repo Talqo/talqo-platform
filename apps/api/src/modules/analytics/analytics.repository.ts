@@ -9,14 +9,14 @@ import {
 	sql,
 	sum,
 } from "drizzle-orm"
-import type { DB } from "../../db"
+import type { DB } from "@/db"
 import {
 	clients,
 	conversations,
 	endUserSessions,
 	messages,
 	usageRecords,
-} from "../../db/schema"
+} from "@/db/schema"
 
 const granularityLiteral = {
 	day: sql`'day'`,

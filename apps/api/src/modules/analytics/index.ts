@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { AnalyticsRepository } from "./analytics.repository"
 import { AnalyticsService } from "./analytics.service"
 

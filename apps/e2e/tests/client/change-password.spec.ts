@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
+import { fillAndSubmitLogin, SEEDED_USERS } from "@/helpers/auth"
 
 const NEW_PASSWORD = "newpass123"
 

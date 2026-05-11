@@ -2,8 +2,8 @@ import {
 	NotFoundError,
 	UnauthorizedError,
 	ValidationError,
-} from "../../common/errors"
-import { signToken } from "../../common/jwt"
+} from "@/common/errors"
+import { signToken } from "@/common/jwt"
 import type { AdminRepository } from "./admin.repository"
 
 const VALID_STATUSES = ["active", "suspended"] as const

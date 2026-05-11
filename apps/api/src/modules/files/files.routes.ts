@@ -6,13 +6,10 @@ import {
 	filePresignBodySchema,
 	fileUploadQuerySchema,
 } from "shared"
-import { ValidationError } from "../../common/errors"
-import type { AppVariables } from "../../common/jwt"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
+import { ValidationError } from "@/common/errors"
+import type { AppVariables } from "@/common/jwt"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import type { FilesService } from "./files.service"
 
 // ─── Response schemas ─────────────────────────────────────────────────────────

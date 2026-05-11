@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
-import type { DB } from "../../db"
-import { widgetConfigs } from "../../db/schema"
+import type { DB } from "@/db"
+import { widgetConfigs } from "@/db/schema"
 
 type WidgetConfigRow = {
 	id: string

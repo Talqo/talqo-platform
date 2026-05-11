@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
-import type { DB } from "../../db"
-import { botConfigs } from "../../db/schema"
+import type { DB } from "@/db"
+import { botConfigs } from "@/db/schema"
 
 type BotConfigUpdate = Partial<{
 	systemPrompt: string | null

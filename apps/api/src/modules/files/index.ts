@@ -1,5 +1,5 @@
 import { S3Client } from "bun"
-import { config } from "../../common/config"
+import { config } from "@/common/config"
 import { createFilesRouter } from "./files.routes"
 import { FilesService } from "./files.service"
 

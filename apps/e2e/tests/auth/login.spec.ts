@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { fillAndSubmitLogin, SEEDED_USERS } from "../helpers/auth"
+import { fillAndSubmitLogin, SEEDED_USERS } from "@/helpers/auth"
 
 test.describe("Login flow", () => {
 	test("homepage has a Log in link that navigates to /login", async ({

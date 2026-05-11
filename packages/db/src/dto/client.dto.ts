@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { aiProviderConfigs, botConfigs, clients } from "../schema/client"
+import { aiProviderConfigs, botConfigs, clients } from "@/schema/client"
 
 export const clientSelectSchema = createSelectSchema(clients)
 

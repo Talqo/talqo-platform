@@ -1,4 +1,4 @@
-import { ConflictError, NotFoundError } from "../../common/errors"
+import { ConflictError, NotFoundError } from "@/common/errors"
 import type { BlacklistRepository } from "./blacklist.repository"
 
 export class BlacklistService {

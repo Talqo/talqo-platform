@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono"
-import { db } from "../../db"
-import { adminAccessLogs } from "../../db/schema"
+import { db } from "@/db"
+import { adminAccessLogs } from "@/db/schema"
 
 const CLIENT_ID_PATTERN =
 	/\/admin\/clients\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
@@ -25,7 +25,7 @@ export const adminAuditLog: MiddlewareHandler = async (c, next) => {
 	try {
 		await db.insert(adminAccessLogs).values({ adminId, clientId, actionType })
 	} catch (err) {
-		const logger = c.get("logger" as never) as import("../logger").Logger
+		const logger = c.get("logger" as never) as import("@/common/logger").Logger
 		logger.error("Failed to write admin audit log", {
 			adminId,
 			clientId,

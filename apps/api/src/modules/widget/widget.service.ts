@@ -1,19 +1,19 @@
 import type { ModelMessage } from "ai"
 import type { AiProviderConfig, McpServerConfig } from "shared"
 import { z } from "zod"
-import { config, getDefaultProviderConfig } from "../../common/config"
-import { decrypt } from "../../common/crypto"
-import { sendQuotaAlertEmail as defaultSendQuotaAlertEmail } from "../../common/email/email.service"
+import { config, getDefaultProviderConfig } from "@/common/config"
+import { decrypt } from "@/common/crypto"
+import { sendQuotaAlertEmail as defaultSendQuotaAlertEmail } from "@/common/email/email.service"
 import {
 	BadRequestError,
 	NotFoundError,
 	ValidationError,
-} from "../../common/errors"
-import { PLATFORM_SYSTEM_PROMPT } from "../agent/agent.platform-prompt"
-import { streamResponse } from "../agent/agent.service"
-import type { BotConfigRepository } from "../bot-config/bot-config.repository"
-import type { McpRepository } from "../mcp/mcp.repository"
-import type { ProviderConfigRepository } from "../provider-config/provider-config.repository"
+} from "@/common/errors"
+import { PLATFORM_SYSTEM_PROMPT } from "@/modules/agent/agent.platform-prompt"
+import { streamResponse } from "@/modules/agent/agent.service"
+import type { BotConfigRepository } from "@/modules/bot-config/bot-config.repository"
+import type { McpRepository } from "@/modules/mcp/mcp.repository"
+import type { ProviderConfigRepository } from "@/modules/provider-config/provider-config.repository"
 import type { WidgetRepository } from "./widget.repository"
 
 const PLATFORM_MODEL_INPUT_RATE = 0.1 / 1_000_000

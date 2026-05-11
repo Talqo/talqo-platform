@@ -1,11 +1,8 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { aiProviderConfigMaskedResponseSchema } from "db/dto"
 import { upsertProviderConfigBodySchema } from "shared"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { providerConfigService } from "./index"
 
 const router = createRouter()

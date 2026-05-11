@@ -1,11 +1,8 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { customServerResponseSchema, preMadeServerResponseSchema } from "db/dto"
 import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { mcpService } from "./index"
 
 const serverIdParam = z.object({ serverId: z.string().uuid() })

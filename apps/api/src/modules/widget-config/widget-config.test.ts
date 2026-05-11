@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type { AppVariables } from "../../common/jwt"
-import { logger } from "../../common/logger"
+import type { AppVariables } from "@/common/jwt"
+import { logger } from "@/common/logger"
 import {
 	InMemoryWidgetConfigRepository,
 	type WidgetConfigData,
@@ -99,7 +99,7 @@ mock.module("./index", () => ({
 const { widgetConfigClientRoutes } = await import(
 	"./widget-config.client.routes"
 )
-const { errorHandler } = await import("../../common/middleware/error-handler")
+const { errorHandler } = await import("@/common/middleware/error-handler")
 
 function buildApp() {
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
@@ -107,7 +107,7 @@ function buildApp() {
 	app.use("/*", async (c, next) => {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
 		if (authState.reject) {
-			const { UnauthorizedError } = await import("../../common/errors")
+			const { UnauthorizedError } = await import("@/common/errors")
 			throw new UnauthorizedError("Missing or invalid Authorization header")
 		}
 		c.set("clientId" as never, CLIENT_ID)

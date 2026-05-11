@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { DrizzleWidgetConfigRepository } from "./widget-config.repository"
 import { WidgetConfigService } from "./widget-config.service"
 

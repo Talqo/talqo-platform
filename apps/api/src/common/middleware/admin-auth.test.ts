@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { Hono } from "hono"
-import { UnauthorizedError } from "../errors"
-import type { TokenPayload } from "../jwt"
+import { UnauthorizedError } from "@/common/errors"
+import type { TokenPayload } from "@/common/jwt"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -9,7 +9,7 @@ import type { TokenPayload } from "../jwt"
 let mockAdminRow: { id: string } | undefined
 let auditLogInserted: unknown
 
-mock.module("../../db", () => ({
+mock.module("@/db", () => ({
 	db: {
 		select: () => ({
 			from: () => ({
@@ -27,7 +27,7 @@ mock.module("../../db", () => ({
 // Controlled JWT verification — set in each test
 let mockVerifyResult: TokenPayload | null = null
 
-mock.module("../jwt", () => ({
+mock.module("@/common/jwt", () => ({
 	signToken: async () => "mock-token",
 	verifyToken: async (_token: string) => {
 		if (!mockVerifyResult)

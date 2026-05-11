@@ -3,7 +3,7 @@ import {
 	NotFoundError,
 	UnauthorizedError,
 	ValidationError,
-} from "../../common/errors"
+} from "@/common/errors"
 import type { ClientAccountRepository } from "./client-account.repository"
 
 export class ClientAccountService {

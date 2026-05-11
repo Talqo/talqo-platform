@@ -4,7 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai"
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible"
 import type { LanguageModel } from "ai"
 import type { AiProviderConfig } from "shared"
-import { logger } from "../../common/logger"
+import { logger } from "@/common/logger"
 
 export function createLanguageModel(config: AiProviderConfig): LanguageModel {
 	switch (config.type) {

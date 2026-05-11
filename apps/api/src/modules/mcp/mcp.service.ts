@@ -1,5 +1,5 @@
 import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
-import { NotFoundError } from "../../common/errors"
+import { NotFoundError } from "@/common/errors"
 import type { McpRepository } from "./mcp.repository"
 
 export class McpService {

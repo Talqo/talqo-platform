@@ -3,7 +3,7 @@ import { createMCPClient } from "@ai-sdk/mcp"
 import { Experimental_StdioMCPTransport } from "@ai-sdk/mcp/mcp-stdio"
 import type { ToolSet } from "ai"
 import type { McpServerConfig } from "shared"
-import { logger } from "../../common/logger"
+import { logger } from "@/common/logger"
 
 export type McpConnection = {
 	tools: ToolSet

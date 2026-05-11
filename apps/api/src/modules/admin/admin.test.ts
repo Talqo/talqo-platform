@@ -6,7 +6,7 @@ import type { AdminRepository } from "./admin.repository"
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 // Mock jwt so tests don't require config / env vars
-mock.module("../../common/jwt", () => ({
+mock.module("@/common/jwt", () => ({
 	signToken: async (payload: Record<string, unknown>, _expiresIn?: string) =>
 		`mock-token.${JSON.stringify(payload)}`,
 	verifyToken: async () => ({ sub: "test", role: "admin" }),
@@ -19,7 +19,7 @@ const {
 	createAdminClientRouter,
 	createAdminConversationRouter,
 } = await import("./admin.routes")
-const { errorHandler } = await import("../../common/middleware/error-handler")
+const { errorHandler } = await import("@/common/middleware/error-handler")
 
 // ─── In-memory repository ─────────────────────────────────────────────────────
 

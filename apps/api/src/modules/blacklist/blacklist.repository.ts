@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm"
-import type { DB } from "../../db"
-import { blacklistWords } from "../../db/schema"
+import type { DB } from "@/db"
+import { blacklistWords } from "@/db/schema"
 
 export class BlacklistRepository {
 	constructor(private readonly db: DB) {}

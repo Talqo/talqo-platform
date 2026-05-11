@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { McpRepository } from "./mcp.repository"
 import { McpService } from "./mcp.service"
 

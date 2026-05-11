@@ -11,14 +11,11 @@ import {
 	sendMessageBodySchema,
 	widgetVisualConfigSchema,
 } from "shared"
-import { widgetRateLimit } from "../../common/middleware/widget-rate-limit"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
-import type { WideEvent } from "../../common/wide-event.types"
-import { widgetConfigService } from "../widget-config"
+import { widgetRateLimit } from "@/common/middleware/widget-rate-limit"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
+import type { WideEvent } from "@/common/wide-event.types"
+import { widgetConfigService } from "@/modules/widget-config"
 import { widgetService } from "./index"
 
 // ─── Session routes ────────────────────────────────────────────────────────────

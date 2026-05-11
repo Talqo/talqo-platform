@@ -1,8 +1,8 @@
 import { createRoute } from "@hono/zod-openapi"
 import { botConfigResponseSchema } from "db/dto"
 import { updateBotConfigBodySchema } from "shared"
-import { createRouter } from "../../common/router"
-import { successResponseSchema } from "../../common/schemas"
+import { createRouter } from "@/common/router"
+import { successResponseSchema } from "@/common/schemas"
 import { botConfigService } from "./index"
 
 const router = createRouter()

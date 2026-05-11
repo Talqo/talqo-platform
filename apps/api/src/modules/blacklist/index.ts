@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { BlacklistRepository } from "./blacklist.repository"
 import { BlacklistService } from "./blacklist.service"
 

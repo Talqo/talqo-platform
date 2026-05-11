@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { client } from "../client"
+import { client } from "@/api/client"
 
 type AnalyticsQuery = {
 	from?: string

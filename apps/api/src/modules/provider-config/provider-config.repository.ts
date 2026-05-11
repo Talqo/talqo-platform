@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm"
 import type { ProviderType } from "shared"
-import type { DB } from "../../db"
-import { aiProviderConfigs } from "../../db/schema"
+import type { DB } from "@/db"
+import { aiProviderConfigs } from "@/db/schema"
 
 type ProviderConfigUpsert = {
 	providerType: ProviderType

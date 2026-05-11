@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { AdminRepository } from "./admin.repository"
 import {
 	createAdminActivityLogsRouter,

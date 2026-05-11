@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { client } from "../client"
+import { client } from "@/api/client"
 
 export function useBlacklist() {
 	return useQuery({

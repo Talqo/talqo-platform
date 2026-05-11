@@ -2,10 +2,10 @@ import { isIP } from "node:net"
 import { lt, sql } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
 import { getConnInfo } from "hono/bun"
-import { db } from "../../db"
-import { widgetIpRateLimits } from "../../db/schema"
-import { config } from "../config"
-import { TooManyRequestsError } from "../errors"
+import { config } from "@/common/config"
+import { TooManyRequestsError } from "@/common/errors"
+import { db } from "@/db"
+import { widgetIpRateLimits } from "@/db/schema"
 
 /** Probability (0–1) of triggering stale window cleanup on any request. */
 const CLEANUP_CHANCE = 0.01

@@ -1,7 +1,7 @@
 import { createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { adminAccessLogs, adminUsers } from "../schema/admin"
-import { clients } from "../schema/client"
+import { adminAccessLogs, adminUsers } from "@/schema/admin"
+import { clients } from "@/schema/client"
 
 export const adminUserResponseSchema = createSelectSchema(adminUsers, {
 	email: z.string(),

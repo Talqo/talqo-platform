@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { customMcpServers, preMadeMcpServers } from "../schema/mcp"
+import { customMcpServers, preMadeMcpServers } from "@/schema/mcp"
 
 // mcpConfig is JSONB — keep as z.unknown() to avoid coupling to McpServerConfig shape
 export const preMadeServerResponseSchema = createSelectSchema(

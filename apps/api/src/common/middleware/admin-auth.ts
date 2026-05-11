@@ -1,10 +1,10 @@
 import { and, eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
-import { db } from "../../db"
-import { adminUsers } from "../../db/schema"
-import { ForbiddenError, UnauthorizedError } from "../errors"
-import { verifyToken } from "../jwt"
-import type { WideEvent } from "../wide-event.types"
+import { ForbiddenError, UnauthorizedError } from "@/common/errors"
+import { verifyToken } from "@/common/jwt"
+import type { WideEvent } from "@/common/wide-event.types"
+import { db } from "@/db"
+import { adminUsers } from "@/db/schema"
 
 // Validates Admin JWT from Authorization: Bearer <token>
 export const adminAuth: MiddlewareHandler = async (c, next) => {

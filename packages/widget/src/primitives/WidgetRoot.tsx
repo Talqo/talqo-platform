@@ -1,9 +1,5 @@
 import { createContext, type ReactNode, useContext } from "react"
-import {
-	type UseWidgetOptions,
-	type UseWidgetReturn,
-	useWidget,
-} from "../hooks"
+import { type UseWidgetOptions, type UseWidgetReturn, useWidget } from "@/hooks"
 
 interface WidgetContextValue extends UseWidgetReturn {
 	/** Optional className prefix for styling */

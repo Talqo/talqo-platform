@@ -3,13 +3,9 @@ import {
 	AuthConflictError,
 	BadRequestError,
 	NotFoundError,
-} from "../../common/errors"
-import type { DB } from "../../db"
-import {
-	clients,
-	passwordResetTokens,
-	pendingRegistrations,
-} from "../../db/schema"
+} from "@/common/errors"
+import type { DB } from "@/db"
+import { clients, passwordResetTokens, pendingRegistrations } from "@/db/schema"
 
 export type ClientStatus = "active" | "suspended"
 

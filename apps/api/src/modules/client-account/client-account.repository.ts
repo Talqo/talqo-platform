@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm"
-import type { DB } from "../../db"
-import { clients, pendingRegistrations } from "../../db/schema"
+import type { DB } from "@/db"
+import { clients, pendingRegistrations } from "@/db/schema"
 
 export class ClientAccountRepository {
 	constructor(private readonly db: DB) {}

@@ -6,7 +6,7 @@ import { OpenAPIHono } from "@hono/zod-openapi"
 // Mock db so widgetAuth resolves token lookups in-memory
 let mockClientRow: { id: string; status: "active" | "suspended" } | undefined
 
-mock.module("../../db", () => ({
+mock.module("@/db", () => ({
 	db: {
 		select: () => ({
 			from: () => ({
@@ -25,13 +25,13 @@ const { WidgetConfigService } = await import("./widget-config.service")
 const inMemoryRepo = new InMemoryWidgetConfigRepository()
 const widgetConfigService = new WidgetConfigService(inMemoryRepo)
 
-mock.module("../widget-config", () => ({ widgetConfigService }))
+mock.module("@/modules/widget-config", () => ({ widgetConfigService }))
 
 // Dynamic imports after mocks
-const { widgetConfigRoutes } = await import("../widget/widget.routes")
-const { widgetAuth } = await import("../../common/middleware/widget-auth")
-const { errorHandler } = await import("../../common/middleware/error-handler")
-const { logger } = await import("../../common/logger")
+const { widgetConfigRoutes } = await import("@/modules/widget/widget.routes")
+const { widgetAuth } = await import("@/common/middleware/widget-auth")
+const { errorHandler } = await import("@/common/middleware/error-handler")
+const { logger } = await import("@/common/logger")
 
 // ─── Test app ─────────────────────────────────────────────────────────────────
 

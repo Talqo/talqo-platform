@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { ProviderConfigRepository } from "./provider-config.repository"
 import { ProviderConfigService } from "./provider-config.service"
 

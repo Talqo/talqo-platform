@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { McpServerConfigInput } from "shared"
-import { client } from "../client"
+import { client } from "@/api/client"
 import type { ApiError } from "./useAuth"
 
 export function useAdminProfile() {

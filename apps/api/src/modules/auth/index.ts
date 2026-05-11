@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { DrizzleAuthRepository } from "./auth.repository"
 import { createAuthRouter } from "./auth.routes"
 import { AuthService } from "./auth.service"

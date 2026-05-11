@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
-import { db } from "../../db"
-import { clients } from "../../db/schema"
-import { UnauthorizedError } from "../errors"
+import { UnauthorizedError } from "@/common/errors"
+import { db } from "@/db"
+import { clients } from "@/db/schema"
 
 // Validates X-Widget-Token header against clients.widget_token (NFR-3.2)
 export const widgetAuth: MiddlewareHandler = async (c, next) => {

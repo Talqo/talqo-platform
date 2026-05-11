@@ -1,7 +1,7 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { analyticsQuerySchema } from "shared"
-import { createRouter } from "../../common/router"
-import { successResponseSchema } from "../../common/schemas"
+import { createRouter } from "@/common/router"
+import { successResponseSchema } from "@/common/schemas"
 import { analyticsService } from "./index"
 
 // ─── Client analytics ──────────────────────────────────────────────────────────

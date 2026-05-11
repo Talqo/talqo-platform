@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi"
 import { widgetVisualConfigSchema } from "shared"
-import { createRouter } from "../../common/router"
-import { successResponseSchema } from "../../common/schemas"
+import { createRouter } from "@/common/router"
+import { successResponseSchema } from "@/common/schemas"
 import { widgetConfigService } from "./index"
 
 const router = createRouter()

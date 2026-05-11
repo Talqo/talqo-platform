@@ -40,6 +40,17 @@
 					"options": {
 						"style": "type"
 					}
+				},
+				"noRestrictedImports": {
+					"level": "error",
+					"options": {
+						"patterns": [
+							{
+								"group": ["../**"],
+								"message": "Use @ alias imports instead of relative parent imports"
+							}
+						]
+					}
 				}
 			}
 		}

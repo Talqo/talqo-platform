@@ -9,17 +9,10 @@ import {
 	VerifyEmailSchema,
 	VerifyResetTokenSchema,
 } from "shared"
-import {
-	AppError,
-	ForbiddenError,
-	UnauthorizedError,
-} from "../../common/errors"
-import type { AppVariables } from "../../common/jwt"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
+import { AppError, ForbiddenError, UnauthorizedError } from "@/common/errors"
+import type { AppVariables } from "@/common/jwt"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import type { AuthService } from "./auth.service"
 
 export function createAuthRouter(

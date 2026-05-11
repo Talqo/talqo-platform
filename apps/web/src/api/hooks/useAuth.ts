@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useCallback, useRef, useState } from "react"
+import { client } from "@/api/client"
 import { AUTH } from "@/lib/constants"
-import { client } from "../client"
 
 // Types from OpenAPI spec
 type LoginRequest = {

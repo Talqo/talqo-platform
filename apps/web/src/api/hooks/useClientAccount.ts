@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
+import { client } from "@/api/client"
 import { AUTH } from "@/lib/constants"
-import { client } from "../client"
 import type { ApiError } from "./useAuth"
 
 export function useClientProfile() {

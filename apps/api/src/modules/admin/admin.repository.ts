@@ -1,5 +1,5 @@
 import { and, count, desc, eq, inArray, sum } from "drizzle-orm"
-import type { DB } from "../../db"
+import type { DB } from "@/db"
 import {
 	adminAccessLogs,
 	adminUsers,
@@ -7,7 +7,7 @@ import {
 	conversations,
 	messages,
 	usageRecords,
-} from "../../db/schema"
+} from "@/db/schema"
 
 export class AdminRepository {
 	constructor(private readonly db: DB) {}

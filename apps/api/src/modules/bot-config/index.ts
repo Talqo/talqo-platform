@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { BotConfigRepository } from "./bot-config.repository"
 import { BotConfigService } from "./bot-config.service"
 

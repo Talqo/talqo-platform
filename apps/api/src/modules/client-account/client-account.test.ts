@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type { AppVariables } from "../../common/jwt"
-import { logger } from "../../common/logger"
+import type { AppVariables } from "@/common/jwt"
+import { logger } from "@/common/logger"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ const { ClientAccountService } = await import("./client-account.service")
 const { InMemoryClientAccountRepository } = await import(
 	"./client-account.repository"
 )
-const { errorHandler } = await import("../../common/middleware/error-handler")
+const { errorHandler } = await import("@/common/middleware/error-handler")
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -72,7 +72,7 @@ describe("DELETE /client/me", () => {
 	})
 
 	it("returns 401 when service throws UnauthorizedError", async () => {
-		const { UnauthorizedError } = await import("../../common/errors")
+		const { UnauthorizedError } = await import("@/common/errors")
 		mockService.deleteAccount.mockRejectedValueOnce(
 			new UnauthorizedError("Password is incorrect"),
 		)
@@ -89,7 +89,7 @@ describe("DELETE /client/me", () => {
 	})
 
 	it("returns 404 when service throws NotFoundError", async () => {
-		const { NotFoundError } = await import("../../common/errors")
+		const { NotFoundError } = await import("@/common/errors")
 		mockService.deleteAccount.mockRejectedValueOnce(
 			new NotFoundError("Client not found"),
 		)

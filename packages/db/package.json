@@ -20,7 +20,7 @@
 		}
 	},
 	"scripts": {
-		"build": "tsgo",
+		"build": "tsgo && tsc-alias",
 		"dev": "tsc --watch",
 		"lint": "biome lint .",
 		"check": "biome check .",
@@ -41,6 +41,7 @@
 	},
 	"devDependencies": {
 		"drizzle-kit": "^0.31.10",
+		"tsc-alias": "^1.8.17",
 		"typescript": "^6.0.0"
 	}
 }

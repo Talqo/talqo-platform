@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { eq } from "drizzle-orm"
 import { Hono } from "hono"
-import { clients } from "../../db/schema"
+import { clients } from "@/db/schema"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 let mockClientRow: { id: string; status: "active" | "suspended" } | undefined
 let capturedWhereArg: unknown
 
-mock.module("../../db", () => ({
+mock.module("@/db", () => ({
 	db: {
 		select: () => ({
 			from: () => ({

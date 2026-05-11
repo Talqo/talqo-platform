@@ -1,7 +1,7 @@
-import { db } from "../../db"
-import { BotConfigRepository } from "../bot-config/bot-config.repository"
-import { McpRepository } from "../mcp/mcp.repository"
-import { ProviderConfigRepository } from "../provider-config/provider-config.repository"
+import { db } from "@/db"
+import { BotConfigRepository } from "@/modules/bot-config/bot-config.repository"
+import { McpRepository } from "@/modules/mcp/mcp.repository"
+import { ProviderConfigRepository } from "@/modules/provider-config/provider-config.repository"
 import { WidgetRepository } from "./widget.repository"
 import { WidgetService } from "./widget.service"
 

@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { Hono } from "hono"
-import { UnauthorizedError } from "../errors"
-import type { TokenPayload } from "../jwt"
+import { UnauthorizedError } from "@/common/errors"
+import type { TokenPayload } from "@/common/jwt"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 // Controlled DB state — set in each test
 let mockClientRow: { id: string; status: string } | undefined
 
-mock.module("../../db", () => ({
+mock.module("@/db", () => ({
 	db: {
 		select: () => ({
 			from: () => ({
@@ -21,7 +21,7 @@ mock.module("../../db", () => ({
 // Controlled JWT verification — set in each test
 let mockVerifyResult: TokenPayload | null = null
 
-mock.module("../jwt", () => ({
+mock.module("@/common/jwt", () => ({
 	signToken: async () => "mock-token",
 	verifyToken: async (_token: string) => {
 		if (!mockVerifyResult)

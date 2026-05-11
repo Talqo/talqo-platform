@@ -1,10 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { messageResponseSchema } from "db/dto"
 import { clientConversationSummarySchema, paginationQuerySchema } from "shared"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import type { ClientConversationService } from "./client-conversations.service"
 
 export function createClientConversationRouter(

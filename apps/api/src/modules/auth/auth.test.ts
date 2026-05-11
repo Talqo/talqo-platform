@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
-import type { AppVariables } from "../../common/jwt"
-import { logger } from "../../common/logger"
+import type { AppVariables } from "@/common/jwt"
+import { logger } from "@/common/logger"
 
 // Track email sends for assertions - mock at the resend level to avoid module caching issues
 // with email.service.test.ts which also mocks resend
@@ -16,7 +16,7 @@ mock.module("resend", () => ({
 const { createAuthRouter } = await import("./auth.routes")
 const { InMemoryAuthRepository } = await import("./auth.repository")
 const { AuthService } = await import("./auth.service")
-const { errorHandler } = await import("../../common/middleware/error-handler")
+const { errorHandler } = await import("@/common/middleware/error-handler")
 
 function buildApp() {
 	const repo = new InMemoryAuthRepository()

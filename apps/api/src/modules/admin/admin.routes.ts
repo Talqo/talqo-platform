@@ -11,13 +11,10 @@ import {
 	LoginSchema,
 	paginationQuerySchema,
 } from "shared"
-import { NotFoundError, UnauthorizedError } from "../../common/errors"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
-import type { WideEvent } from "../../common/wide-event.types"
+import { NotFoundError, UnauthorizedError } from "@/common/errors"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
+import type { WideEvent } from "@/common/wide-event.types"
 import type { AdminService } from "./admin.service"
 
 // ─── Admin auth (unprotected) ──────────────────────────────────────────────────

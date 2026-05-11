@@ -12,6 +12,11 @@ export default defineConfig(({ mode }) => {
 		mode === "development" || process.env.NODE_ENV === "development"
 
 	return {
+		resolve: {
+			alias: {
+				"@": resolve(__dirname, "./src"),
+			},
+		},
 		plugins: [
 			react(),
 			svgr(),

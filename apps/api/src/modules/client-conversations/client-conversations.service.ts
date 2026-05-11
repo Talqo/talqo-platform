@@ -1,4 +1,4 @@
-import { NotFoundError } from "../../common/errors"
+import { NotFoundError } from "@/common/errors"
 import type { ClientConversationRepository } from "./client-conversations.repository"
 
 export class ClientConversationService {

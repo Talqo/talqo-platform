@@ -1,8 +1,8 @@
 import { createMiddleware } from "hono/factory"
-import { config } from "../config"
-import { AppError } from "../errors"
-import type { AppVariables } from "../jwt"
-import type { EventExporter, WideEvent } from "../wide-event.types"
+import { config } from "@/common/config"
+import { AppError } from "@/common/errors"
+import type { AppVariables } from "@/common/jwt"
+import type { EventExporter, WideEvent } from "@/common/wide-event.types"
 
 export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 	return createMiddleware<{ Variables: AppVariables }>(async (c, next) => {

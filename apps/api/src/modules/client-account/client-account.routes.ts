@@ -8,11 +8,8 @@ import {
 	usageAlertBodySchema,
 	usageLimitBodySchema,
 } from "shared"
-import { createRouter } from "../../common/router"
-import {
-	errorResponseSchema,
-	successResponseSchema,
-} from "../../common/schemas"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { clientAccountService } from "./index"
 
 const router = createRouter()

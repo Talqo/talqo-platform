@@ -1,4 +1,4 @@
-import { ValidationError } from "../../common/errors"
+import { ValidationError } from "@/common/errors"
 import type { AnalyticsRepository } from "./analytics.repository"
 
 type Granularity = "day" | "week" | "month"

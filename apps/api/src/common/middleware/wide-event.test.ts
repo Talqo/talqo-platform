@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test"
 import { Hono } from "hono"
 import type { ContentfulStatusCode } from "hono/utils/http-status"
-import type { AppVariables } from "../jwt"
-import { logger } from "../logger"
+import type { AppVariables } from "@/common/jwt"
+import { logger } from "@/common/logger"
 import { wideEventMiddleware } from "./wide-event"
 
 function buildApp(status: ContentfulStatusCode = 200) {

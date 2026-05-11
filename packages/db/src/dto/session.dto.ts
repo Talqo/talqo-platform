@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { conversations, endUserSessions, messages } from "../schema/session"
+import { conversations, endUserSessions, messages } from "@/schema/session"
 
 export const sessionResponseSchema = createSelectSchema(endUserSessions, {
 	browserSessionId: z.string(),

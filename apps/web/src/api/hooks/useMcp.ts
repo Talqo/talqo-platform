@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { McpRemoteServerConfig } from "shared"
-import { client } from "../client"
+import { client } from "@/api/client"
 
 // ─── Pre-made servers ──────────────────────────────────────────────────────────
 

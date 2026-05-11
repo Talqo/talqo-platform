@@ -1,5 +1,5 @@
 import { and, eq, gte, lt, sql, sum } from "drizzle-orm"
-import type { DB } from "../../db"
+import type { DB } from "@/db"
 import {
 	clients,
 	conversations,
@@ -7,7 +7,7 @@ import {
 	type messageRoleEnum,
 	messages,
 	usageRecords,
-} from "../../db/schema"
+} from "@/db/schema"
 
 export type WidgetMessage = {
 	id: string

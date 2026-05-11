@@ -1,6 +1,6 @@
 import { createSelectSchema } from "drizzle-zod"
 import { z } from "zod"
-import { usageRecords } from "../schema/usage"
+import { usageRecords } from "@/schema/usage"
 
 export const usageRecordResponseSchema = createSelectSchema(usageRecords, {
 	costUsd: z.string(),

@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { ClientAccountRepository } from "./client-account.repository"
 import { ClientAccountService } from "./client-account.service"
 

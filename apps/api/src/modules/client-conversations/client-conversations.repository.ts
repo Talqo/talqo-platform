@@ -1,6 +1,6 @@
 import { count, desc, eq } from "drizzle-orm"
-import type { DB } from "../../db"
-import { conversations, messages } from "../../db/schema"
+import type { DB } from "@/db"
+import { conversations, messages } from "@/db/schema"
 
 export class ClientConversationRepository {
 	constructor(private readonly db: DB) {}

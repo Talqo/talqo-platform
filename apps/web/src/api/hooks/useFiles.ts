@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { client } from "@/api/client"
 import { getApiBaseUrl } from "@/lib/api"
 import { AUTH } from "@/lib/constants"
-import { client } from "../client"
 
 const FILES_KEY = ["files"] as const
 

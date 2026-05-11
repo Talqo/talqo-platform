@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
-import { db } from "../../db"
-import { clients } from "../../db/schema"
-import { ForbiddenError, UnauthorizedError } from "../errors"
-import { verifyToken } from "../jwt"
-import type { Logger } from "../logger"
-import type { WideEvent } from "../wide-event.types"
+import { ForbiddenError, UnauthorizedError } from "@/common/errors"
+import { verifyToken } from "@/common/jwt"
+import type { Logger } from "@/common/logger"
+import type { WideEvent } from "@/common/wide-event.types"
+import { db } from "@/db"
+import { clients } from "@/db/schema"
 
 // Validates Client JWT from Authorization: Bearer <token>
 // Also accepts impersonation JWTs issued by POST /admin/clients/:id/impersonate (FR-3.3)

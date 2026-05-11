@@ -1,4 +1,4 @@
-import { db } from "../../db"
+import { db } from "@/db"
 import { ClientConversationRepository } from "./client-conversations.repository"
 import { createClientConversationRouter } from "./client-conversations.routes"
 import { ClientConversationService } from "./client-conversations.service"

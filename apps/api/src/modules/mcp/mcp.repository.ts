@@ -1,11 +1,11 @@
 import { and, eq } from "drizzle-orm"
 import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
-import type { DB } from "../../db"
+import type { DB } from "@/db"
 import {
 	clientPreMadeMcp,
 	customMcpServers,
 	preMadeMcpServers,
-} from "../../db/schema"
+} from "@/db/schema"
 
 export class McpRepository {
 	constructor(private readonly db: DB) {}

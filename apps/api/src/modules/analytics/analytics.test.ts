@@ -51,7 +51,7 @@ const { InMemoryAnalyticsRepository } = await import("./analytics.repository")
 const { clientAnalyticsRoutes, adminAnalyticsRoutes } = await import(
 	"./analytics.routes"
 )
-const { errorHandler } = await import("../../common/middleware/error-handler")
+const { errorHandler } = await import("@/common/middleware/error-handler")
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -271,7 +271,7 @@ describe("GET /analytics/tokens", () => {
 
 	it("returns 422 for invalid date query param", async () => {
 		mockService.getTokenAnalytics.mockImplementation(async () => {
-			const { ValidationError } = await import("../../common/errors")
+			const { ValidationError } = await import("@/common/errors")
 			throw new ValidationError("Invalid date: not-a-date")
 		})
 		const res = await app.fetch(

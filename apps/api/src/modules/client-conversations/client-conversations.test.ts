@@ -10,7 +10,7 @@ const { ClientConversationService } = await import(
 const { createClientConversationRouter } = await import(
 	"./client-conversations.routes"
 )
-const { errorHandler } = await import("../../common/middleware/error-handler")
+const { errorHandler } = await import("@/common/middleware/error-handler")
 
 // ─── In-memory repository ─────────────────────────────────────────────────────
 

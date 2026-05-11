@@ -1,5 +1,5 @@
 import { Resend } from "resend"
-import { logger } from "../logger"
+import { logger } from "@/common/logger"
 import {
 	passwordResetEmailTemplate,
 	quotaAlertEmailTemplate,
