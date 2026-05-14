@@ -82,7 +82,7 @@ router.openapi(
 
 router.openapi(
 	createRoute({
-		method: "patch",
+		method: "post",
 		path: "/me/password",
 		tags: ["Client Account"],
 		summary: "Change password",
