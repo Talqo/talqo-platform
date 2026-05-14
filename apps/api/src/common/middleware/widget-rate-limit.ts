@@ -4,6 +4,7 @@ import type { MiddlewareHandler } from "hono"
 import { getConnInfo } from "hono/bun"
 import { config } from "@/common/config"
 import { TooManyRequestsError } from "@/common/errors"
+import { logger } from "@/common/logger"
 import { db } from "@/db"
 import { widgetIpRateLimits } from "@/db/schema"
 
@@ -88,7 +89,9 @@ export const widgetRateLimit: MiddlewareHandler = async (c, next) => {
 
 	// Probabilistic cleanup so stale rows don't accumulate forever
 	if (Math.random() < CLEANUP_CHANCE) {
-		cleanupStaleWindows().catch(() => {})
+		cleanupStaleWindows().catch((err) =>
+			logger.warn("Rate-limit cleanup failed", { error: err }),
+		)
 	}
 
 	await next()

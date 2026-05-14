@@ -1,11 +1,14 @@
 import { eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
 import { UnauthorizedError } from "@/common/errors"
+import type { AppVariables } from "@/common/jwt"
 import { db } from "@/db"
 import { clients } from "@/db/schema"
 
 // Validates X-Widget-Token header against clients.widget_token (NFR-3.2)
-export const widgetAuth: MiddlewareHandler = async (c, next) => {
+export const widgetAuth: MiddlewareHandler<{
+	Variables: AppVariables
+}> = async (c, next) => {
 	const token = c.req.header("X-Widget-Token")
 	if (!token) {
 		throw new UnauthorizedError("Missing X-Widget-Token header")
@@ -24,6 +27,6 @@ export const widgetAuth: MiddlewareHandler = async (c, next) => {
 		throw new UnauthorizedError("Account suspended")
 	}
 
-	c.set("clientId" as never, client.id)
+	c.set("clientId", client.id)
 	await next()
 }

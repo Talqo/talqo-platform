@@ -27,7 +27,7 @@ function buildApp() {
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	app.use("/*", async (c, next) => {
-		c.set("clientId" as never, CLIENT_ID)
+		c.set("clientId", CLIENT_ID)
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
 		await next()
 	})

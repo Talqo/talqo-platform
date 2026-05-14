@@ -4,6 +4,7 @@ import {
 } from "@/common/email/email.service"
 import {
 	AuthConflictError,
+	EmailDeliveryError,
 	ForbiddenError,
 	UnauthorizedError,
 } from "@/common/errors"
@@ -48,7 +49,11 @@ export class AuthService {
 		})
 
 		logger.info("Sending verification email", { email: canonical })
-		await sendVerificationEmail(canonical, token)
+		try {
+			await sendVerificationEmail(canonical, token)
+		} catch (_err) {
+			throw new EmailDeliveryError("Failed to send verification email")
+		}
 	}
 
 	async verifyEmail(token: string): Promise<string> {

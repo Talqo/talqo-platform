@@ -1,13 +1,15 @@
 import { and, eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
 import { ForbiddenError, UnauthorizedError } from "@/common/errors"
-import { verifyToken } from "@/common/jwt"
-import type { WideEvent } from "@/common/wide-event.types"
+import { type AppVariables, verifyToken } from "@/common/jwt"
 import { db } from "@/db"
 import { adminUsers } from "@/db/schema"
 
 // Validates Admin JWT from Authorization: Bearer <token>
-export const adminAuth: MiddlewareHandler = async (c, next) => {
+export const adminAuth: MiddlewareHandler<{ Variables: AppVariables }> = async (
+	c,
+	next,
+) => {
 	const authHeader = c.req.header("Authorization")
 	if (!authHeader?.startsWith("Bearer ")) {
 		throw new UnauthorizedError("Missing or invalid Authorization header")
@@ -30,8 +32,8 @@ export const adminAuth: MiddlewareHandler = async (c, next) => {
 		throw new UnauthorizedError("Admin not found")
 	}
 
-	c.set("adminId" as never, payload.sub)
-	const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+	c.set("adminId", payload.sub)
+	const wideEvent = c.get("wideEvent")
 	if (wideEvent) wideEvent.admin = { id: admin.id }
 	await next()
 }

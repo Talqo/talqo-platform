@@ -1,6 +1,7 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { customServerResponseSchema, preMadeServerResponseSchema } from "db/dto"
 import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { mcpService } from "./index"
@@ -9,7 +10,7 @@ const serverIdParam = z.object({ serverId: z.string().uuid() })
 
 // ─── Client MCP routes ─────────────────────────────────────────────────────────
 
-export const clientMcpRoutes = createRouter()
+export const clientMcpRoutes = createRouter<{ Variables: AppVariables }>()
 
 clientMcpRoutes.openapi(
 	createRoute({
@@ -54,7 +55,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const servers = await mcpService.listEnabledPreMade(clientId)
 		return c.json(servers, 200)
 	},
@@ -84,7 +85,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { serverId } = c.req.valid("param")
 		await mcpService.enablePreMade(clientId, serverId)
 		return c.json({ message: "Server enabled" }, 200)
@@ -115,7 +116,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { serverId } = c.req.valid("param")
 		await mcpService.disablePreMade(clientId, serverId)
 		return c.json({ message: "Server disabled" }, 200)
@@ -141,7 +142,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const servers = await mcpService.listCustomServers(clientId)
 		return c.json(servers, 200)
 	},
@@ -175,7 +176,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { mcpConfig } = c.req.valid("json")
 		const server = await mcpService.createCustomServer(clientId, mcpConfig)
 		return c.json(server, 201)
@@ -215,7 +216,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { serverId } = c.req.valid("param")
 		const { mcpConfig } = c.req.valid("json")
 		const server = await mcpService.updateCustomServer(
@@ -251,7 +252,7 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { serverId } = c.req.valid("param")
 		await mcpService.deleteCustomServer(clientId, serverId)
 		return c.json({ message: "Server deleted" }, 200)
@@ -260,7 +261,7 @@ clientMcpRoutes.openapi(
 
 // ─── Admin MCP routes ──────────────────────────────────────────────────────────
 
-export const adminMcpRoutes = createRouter()
+export const adminMcpRoutes = createRouter<{ Variables: AppVariables }>()
 
 adminMcpRoutes.openapi(
 	createRoute({
