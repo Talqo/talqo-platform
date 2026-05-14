@@ -474,7 +474,8 @@
 			"noMessages": "No messages",
 			"chatPreviews": "Chat Previews",
 			"chatPreviewsDescription": "Browse and inspect end-user conversations (showing most recent 50)",
-			"ratingLabel": "Rating"
+			"ratingLabel": "Rating",
+			"selectConversationPlaceholder": "Select a conversation to preview it"
 		}
 	},
 	"auth": {

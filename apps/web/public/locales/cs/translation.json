@@ -608,7 +608,8 @@
 			"noMessages": "Žádné zprávy",
 			"chatPreviews": "Náhledy chatů",
 			"chatPreviewsDescription": "Prohlížejte a kontrolujte konverzace koncových uživatelů (zobrazuje posledních 50)",
-			"ratingLabel": "Hodnocení"
+			"ratingLabel": "Hodnocení",
+			"selectConversationPlaceholder": "Vyberte konverzaci pro náhled"
 		}
 	}
 }
