@@ -51,7 +51,8 @@ export class AuthService {
 		logger.info("Sending verification email", { email: canonical })
 		try {
 			await sendVerificationEmail(canonical, token)
-		} catch (_err) {
+		} catch (err) {
+			logger.error("Failed to send verification email", { error: err })
 			throw new EmailDeliveryError("Failed to send verification email")
 		}
 	}
