@@ -1154,6 +1154,8 @@ export interface paths {
                             /** Format: uuid */
                             id: string;
                             mcpConfig?: unknown;
+                            name: string;
+                            description: string | null;
                         }[];
                     };
                 };
@@ -1194,6 +1196,8 @@ export interface paths {
                             /** Format: uuid */
                             id: string;
                             mcpConfig?: unknown;
+                            name: string;
+                            description: string | null;
                         }[];
                     };
                 };
@@ -1347,14 +1351,6 @@ export interface paths {
                     "application/json": {
                         mcpConfig: {
                             /** @enum {string} */
-                            type: "sse";
-                            /** Format: uri */
-                            url: string;
-                            headers?: {
-                                [key: string]: string;
-                            };
-                        } | {
-                            /** @enum {string} */
                             type: "http";
                             /** Format: uri */
                             url: string;
@@ -1455,14 +1451,6 @@ export interface paths {
                     "application/json": {
                         mcpConfig: {
                             /** @enum {string} */
-                            type: "sse";
-                            /** Format: uri */
-                            url: string;
-                            headers?: {
-                                [key: string]: string;
-                            };
-                        } | {
-                            /** @enum {string} */
                             type: "http";
                             /** Format: uri */
                             url: string;
@@ -1505,6 +1493,71 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/client/me/mcp/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify an MCP server by stored configuration */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        serverId: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Verification result */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                            tools: string[];
+                        } | {
+                            /** @enum {boolean} */
+                            ok: false;
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Server not found or not enabled */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/client/me/analytics/tokens": {
@@ -2147,6 +2200,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/client/me/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get own conversation with messages */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    conversationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Conversation detail with messages */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            startedAt: string;
+                            satisfactionRating: number | null;
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                conversationId: string;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "system";
+                                content: string;
+                                tokenCount: number;
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Conversation not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/client/me/widget-config": {
         parameters: {
             query?: never;
@@ -2305,74 +2426,6 @@ export interface paths {
                 };
             };
         };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/client/me/conversations/{conversationId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get own conversation with messages */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    conversationId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Conversation detail with messages */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** Format: uuid */
-                            id: string;
-                            startedAt: string;
-                            satisfactionRating: number | null;
-                            messages: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                conversationId: string;
-                                /** @enum {string} */
-                                role: "user" | "assistant" | "system";
-                                content: string;
-                                tokenCount: number;
-                                createdAt: string;
-                            }[];
-                        };
-                    };
-                };
-                /** @description Conversation not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            error: {
-                                code: string;
-                                message: string;
-                            };
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -3473,13 +3526,13 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             adminId: string;
-                            adminEmail: string;
                             /** Format: uuid */
                             clientId: string | null;
-                            clientName: string | null;
-                            clientEmail: string | null;
                             actionType: string;
                             createdAt: string;
+                            adminEmail: string;
+                            clientName: string | null;
+                            clientEmail: string | null;
                         }[];
                     };
                 };
@@ -3520,6 +3573,8 @@ export interface paths {
                             /** Format: uuid */
                             id: string;
                             mcpConfig?: unknown;
+                            name: string;
+                            description: string | null;
                         }[];
                     };
                 };
@@ -3537,20 +3592,14 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
+                        name: string;
+                        description?: string;
                         mcpConfig: {
                             /** @enum {string} */
                             type: "stdio";
                             command: string;
                             args?: string[];
                             env?: {
-                                [key: string]: string;
-                            };
-                        } | {
-                            /** @enum {string} */
-                            type: "sse";
-                            /** Format: uri */
-                            url: string;
-                            headers?: {
                                 [key: string]: string;
                             };
                         } | {
@@ -3576,6 +3625,8 @@ export interface paths {
                             /** Format: uuid */
                             id: string;
                             mcpConfig?: unknown;
+                            name: string;
+                            description: string | null;
                         };
                     };
                 };
@@ -3651,20 +3702,14 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
+                        name: string;
+                        description?: string;
                         mcpConfig: {
                             /** @enum {string} */
                             type: "stdio";
                             command: string;
                             args?: string[];
                             env?: {
-                                [key: string]: string;
-                            };
-                        } | {
-                            /** @enum {string} */
-                            type: "sse";
-                            /** Format: uri */
-                            url: string;
-                            headers?: {
                                 [key: string]: string;
                             };
                         } | {
@@ -3690,6 +3735,8 @@ export interface paths {
                             /** Format: uuid */
                             id: string;
                             mcpConfig?: unknown;
+                            name: string;
+                            description: string | null;
                         };
                     };
                 };
@@ -3709,6 +3756,72 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/admin/mcp/pre-made/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify an MCP server configuration */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        mcpConfig: {
+                            /** @enum {string} */
+                            type: "stdio";
+                            command: string;
+                            args?: string[];
+                            env?: {
+                                [key: string]: string;
+                            };
+                        } | {
+                            /** @enum {string} */
+                            type: "http";
+                            /** Format: uri */
+                            url: string;
+                            headers?: {
+                                [key: string]: string;
+                            };
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Verification result */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                            tools: string[];
+                        } | {
+                            /** @enum {boolean} */
+                            ok: false;
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }

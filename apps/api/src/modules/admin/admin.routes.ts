@@ -12,15 +12,17 @@ import {
 	paginationQuerySchema,
 } from "shared"
 import { NotFoundError, UnauthorizedError } from "@/common/errors"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
-import type { WideEvent } from "@/common/wide-event.types"
 import type { AdminService } from "./admin.service"
 
 // ─── Admin auth (unprotected) ──────────────────────────────────────────────────
 
-export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
-	const router = createRouter()
+export function createAdminAuthRouter(
+	service: AdminService,
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({
@@ -59,7 +61,7 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const body = c.req.valid("json")
-			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			const wideEvent = c.get("wideEvent")
 			let result: Awaited<ReturnType<typeof service.login>>
 			try {
 				result = await service.login(body)
@@ -101,8 +103,10 @@ export function createAdminAuthRouter(service: AdminService): OpenAPIHono {
 
 // ─── Admin current user (protected) ───────────────────────────────────────────
 
-export function createAdminMeRouter(service: AdminService): OpenAPIHono {
-	const router = createRouter()
+export function createAdminMeRouter(
+	service: AdminService,
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	// GET /admin/me - Get current admin profile
 	router.openapi(
@@ -138,7 +142,7 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 			},
 		}),
 		async (c) => {
-			const adminId = c.get("adminId" as never) as string
+			const adminId = c.get("adminId")
 			const admin = await service.getAdminById(adminId)
 			if (!admin) {
 				throw new NotFoundError("Admin not found")
@@ -155,8 +159,10 @@ export function createAdminMeRouter(service: AdminService): OpenAPIHono {
 
 // ─── Admin client management (protected) ──────────────────────────────────────
 
-export function createAdminClientRouter(service: AdminService): OpenAPIHono {
-	const router = createRouter()
+export function createAdminClientRouter(
+	service: AdminService,
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({
@@ -260,13 +266,13 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 			const { clientId } = c.req.valid("param")
 			const { status } = c.req.valid("json")
 			c.set(
-				"auditActionLabel" as never,
-				(status === "suspended" ? "suspend" : "re-enable") as never,
+				"auditActionLabel",
+				status === "suspended" ? "suspend" : "re-enable",
 			)
 			const updated = await service.updateClientStatus(clientId, status)
-			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			const wideEvent = c.get("wideEvent")
 			if (wideEvent) {
-				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
+				wideEvent.admin ??= { id: c.get("adminId") }
 				wideEvent.admin.target_client_id = clientId
 				wideEvent.admin.action = status === "suspended" ? "suspend" : "enable"
 			}
@@ -301,11 +307,11 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 		}),
 		async (c) => {
 			const { clientId } = c.req.valid("param")
-			c.set("auditActionLabel" as never, "impersonate" as never)
+			c.set("auditActionLabel", "impersonate")
 			const result = await service.impersonate(clientId)
-			const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+			const wideEvent = c.get("wideEvent")
 			if (wideEvent) {
-				wideEvent.admin ??= { id: c.get("adminId" as never) as string }
+				wideEvent.admin ??= { id: c.get("adminId") }
 				wideEvent.admin.target_client_id = clientId
 				wideEvent.admin.action = "impersonate"
 			}
@@ -320,8 +326,8 @@ export function createAdminClientRouter(service: AdminService): OpenAPIHono {
 
 export function createAdminActivityLogsRouter(
 	service: AdminService,
-): OpenAPIHono {
-	const router = createRouter()
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({
@@ -358,8 +364,8 @@ export function createAdminActivityLogsRouter(
 
 export function createAdminConversationRouter(
 	service: AdminService,
-): OpenAPIHono {
-	const router = createRouter()
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({

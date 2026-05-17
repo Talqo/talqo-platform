@@ -8,11 +8,12 @@ import {
 	usageAlertBodySchema,
 	usageLimitBodySchema,
 } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { clientAccountService } from "./index"
 
-const router = createRouter()
+const router = createRouter<{ Variables: AppVariables }>()
 
 router.openapi(
 	createRoute({
@@ -33,7 +34,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const profile = await clientAccountService.getProfile(clientId)
 		return c.json(profile, 200)
 	},
@@ -73,7 +74,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const body = c.req.valid("json")
 		const result = await clientAccountService.updateProfile(clientId, body)
 		return c.json(result, 200)
@@ -112,7 +113,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const body = c.req.valid("json")
 		await clientAccountService.changePassword(clientId, body)
 		return c.json({ message: "Password changed" }, 200)
@@ -147,7 +148,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { amount } = c.req.valid("json")
 		const result = await clientAccountService.addFunds(clientId, amount)
 		return c.json(result, 200)
@@ -182,7 +183,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { limit } = c.req.valid("json")
 		await clientAccountService.setUsageLimit(clientId, limit)
 		return c.json({ message: "Usage limit updated" }, 200)
@@ -217,7 +218,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { thresholdUsd } = c.req.valid("json")
 		await clientAccountService.setUsageAlert(clientId, thresholdUsd)
 		return c.json({ message: "Usage alert updated" }, 200)
@@ -247,7 +248,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		await clientAccountService.dismissWidgetSetup(clientId)
 		return c.json({ message: "Widget setup dismissed" }, 200)
 	},
@@ -278,7 +279,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const widgetToken = await clientAccountService.rotateWidgetToken(clientId)
 		return c.json({ widgetToken }, 200)
 	},
@@ -320,7 +321,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { password } = c.req.valid("json")
 		await clientAccountService.deleteAccount(clientId, password)
 		return c.json({ message: "Account deleted" }, 200)

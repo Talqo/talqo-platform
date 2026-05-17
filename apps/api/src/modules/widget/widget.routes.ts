@@ -11,16 +11,16 @@ import {
 	sendMessageBodySchema,
 	widgetVisualConfigSchema,
 } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { widgetRateLimit } from "@/common/middleware/widget-rate-limit"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
-import type { WideEvent } from "@/common/wide-event.types"
 import { widgetConfigService } from "@/modules/widget-config"
 import { widgetService } from "./index"
 
 // ─── Session routes ────────────────────────────────────────────────────────────
 
-export const widgetSessionRoutes = createRouter()
+export const widgetSessionRoutes = createRouter<{ Variables: AppVariables }>()
 
 widgetSessionRoutes.openapi(
 	createRoute({
@@ -50,13 +50,13 @@ widgetSessionRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { browserSessionId } = c.req.valid("json")
 		const { session, isNew } = await widgetService.createOrResumeSession(
 			clientId,
 			browserSessionId,
 		)
-		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		const wideEvent = c.get("wideEvent")
 		if (wideEvent)
 			wideEvent.widget = { session_id: session.id, is_new_session: isNew }
 		return c.json(session, 200)
@@ -65,7 +65,9 @@ widgetSessionRoutes.openapi(
 
 // ─── Conversation routes ───────────────────────────────────────────────────────
 
-export const widgetConversationRoutes = createRouter()
+export const widgetConversationRoutes = createRouter<{
+	Variables: AppVariables
+}>()
 
 widgetConversationRoutes.openapi(
 	createRoute({
@@ -93,13 +95,13 @@ widgetConversationRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const sessionId = c.req.valid("param").sessionId
 		const conversation = await widgetService.startConversation(
 			clientId,
 			sessionId,
 		)
-		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		const wideEvent = c.get("wideEvent")
 		if (wideEvent)
 			wideEvent.widget = {
 				session_id: sessionId,
@@ -142,7 +144,7 @@ widgetConversationRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { conversationId } = c.req.valid("param")
 		const { rating } = c.req.valid("json")
 		const updated = await widgetService.rateConversation(
@@ -156,7 +158,7 @@ widgetConversationRoutes.openapi(
 
 // ─── Message routes ────────────────────────────────────────────────────────────
 
-export const widgetMessageRoutes = createRouter()
+export const widgetMessageRoutes = createRouter<{ Variables: AppVariables }>()
 
 widgetMessageRoutes.use(widgetRateLimit)
 
@@ -186,10 +188,10 @@ widgetMessageRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { conversationId } = c.req.valid("param")
 		const msgs = await widgetService.getMessageHistory(clientId, conversationId)
-		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		const wideEvent = c.get("wideEvent")
 		if (wideEvent)
 			wideEvent.widget = {
 				session_id: c.req.param("sessionId"),
@@ -236,14 +238,14 @@ widgetMessageRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { conversationId } = c.req.valid("param")
 		const { content } = c.req.valid("json")
 
 		const { stream, userMessage, usage, isExternalProvider, provider, model } =
 			await widgetService.sendMessage(clientId, conversationId, content)
 
-		const wideEvent = c.get("wideEvent" as never) as WideEvent | undefined
+		const wideEvent = c.get("wideEvent")
 		if (wideEvent) {
 			wideEvent.widget = {
 				session_id: c.req.param("sessionId"),
@@ -251,10 +253,8 @@ widgetMessageRoutes.openapi(
 			}
 			wideEvent.ai = { provider, model }
 		}
-		const logger = c.get("logger" as never) as
-			| { info: (msg: string, meta?: Record<string, unknown>) => void }
-			| undefined
-		const requestId = c.get("requestId" as never) as string | undefined
+		const logger = c.get("logger")
+		const requestId = c.get("requestId")
 
 		return streamSSE(c, async (sse) => {
 			await sse.writeSSE({
@@ -277,10 +277,12 @@ widgetMessageRoutes.openapi(
 					})
 				}
 			} catch (err) {
-				;(
-					c.get("logger" as never) as { error: (...args: unknown[]) => void }
-				).error("Widget stream error", { error: String(err) })
-				await reader.cancel().catch(() => {})
+				logger.error("Widget stream error", { error: String(err) })
+				await reader.cancel().catch((cancelErr) =>
+					logger.warn("Stream reader cancel failed", {
+						error: String(cancelErr),
+					}),
+				)
 				await sse.writeSSE({
 					event: "error",
 					data: JSON.stringify({
@@ -330,7 +332,7 @@ widgetMessageRoutes.openapi(
 
 // ─── Widget config routes ──────────────────────────────────────────────────────
 
-export const widgetConfigRoutes = createRouter()
+export const widgetConfigRoutes = createRouter<{ Variables: AppVariables }>()
 
 widgetConfigRoutes.openapi(
 	createRoute({
@@ -351,7 +353,7 @@ widgetConfigRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const config = await widgetConfigService.getConfig(clientId)
 		c.header(
 			"Cache-Control",

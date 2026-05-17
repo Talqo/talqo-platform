@@ -96,7 +96,7 @@ function buildApp(service: FakeFilesService) {
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.use("/*", async (c, next) => {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
-		c.set("clientId" as never, TEST_CLIENT_ID)
+		c.set("clientId", TEST_CLIENT_ID)
 		await next()
 	})
 	app.onError(errorHandler)

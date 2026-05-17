@@ -5,19 +5,13 @@ export type McpStdioConfig = {
 	env?: Record<string, string>
 }
 
-export type McpSseConfig = {
-	type: "sse"
-	url: string
-	headers?: Record<string, string>
-}
-
 export type McpHttpConfig = {
 	type: "http"
 	url: string
 	headers?: Record<string, string>
 }
 
-export type McpServerConfig = McpStdioConfig | McpSseConfig | McpHttpConfig
+export type McpServerConfig = McpStdioConfig | McpHttpConfig
 
 export type ProviderType =
 	| "openai"

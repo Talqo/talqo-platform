@@ -1,5 +1,10 @@
-import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
-import { NotFoundError } from "@/common/errors"
+import type {
+	McpRemoteServerConfig,
+	McpServerConfig,
+	McpServerConfigInput,
+} from "shared"
+import { mcpServerConfigSchema } from "shared"
+import { NotFoundError, ValidationError } from "@/common/errors"
 import type { McpRepository } from "./mcp.repository"
 
 export class McpService {
@@ -11,12 +16,26 @@ export class McpService {
 		return this.repo.listPreMadeServers()
 	}
 
-	async createPreMadeServer(mcpConfig: McpServerConfigInput) {
-		return this.repo.createPreMadeServer(mcpConfig)
+	async createPreMadeServer(
+		name: string,
+		description: string | undefined,
+		mcpConfig: McpServerConfigInput,
+	) {
+		return this.repo.createPreMadeServer(name, description, mcpConfig)
 	}
 
-	async updatePreMadeServer(serverId: string, mcpConfig: McpServerConfigInput) {
-		const updated = await this.repo.updatePreMadeServer(serverId, mcpConfig)
+	async updatePreMadeServer(
+		serverId: string,
+		name: string,
+		description: string | undefined,
+		mcpConfig: McpServerConfigInput,
+	) {
+		const updated = await this.repo.updatePreMadeServer(
+			serverId,
+			name,
+			description,
+			mcpConfig,
+		)
 		if (!updated) throw new NotFoundError("Pre-made MCP server not found")
 		return updated
 	}
@@ -70,5 +89,31 @@ export class McpService {
 	async deleteCustomServer(clientId: string, serverId: string) {
 		const deleted = await this.repo.deleteCustomServer(serverId, clientId)
 		if (!deleted) throw new NotFoundError("Custom MCP server not found")
+	}
+
+	// ─── Verify helpers ──────────────────────────────────────────────────────────
+
+	async getCustomServerConfig(
+		clientId: string,
+		serverId: string,
+	): Promise<McpServerConfig> {
+		const raw = await this.repo.getCustomServerConfig(serverId, clientId)
+		if (!raw) throw new NotFoundError("Custom MCP server not found")
+		const parsed = mcpServerConfigSchema.safeParse(raw)
+		if (!parsed.success)
+			throw new ValidationError("Invalid custom MCP server config")
+		return parsed.data
+	}
+
+	async getEnabledPreMadeConfig(
+		clientId: string,
+		serverId: string,
+	): Promise<McpServerConfig> {
+		const raw = await this.repo.getEnabledPreMadeConfig(serverId, clientId)
+		if (!raw) throw new NotFoundError("Pre-made MCP server not enabled")
+		const parsed = mcpServerConfigSchema.safeParse(raw)
+		if (!parsed.success)
+			throw new ValidationError("Invalid pre-made MCP server config")
+		return parsed.data
 	}
 }

@@ -1,12 +1,13 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { analyticsQuerySchema } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { successResponseSchema } from "@/common/schemas"
 import { analyticsService } from "./index"
 
 // ─── Client analytics ──────────────────────────────────────────────────────────
 
-export const clientAnalyticsRoutes = createRouter()
+export const clientAnalyticsRoutes = createRouter<{ Variables: AppVariables }>()
 
 clientAnalyticsRoutes.openapi(
 	createRoute({
@@ -36,7 +37,7 @@ clientAnalyticsRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const query = c.req.valid("query")
 		const data = await analyticsService.getTokenAnalytics(clientId, query)
 		return c.json(data, 200)
@@ -70,7 +71,7 @@ clientAnalyticsRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const query = c.req.valid("query")
 		const data = await analyticsService.getMessageAnalytics(clientId, query)
 		return c.json(data, 200)
@@ -105,7 +106,7 @@ clientAnalyticsRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const data = await analyticsService.getClientSummary(clientId)
 		return c.json(data, 200)
 	},
@@ -113,7 +114,7 @@ clientAnalyticsRoutes.openapi(
 
 // ─── Admin analytics ───────────────────────────────────────────────────────────
 
-export const adminAnalyticsRoutes = createRouter()
+export const adminAnalyticsRoutes = createRouter<{ Variables: AppVariables }>()
 
 adminAnalyticsRoutes.openapi(
 	createRoute({

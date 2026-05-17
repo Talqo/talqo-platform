@@ -24,18 +24,27 @@ export class McpRepository {
 			.then((rows) => rows[0] ?? null)
 	}
 
-	async createPreMadeServer(mcpConfig: McpServerConfigInput) {
+	async createPreMadeServer(
+		name: string,
+		description: string | undefined,
+		mcpConfig: McpServerConfigInput,
+	) {
 		const [row] = await this.db
 			.insert(preMadeMcpServers)
-			.values({ mcpConfig })
+			.values({ name, description, mcpConfig })
 			.returning()
 		return row
 	}
 
-	async updatePreMadeServer(id: string, mcpConfig: McpServerConfigInput) {
+	async updatePreMadeServer(
+		id: string,
+		name: string,
+		description: string | undefined,
+		mcpConfig: McpServerConfigInput,
+	) {
 		const [row] = await this.db
 			.update(preMadeMcpServers)
-			.set({ mcpConfig })
+			.set({ name, description, mcpConfig })
 			.where(eq(preMadeMcpServers.id, id))
 			.returning()
 		return row ?? null
@@ -103,6 +112,42 @@ export class McpRepository {
 				),
 			)
 			.then((rows) => rows[0] ?? null)
+	}
+
+	async getCustomServerConfig(id: string, clientId: string) {
+		return this.db
+			.select({ mcpConfig: customMcpServers.mcpConfig })
+			.from(customMcpServers)
+			.where(
+				and(
+					eq(customMcpServers.id, id),
+					eq(customMcpServers.clientId, clientId),
+				),
+			)
+			.then(
+				(rows) =>
+					(rows[0]?.mcpConfig as McpRemoteServerConfig | undefined) ?? null,
+			)
+	}
+
+	async getEnabledPreMadeConfig(serverId: string, clientId: string) {
+		return this.db
+			.select({ mcpConfig: preMadeMcpServers.mcpConfig })
+			.from(clientPreMadeMcp)
+			.innerJoin(
+				preMadeMcpServers,
+				eq(clientPreMadeMcp.preMadeMcpId, preMadeMcpServers.id),
+			)
+			.where(
+				and(
+					eq(clientPreMadeMcp.preMadeMcpId, serverId),
+					eq(clientPreMadeMcp.clientId, clientId),
+				),
+			)
+			.then(
+				(rows) =>
+					(rows[0]?.mcpConfig as McpRemoteServerConfig | undefined) ?? null,
+			)
 	}
 
 	async createCustomServer(clientId: string, mcpConfig: McpRemoteServerConfig) {

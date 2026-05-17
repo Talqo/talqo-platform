@@ -16,11 +16,24 @@ function makeService() {
 	return { repo, service }
 }
 
+const sampleColors = {
+	primary: "hsl(0 0% 50%)",
+	bgPrimary: "#ffffff",
+	bgSecondary: "#f3f4f6",
+	textPrimary: "#111827",
+	textSecondary: "#6b7280",
+	border: "#e5e7eb",
+	headerTitleText: "#ffffff",
+	userMessageText: "#ffffff",
+	sendButtonIcon: "#ffffff",
+	footerText: "#9ca3af",
+}
+
 const sampleData: WidgetConfigData = {
 	botName: "TestBot",
 	position: "left",
-	lightColors: { primary: "hsl(0 0% 50%)" },
-	darkColors: { primary: "hsl(0 0% 20%)" },
+	lightColors: sampleColors,
+	darkColors: sampleColors,
 	icons: { botAvatar: "star" },
 }
 
@@ -44,7 +57,7 @@ describe("WidgetConfigService", () => {
 
 			expect(config.botName).toBe("TestBot")
 			expect(config.position).toBe("left")
-			expect(config.lightColors.primary).toBe("hsl(0 0% 50%)")
+			expect(config.lightColors.primary).toBe(sampleColors.primary)
 		})
 	})
 
@@ -110,7 +123,7 @@ function buildApp() {
 			const { UnauthorizedError } = await import("@/common/errors")
 			throw new UnauthorizedError("Missing or invalid Authorization header")
 		}
-		c.set("clientId" as never, CLIENT_ID)
+		c.set("clientId", CLIENT_ID)
 		await next()
 	})
 	app.route("/client/me/widget-config", widgetConfigClientRoutes)

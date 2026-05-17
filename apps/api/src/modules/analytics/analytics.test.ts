@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import type { AppVariables } from "@/common/jwt"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -59,10 +60,10 @@ const CLIENT_ID = crypto.randomUUID()
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
 
 function buildClientApp() {
-	const app = new OpenAPIHono()
+	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	app.use("/*", async (c, next) => {
-		c.set("clientId" as never, CLIENT_ID)
+		c.set("clientId", CLIENT_ID)
 		await next()
 	})
 	return app.route("/analytics", clientAnalyticsRoutes)

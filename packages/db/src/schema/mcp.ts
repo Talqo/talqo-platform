@@ -1,4 +1,4 @@
-import { jsonb, pgTable, primaryKey, uuid } from "drizzle-orm/pg-core"
+import { jsonb, pgTable, primaryKey, text, uuid } from "drizzle-orm/pg-core"
 import { clients } from "./client"
 
 export const customMcpServers = pgTable("custom_mcp_servers", {
@@ -12,6 +12,8 @@ export const customMcpServers = pgTable("custom_mcp_servers", {
 export const preMadeMcpServers = pgTable("pre_made_mcp_servers", {
 	id: uuid("id").primaryKey().defaultRandom(),
 	mcpConfig: jsonb("mcp_config").notNull(),
+	name: text("name").notNull(),
+	description: text("description"),
 })
 
 // Join table: clients can use any number of pre-made MCP servers
