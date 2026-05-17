@@ -63,6 +63,11 @@ postgresql:
   primary:
     persistence:
       size: "10Gi"
+    initdb:
+      scripts:
+        # pgvector requires superuser to install; pre-create it here
+        create_extensions.sql: |
+          CREATE EXTENSION IF NOT EXISTS vector;
 
 minio:
   mode: "standalone"
