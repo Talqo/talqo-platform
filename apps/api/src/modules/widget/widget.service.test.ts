@@ -400,3 +400,26 @@ describe("WidgetService", () => {
 		})
 	})
 })
+
+import { InMemoryWidgetRepository } from "./widget.repository"
+
+describe("InMemoryWidgetRepository", () => {
+	describe("recordUsage", () => {
+		it("records a balance deduction matching the cost", async () => {
+			const repo = new InMemoryWidgetRepository()
+			await repo.recordUsage("client-1", "msg-1", 15, "0.000003")
+
+			expect(repo.balanceDeductions).toHaveLength(1)
+			expect(repo.balanceDeductions[0]?.clientId).toBe("client-1")
+			expect(repo.balanceDeductions[0]?.amount).toBe("0.000003")
+		})
+
+		it("does not deduct balance when called without a cost", async () => {
+			const repo = new InMemoryWidgetRepository()
+			await repo.recordUsage("client-1", "msg-1", 0, "0.000000")
+
+			expect(repo.balanceDeductions).toHaveLength(1)
+			expect(repo.balanceDeductions[0]?.amount).toBe("0.000000")
+		})
+	})
+})

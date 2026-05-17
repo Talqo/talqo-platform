@@ -22,6 +22,7 @@ export type ProviderType =
 type BaseConfig = {
 	apiKey: string
 	model: string
+	embeddingModel?: string
 }
 
 export type AiProviderConfig =

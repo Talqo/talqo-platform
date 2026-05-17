@@ -232,6 +232,7 @@ deploy: ns-create helm-deps _require-tag _require-resend-api-key _require-defaul
 		--set api.defaultLlm.providerType="$$DEFAULT_LLM_PROVIDER_TYPE" \
 		--set api.defaultLlm.apiKey="$$DEFAULT_LLM_API_KEY" \
 		--set api.defaultLlm.model="$$DEFAULT_LLM_MODEL" \
+		--set api.defaultLlm.embeddingModel="$$DEFAULT_EMBEDDING_MODEL" \
 		--set api.defaultLlm.baseUrl="$$DEFAULT_LLM_BASE_URL"
 
 .PHONY: undeploy

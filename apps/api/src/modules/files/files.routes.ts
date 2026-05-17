@@ -12,6 +12,13 @@ import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import type { FilesService } from "./files.service"
 
+// Minimal interface — avoids importing from rag/index and creating a circular dep
+type FileIndexer = {
+	indexFile(clientId: string, filePath: string): Promise<void>
+	removeFile(clientId: string, filePath: string): Promise<void>
+	renameFile(clientId: string, oldPath: string, newPath: string): Promise<void>
+}
+
 // ─── Response schemas ─────────────────────────────────────────────────────────
 
 const fileEntrySchema = z.object({
@@ -65,7 +72,7 @@ function relativePath(clientId: string, key: string): string {
 
 // ─── Router factory ───────────────────────────────────────────────────────────
 
-export function createFilesRouter(service: FilesService) {
+export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 	const router = createRouter<{ Variables: AppVariables }>()
 
 	// ─── GET / — list directory ───────────────────────────────────────────────
@@ -180,7 +187,16 @@ export function createFilesRouter(service: FilesService) {
 			const key = `${dirKey}${file.name}`
 			await service.upload(key, file, { contentType: file.type || undefined })
 
-			return c.json({ path: `/${relativePath(clientId, key)}` }, 201)
+			const filePath = relativePath(clientId, key)
+			void (async () => {
+				try {
+					await rag?.indexFile(clientId, filePath)
+				} catch (err) {
+					c.get("logger").error("rag indexFile failed", { err })
+				}
+			})()
+
+			return c.json({ path: `/${filePath}` }, 201)
 		},
 	)
 
@@ -265,6 +281,15 @@ export function createFilesRouter(service: FilesService) {
 				throw new ValidationError("Invalid path — cannot delete root")
 
 			await service.delete(key)
+
+			const filePath = relativePath(clientId, key)
+			void (async () => {
+				try {
+					await rag?.removeFile(clientId, filePath)
+				} catch (err) {
+					c.get("logger").error("rag removeFile failed", { err })
+				}
+			})()
 
 			return c.json({ message: "Deleted" }, 200)
 		},
@@ -363,6 +388,16 @@ export function createFilesRouter(service: FilesService) {
 			}
 
 			await service.move(fromKey, toKey)
+
+			const oldPath = relativePath(clientId, fromKey)
+			const newPath = relativePath(clientId, toKey)
+			void (async () => {
+				try {
+					await rag?.renameFile(clientId, oldPath, newPath)
+				} catch (err) {
+					c.get("logger").error("rag renameFile failed", { err })
+				}
+			})()
 
 			return c.json({ message: "Moved" }, 200)
 		},

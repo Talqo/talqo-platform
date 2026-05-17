@@ -144,7 +144,10 @@
 			"loadFailed": "加载提供商配置失败，请刷新页面。",
 			"apiKeyRequired": "API 密钥必填",
 			"modelRequired": "模型必填",
-			"baseUrlRequiredError": "OpenAI Compatible 必须填写基础 URL"
+			"baseUrlRequiredError": "OpenAI Compatible 必须填写基础 URL",
+			"embeddingModel": "嵌入模型",
+			"embeddingModelPlaceholder": "可选，使用提供商默认",
+			"embeddingModelDescription": "用于 RAG 索引的模型。留空则使用提供商默认模型。"
 		}
 	},
 	"botConfig": {

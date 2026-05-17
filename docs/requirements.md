@@ -66,10 +66,13 @@
 | FR-2.13 | Client can customise the bot's tone and communication style (e.g. formal / informal address) | Medium | Approved | In progress |
 | FR-2.14 | Client can maintain a word blacklist; the bot must not use or engage with blacklisted terms | Medium | Approved | In progress |
 
-#### FR-2e: Knowledge & integrations (MCP)
+#### FR-2e: Knowledge base & integrations
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
+| FR-2.15 | Client can upload files (documents) to build a knowledge base that the bot references when responding | High | Approved | Done |
+| FR-2.15a | Client can delete files from the knowledge base | Medium | Approved | Done |
+| FR-2.15b | Client can configure the embedding model used to index knowledge base files (with provider-specific defaults) | Medium | Approved | Done |
 | FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | Done |
 | FR-2.16a | Client can verify MCP server connectivity and view available tools before or after enabling | Medium | Approved | Done |
 | FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | Done |

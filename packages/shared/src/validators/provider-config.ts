@@ -7,8 +7,11 @@ const providerTypeSchema = z.enum([
 	"anthropic",
 ])
 
-const apiKeySchema = z.string().trim().min(1).max(255)
-const modelSchema = z.string().trim().min(1).max(255)
+const standardProviderFields = {
+	apiKey: z.string().trim().min(1).max(255),
+	model: z.string().trim().min(1).max(255),
+	embeddingModel: z.string().trim().min(1).max(255).optional(),
+}
 
 // Discriminated union: openai_compatible requires baseUrl
 export const upsertProviderConfigBodySchema = z.discriminatedUnion(
@@ -16,27 +19,20 @@ export const upsertProviderConfigBodySchema = z.discriminatedUnion(
 	[
 		z.object({
 			providerType: z.literal("openai"),
-			apiKey: apiKeySchema,
-			model: modelSchema,
-			baseUrl: z.url().optional(),
+			...standardProviderFields,
 		}),
 		z.object({
 			providerType: z.literal("openai_compatible"),
-			apiKey: apiKeySchema,
-			model: modelSchema,
 			baseUrl: z.url({ error: "baseUrl is required for openai_compatible" }),
+			...standardProviderFields,
 		}),
 		z.object({
 			providerType: z.literal("google"),
-			apiKey: apiKeySchema,
-			model: modelSchema,
-			baseUrl: z.url().optional(),
+			...standardProviderFields,
 		}),
 		z.object({
 			providerType: z.literal("anthropic"),
-			apiKey: apiKeySchema,
-			model: modelSchema,
-			baseUrl: z.url().optional(),
+			...standardProviderFields,
 		}),
 	],
 )

@@ -16,6 +16,7 @@ export const createProviderConfigFormSchema = (t: (key: string) => string) =>
 				.min(1, t("settings.provider.modelRequired"))
 				.max(255),
 			baseUrl: z.string(),
+			embeddingModel: z.string().trim().min(1).max(255).optional(),
 		})
 		.superRefine((data, ctx) => {
 			if (data.providerType === "openai_compatible" && !data.baseUrl.trim()) {

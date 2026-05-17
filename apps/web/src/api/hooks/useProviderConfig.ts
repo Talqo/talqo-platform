@@ -10,6 +10,7 @@ export type ProviderConfigResponse = {
 	apiKeyMasked: string
 	model: string
 	baseUrl: string | null
+	embeddingModel?: string | null
 	updatedAt: string
 }
 

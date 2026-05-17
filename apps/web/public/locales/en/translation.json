@@ -346,7 +346,10 @@
 			"loadFailed": "Failed to load provider config. Please refresh the page.",
 			"apiKeyRequired": "API key is required",
 			"modelRequired": "Model is required",
-			"baseUrlRequiredError": "Base URL is required for OpenAI Compatible"
+			"baseUrlRequiredError": "Base URL is required for OpenAI Compatible",
+			"embeddingModel": "Embedding Model",
+			"embeddingModelPlaceholder": "Optional, uses provider default",
+			"embeddingModelDescription": "Model used for RAG indexing. Leave blank to use the provider default."
 		}
 	},
 	"botConfig": {

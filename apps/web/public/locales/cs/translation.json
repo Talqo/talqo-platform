@@ -144,7 +144,10 @@
 			"loadFailed": "Nepodařilo se načíst konfiguraci poskytovatele. Obnovte stránku.",
 			"apiKeyRequired": "API klíč je povinný",
 			"modelRequired": "Model je povinný",
-			"baseUrlRequiredError": "Základní URL je povinná pro OpenAI Compatible"
+			"baseUrlRequiredError": "Základní URL je povinná pro OpenAI Compatible",
+			"embeddingModel": "Model pro vkládání",
+			"embeddingModelPlaceholder": "Volitelné, použije se výchozí model",
+			"embeddingModelDescription": "Model používaný pro RAG indexování. Nechte prázdné pro výchozí model poskytovatele."
 		}
 	},
 	"botConfig": {

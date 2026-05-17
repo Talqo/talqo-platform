@@ -8,6 +8,7 @@ type ProviderConfigUpsert = {
 	apiKeyEncrypted: string
 	model: string
 	baseUrl?: string | null
+	embeddingModel?: string | null
 }
 
 export class ProviderConfigRepository {

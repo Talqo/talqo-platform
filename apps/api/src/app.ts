@@ -26,9 +26,10 @@ import { blacklistRoutes } from "./modules/blacklist"
 import { botConfigRoutes } from "./modules/bot-config"
 import { clientAccountRoutes } from "./modules/client-account"
 import { clientConversationRoutes } from "./modules/client-conversations"
-import { filesRoutes } from "./modules/files"
+import { createFilesRouter, filesService } from "./modules/files"
 import { adminMcpRoutes, clientMcpRoutes } from "./modules/mcp"
 import { providerConfigRoutes } from "./modules/provider-config"
+import { ragService } from "./modules/rag/index"
 import {
 	widgetConfigRoutes,
 	widgetConversationRoutes,
@@ -36,6 +37,8 @@ import {
 	widgetSessionRoutes,
 } from "./modules/widget"
 import { widgetConfigClientRoutes } from "./modules/widget-config"
+
+const filesRoutes = createFilesRouter(filesService, ragService)
 
 const app = createRouter<{ Variables: AppVariables }>()
 const v1 = createRouter<{ Variables: AppVariables }>()
