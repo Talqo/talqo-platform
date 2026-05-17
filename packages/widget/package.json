@@ -7,14 +7,14 @@
 	"scripts": {
 		"dev": "vite",
 		"dev:spa": "vite --mode development",
-		"dev:bundle": "concurrently \"tsc --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --port 5174 --strictPort\"",
-		"build": "tsc && vite build --mode production",
+		"dev:bundle": "concurrently \"tsgo --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --port 5174 --strictPort\"",
+		"build": "tsgo && vite build --mode production",
 		"build:watch": "vite build --watch --mode production",
 		"preview": "vite preview --port 5174 --strictPort",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
-		"type-check": "tsc --noEmit",
+		"type-check": "tsgo --noEmit",
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
 	"dependencies": {
