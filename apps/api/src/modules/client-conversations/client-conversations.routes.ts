@@ -1,13 +1,15 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi"
 import { messageResponseSchema } from "db/dto"
 import { clientConversationSummarySchema, paginationQuerySchema } from "shared"
+import type { AppVariables } from "@/common/jwt"
+import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import type { ClientConversationService } from "./client-conversations.service"
 
 export function createClientConversationRouter(
 	service: ClientConversationService,
-): OpenAPIHono {
-	const router = new OpenAPIHono()
+): OpenAPIHono<{ Variables: AppVariables }> {
+	const router = createRouter<{ Variables: AppVariables }>()
 
 	router.openapi(
 		createRoute({
@@ -31,7 +33,7 @@ export function createClientConversationRouter(
 			},
 		}),
 		async (c) => {
-			const clientId = c.get("clientId" as never) as string
+			const clientId = c.get("clientId")
 			const { limit, offset } = c.req.valid("query")
 			const result = await service.listConversations(clientId, limit, offset)
 			return c.json(result, 200)
@@ -68,7 +70,7 @@ export function createClientConversationRouter(
 			},
 		}),
 		async (c) => {
-			const clientId = c.get("clientId" as never) as string
+			const clientId = c.get("clientId")
 			const { conversationId } = c.req.valid("param")
 			const result = await service.getConversation(conversationId, clientId)
 			return c.json(result, 200)

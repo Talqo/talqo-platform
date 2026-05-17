@@ -185,23 +185,24 @@ async function seed() {
 		.values([
 			{
 				id: ID.preMadeMcp1,
+				name: "Everything",
+				description:
+					"Reference MCP server with tools, prompts, resources, and sampling",
 				mcpConfig: {
 					type: "stdio",
-					name: "Weather",
-					description: "Provides real-time weather information",
-					command: "npx",
-					args: ["-y", "@mcp/weather"],
+					command: "bunx",
+					args: ["-y", "@modelcontextprotocol/server-everything"],
 				},
 			},
 			{
 				id: ID.preMadeMcp2,
+				name: "Memory",
+				description:
+					"Persistent knowledge graph for storing and retrieving information",
 				mcpConfig: {
 					type: "stdio",
-					name: "Web Search",
-					description: "Enables web search via Brave Search API",
-					command: "npx",
-					args: ["-y", "@mcp/brave-search"],
-					env: { BRAVE_API_KEY: "" },
+					command: "bunx",
+					args: ["-y", "@modelcontextprotocol/server-memory"],
 				},
 			},
 		])

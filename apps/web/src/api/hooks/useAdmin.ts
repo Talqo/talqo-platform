@@ -191,7 +191,11 @@ export function useAdminPreMadeServers() {
 export function useAdminCreatePreMadeServer() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: async (body: { mcpConfig: McpServerConfigInput }) => {
+		mutationFn: async (body: {
+			name: string
+			description?: string
+			mcpConfig: McpServerConfigInput
+		}) => {
 			const { data, error } = await client.POST("/admin/mcp/pre-made", {
 				body,
 			})
@@ -208,14 +212,21 @@ export function useAdminUpdatePreMadeServer() {
 	return useMutation({
 		mutationFn: async ({
 			serverId,
+			name,
+			description,
 			mcpConfig,
 		}: {
 			serverId: string
+			name: string
+			description?: string
 			mcpConfig: McpServerConfigInput
 		}) => {
 			const { data, error } = await client.PATCH(
 				"/admin/mcp/pre-made/{serverId}",
-				{ params: { path: { serverId } }, body: { mcpConfig } },
+				{
+					params: { path: { serverId } },
+					body: { name, description, mcpConfig },
+				},
 			)
 			if (error) throw error
 			return data

@@ -59,26 +59,6 @@ describe("connectMcpServers", () => {
 		expect(conn.tools).toHaveProperty("myTool")
 	})
 
-	it("connects an SSE server with the correct transport shape", async () => {
-		mockCreateMCPClient.mockResolvedValueOnce(makeMockClient())
-
-		const config: McpServerConfig = {
-			type: "sse",
-			url: "https://example.com/sse",
-			headers: { Authorization: "Bearer token" },
-		}
-		await connectMcpServers([config])
-
-		const { transport } = mockCreateMCPClient.mock.calls[0][0] as {
-			transport: unknown
-		}
-		expect(transport).toEqual({
-			type: "sse",
-			url: "https://example.com/sse",
-			headers: { Authorization: "Bearer token" },
-		})
-	})
-
 	it("connects an HTTP server with the correct transport shape", async () => {
 		mockCreateMCPClient.mockResolvedValueOnce(makeMockClient())
 
@@ -100,8 +80,8 @@ describe("connectMcpServers", () => {
 			.mockResolvedValueOnce(makeMockClient({ toolB: {} as never }))
 
 		const configs: McpServerConfig[] = [
-			{ type: "sse", url: "https://server1.com" },
-			{ type: "sse", url: "https://server2.com" },
+			{ type: "http", url: "https://server1.com" },
+			{ type: "http", url: "https://server2.com" },
 		]
 		const conn = await connectMcpServers(configs)
 
@@ -120,8 +100,8 @@ describe("connectMcpServers", () => {
 
 		try {
 			const configs: McpServerConfig[] = [
-				{ type: "sse", url: "https://broken.com" },
-				{ type: "sse", url: "https://working.com" },
+				{ type: "http", url: "https://broken.com" },
+				{ type: "http", url: "https://working.com" },
 			]
 			const conn = await connectMcpServers(configs)
 
@@ -141,8 +121,8 @@ describe("connectMcpServers", () => {
 			.mockResolvedValueOnce(client2)
 
 		const conn = await connectMcpServers([
-			{ type: "sse", url: "https://server1.com" },
-			{ type: "sse", url: "https://server2.com" },
+			{ type: "http", url: "https://server1.com" },
+			{ type: "http", url: "https://server2.com" },
 		])
 		await conn.close()
 
@@ -160,7 +140,7 @@ describe("connectMcpServers", () => {
 		mockCreateMCPClient.mockResolvedValueOnce(client)
 
 		const conn = await connectMcpServers([
-			{ type: "sse", url: "https://example.com" },
+			{ type: "http", url: "https://example.com" },
 		])
 		// Promise.allSettled absorbs individual close failures
 		await expect(conn.close()).resolves.toBeUndefined()

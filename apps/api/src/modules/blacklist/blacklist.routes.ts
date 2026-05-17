@@ -1,11 +1,12 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { blacklistWordResponseSchema } from "db/dto"
 import { addWordBodySchema } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { blacklistService } from "./index"
 
-const router = createRouter()
+const router = createRouter<{ Variables: AppVariables }>()
 
 router.openapi(
 	createRoute({
@@ -26,7 +27,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const words = await blacklistService.listWords(clientId)
 		return c.json(words, 200)
 	},
@@ -64,7 +65,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { word } = c.req.valid("json")
 		const result = await blacklistService.addWord(clientId, word)
 		return c.json(result, 201)
@@ -97,7 +98,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const { wordId } = c.req.valid("param")
 		await blacklistService.removeWord(clientId, wordId)
 		return c.json({ message: "Word removed" }, 200)

@@ -9,6 +9,7 @@ import {
 	NotFoundError,
 	ValidationError,
 } from "@/common/errors"
+import { logger } from "@/common/logger"
 import { PLATFORM_SYSTEM_PROMPT } from "@/modules/agent/agent.platform-prompt"
 import { streamResponse } from "@/modules/agent/agent.service"
 import type { BotConfigRepository } from "@/modules/bot-config/bot-config.repository"
@@ -233,7 +234,11 @@ export class WidgetService {
 						? Math.min(100, Math.round((parseFloat(spendAfter) / limit) * 100))
 						: 100
 					this.sendQuotaAlertEmail(clientSettings.email, usagePercent).catch(
-						() => {},
+						(err) =>
+							logger.warn("Quota alert email failed", {
+								email: clientSettings.email,
+								error: err,
+							}),
 					)
 				}
 			}

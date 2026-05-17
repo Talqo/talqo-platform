@@ -5,6 +5,7 @@ import {
 	MessageSquare,
 	Moon,
 	ScrollText,
+	Server,
 	Sun,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -42,6 +43,11 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 			icon: ScrollText,
 			label: t("backoffice.nav.activityLogs"),
 			href: "/backoffice/logs",
+		},
+		{
+			icon: Server,
+			label: t("backoffice.nav.mcpServers"),
+			href: "/backoffice/mcp",
 		},
 	]
 
