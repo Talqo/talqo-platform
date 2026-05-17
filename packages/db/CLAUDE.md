@@ -8,7 +8,7 @@ Shared schema and DTOs. Only `apps/api` holds live DB client — this package co
 src/
 ├── schema/      # Drizzle pgTable definitions — one file per domain, barrel-exported from index.ts
 └── dto/         # drizzle-zod derived Zod schemas + inferred TypeScript types — one file per domain
-drizzle/         # Generated SQL migrations — never edit manually
+drizzle/         # Generated SQL migrations — always via `bun run db:generate`, never edit manually
 drizzle.config.ts
 migrate.ts       # Standalone migration runner (bun --env-file=../../.env migrate.ts)
 ```
