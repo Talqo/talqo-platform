@@ -16,10 +16,12 @@ jobs:
       matrix:
         package: [pagepal-api, pagepal-web]
     steps:
-      - uses: actions/delete-package-versions@v5
+      - uses: snok/container-retention-policy@v3.0.0
         with:
-          package-name: ${{ matrix.package }}
-          package-type: container
-          # Never delete semver-tagged prod releases (e.g. 1.2.3)
-          ignore-versions: '^\d+\.\d+\.\d+$'
-          min-versions-to-keep: 5
+          account: ${{ github.repository_owner }}
+          token: ${{ github.token }}
+          image-names: ${{ matrix.package }}
+          image-tags: "sha-*"
+          tag-selection: tagged
+          cut-off: 2w
+          keep-n-most-recent: 5
