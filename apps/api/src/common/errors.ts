@@ -59,3 +59,9 @@ export class AuthConflictError extends AppError {
 		super(409, code, message)
 	}
 }
+
+export class EmailDeliveryError extends AppError {
+	constructor(message = "Failed to send email") {
+		super(500, "EMAIL_FAILED", message)
+	}
+}

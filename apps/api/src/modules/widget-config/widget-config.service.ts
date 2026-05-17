@@ -1,4 +1,8 @@
-import { defaultWidgetVisualConfig, type WidgetVisualConfig } from "shared"
+import {
+	defaultWidgetVisualConfig,
+	type WidgetVisualConfig,
+	widgetVisualConfigSchema,
+} from "shared"
 import type {
 	WidgetConfigData,
 	WidgetConfigRepository,
@@ -12,15 +16,13 @@ export class WidgetConfigService {
 		if (!row) {
 			return { ...defaultWidgetVisualConfig }
 		}
-		// position and color/icon objects are validated by widgetVisualConfigSchema on write,
-		// so the stored values always conform to WidgetVisualConfig's shape
-		return {
+		return widgetVisualConfigSchema.parse({
 			botName: row.botName,
-			position: row.position as WidgetVisualConfig["position"],
-			lightColors: row.lightColors as WidgetVisualConfig["lightColors"],
-			darkColors: row.darkColors as WidgetVisualConfig["darkColors"],
-			icons: row.icons as WidgetVisualConfig["icons"],
-		}
+			position: row.position,
+			lightColors: row.lightColors,
+			darkColors: row.darkColors,
+			icons: row.icons,
+		})
 	}
 
 	async saveConfig(
@@ -28,12 +30,12 @@ export class WidgetConfigService {
 		data: WidgetConfigData,
 	): Promise<WidgetVisualConfig> {
 		const row = await this.repo.upsert(clientId, data)
-		return {
+		return widgetVisualConfigSchema.parse({
 			botName: row.botName,
-			position: row.position as WidgetVisualConfig["position"],
-			lightColors: row.lightColors as WidgetVisualConfig["lightColors"],
-			darkColors: row.darkColors as WidgetVisualConfig["darkColors"],
-			icons: row.icons as WidgetVisualConfig["icons"],
-		}
+			position: row.position,
+			lightColors: row.lightColors,
+			darkColors: row.darkColors,
+			icons: row.icons,
+		})
 	}
 }

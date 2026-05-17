@@ -56,30 +56,9 @@ export function createAuthRouter(
 		}),
 		async (c) => {
 			const { name, email, password } = c.req.valid("json")
-			try {
-				await service.register(name, email, password)
-			} catch (err) {
-				// Let AppError propagate to errorHandler
-				if (err instanceof AppError) throw err
-				// Email sending failures should return 500
-				if (err instanceof Error && err.message.includes("email")) {
-					c.get("logger").error("Registration error", {
-						error: err.message,
-						email,
-					})
-					throw new AppError(
-						500,
-						"EMAIL_FAILED",
-						"Failed to send verification email",
-					)
-				}
-				throw err
-			}
-			const wideEvent = c.get("wideEvent") as
-				| Record<string, unknown>
-				| undefined
-			if (wideEvent)
-				Object.assign(wideEvent, { auth: { outcome: "registered" } })
+			await service.register(name, email, password)
+			const wideEvent = c.get("wideEvent")
+			if (wideEvent) wideEvent.auth = { outcome: "registered" }
 			return c.json({ message: "Verification email sent" }, 201)
 		},
 	)
@@ -164,19 +143,13 @@ export function createAuthRouter(
 		async (c) => {
 			const { email, password } = c.req.valid("json")
 			let token: string
-			const wideEvent = c.get("wideEvent") as
-				| Record<string, unknown>
-				| undefined
+			const wideEvent = c.get("wideEvent")
 			try {
 				token = await service.login(email, password)
-				if (wideEvent)
-					Object.assign(wideEvent, { auth: { outcome: "logged_in" } })
+				if (wideEvent) wideEvent.auth = { outcome: "logged_in" }
 			} catch (err) {
 				if (err instanceof UnauthorizedError || err instanceof ForbiddenError) {
-					if (wideEvent)
-						Object.assign(wideEvent, {
-							auth: { outcome: "invalid_credentials" },
-						})
+					if (wideEvent) wideEvent.auth = { outcome: "invalid_credentials" }
 				}
 				throw err
 			}

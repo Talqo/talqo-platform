@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import type { AppVariables } from "@/common/jwt"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -36,13 +37,10 @@ const { logger } = await import("@/common/logger")
 // ─── Test app ─────────────────────────────────────────────────────────────────
 
 function buildApp() {
-	const app = new OpenAPIHono()
+	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	app.use("/*", async (c, next) => {
-		c.set(
-			"logger" as never,
-			logger.withContext({ requestId: crypto.randomUUID() }),
-		)
+		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
 		await next()
 	})
 	app.use("/*", widgetAuth)

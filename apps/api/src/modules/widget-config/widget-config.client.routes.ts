@@ -1,10 +1,11 @@
 import { createRoute } from "@hono/zod-openapi"
 import { widgetVisualConfigSchema } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { successResponseSchema } from "@/common/schemas"
 import { widgetConfigService } from "./index"
 
-const router = createRouter()
+const router = createRouter<{ Variables: AppVariables }>()
 
 router.openapi(
 	createRoute({
@@ -25,7 +26,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const config = await widgetConfigService.getConfig(clientId)
 		return c.json(config, 200)
 	},
@@ -57,7 +58,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const body = c.req.valid("json")
 		const saved = await widgetConfigService.saveConfig(clientId, body)
 		return c.json(saved, 200)

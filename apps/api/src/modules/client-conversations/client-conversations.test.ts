@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import type { conversations, messages } from "db/schema"
+import type { AppVariables } from "@/common/jwt"
 import type { ClientConversationRepository } from "./client-conversations.repository"
 
 // Dynamic imports after any necessary mocks would go here (none needed — no JWT)
@@ -110,11 +111,11 @@ function buildApp(
 	const service = new ClientConversationService(
 		repo as unknown as ClientConversationRepository,
 	)
-	const app = new OpenAPIHono()
+	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	// Simulate clientAuth middleware injecting the authenticated client's ID
 	app.use("/*", async (c, next) => {
-		c.set("clientId" as never, clientId)
+		c.set("clientId", clientId)
 		await next()
 	})
 	app.route("/client/me/conversations", createClientConversationRouter(service))

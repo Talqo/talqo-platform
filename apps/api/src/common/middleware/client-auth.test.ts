@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { Hono } from "hono"
 import { UnauthorizedError } from "@/common/errors"
-import type { TokenPayload } from "@/common/jwt"
+import type { AppVariables, TokenPayload } from "@/common/jwt"
+import { logger } from "@/common/logger"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -37,10 +38,14 @@ const { errorHandler } = await import("./error-handler")
 // ─── Test app ─────────────────────────────────────────────────────────────────
 
 function buildApp() {
-	const app = new Hono()
+	const app = new Hono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
+	app.use("/*", async (c, next) => {
+		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
+		await next()
+	})
 	app.use("/*", clientAuth)
-	app.get("/protected", (c) => c.json({ clientId: c.get("clientId" as never) }))
+	app.get("/protected", (c) => c.json({ clientId: c.get("clientId") }))
 	return app
 }
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { eq } from "drizzle-orm"
 import { Hono } from "hono"
+import type { AppVariables } from "@/common/jwt"
 import { clients } from "@/db/schema"
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -27,10 +28,10 @@ const { errorHandler } = await import("./error-handler")
 // ─── Test app ─────────────────────────────────────────────────────────────────
 
 function buildApp() {
-	const app = new Hono()
+	const app = new Hono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	app.use("/*", widgetAuth)
-	app.get("/widget", (c) => c.json({ clientId: c.get("clientId" as never) }))
+	app.get("/widget", (c) => c.json({ clientId: c.get("clientId") }))
 	return app
 }
 

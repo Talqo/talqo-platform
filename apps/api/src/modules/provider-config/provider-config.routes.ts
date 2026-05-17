@@ -1,11 +1,12 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { aiProviderConfigMaskedResponseSchema } from "db/dto"
 import { upsertProviderConfigBodySchema } from "shared"
+import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { providerConfigService } from "./index"
 
-const router = createRouter()
+const router = createRouter<{ Variables: AppVariables }>()
 
 router.openapi(
 	createRoute({
@@ -28,7 +29,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const config = await providerConfigService.getConfig(clientId)
 		return c.json(config, 200)
 	},
@@ -62,7 +63,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		const body = c.req.valid("json")
 		const config = await providerConfigService.upsertConfig(clientId, {
 			providerType: body.providerType,
@@ -101,7 +102,7 @@ router.openapi(
 		},
 	}),
 	async (c) => {
-		const clientId = c.get("clientId" as never) as string
+		const clientId = c.get("clientId")
 		await providerConfigService.deleteConfig(clientId)
 		return c.json({ deleted: true as const }, 200)
 	},

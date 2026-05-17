@@ -12,6 +12,7 @@ export type AppVariables = {
 	logger: Logger
 	requestId: string
 	wideEvent: WideEvent
+	auditActionLabel?: string
 }
 
 export type TokenPayload = {
@@ -35,15 +36,27 @@ export async function signToken(
 		.sign(secret)
 }
 
+const TOKEN_ROLES: ReadonlySet<string> = new Set<TokenRole>(["client", "admin"])
+
 export async function verifyToken(token: string): Promise<TokenPayload> {
 	try {
 		const { payload } = await jwtVerify(token, secret)
-		return {
-			sub: payload.sub as string,
-			role: payload.role as TokenRole,
-			imp: payload.imp as boolean | undefined,
+		const sub = payload.sub
+		const role = payload.role
+		const imp = payload.imp
+		if (typeof sub !== "string" || !sub) {
+			throw new UnauthorizedError("Invalid token: missing sub")
 		}
-	} catch {
+		if (typeof role !== "string" || !TOKEN_ROLES.has(role)) {
+			throw new UnauthorizedError("Invalid token: unknown role")
+		}
+		return {
+			sub,
+			role: role as TokenRole,
+			imp: imp === true ? true : undefined,
+		}
+	} catch (err) {
+		if (err instanceof UnauthorizedError) throw err
 		throw new UnauthorizedError("Invalid or expired token")
 	}
 }
