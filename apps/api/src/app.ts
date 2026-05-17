@@ -50,7 +50,7 @@ app.use("/*", async (c, next) => {
 app.use("/*", createWideEventMiddleware([new SentryExporter()]))
 app.use("/*", async (c, next) => {
 	await next()
-	if (c.res.status === 415 || c.req.method === "OPTIONS") {
+	if (c.res.status === 415 || c.req.method === "PATCH") {
 		c.res.headers.set("Accept-Patch", "application/json")
 	}
 })
