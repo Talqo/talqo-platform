@@ -18,14 +18,32 @@ function createTransport(config: McpServerConfig) {
 				args: config.args,
 				env: config.env,
 			})
-		case "sse":
-			return { type: "sse" as const, url: config.url, headers: config.headers }
 		case "http":
 			return {
 				type: "http" as const,
 				url: config.url,
 				headers: config.headers,
 			}
+	}
+}
+
+export async function verifyMcpServer(
+	config: McpServerConfig,
+): Promise<{ ok: true; tools: string[] } | { ok: false; error: string }> {
+	let client: MCPClient | undefined
+	try {
+		client = await createMCPClient({
+			transport: createTransport(config),
+		})
+		const toolSet = await client.tools()
+		return { ok: true, tools: Object.keys(toolSet) }
+	} catch (err) {
+		return {
+			ok: false,
+			error: err instanceof Error ? err.message : String(err),
+		}
+	} finally {
+		if (client) await client.close()
 	}
 }
 

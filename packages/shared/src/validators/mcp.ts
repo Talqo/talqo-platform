@@ -38,16 +38,10 @@ function isPublicHttpsUrl(raw: string): boolean {
 	return true
 }
 
-const mcpUrlField = z
+export const mcpUrlField = z
 	.string()
 	.url()
 	.refine(isPublicHttpsUrl, "URL must be a public HTTPS address")
-
-const mcpSseConfigSchema = z.object({
-	type: z.literal("sse"),
-	url: mcpUrlField,
-	headers: z.record(z.string(), z.string()).optional(),
-})
 
 const mcpHttpConfigSchema = z.object({
 	type: z.literal("http"),
@@ -64,14 +58,12 @@ const mcpStdioConfigSchema = z.object({
 
 // Clients may only register remote (URL-based) MCP servers — no subprocess spawning.
 export const mcpRemoteServerConfigSchema = z.discriminatedUnion("type", [
-	mcpSseConfigSchema,
 	mcpHttpConfigSchema,
 ])
 
 // Admins managing pre-made servers may additionally use stdio transports.
 export const mcpServerConfigSchema = z.discriminatedUnion("type", [
 	mcpStdioConfigSchema,
-	mcpSseConfigSchema,
 	mcpHttpConfigSchema,
 ])
 
@@ -80,7 +72,19 @@ export const mcpConfigBodySchema = z.object({
 })
 
 export const adminMcpConfigBodySchema = z.object({
+	name: z.string().min(1),
+	description: z.string().optional(),
 	mcpConfig: mcpServerConfigSchema,
+})
+
+export const adminMcpVerifyBodySchema = z.object({
+	mcpConfig: mcpServerConfigSchema,
+})
+
+// Client verify endpoint accepts a server ID instead of raw config.
+// The API looks up the stored config so clients cannot execute arbitrary commands.
+export const clientMcpVerifyByIdBodySchema = z.object({
+	serverId: z.string().uuid(),
 })
 
 export type McpRemoteServerConfig = z.infer<typeof mcpRemoteServerConfigSchema>

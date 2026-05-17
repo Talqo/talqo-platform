@@ -1,12 +1,25 @@
 import { createRoute, z } from "@hono/zod-openapi"
 import { customServerResponseSchema, preMadeServerResponseSchema } from "db/dto"
-import { adminMcpConfigBodySchema, mcpConfigBodySchema } from "shared"
+import type { McpServerConfig } from "shared"
+import {
+	adminMcpConfigBodySchema,
+	adminMcpVerifyBodySchema,
+	clientMcpVerifyByIdBodySchema,
+	mcpConfigBodySchema,
+} from "shared"
+import { NotFoundError } from "@/common/errors"
 import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
+import { verifyMcpServer } from "@/modules/agent/agent.mcp"
 import { mcpService } from "./index"
 
 const serverIdParam = z.object({ serverId: z.string().uuid() })
+
+const mcpVerifyResponseSchema = z.discriminatedUnion("ok", [
+	z.object({ ok: z.literal(true), tools: z.array(z.string()) }),
+	z.object({ ok: z.literal(false), error: z.string() }),
+])
 
 // ─── Client MCP routes ─────────────────────────────────────────────────────────
 
@@ -259,6 +272,72 @@ clientMcpRoutes.openapi(
 	},
 )
 
+clientMcpRoutes.openapi(
+	createRoute({
+		method: "post",
+		path: "/verify",
+		tags: ["MCP"],
+		summary: "Verify an MCP server by stored configuration",
+		security: [{ bearerAuth: [] }],
+		request: {
+			body: {
+				content: {
+					"application/json": {
+						schema: clientMcpVerifyByIdBodySchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Verification result",
+				content: {
+					"application/json": {
+						schema: mcpVerifyResponseSchema,
+					},
+				},
+			},
+			404: {
+				description: "Server not found or not enabled",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const clientId = c.get("clientId" as never) as string
+		const { serverId } = c.req.valid("json")
+
+		let config: McpServerConfig | null = null
+		try {
+			config = await mcpService.getCustomServerConfig(clientId, serverId)
+		} catch (err) {
+			if (!(err instanceof NotFoundError)) throw err
+		}
+		if (!config) {
+			try {
+				config = await mcpService.getEnabledPreMadeConfig(clientId, serverId)
+			} catch (err) {
+				if (!(err instanceof NotFoundError)) throw err
+			}
+		}
+
+		if (!config) {
+			return c.json(
+				{
+					error: {
+						code: "NOT_FOUND",
+						message: "Server not found or not enabled",
+					},
+				},
+				404,
+			)
+		}
+
+		const result = await verifyMcpServer(config)
+		return c.json(result, 200)
+	},
+)
+
 // ─── Admin MCP routes ──────────────────────────────────────────────────────────
 
 export const adminMcpRoutes = createRouter<{ Variables: AppVariables }>()
@@ -315,8 +394,12 @@ adminMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const { mcpConfig } = c.req.valid("json")
-		const server = await mcpService.createPreMadeServer(mcpConfig)
+		const { name, description, mcpConfig } = c.req.valid("json")
+		const server = await mcpService.createPreMadeServer(
+			name,
+			description,
+			mcpConfig,
+		)
 		return c.json(server, 201)
 	},
 )
@@ -355,8 +438,13 @@ adminMcpRoutes.openapi(
 	}),
 	async (c) => {
 		const { serverId } = c.req.valid("param")
-		const { mcpConfig } = c.req.valid("json")
-		const server = await mcpService.updatePreMadeServer(serverId, mcpConfig)
+		const { name, description, mcpConfig } = c.req.valid("json")
+		const server = await mcpService.updatePreMadeServer(
+			serverId,
+			name,
+			description,
+			mcpConfig,
+		)
 		return c.json(server, 200)
 	},
 )
@@ -388,5 +476,39 @@ adminMcpRoutes.openapi(
 		const { serverId } = c.req.valid("param")
 		await mcpService.deletePreMadeServer(serverId)
 		return c.json({ message: "Server deleted" }, 200)
+	},
+)
+
+adminMcpRoutes.openapi(
+	createRoute({
+		method: "post",
+		path: "/verify",
+		tags: ["Admin"],
+		summary: "Verify an MCP server configuration",
+		security: [{ bearerAuth: [] }],
+		request: {
+			body: {
+				content: {
+					"application/json": {
+						schema: adminMcpVerifyBodySchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Verification result",
+				content: {
+					"application/json": {
+						schema: mcpVerifyResponseSchema,
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const { mcpConfig } = c.req.valid("json")
+		const result = await verifyMcpServer(mcpConfig)
+		return c.json(result, 200)
 	},
 )

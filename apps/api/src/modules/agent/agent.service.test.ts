@@ -134,7 +134,7 @@ describe("streamResponse", () => {
 	it("closes MCP connection when stream completes", async () => {
 		const { stream } = await streamResponse({
 			...baseInput,
-			mcpServers: [{ type: "sse", url: "http://example.com" }],
+			mcpServers: [{ type: "http", url: "https://example.com" }],
 		})
 		const reader = stream.getReader()
 		while (true) {
@@ -147,7 +147,7 @@ describe("streamResponse", () => {
 	it("closes MCP connection when stream is cancelled", async () => {
 		const { stream } = await streamResponse({
 			...baseInput,
-			mcpServers: [{ type: "sse", url: "http://example.com" }],
+			mcpServers: [{ type: "http", url: "https://example.com" }],
 		})
 		const reader = stream.getReader()
 		await reader.cancel()

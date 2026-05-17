@@ -71,6 +71,7 @@
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
 | FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | Done |
+| FR-2.16a | Client can verify MCP server connectivity and view available tools before or after enabling | Medium | Approved | Done |
 | FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | Done |
 
 #### FR-2f: Analytics & appearance
@@ -103,6 +104,8 @@
 | FR-3.6 | Platform admin can view a graph of official (platform) API key usage over time | Low | Approved | Done |
 | FR-3.7 | Platform admin can view a graph of total conversation count across all tenants over time | Low | Approved | Done |
 | FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all tenants | Low | Approved | Done |
+| FR-3.9 | Platform admin can manage pre-made MCP server configurations (add, edit, delete) | Medium | Approved | Done |
+| FR-3.9.1 | Platform admin can verify pre-made MCP server connectivity and preview available tools | Medium | Approved | Done |
 
 ---
 
