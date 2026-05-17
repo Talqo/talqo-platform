@@ -167,7 +167,7 @@ function ChatsPage() {
 						</Card>
 					) : (
 						<div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-							{t("dashboard.conversationsTable.selectConversationPlaceholder")}
+							{t("backoffice.conversationsTable.selectConversationPlaceholder")}
 						</div>
 					)}
 				</div>
