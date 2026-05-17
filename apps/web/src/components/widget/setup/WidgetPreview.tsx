@@ -50,7 +50,9 @@ export function WidgetPreview({
 	return (
 		<Card data-testid="live-preview-card">
 			<CardHeader className="flex flex-row items-center justify-between">
-				<CardTitle>{t("widget.preview.title")}</CardTitle>
+				<CardTitle data-testid="live-preview-heading">
+					{t("widget.preview.title")}
+				</CardTitle>
 				<Button
 					variant="outline"
 					size="sm"

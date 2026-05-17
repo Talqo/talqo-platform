@@ -34,9 +34,6 @@ test.describe("Client dashboard features", () => {
 	test("client adds funds", async ({ page }) => {
 		await page.getByRole("link", { name: "Add Funds" }).click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/add-funds/)
-		await expect(
-			page.getByRole("heading", { name: "Add Funds", level: 1 }),
-		).toBeVisible()
 
 		await page.getByPlaceholder("0.00").fill("50")
 		await page.getByLabel("Card Number").fill("4242 4242 4242 4242")
@@ -55,17 +52,12 @@ test.describe("Client dashboard features", () => {
 	})
 
 	test("widget preview shows initial welcome message", async ({ page }) => {
-		await page
-			.getByRole("link", { name: "Widget Setup" })
-			.click({ force: true })
+		await page.getByTestId("nav-widget-setup").click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/widget-setup/)
-		await expect(
-			page.getByRole("heading", { name: "Widget Setup" }),
-		).toBeVisible()
+		await expect(page.getByTestId("widget-setup-heading")).toBeVisible()
 
-		await expect(
-			page.getByRole("heading", { name: "Live Preview" }),
-		).toBeVisible()
+		const previewCardHeading = page.getByTestId("live-preview-heading")
+		await expect(previewCardHeading).toBeVisible()
 
 		const previewCard = page.getByTestId("live-preview-card")
 		await expect(

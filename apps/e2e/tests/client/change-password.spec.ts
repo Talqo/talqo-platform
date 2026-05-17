@@ -41,7 +41,7 @@ test.describe("Change password flow", () => {
 		)
 		await expect(page).toHaveURL(/\/dashboard/)
 
-		await page.getByRole("link", { name: "Settings" }).click({ force: true })
+		await page.getByTestId("nav-settings").click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/settings/)
 
 		await expect(

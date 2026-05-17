@@ -12,7 +12,10 @@ function WidgetSetupPage() {
 	return (
 		<PageContainer>
 			<div className="mb-6">
-				<h1 className="font-bold text-2xl text-foreground tracking-tight">
+				<h1
+					data-testid="widget-setup-heading"
+					className="font-bold text-2xl text-foreground tracking-tight"
+				>
 					{t("dashboard.widgetSetup.title")}
 				</h1>
 				<p className="text-muted-foreground">

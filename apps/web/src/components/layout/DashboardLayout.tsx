@@ -103,10 +103,13 @@ export function DashboardLayout() {
 					</div>
 					{navItems.map((item) => {
 						const isActive = location.pathname === item.href
+						const slug =
+							item.href.replace("/dashboard", "").replace("/", "") || "overview"
 						return (
 							<Link
 								key={item.href}
 								to={item.href}
+								data-testid={`nav-${slug}`}
 								className={cn(
 									"flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-colors",
 									isActive

@@ -79,9 +79,7 @@ export const fileEmbeddings = pgTable(
 			table.chunkIndex,
 		),
 		index("idx_file_embeddings_client_id").on(table.clientId),
-		index("idx_file_embeddings_embedding").using(
-			"hnsw",
-			table.embedding.op("vector_cosine_ops"),
-		),
+		// HNSW index omitted: pgvector requires a fixed dimension at index creation time,
+		// but this column is dimensionless to support multiple embedding models.
 	],
 )
