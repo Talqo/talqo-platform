@@ -615,12 +615,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
         /** Change password */
-        patch: {
+        post: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -663,6 +659,10 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/client/me/balance": {

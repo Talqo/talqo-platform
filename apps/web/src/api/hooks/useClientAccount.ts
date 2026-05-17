@@ -34,7 +34,7 @@ export function useChangePassword() {
 		{ currentPassword: string; newPassword: string }
 	>({
 		mutationFn: async (body) => {
-			const { data, error } = await client.PATCH("/client/me/password", {
+			const { data, error } = await client.POST("/client/me/password", {
 				body,
 			})
 			if (error) throw error

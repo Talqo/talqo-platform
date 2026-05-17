@@ -48,6 +48,12 @@ app.use("/*", async (c, next) => {
 	await next()
 })
 app.use("/*", createWideEventMiddleware([new SentryExporter()]))
+app.use("/*", async (c, next) => {
+	await next()
+	if (c.res.status === 415 || c.req.method === "PATCH") {
+		c.res.headers.set("Accept-Patch", "application/json")
+	}
+})
 app.onError(errorHandler)
 
 app.get("/", (c) => c.text("PagePal API"))
