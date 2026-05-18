@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
 	useClientConversation,
 	useClientConversations,
@@ -92,6 +93,7 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 }
 
 function ChatsPage() {
+	const { t } = useTranslation()
 	const {
 		data: conversations,
 		isLoading,
@@ -128,38 +130,48 @@ function ChatsPage() {
 				subtitle="Browse conversations your visitors have had with the bot (most recent 50)."
 			/>
 
-			<ConversationsTable
-				conversations={conversations}
-				selectedId={selectedId}
-				onSelect={handleSelect}
-			/>
+			<div className="grid grid-cols-[1fr_1.2fr] gap-6 items-start">
+				<div className="min-w-0">
+					<ConversationsTable
+						conversations={conversations}
+						selectedId={selectedId}
+						onSelect={handleSelect}
+					/>
+				</div>
 
-			{selected && (
-				<Card>
-					<CardHeader>
-						<div className="flex items-center justify-between">
-							<div>
-								<CardTitle>Conversation</CardTitle>
-								<CardDescription>
-									Started{" "}
-									{new Date(selected.startedAt).toLocaleString(undefined, {
-										dateStyle: "medium",
-										timeStyle: "short",
-									})}
-								</CardDescription>
-							</div>
-							{selected.satisfactionRating != null && (
-								<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-									Rating: {selected.satisfactionRating} / 5
-								</Badge>
-							)}
+				<div className="sticky top-6 min-w-0">
+					{selected ? (
+						<Card>
+							<CardHeader>
+								<div className="flex items-center justify-between">
+									<div>
+										<CardTitle>Conversation</CardTitle>
+										<CardDescription>
+											Started{" "}
+											{new Date(selected.startedAt).toLocaleString(undefined, {
+												dateStyle: "medium",
+												timeStyle: "short",
+											})}
+										</CardDescription>
+									</div>
+									{selected.satisfactionRating != null && (
+										<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+											Rating: {selected.satisfactionRating} / 5
+										</Badge>
+									)}
+								</div>
+							</CardHeader>
+							<CardContent className="max-h-[calc(100vh-16rem)] overflow-y-auto">
+								<ConversationPreview conversationId={selected.id} />
+							</CardContent>
+						</Card>
+					) : (
+						<div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+							{t("backoffice.conversationsTable.selectConversationPlaceholder")}
 						</div>
-					</CardHeader>
-					<CardContent>
-						<ConversationPreview conversationId={selected.id} />
-					</CardContent>
-				</Card>
-			)}
+					)}
+				</div>
+			</div>
 		</div>
 	)
 }

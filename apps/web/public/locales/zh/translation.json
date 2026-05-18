@@ -612,7 +612,8 @@
 			"noMessages": "暂无消息",
 			"chatPreviews": "聊天预览",
 			"chatPreviewsDescription": "浏览并查看终端用户对话（显示最近 50 条）",
-			"ratingLabel": "评分"
+			"ratingLabel": "评分",
+			"selectConversationPlaceholder": "选择对话以预览"
 		},
 		"mcpServersTable": {
 			"name": "名称",
