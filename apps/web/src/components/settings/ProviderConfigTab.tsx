@@ -24,6 +24,7 @@ import {
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -47,6 +48,12 @@ const MODEL_PLACEHOLDERS: Record<ProviderType, string> = {
 	openai_compatible: "depends on endpoint",
 	google: "gemini-2.0-flash, gemini-1.5-pro",
 	anthropic: "claude-sonnet-4-6, claude-haiku-4-5",
+}
+
+const EMBEDDING_MODEL_PLACEHOLDERS: Partial<Record<ProviderType, string>> = {
+	openai: "text-embedding-3-small (default)",
+	google: "text-embedding-004 (default)",
+	openai_compatible: "",
 }
 
 function ProviderLabel({ type }: { type: ProviderType }) {
@@ -152,6 +159,17 @@ function ActiveProviderState({
 						</>
 					)}
 
+					{config.embeddingModel && (
+						<>
+							<dt className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
+								{t("settings.provider.embeddingModel")}
+							</dt>
+							<dd className="font-mono text-foreground">
+								{config.embeddingModel}
+							</dd>
+						</>
+					)}
+
 					<dt className="font-mono text-muted-foreground text-xs uppercase tracking-wider">
 						{t("settings.provider.updated")}
 					</dt>
@@ -210,6 +228,7 @@ function ProviderConfigForm({
 			apiKey: "",
 			model: config?.model ?? "",
 			baseUrl: config?.baseUrl ?? "",
+			embeddingModel: config?.embeddingModel ?? "",
 		},
 		mode: "onBlur",
 	})
@@ -221,6 +240,7 @@ function ProviderConfigForm({
 				apiKey: "",
 				model: config.model,
 				baseUrl: config.baseUrl ?? "",
+				embeddingModel: config.embeddingModel ?? "",
 			})
 		}
 	}, [config, form])
@@ -230,6 +250,7 @@ function ProviderConfigForm({
 	const onSubmit = async (values: ProviderConfigFormValues) => {
 		try {
 			// TypeScript discriminated union requires explicit ternary to narrow types
+			const embeddingModel = values.embeddingModel?.trim() || undefined
 			const payload =
 				values.providerType === "openai_compatible"
 					? {
@@ -237,12 +258,13 @@ function ProviderConfigForm({
 							apiKey: values.apiKey,
 							model: values.model,
 							baseUrl: values.baseUrl,
+							...(embeddingModel ? { embeddingModel } : {}),
 						}
 					: {
 							providerType: values.providerType,
 							apiKey: values.apiKey,
 							model: values.model,
-							...(values.baseUrl ? { baseUrl: values.baseUrl } : {}),
+							...(embeddingModel ? { embeddingModel } : {}),
 						}
 			await upsert.mutateAsync(payload)
 			onSaved()
@@ -266,6 +288,7 @@ function ProviderConfigForm({
 									field.onChange(v)
 									if (v !== "openai_compatible") {
 										form.setValue("baseUrl", "")
+										form.setValue("embeddingModel", "")
 									}
 								}}
 							>
@@ -365,6 +388,32 @@ function ProviderConfigForm({
 						</FormItem>
 					)}
 				/>
+
+				{providerType !== "anthropic" && (
+					<FormField
+						control={form.control}
+						name="embeddingModel"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>{t("settings.provider.embeddingModel")}</FormLabel>
+								<FormControl>
+									<Input
+										type="text"
+										placeholder={
+											EMBEDDING_MODEL_PLACEHOLDERS[providerType] ??
+											t("settings.provider.embeddingModelPlaceholder")
+										}
+										{...field}
+									/>
+								</FormControl>
+								<FormDescription>
+									{t("settings.provider.embeddingModelDescription")}
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)}
 
 				{providerType === "openai_compatible" && (
 					<FormField

@@ -342,7 +342,7 @@ export function AccountSettingsTab() {
 								name="confirmNewPassword"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("common.confirmNewPassword")}</FormLabel>
+										<FormLabel>{t("confirmNewPassword")}</FormLabel>
 										<FormControl>
 											<Input type="password" {...field} />
 										</FormControl>

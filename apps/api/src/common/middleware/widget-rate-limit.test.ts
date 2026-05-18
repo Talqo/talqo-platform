@@ -22,7 +22,27 @@ const mockDb = {
 // IMPORTANT: mocks MUST be declared before mock.module calls due to Bun caching
 mock.module("../../db", () => ({ db: mockDb }))
 mock.module("../config", () => ({
-	config: { WIDGET_RATE_LIMIT_PER_HOUR: 2 },
+	config: {
+		POSTGRES_USER: "test",
+		POSTGRES_PASSWORD: "test",
+		POSTGRES_HOST: "localhost",
+		POSTGRES_PORT: 5432,
+		POSTGRES_DB: "test",
+		DATABASE_URL: "postgres://test:test@localhost:5432/test",
+		JWT_SECRET: "test-secret-that-is-at-least-32-characters-long",
+		JWT_EXPIRES_IN: "24h",
+		API_PORT: 3000,
+		S3_ACCESS_KEY_ID: "test",
+		S3_SECRET_ACCESS_KEY: "test",
+		S3_ENDPOINT: "http://localhost:9000",
+		S3_BUCKET: "test",
+		RESEND_API_KEY: "test",
+		APP_URL: "http://localhost:3000",
+		PROVIDER_KEY_SECRET:
+			"0000000000000000000000000000000000000000000000000000000000000000",
+		WIDGET_RATE_LIMIT_PER_HOUR: 2,
+		WIDGET_CONVERSATION_MAX_MESSAGES: 50,
+	},
 }))
 
 const { widgetRateLimit } = await import("./widget-rate-limit")

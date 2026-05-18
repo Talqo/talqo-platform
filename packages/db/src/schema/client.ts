@@ -85,6 +85,7 @@ export const aiProviderConfigs = pgTable("ai_provider_configs", {
 	providerType: providerTypeEnum("provider_type").notNull(),
 	apiKeyEncrypted: text("api_key_encrypted").notNull(),
 	model: varchar("model", { length: 255 }).notNull(),
+	embeddingModel: varchar("embedding_model", { length: 255 }),
 	baseUrl: text("base_url"),
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.defaultNow()

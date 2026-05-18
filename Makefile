@@ -8,7 +8,7 @@ HELM_CHART := ./helm
 GHCR_USER := pagepal-agent
 API_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/pagepal-web
-VITE_API_URL ?= http://localhost:3000
+VITE_API_URL ?= http://localhost:3000/v1
 E2E_PORT     ?= 4173
 # Rancher project ID — namespaces must be annotated with this to appear in the right project
 RANCHER_PROJECT_ID := c-m-qvndqhf6:p-8rjpv
@@ -232,6 +232,7 @@ deploy: ns-create helm-deps _require-tag _require-resend-api-key _require-defaul
 		--set api.defaultLlm.providerType="$$DEFAULT_LLM_PROVIDER_TYPE" \
 		--set api.defaultLlm.apiKey="$$DEFAULT_LLM_API_KEY" \
 		--set api.defaultLlm.model="$$DEFAULT_LLM_MODEL" \
+		--set api.defaultLlm.embeddingModel="$$DEFAULT_EMBEDDING_MODEL" \
 		--set api.defaultLlm.baseUrl="$$DEFAULT_LLM_BASE_URL"
 
 .PHONY: undeploy

@@ -7,14 +7,14 @@
 	"scripts": {
 		"dev": "vite",
 		"dev:spa": "vite --mode development",
-		"dev:bundle": "concurrently \"tsc --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --port 5174 --strictPort\"",
-		"build": "tsc && vite build --mode production",
+		"dev:bundle": "concurrently \"tsgo --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --port 5174 --strictPort\"",
+		"build": "tsgo && vite build --mode production",
 		"build:watch": "vite build --watch --mode production",
 		"preview": "vite preview --port 5174 --strictPort",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
-		"type-check": "tsc --noEmit",
+		"type-check": "tsgo --noEmit",
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
 	"dependencies": {
@@ -32,6 +32,7 @@
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.1",
 		"concurrently": "^9.2.1",
+		"esbuild": "^0.23.0",
 		"typescript": "^6.0.0",
 		"vite": "^8.0.8",
 		"vite-plugin-css-injected-by-js": "^3.5.2",

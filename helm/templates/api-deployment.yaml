@@ -91,6 +91,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "pagepal.defaultLlmSecretName" . }}
                   key: baseUrl
+            - name: DEFAULT_EMBEDDING_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "pagepal.defaultLlmSecretName" . }}
+                  key: embeddingModel
             - name: PROVIDER_KEY_SECRET
               valueFrom:
                 secretKeyRef:

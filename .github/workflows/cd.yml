@@ -62,4 +62,5 @@ jobs:
           DEFAULT_LLM_PROVIDER_TYPE: ${{ secrets.DEFAULT_LLM_PROVIDER_TYPE }}
           DEFAULT_LLM_API_KEY: ${{ secrets.DEFAULT_LLM_API_KEY }}
           DEFAULT_LLM_MODEL: ${{ secrets.DEFAULT_LLM_MODEL }}
+          DEFAULT_EMBEDDING_MODEL: ${{ secrets.DEFAULT_EMBEDDING_MODEL }}
           DEFAULT_LLM_BASE_URL: ${{ secrets.DEFAULT_LLM_BASE_URL }}

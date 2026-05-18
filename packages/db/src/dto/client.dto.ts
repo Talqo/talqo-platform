@@ -49,6 +49,7 @@ export const aiProviderConfigResponseSchema = createSelectSchema(
 		]),
 		model: z.string(),
 		baseUrl: z.string().nullable(),
+		embeddingModel: z.string().nullable(),
 		updatedAt: z.string(),
 	},
 ).omit({ apiKeyEncrypted: true })

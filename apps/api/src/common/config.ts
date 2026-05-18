@@ -54,6 +54,7 @@ const envSchema = z
 		DEFAULT_LLM_API_KEY: z.string().optional(),
 		DEFAULT_LLM_MODEL: z.string().optional(),
 		DEFAULT_LLM_BASE_URL: z.string().url().optional(),
+		DEFAULT_EMBEDDING_MODEL: z.string().optional(),
 		// Comma-separated list of trusted proxy IPs; when the direct connection is from one of these IPs, X-Forwarded-For is trusted
 		TRUSTED_PROXY_IPS: z.string().optional(),
 		SERVICE_NAME: z.string().optional(),
@@ -128,6 +129,7 @@ const parsed = envSchema.safeParse({
 	DEFAULT_LLM_API_KEY: normalizeEmpty(process.env.DEFAULT_LLM_API_KEY),
 	DEFAULT_LLM_MODEL: normalizeEmpty(process.env.DEFAULT_LLM_MODEL),
 	DEFAULT_LLM_BASE_URL: normalizeEmpty(process.env.DEFAULT_LLM_BASE_URL),
+	DEFAULT_EMBEDDING_MODEL: normalizeEmpty(process.env.DEFAULT_EMBEDDING_MODEL),
 	TRUSTED_PROXY_IPS: normalizeEmpty(process.env.TRUSTED_PROXY_IPS),
 	SENTRY_DSN: normalizeEmpty(process.env.SENTRY_DSN),
 })
@@ -154,6 +156,7 @@ export function getDefaultProviderConfig(): AiProviderConfig | null {
 		DEFAULT_LLM_API_KEY,
 		DEFAULT_LLM_MODEL,
 		DEFAULT_LLM_BASE_URL,
+		DEFAULT_EMBEDDING_MODEL,
 	} = env
 	if (!DEFAULT_LLM_PROVIDER_TYPE || !DEFAULT_LLM_API_KEY || !DEFAULT_LLM_MODEL)
 		return null
@@ -169,6 +172,7 @@ export function getDefaultProviderConfig(): AiProviderConfig | null {
 			apiKey: DEFAULT_LLM_API_KEY,
 			model: DEFAULT_LLM_MODEL,
 			baseURL: DEFAULT_LLM_BASE_URL,
+			embeddingModel: DEFAULT_EMBEDDING_MODEL,
 		}
 	}
 	const result: {
@@ -176,6 +180,7 @@ export function getDefaultProviderConfig(): AiProviderConfig | null {
 		apiKey: string
 		model: string
 		baseURL?: string
+		embeddingModel?: string
 	} = {
 		type: DEFAULT_LLM_PROVIDER_TYPE,
 		apiKey: DEFAULT_LLM_API_KEY,
@@ -183,6 +188,9 @@ export function getDefaultProviderConfig(): AiProviderConfig | null {
 	}
 	if (typeof DEFAULT_LLM_BASE_URL === "string" && DEFAULT_LLM_BASE_URL) {
 		result.baseURL = DEFAULT_LLM_BASE_URL
+	}
+	if (DEFAULT_EMBEDDING_MODEL) {
+		result.embeddingModel = DEFAULT_EMBEDDING_MODEL
 	}
 	return result as AiProviderConfig
 }

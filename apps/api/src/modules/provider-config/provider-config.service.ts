@@ -8,6 +8,7 @@ type UpsertInput = {
 	apiKey: string
 	model: string
 	baseUrl?: string
+	embeddingModel?: string
 }
 
 function maskApiKey(apiKey: string): string {
@@ -30,6 +31,7 @@ export class ProviderConfigService {
 			providerType: row.providerType,
 			apiKeyMasked: maskApiKey(plainKey),
 			model: row.model,
+			embeddingModel: row.embeddingModel,
 			baseUrl: row.baseUrl,
 			updatedAt: row.updatedAt.toISOString(),
 		}
@@ -42,6 +44,7 @@ export class ProviderConfigService {
 			apiKeyEncrypted,
 			model: input.model,
 			baseUrl: input.baseUrl ?? null,
+			embeddingModel: input.embeddingModel ?? null,
 		})
 
 		return {
@@ -50,6 +53,7 @@ export class ProviderConfigService {
 			providerType: row.providerType,
 			apiKeyMasked: maskApiKey(input.apiKey),
 			model: row.model,
+			embeddingModel: row.embeddingModel,
 			baseUrl: row.baseUrl,
 			updatedAt: row.updatedAt.toISOString(),
 		}

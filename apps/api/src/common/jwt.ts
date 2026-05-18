@@ -22,7 +22,12 @@ export type TokenPayload = {
 	imp?: boolean
 }
 
-const secret = new TextEncoder().encode(config.JWT_SECRET)
+let cachedSecret: Uint8Array | undefined
+
+function getSecret(): Uint8Array {
+	cachedSecret ??= new TextEncoder().encode(config.JWT_SECRET)
+	return cachedSecret
+}
 
 export async function signToken(
 	payload: TokenPayload,
@@ -33,14 +38,14 @@ export async function signToken(
 		.setSubject(payload.sub)
 		.setIssuedAt()
 		.setExpirationTime(expiresIn)
-		.sign(secret)
+		.sign(getSecret())
 }
 
 const TOKEN_ROLES: ReadonlySet<string> = new Set<TokenRole>(["client", "admin"])
 
 export async function verifyToken(token: string): Promise<TokenPayload> {
 	try {
-		const { payload } = await jwtVerify(token, secret)
+		const { payload } = await jwtVerify(token, getSecret())
 		const sub = payload.sub
 		const role = payload.role
 		const imp = payload.imp

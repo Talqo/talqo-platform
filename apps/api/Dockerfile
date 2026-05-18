@@ -32,6 +32,7 @@ COPY --from=builder /app/packages/db/migrate.ts ./packages/db/
 COPY --from=pruner /app/out/bun.lock ./bun.lock
 # Install production dependencies with workspace context
 RUN bun install --frozen-lockfile --production --ignore-scripts
+COPY --from=builder /app/apps/api/tsconfig.json ./apps/api/
 COPY --from=builder /app/apps/api/src ./apps/api/src
 RUN chown -R bun:bun /app
 USER bun

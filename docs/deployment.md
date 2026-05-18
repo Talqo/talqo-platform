@@ -18,6 +18,10 @@ The CD pipeline requires repository secrets to be configured in **Settings → S
 |--------|-------|
 | `KUBECONFIG` | Base64-encoded kubeconfig with access to both `pagepal-dev` and `pagepal-prod` namespaces |
 | `RESEND_API_KEY` | API key from the [Resend dashboard](https://resend.com/api-keys) used by the API to send emails |
+| `DEFAULT_LLM_PROVIDER_TYPE` | Default LLM provider type (`anthropic`, `openai`, `openai_compatible`, or `google`) |
+| `DEFAULT_LLM_API_KEY` | API key for the default LLM provider |
+| `DEFAULT_LLM_MODEL` | Chat model ID for the default LLM provider |
+| `DEFAULT_EMBEDDING_MODEL` | Embedding model ID (required when using `anthropic` provider or no client-specific provider) |
 
 To encode your kubeconfig:
 ```bash
@@ -39,6 +43,8 @@ The active environment is detected from the current git branch — no flags need
 make setup   # install deps + start PostgreSQL in Docker
 make dev     # start API, web, and DB log panel via Turborepo TUI
 ```
+
+The local PostgreSQL container (`pgvector/pgvector:pg18`) and the Bitnami PostgreSQL image used in Kubernetes both ship with the `pgvector` extension pre-installed. Migrations create the extension automatically on first run.
 
 ## Cluster access (kubeconfig)
 

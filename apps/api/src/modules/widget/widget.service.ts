@@ -15,6 +15,7 @@ import { streamResponse } from "@/modules/agent/agent.service"
 import type { BotConfigRepository } from "@/modules/bot-config/bot-config.repository"
 import type { McpRepository } from "@/modules/mcp/mcp.repository"
 import type { ProviderConfigRepository } from "@/modules/provider-config/provider-config.repository"
+import type { RagService } from "@/modules/rag/rag.service"
 import type { WidgetRepository } from "./widget.repository"
 
 const PLATFORM_MODEL_INPUT_RATE = 0.1 / 1_000_000
@@ -62,6 +63,7 @@ type WidgetServiceDeps = {
 	botConfigRepository: BotConfigRepository
 	providerConfigRepository: ProviderConfigRepository
 	mcpRepository: McpRepository
+	ragService?: Pick<RagService, "retrieve">
 	streamResponse?: StreamResponse
 	sendQuotaAlertEmail?: SendQuotaAlertEmail
 }
@@ -71,6 +73,7 @@ export class WidgetService {
 	private readonly botConfigRepo: BotConfigRepository
 	private readonly providerConfigRepo: ProviderConfigRepository
 	private readonly mcpRepo: McpRepository
+	private readonly ragService?: Pick<RagService, "retrieve">
 	private readonly streamResponse: StreamResponse
 	private readonly sendQuotaAlertEmail: SendQuotaAlertEmail
 
@@ -79,6 +82,7 @@ export class WidgetService {
 		this.botConfigRepo = deps.botConfigRepository
 		this.providerConfigRepo = deps.providerConfigRepository
 		this.mcpRepo = deps.mcpRepository
+		this.ragService = deps.ragService
 		this.streamResponse = deps.streamResponse ?? streamResponse
 		this.sendQuotaAlertEmail =
 			deps.sendQuotaAlertEmail ?? defaultSendQuotaAlertEmail
@@ -150,10 +154,30 @@ export class WidgetService {
 			await this.resolveProvider(clientId)
 
 		const botConfig = await this.botConfigRepo.getByClientId(clientId)
-		const contextParts: string[] = [PLATFORM_SYSTEM_PROMPT]
-		if (botConfig?.systemPrompt) contextParts.push(botConfig.systemPrompt)
-		if (botConfig?.toneStyle) contextParts.push(`Tone: ${botConfig.toneStyle}`)
-		const context = contextParts.join("\n")
+
+		let chunks: string[] = []
+		try {
+			chunks = (await this.ragService?.retrieve(clientId, content, 5)) ?? []
+		} catch (err) {
+			logger.warn("RAG retrieval failed, continuing without context", {
+				clientId,
+				error: err instanceof Error ? err.message : String(err),
+			})
+		}
+
+		const ragContext =
+			chunks.length > 0
+				? `\n\n<context>\n${chunks.join("\n---\n")}\n</context>`
+				: ""
+
+		const context = [
+			PLATFORM_SYSTEM_PROMPT,
+			botConfig?.systemPrompt,
+			botConfig?.toneStyle ? `Tone: ${botConfig.toneStyle}` : undefined,
+			ragContext || undefined,
+		]
+			.filter(Boolean)
+			.join("\n")
 
 		const mcpServers = await this.resolveMcpServers(clientId)
 

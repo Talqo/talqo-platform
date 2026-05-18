@@ -138,6 +138,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		tokensUsed: number
 		costUsd: string
 	}[] = []
+	balanceDeductions: { clientId: string; amount: string }[] = []
 	private idCounters = { session: 0, conversation: 0, message: 0 }
 
 	async findOrCreateSession(clientId: string, browserSessionId: string) {
@@ -247,6 +248,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		costUsd: string,
 	) {
 		this.usages.push({ clientId, messageId, tokensUsed, costUsd })
+		this.balanceDeductions.push({ clientId, amount: costUsd })
 	}
 
 	async getMonthlySpend(clientId: string, _year: number, _month: number) {
@@ -392,9 +394,15 @@ export class WidgetRepository {
 		tokensUsed: number,
 		costUsd: string,
 	) {
-		await this.db
-			.insert(usageRecords)
-			.values({ clientId, messageId, tokensUsed, costUsd })
+		await this.db.transaction(async (tx) => {
+			await tx
+				.insert(usageRecords)
+				.values({ clientId, messageId, tokensUsed, costUsd })
+			await tx
+				.update(clients)
+				.set({ balanceUsd: sql`${clients.balanceUsd} - ${costUsd}` })
+				.where(eq(clients.id, clientId))
+		})
 	}
 
 	async getMonthlySpend(clientId: string, year: number, month: number) {
