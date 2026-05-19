@@ -390,6 +390,23 @@
 			"nameRequired": "Name is required"
 		}
 	},
+	"mcp": {
+		"customDialog": {
+			"addTitle": "Add Custom MCP Server",
+			"editTitle": "Edit Custom MCP Server",
+			"transportType": "Transport type",
+			"selectType": "Select type",
+			"httpLabel": "HTTP (URL)",
+			"endpointUrl": "Endpoint URL",
+			"headers": "Headers",
+			"addHeader": "Add header",
+			"headerKey": "Key",
+			"headerValue": "Value",
+			"removeHeader": "Remove header",
+			"saveChanges": "Save changes",
+			"addServer": "Add server"
+		}
+	},
 	"blacklist": {
 		"title": "Word Blacklist",
 		"description": "The bot will not use or engage with blacklisted terms.",

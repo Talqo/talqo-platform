@@ -143,7 +143,7 @@ function BackofficeChatsPage() {
 				</p>
 			</div>
 
-			<div className="grid grid-cols-[1fr_1.2fr] gap-6 items-start">
+			<div className="grid grid-cols-[1fr_1.2fr] items-start gap-6">
 				<div className="min-w-0">
 					<ConversationsTable
 						conversations={conversations}
@@ -184,7 +184,7 @@ function BackofficeChatsPage() {
 							</CardContent>
 						</Card>
 					) : (
-						<div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+						<div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
 							{t("backoffice.conversationsTable.selectConversationPlaceholder")}
 						</div>
 					)}

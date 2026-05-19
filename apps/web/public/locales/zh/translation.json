@@ -188,6 +188,23 @@
 			"nameRequired": "姓名必填"
 		}
 	},
+	"mcp": {
+		"customDialog": {
+			"addTitle": "添加自定义 MCP 服务器",
+			"editTitle": "编辑自定义 MCP 服务器",
+			"transportType": "传输类型",
+			"selectType": "选择类型",
+			"httpLabel": "HTTP (URL)",
+			"endpointUrl": "端点 URL",
+			"headers": "请求头",
+			"addHeader": "添加请求头",
+			"headerKey": "键",
+			"headerValue": "值",
+			"removeHeader": "删除请求头",
+			"saveChanges": "保存更改",
+			"addServer": "添加服务器"
+		}
+	},
 	"blacklist": {
 		"title": "敏感词黑名单",
 		"description": "机器人不会使用或回应黑名单中的词汇。",

@@ -188,6 +188,23 @@
 			"nameRequired": "Jméno je povinné"
 		}
 	},
+	"mcp": {
+		"customDialog": {
+			"addTitle": "Přidat vlastní MCP server",
+			"editTitle": "Upravit vlastní MCP server",
+			"transportType": "Typ přenosu",
+			"selectType": "Vyberte typ",
+			"httpLabel": "HTTP (URL)",
+			"endpointUrl": "URL koncového bodu",
+			"headers": "Hlavičky",
+			"addHeader": "Přidat hlavičku",
+			"headerKey": "Klíč",
+			"headerValue": "Hodnota",
+			"removeHeader": "Odstranit hlavičku",
+			"saveChanges": "Uložit změny",
+			"addServer": "Přidat server"
+		}
+	},
 	"blacklist": {
 		"title": "Černá listina slov",
 		"description": "Bot nebude používat ani reagovat na zakázané výrazy.",
