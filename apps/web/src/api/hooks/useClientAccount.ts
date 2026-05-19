@@ -130,3 +130,18 @@ export function useDeleteAccount() {
 		},
 	})
 }
+
+export function useRotateWidgetToken() {
+	const qc = useQueryClient()
+	return useMutation({
+		mutationFn: async () => {
+			const { data, error } = await client.POST(
+				"/client/me/widget-token/rotate",
+				{},
+			)
+			if (error) throw error
+			return data
+		},
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["client", "profile"] }),
+	})
+}
