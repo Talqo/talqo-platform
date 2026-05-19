@@ -10,13 +10,13 @@ import {
 import { STORAGE_KEYS } from "@/lib/constants"
 
 const LANGUAGES = [
-	{ code: "en", label: "languages.english" },
-	{ code: "cs", label: "languages.czech" },
-	{ code: "zh", label: "languages.chinese" },
+	{ code: "en", nativeLabel: "English" },
+	{ code: "cs", nativeLabel: "Čeština" },
+	{ code: "zh", nativeLabel: "中文" },
 ]
 
 export function LanguageSwitcher() {
-	const { i18n, t } = useTranslation()
+	const { i18n } = useTranslation()
 
 	const changeLanguage = (lng: string) => {
 		i18n.changeLanguage(lng)
@@ -38,7 +38,7 @@ export function LanguageSwitcher() {
 						onClick={() => changeLanguage(lang.code)}
 						className={i18n.language === lang.code ? "bg-accent" : ""}
 					>
-						{t(lang.label)}
+						{lang.nativeLabel}
 					</DropdownMenuItem>
 				))}
 			</DropdownMenuContent>
