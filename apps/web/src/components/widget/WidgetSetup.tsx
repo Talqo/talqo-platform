@@ -131,8 +131,8 @@ export function WidgetSetup() {
 	const isSaving = updateWidgetConfig.isPending
 
 	return (
-		<div className="flex flex-col gap-6 lg:flex-row">
-			<div className="min-w-0 flex-1 space-y-6">
+		<div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_28rem]">
+			<div className="min-w-0 space-y-6">
 				{clientError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -236,7 +236,7 @@ export function WidgetSetup() {
 				/>
 			</div>
 
-			<div className="hidden lg:sticky lg:top-4 lg:block lg:w-[28rem] lg:self-start">
+			<div className="hidden min-w-0 lg:sticky lg:top-4 lg:block">
 				<WidgetPreview
 					colors={colors}
 					icons={icons}
