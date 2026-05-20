@@ -71,6 +71,7 @@ export class AnalyticsRepository {
 			.where(
 				and(
 					eq(conversations.clientId, clientId),
+					eq(messages.role, "user"),
 					gte(messages.createdAt, from),
 					lte(messages.createdAt, to),
 				),

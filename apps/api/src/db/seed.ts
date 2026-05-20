@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
+import { logger } from "@/common/logger"
 import * as schema from "./schema"
 import {
 	adminAccessLogs,
@@ -27,7 +28,7 @@ const {
 } = process.env
 
 if (!POSTGRES_USER || !POSTGRES_PASSWORD || !POSTGRES_DB) {
-	console.error(
+	logger.error(
 		"Missing required env vars: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB",
 	)
 	process.exit(1)
@@ -91,7 +92,7 @@ const ID = {
 } as const
 
 async function seed() {
-	console.log("Seeding database...")
+	logger.info("Seeding database...")
 
 	// Wipe all data so the seed is always a clean re-insert regardless of prior state.
 	// CASCADE handles FK ordering automatically.
@@ -111,7 +112,7 @@ async function seed() {
 			target: adminUsers.email,
 			set: { passwordHash: await Bun.password.hash("admin123") },
 		})
-	console.log("  ✓ admin users")
+	logger.info("  ✓ admin users")
 
 	// ── Clients ────────────────────────────────────────────────────────────────
 	await db
@@ -153,7 +154,7 @@ async function seed() {
 				widgetSetupDismissed: sql`excluded.widget_setup_dismissed`,
 			},
 		})
-	console.log("  ✓ clients")
+	logger.info("  ✓ clients")
 
 	// ── Bot configs ────────────────────────────────────────────────────────────
 	await db
@@ -177,7 +178,7 @@ async function seed() {
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ bot configs")
+	logger.info("  ✓ bot configs")
 
 	// ── Pre-made MCP servers ───────────────────────────────────────────────────
 	await db
@@ -207,7 +208,7 @@ async function seed() {
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ pre-made MCP servers")
+	logger.info("  ✓ pre-made MCP servers")
 
 	// ── Client ↔ pre-made MCP associations ────────────────────────────────────
 	await db
@@ -218,7 +219,7 @@ async function seed() {
 			{ clientId: ID.client2, preMadeMcpId: ID.preMadeMcp2 },
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ client MCP associations")
+	logger.info("  ✓ client MCP associations")
 
 	// ── Custom MCP servers ─────────────────────────────────────────────────────
 	await db
@@ -236,7 +237,7 @@ async function seed() {
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ custom MCP servers")
+	logger.info("  ✓ custom MCP servers")
 
 	// ── Blacklist words ────────────────────────────────────────────────────────
 	await db
@@ -248,7 +249,7 @@ async function seed() {
 			{ id: ID.blacklist4, clientId: ID.client2, word: "outage" },
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ blacklist words")
+	logger.info("  ✓ blacklist words")
 
 	// ── Admin access logs ──────────────────────────────────────────────────────
 	await db
@@ -274,7 +275,7 @@ async function seed() {
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ admin access logs")
+	logger.info("  ✓ admin access logs")
 
 	// ── End user sessions ──────────────────────────────────────────────────────
 	await db
@@ -297,7 +298,7 @@ async function seed() {
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ end user sessions")
+	logger.info("  ✓ end user sessions")
 
 	// ── Conversations ──────────────────────────────────────────────────────────
 	await db
@@ -323,7 +324,7 @@ async function seed() {
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ conversations")
+	logger.info("  ✓ conversations")
 
 	// ── Messages ───────────────────────────────────────────────────────────────
 	await db
@@ -343,7 +344,7 @@ async function seed() {
 				role: "assistant",
 				content:
 					"Yes! We currently have several wireless headphone models in stock. Our most popular is the SoundPro X3 at $79.99, and the premium NoiseShield Elite at $149.99. Would you like more details on either?",
-				tokenCount: 45,
+				tokenCount: 450,
 			},
 			{
 				id: ID.msg3,
@@ -358,7 +359,7 @@ async function seed() {
 				role: "assistant",
 				content:
 					"The NoiseShield Elite features 40-hour battery life, active noise cancellation, and foldable design. It comes in black and midnight blue. Want me to add it to your cart?",
-				tokenCount: 38,
+				tokenCount: 380,
 			},
 			// conv2 — Acme Corp second session
 			{
@@ -374,7 +375,7 @@ async function seed() {
 				role: "assistant",
 				content:
 					"We offer a 30-day return window for most items in original condition. Electronics must be unopened. You can start a return from your account dashboard.",
-				tokenCount: 35,
+				tokenCount: 350,
 			},
 			// conv3 — TechStartup support session
 			{
@@ -390,14 +391,14 @@ async function seed() {
 				role: "assistant",
 				content:
 					"After regenerating your API key, the old key is immediately invalidated. Make sure you've updated the key in all your environments. If it still doesn't work after 5 minutes, please open a support ticket with your account ID.",
-				tokenCount: 52,
+				tokenCount: 520,
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ messages")
+	logger.info("  ✓ messages")
 
 	// ── Usage records (one per assistant message) ──────────────────────────────
-	// Costs approximated at platform rates: $0.10/1M input, $0.20/1M output
+	// Token counts and costs scaled to realistic LLM values ($0.10/1K tokens)
 	await db
 		.insert(usageRecords)
 		.values([
@@ -405,46 +406,46 @@ async function seed() {
 				id: ID.usage1,
 				clientId: ID.client1,
 				messageId: ID.msg2,
-				tokensUsed: 45,
-				costUsd: "0.000006",
+				tokensUsed: 450,
+				costUsd: "0.0450",
 			},
 			{
 				id: ID.usage2,
 				clientId: ID.client1,
 				messageId: ID.msg4,
-				tokensUsed: 38,
-				costUsd: "0.000005",
+				tokensUsed: 380,
+				costUsd: "0.0380",
 			},
 			{
 				id: ID.usage3,
 				clientId: ID.client1,
 				messageId: ID.msg6,
-				tokensUsed: 35,
-				costUsd: "0.000005",
+				tokensUsed: 350,
+				costUsd: "0.0350",
 			},
 			{
 				id: ID.usage4,
 				clientId: ID.client2,
 				messageId: ID.msg8,
-				tokensUsed: 52,
-				costUsd: "0.000007",
+				tokensUsed: 520,
+				costUsd: "0.0520",
 			},
 		])
 		.onConflictDoNothing()
-	console.log("  ✓ usage records")
+	logger.info("  ✓ usage records")
 
 	// ── Historical analytics data ──────────────────────────────────────────────
-	// 20 data points spread across the last 28 days so time-series charts show
-	// a real trend. Timestamps are relative to seed-run time so they always fall
-	// inside the default 30-day chart window.
+	// Timestamps are relative to seed-run time so they always fall inside the
+	// default 30-day chart window. count = conversations per day — varies the
+	// "Questions Asked" chart. Tokens scaled to realistic LLM values (~1K/msg).
 	const now = Date.now()
 	const daysAgo = (n: number) => new Date(now - n * 24 * 60 * 60 * 1000)
 	// Deterministic UUIDs: group selects the 4th UUID segment, i the last.
 	const hid = (group: string, i: number) =>
 		`00000000-0000-4000-8${group}00-${String(i).padStart(12, "0")}`
 
-	const HIST_SESSION_1 = hid("1", 1) // client1 reusable historical session
-	const HIST_SESSION_2 = hid("1", 2) // client2 reusable historical session
+	const HIST_SESSION_1 = hid("1", 1)
+	const HIST_SESSION_2 = hid("1", 2)
 
 	await db
 		.insert(endUserSessions)
@@ -467,223 +468,262 @@ async function seed() {
 			d: 28,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 120,
-			cost: "0.000016",
+			t: 1200,
+			cost: "0.1200",
 			rating: 4,
+			count: 2,
 		},
 		{
 			d: 27,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 80,
-			cost: "0.000011",
+			t: 800,
+			cost: "0.0800",
 			rating: 5,
+			count: 1,
 		},
 		{
 			d: 26,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 95,
-			cost: "0.000013",
+			t: 950,
+			cost: "0.0950",
 			rating: undefined,
+			count: 3,
 		},
 		{
 			d: 25,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 60,
-			cost: "0.000008",
+			t: 600,
+			cost: "0.0600",
 			rating: 3,
+			count: 1,
 		},
 		{
 			d: 24,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 140,
-			cost: "0.000019",
+			t: 1400,
+			cost: "0.1400",
 			rating: 5,
+			count: 4,
 		},
 		{
 			d: 23,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 75,
-			cost: "0.000010",
+			t: 750,
+			cost: "0.0750",
 			rating: 2,
+			count: 2,
 		},
 		{
 			d: 22,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 110,
-			cost: "0.000015",
+			t: 1100,
+			cost: "0.1100",
 			rating: 4,
+			count: 3,
 		},
 		{
 			d: 21,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 50,
-			cost: "0.000007",
+			t: 500,
+			cost: "0.0500",
 			rating: undefined,
+			count: 1,
 		},
 		{
 			d: 19,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 130,
-			cost: "0.000018",
+			t: 1300,
+			cost: "0.1300",
 			rating: 5,
+			count: 2,
 		},
 		{
 			d: 18,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 90,
-			cost: "0.000012",
+			t: 900,
+			cost: "0.0900",
 			rating: 4,
+			count: 3,
 		},
 		{
 			d: 16,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 85,
-			cost: "0.000012",
+			t: 850,
+			cost: "0.0850",
 			rating: undefined,
+			count: 2,
 		},
 		{
 			d: 15,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 100,
-			cost: "0.000014",
+			t: 1000,
+			cost: "0.1000",
 			rating: 3,
+			count: 1,
 		},
 		{
 			d: 13,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 115,
-			cost: "0.000016",
+			t: 1150,
+			cost: "0.1150",
 			rating: 5,
+			count: 3,
 		},
 		{
 			d: 12,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 70,
-			cost: "0.000010",
+			t: 700,
+			cost: "0.0700",
 			rating: 4,
+			count: 2,
 		},
 		{
 			d: 10,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 125,
-			cost: "0.000017",
+			t: 1250,
+			cost: "0.1250",
 			rating: 3,
+			count: 4,
 		},
 		{
 			d: 8,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 55,
-			cost: "0.000008",
+			t: 550,
+			cost: "0.0550",
 			rating: 5,
+			count: 1,
 		},
 		{
 			d: 7,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 95,
-			cost: "0.000013",
+			t: 950,
+			cost: "0.0950",
 			rating: undefined,
+			count: 2,
 		},
 		{
 			d: 5,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 80,
-			cost: "0.000011",
+			t: 800,
+			cost: "0.0800",
 			rating: 4,
+			count: 3,
 		},
 		{
 			d: 3,
 			clientId: ID.client1,
 			sessionId: HIST_SESSION_1,
-			t: 145,
-			cost: "0.000020",
+			t: 1450,
+			cost: "0.1450",
 			rating: 5,
+			count: 5,
 		},
 		{
 			d: 1,
 			clientId: ID.client2,
 			sessionId: HIST_SESSION_2,
-			t: 65,
-			cost: "0.000009",
+			t: 650,
+			cost: "0.0650",
 			rating: 3,
+			count: 2,
 		},
 	]
+
+	// Flatten each histPoint into `count` individual events; only the first
+	// event per day carries the satisfaction rating.
+	const histEvents = histPoints.flatMap((p) =>
+		Array.from({ length: p.count }, (_, j) => ({
+			d: p.d,
+			clientId: p.clientId,
+			sessionId: p.sessionId,
+			t: p.t,
+			cost: p.cost,
+			rating: j === 0 ? p.rating : undefined,
+		})),
+	)
 
 	await db
 		.insert(conversations)
 		.values(
-			histPoints.map((p, i) => ({
+			histEvents.map((e, i) => ({
 				id: hid("2", i + 1),
-				sessionId: p.sessionId,
-				clientId: p.clientId,
-				startedAt: daysAgo(p.d),
-				satisfactionRating: p.rating,
+				sessionId: e.sessionId,
+				clientId: e.clientId,
+				startedAt: daysAgo(e.d),
+				satisfactionRating: e.rating,
 			})),
 		)
 		.onConflictDoNothing()
 
+	const USER_QUESTIONS = [
+		"How can I get help with this?",
+		"Can you explain how this works?",
+		"What are my options here?",
+		"I need assistance with my account.",
+		"Could you help me find what I need?",
+	]
+
 	await db
 		.insert(messages)
-		.values(
-			histPoints.map((_p, i) => ({
-				id: hid("5", i + 1),
+		.values([
+			...histEvents.map((e, i) => ({
+				id: hid("3", i + 1),
 				conversationId: hid("2", i + 1),
 				role: "user" as const,
-				content: "Historical user question.",
-				tokenCount: 8,
+				content: USER_QUESTIONS[i % USER_QUESTIONS.length],
+				tokenCount: 80,
+				createdAt: daysAgo(e.d),
 			})),
-		)
-		.onConflictDoNothing()
-
-	await db
-		.insert(messages)
-		.values(
-			histPoints.map((p, i) => ({
-				id: hid("3", i + 1),
+			...histEvents.map((e, i) => ({
+				id: hid("4", i + 1),
 				conversationId: hid("2", i + 1),
 				role: "assistant" as const,
 				content: "Historical assistant response.",
-				tokenCount: p.t,
+				tokenCount: e.t,
+				createdAt: daysAgo(e.d),
 			})),
-		)
+		])
 		.onConflictDoNothing()
 
 	await db
 		.insert(usageRecords)
 		.values(
-			histPoints.map((p, i) => ({
-				id: hid("4", i + 1),
-				clientId: p.clientId,
-				messageId: hid("3", i + 1),
-				tokensUsed: p.t,
-				costUsd: p.cost,
-				recordedAt: daysAgo(p.d),
+			histEvents.map((e, i) => ({
+				id: hid("5", i + 1),
+				clientId: e.clientId,
+				messageId: hid("4", i + 1),
+				tokensUsed: e.t,
+				costUsd: e.cost,
+				recordedAt: daysAgo(e.d),
 			})),
 		)
 		.onConflictDoNothing()
-	console.log("  ✓ historical analytics data (20 points over 28 days)")
+	logger.info(
+		`  ✓ historical analytics data (${histEvents.length} events across ${histPoints.length} days)`,
+	)
 
-	console.log("Done.")
+	logger.info("Done.")
 	await pgClient.end()
 }
 
 seed().catch((err) => {
-	console.error("Seed failed:", err)
+	logger.error("Seed failed", { err })
 	process.exit(1)
 })

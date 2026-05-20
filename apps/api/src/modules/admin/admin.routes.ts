@@ -177,7 +177,13 @@ export function createAdminClientRouter(
 					description: "Clients list",
 					content: {
 						"application/json": {
-							schema: successResponseSchema(z.array(clientSummarySchema)),
+							schema: successResponseSchema(
+								z.array(
+									clientSummarySchema.extend({
+										totalTokens: z.number(),
+									}),
+								),
+							),
 						},
 					},
 				},
