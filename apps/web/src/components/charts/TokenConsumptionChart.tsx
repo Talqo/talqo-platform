@@ -34,9 +34,9 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 					{t("charts.tokenConsumption.description")}
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="min-h-[200px] flex-1">
+			<CardContent className="min-h-[250px]">
 				{hasData ? (
-					<ResponsiveContainer width="100%" height="100%">
+					<ResponsiveContainer width="100%" height={250}>
 						<BarChart
 							data={data}
 							role="img"
@@ -65,7 +65,9 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 								cursor={{ fill: "transparent" }}
 								contentStyle={{
 									borderRadius: "8px",
-									border: "1px solid #e4e4e7",
+									border: "1px solid var(--border)",
+									backgroundColor: "var(--popover)",
+									color: "var(--popover-foreground)",
 								}}
 							/>
 							<Bar
@@ -76,7 +78,7 @@ export function TokenConsumptionChart({ data }: TokenConsumptionChartProps) {
 						</BarChart>
 					</ResponsiveContainer>
 				) : (
-					<output className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+					<output className="flex h-[250px] flex-col items-center justify-center gap-2 text-muted-foreground">
 						<BarChart3 size={48} className="opacity-50" />
 						<p>{t("common.noData")}</p>
 					</output>

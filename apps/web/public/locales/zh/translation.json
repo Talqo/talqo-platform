@@ -296,13 +296,18 @@
 	"charts": {
 		"tokenConsumption": {
 			"title": "Token 消耗",
-			"description": "过去 7 天的每日 Token 使用量",
-			"ariaLabel": "显示过去 7 天 Token 消耗的柱状图"
+			"description": "过去 30 天的每日 Token 使用量",
+			"ariaLabel": "显示过去 30 天 Token 消耗的柱状图"
 		},
 		"questionsAsked": {
 			"title": "提问数量",
-			"description": "过去 7 天的终端用户交互",
-			"ariaLabel": "显示过去 7 天提问数量的折线图"
+			"description": "过去 30 天的用户交互",
+			"ariaLabel": "显示过去 30 天提问数量的折线图"
+		},
+		"conversations": {
+			"title": "对话数量",
+			"description": "过去 30 天的全平台对话",
+			"ariaLabel": "显示过去 30 天全平台对话数量的折线图"
 		},
 		"dayNames": {
 			"mon": "周一",
