@@ -161,13 +161,18 @@
 	"charts": {
 		"tokenConsumption": {
 			"title": "Token Consumption",
-			"description": "Daily token usage over the last 7 days",
-			"ariaLabel": "Bar chart showing token consumption over the last 7 days"
+			"description": "Daily token usage over the last 30 days",
+			"ariaLabel": "Bar chart showing token consumption over the last 30 days"
 		},
 		"questionsAsked": {
 			"title": "Questions Asked",
-			"description": "End-user interactions over the last 7 days",
-			"ariaLabel": "Line chart showing questions asked over the last 7 days"
+			"description": "User interactions over the last 30 days",
+			"ariaLabel": "Line chart showing questions asked over the last 30 days"
+		},
+		"conversations": {
+			"title": "Conversations",
+			"description": "Platform-wide conversations over the last 30 days",
+			"ariaLabel": "Line chart showing platform-wide conversations over the last 30 days"
 		},
 		"dayNames": {
 			"mon": "Mon",

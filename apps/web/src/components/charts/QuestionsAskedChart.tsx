@@ -20,27 +20,35 @@ import type { ChartDataPoint } from "@/data/charts"
 
 type QuestionsAskedChartProps = {
 	data: ChartDataPoint[]
+	title?: string
+	description?: string
+	ariaLabel?: string
 }
 
-export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
+export function QuestionsAskedChart({
+	data,
+	title,
+	description,
+	ariaLabel,
+}: QuestionsAskedChartProps) {
 	const { t } = useTranslation()
 	const hasData = data.length > 0
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>{t("charts.questionsAsked.title")}</CardTitle>
+				<CardTitle>{title ?? t("charts.questionsAsked.title")}</CardTitle>
 				<CardDescription>
-					{t("charts.questionsAsked.description")}
+					{description ?? t("charts.questionsAsked.description")}
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="min-h-[200px] flex-1">
+			<CardContent className="min-h-[250px]">
 				{hasData ? (
-					<ResponsiveContainer width="100%" height="100%">
+					<ResponsiveContainer width="100%" height={250}>
 						<LineChart
 							data={data}
 							role="img"
-							aria-label={t("charts.questionsAsked.ariaLabel")}
+							aria-label={ariaLabel ?? t("charts.questionsAsked.ariaLabel")}
 						>
 							<CartesianGrid
 								strokeDasharray="3 3"
@@ -59,6 +67,8 @@ export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
 								fontSize={12}
 								tickLine={false}
 								axisLine={false}
+								allowDecimals={false}
+								domain={[0, "auto"]}
 							/>
 							<Tooltip
 								cursor={{
@@ -68,7 +78,9 @@ export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
 								}}
 								contentStyle={{
 									borderRadius: "8px",
-									border: "1px solid #e4e4e7",
+									border: "1px solid var(--border)",
+									backgroundColor: "var(--popover)",
+									color: "var(--popover-foreground)",
 								}}
 							/>
 							<Line
@@ -81,7 +93,7 @@ export function QuestionsAskedChart({ data }: QuestionsAskedChartProps) {
 						</LineChart>
 					</ResponsiveContainer>
 				) : (
-					<output className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+					<output className="flex h-[250px] flex-col items-center justify-center gap-2 text-muted-foreground">
 						<MessageSquare size={48} className="opacity-50" />
 						<p>{t("common.noData")}</p>
 					</output>

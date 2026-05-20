@@ -58,7 +58,9 @@ class InMemoryAdminRepository
 	}
 
 	async listClients(limit: number, offset: number) {
-		return [...this.clientsMap.values()].slice(offset, offset + limit)
+		return [...this.clientsMap.values()]
+			.slice(offset, offset + limit)
+			.map((c) => ({ ...c, totalTokens: 0 }))
 	}
 
 	async getClientDetail(clientId: string) {
@@ -463,6 +465,14 @@ describe("GET /admin/clients", () => {
 		const body = (await res.json()) as unknown[]
 		expect(Array.isArray(body)).toBe(true)
 		expect(body).toHaveLength(2)
+	})
+
+	it("includes totalTokens in each client item", async () => {
+		repo.addClient({ name: "Client A" })
+		const res = await app.fetch(new Request("http://localhost/admin/clients"))
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as Array<{ totalTokens: unknown }>
+		expect(typeof body[0]?.totalTokens).toBe("number")
 	})
 })
 
