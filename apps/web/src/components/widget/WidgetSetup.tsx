@@ -242,7 +242,7 @@ export function WidgetSetup() {
 				className={cn(
 					"hidden lg:fixed lg:right-8 lg:block lg:w-[28rem] lg:overflow-auto",
 					isImpersonating
-						? "lg:top-28 lg:max-h-[calc(100vh-10rem)]"
+						? "lg:top-36 lg:max-h-[calc(100vh-12rem)]"
 						: "lg:top-24 lg:max-h-[calc(100vh-8rem)]",
 				)}
 			>
