@@ -62,6 +62,8 @@ function BotContextPage() {
 			? trimmedName
 			: trimmedName + ext
 
+		if (newNameWithExt === name) return { success: true }
+
 		const isDuplicate = files.some(
 			(f) =>
 				f.name !== name &&
