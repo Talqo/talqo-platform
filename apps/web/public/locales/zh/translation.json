@@ -373,6 +373,7 @@
 			"failedToUpload_plural": "上传 {{count}} 个文件失败",
 			"fileAlreadyExists": "已存在同名文件",
 			"invalidFileType": "无效的文件类型",
+			"serverError": "上传时出现服务器错误",
 			"dismissErrors": "关闭错误"
 		},
 		"dragOverlay": {

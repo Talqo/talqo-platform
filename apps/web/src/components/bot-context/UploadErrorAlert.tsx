@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export type UploadError = {
 	fileName: string
-	reason: "duplicate" | "invalid"
+	reason: "duplicate" | "invalid" | "server"
 }
 
 type UploadErrorAlertProps = {
@@ -35,7 +35,9 @@ export function UploadErrorAlert({ errors, onDismiss }: UploadErrorAlertProps) {
 								{error.fileName}:{" "}
 								{error.reason === "duplicate"
 									? t("botContext.uploadErrorAlert.fileAlreadyExists")
-									: t("botContext.uploadErrorAlert.invalidFileType")}
+									: error.reason === "invalid"
+										? t("botContext.uploadErrorAlert.invalidFileType")
+										: t("botContext.uploadErrorAlert.serverError")}
 							</li>
 						))}
 					</ul>

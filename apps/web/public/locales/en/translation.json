@@ -238,6 +238,7 @@
 			"failedToUpload_plural": "Failed to upload {{count}} files",
 			"fileAlreadyExists": "File with this name already exists",
 			"invalidFileType": "Invalid file type",
+			"serverError": "Server error during upload",
 			"dismissErrors": "Dismiss errors"
 		},
 		"dragOverlay": {
