@@ -38,6 +38,9 @@ type Feedback = { type: "success" | "error"; message: string }
 export function WidgetSetup() {
 	const { t } = useTranslation()
 	const isImpersonating = Boolean(localStorage.getItem("admin_token"))
+	const [isTallEnough, setIsTallEnough] = useState(
+		() => typeof window !== "undefined" && window.innerHeight >= 850,
+	)
 	const {
 		data: client,
 		isLoading: isClientLoading,
@@ -57,6 +60,12 @@ export function WidgetSetup() {
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
 	const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const hasInitialized = useRef(false)
+
+	useEffect(() => {
+		const handleResize = () => setIsTallEnough(window.innerHeight >= 850)
+		window.addEventListener("resize", handleResize)
+		return () => window.removeEventListener("resize", handleResize)
+	}, [])
 
 	const scheduleFeedbackClear = () => {
 		if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current)
@@ -134,7 +143,7 @@ export function WidgetSetup() {
 
 	return (
 		<div className="relative">
-			<div className="space-y-6 lg:mr-[29rem]">
+			<div className={cn("space-y-6", isTallEnough && "lg:mr-[29rem]")}>
 				{clientError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -236,23 +245,34 @@ export function WidgetSetup() {
 					widgetToken={client?.widgetToken}
 					isLoading={isLoading}
 				/>
+
+				{!isTallEnough && (
+					<WidgetPreview
+						colors={colors}
+						icons={icons}
+						botName={botName}
+						position={position}
+					/>
+				)}
 			</div>
 
-			<div
-				className={cn(
-					"hidden lg:fixed lg:right-8 lg:block lg:w-[28rem] lg:overflow-auto",
-					isImpersonating
-						? "lg:top-36 lg:max-h-[calc(100vh-12rem)]"
-						: "lg:top-24 lg:max-h-[calc(100vh-8rem)]",
-				)}
-			>
-				<WidgetPreview
-					colors={colors}
-					icons={icons}
-					botName={botName}
-					position={position}
-				/>
-			</div>
+			{isTallEnough && (
+				<div
+					className={cn(
+						"hidden lg:fixed lg:right-8 lg:block lg:w-[28rem] lg:overflow-auto",
+						isImpersonating
+							? "lg:top-36 lg:max-h-[calc(100vh-12rem)]"
+							: "lg:top-24 lg:max-h-[calc(100vh-8rem)]",
+					)}
+				>
+					<WidgetPreview
+						colors={colors}
+						icons={icons}
+						botName={botName}
+						position={position}
+					/>
+				</div>
+			)}
 		</div>
 	)
 }
