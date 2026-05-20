@@ -641,6 +641,19 @@ async function seed() {
 	await db
 		.insert(messages)
 		.values(
+			histPoints.map((_p, i) => ({
+				id: hid("5", i + 1),
+				conversationId: hid("2", i + 1),
+				role: "user" as const,
+				content: "Historical user question.",
+				tokenCount: 8,
+			})),
+		)
+		.onConflictDoNothing()
+
+	await db
+		.insert(messages)
+		.values(
 			histPoints.map((p, i) => ({
 				id: hid("3", i + 1),
 				conversationId: hid("2", i + 1),
