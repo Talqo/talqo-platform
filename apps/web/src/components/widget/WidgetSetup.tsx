@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 import type { WidgetColors, WidgetColorsConfig, WidgetIcons } from "./setup"
 import {
 	AppearanceCard,
@@ -36,6 +37,7 @@ type Feedback = { type: "success" | "error"; message: string }
 
 export function WidgetSetup() {
 	const { t } = useTranslation()
+	const isImpersonating = Boolean(localStorage.getItem("admin_token"))
 	const {
 		data: client,
 		isLoading: isClientLoading,
@@ -236,7 +238,14 @@ export function WidgetSetup() {
 				/>
 			</div>
 
-			<div className="hidden lg:fixed lg:top-28 lg:right-8 lg:block lg:max-h-[calc(100vh-10rem)] lg:w-[28rem] lg:overflow-auto">
+			<div
+				className={cn(
+					"hidden lg:fixed lg:right-8 lg:block lg:w-[28rem] lg:overflow-auto",
+					isImpersonating
+						? "lg:top-28 lg:max-h-[calc(100vh-10rem)]"
+						: "lg:top-24 lg:max-h-[calc(100vh-8rem)]",
+				)}
+			>
 				<WidgetPreview
 					colors={colors}
 					icons={icons}
