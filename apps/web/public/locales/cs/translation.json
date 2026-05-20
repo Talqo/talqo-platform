@@ -27,6 +27,10 @@
 			"unexpectedError": "Došlo k neočekávané chybě"
 		}
 	},
+	"impersonation": {
+		"viewingAsClient": "Zobrazení jako klient (admin impersonace)",
+		"exitToBackoffice": "Zpět do backoffice"
+	},
 	"login": "Přihlášení",
 	"email": "E-mail",
 	"name": "Jméno",
