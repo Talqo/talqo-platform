@@ -32,6 +32,7 @@
 	"name": "姓名",
 	"copy": "复制",
 	"copied": "已复制！",
+	"failed": "失败！",
 	"loading": "加载中...",
 	"save": "保存",
 	"submit": "提交",
@@ -90,10 +91,9 @@
 			"title": "账户详情",
 			"emailPlaceholder": "you@example.com",
 			"namePlaceholder": "您的姓名",
-			"apiKeyLabel": "API 密钥",
-			"apiKeyPlaceholder": "••••••••••••••••",
+			"widgetTokenLabel": "Widget 令牌",
+			"widgetTokenHelp": "此令牌用于验证您嵌入的聊天 Widget。重新生成将使所有当前部署的 Widget 失效，直到更新为止。",
 			"regenerate": "重新生成",
-			"apiKeyHelp": "使用此密钥验证 API 请求。",
 			"saving": "保存中...",
 			"saveProfile": "保存资料",
 			"changing": "修改中...",
@@ -186,6 +186,23 @@
 			"invalidExpiry": "无效有效期 (MM/YY)",
 			"invalidCvv": "无效 CVV",
 			"nameRequired": "姓名必填"
+		}
+	},
+	"mcp": {
+		"customDialog": {
+			"addTitle": "添加自定义 MCP 服务器",
+			"editTitle": "编辑自定义 MCP 服务器",
+			"transportType": "传输类型",
+			"selectType": "选择类型",
+			"httpLabel": "HTTP (URL)",
+			"endpointUrl": "端点 URL",
+			"headers": "请求头",
+			"addHeader": "添加请求头",
+			"headerKey": "键",
+			"headerValue": "值",
+			"removeHeader": "删除请求头",
+			"saveChanges": "保存更改",
+			"addServer": "添加服务器"
 		}
 	},
 	"blacklist": {

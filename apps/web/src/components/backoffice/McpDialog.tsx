@@ -284,7 +284,23 @@ export function McpDialog({
 
 								{/* Headers */}
 								<div className="space-y-2">
-									<FormLabel>{t("backoffice.mcp.headers")}</FormLabel>
+									<div className="flex items-center justify-between">
+										<FormLabel>{t("backoffice.mcp.headers")}</FormLabel>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() =>
+												headerFields.append({
+													key: "",
+													value: "",
+												})
+											}
+										>
+											<PlusIcon className="size-4" />
+											{t("backoffice.mcp.addHeader")}
+										</Button>
+									</div>
 									{headerFields.fields.map((fieldItem, index) => (
 										<div key={fieldItem.id} className="flex gap-2">
 											<FormField
@@ -330,20 +346,6 @@ export function McpDialog({
 											</Button>
 										</div>
 									))}
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() =>
-											headerFields.append({
-												key: "",
-												value: "",
-											})
-										}
-									>
-										<PlusIcon className="mr-1 size-4" />
-										{t("backoffice.mcp.addHeader")}
-									</Button>
 								</div>
 							</>
 						)}
@@ -371,7 +373,18 @@ export function McpDialog({
 
 								{/* Args */}
 								<div className="space-y-2">
-									<FormLabel>{t("backoffice.mcp.args")}</FormLabel>
+									<div className="flex items-center justify-between">
+										<FormLabel>{t("backoffice.mcp.args")}</FormLabel>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => argFields.append({ value: "" })}
+										>
+											<PlusIcon className="size-4" />
+											{t("backoffice.mcp.addArg")}
+										</Button>
+									</div>
 									{argFields.fields.map((fieldItem, index) => (
 										<div key={fieldItem.id} className="flex gap-2">
 											<FormField
@@ -401,20 +414,27 @@ export function McpDialog({
 											</Button>
 										</div>
 									))}
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() => argFields.append({ value: "" })}
-									>
-										<PlusIcon className="mr-1 size-4" />
-										{t("backoffice.mcp.addArg")}
-									</Button>
 								</div>
 
 								{/* Env */}
 								<div className="space-y-2">
-									<FormLabel>{t("backoffice.mcp.env")}</FormLabel>
+									<div className="flex items-center justify-between">
+										<FormLabel>{t("backoffice.mcp.env")}</FormLabel>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() =>
+												envFields.append({
+													key: "",
+													value: "",
+												})
+											}
+										>
+											<PlusIcon className="size-4" />
+											{t("backoffice.mcp.addEnv")}
+										</Button>
+									</div>
 									{envFields.fields.map((fieldItem, index) => (
 										<div key={fieldItem.id} className="flex gap-2">
 											<FormField
@@ -460,20 +480,6 @@ export function McpDialog({
 											</Button>
 										</div>
 									))}
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() =>
-											envFields.append({
-												key: "",
-												value: "",
-											})
-										}
-									>
-										<PlusIcon className="mr-1 size-4" />
-										{t("backoffice.mcp.addEnv")}
-									</Button>
 								</div>
 							</>
 						)}
