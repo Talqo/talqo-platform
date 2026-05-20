@@ -8,6 +8,7 @@ import {
 	useChangePassword,
 	useClientProfile,
 	useDeleteAccount,
+	useRotateWidgetToken,
 	useUpdateClientProfile,
 } from "@/api/hooks"
 import type { ApiError } from "@/api/hooks/useAuth"
@@ -40,7 +41,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
 	createPasswordChangeSchema,
 	type DeleteAccountSchema,
@@ -145,8 +145,31 @@ export function AccountSettingsTab() {
 	const { data: accountData } = useClientProfile()
 	const updateProfile = useUpdateClientProfile()
 	const changePassword = useChangePassword()
+	const rotateWidgetToken = useRotateWidgetToken()
 
 	const [pwFeedback, setPwFeedback] = useState<Feedback | null>(null)
+	const [rotateConfirmOpen, setRotateConfirmOpen] = useState(false)
+	const [tokenCopied, setTokenCopied] = useState(false)
+	const [tokenCopyFailed, setTokenCopyFailed] = useState(false)
+
+	const handleCopyWidgetToken = useCallback(async () => {
+		if (accountData?.widgetToken) {
+			try {
+				await navigator.clipboard.writeText(accountData.widgetToken)
+				setTokenCopied(true)
+				setTimeout(() => setTokenCopied(false), 1500)
+			} catch {
+				setTokenCopyFailed(true)
+				setTimeout(() => setTokenCopyFailed(false), 1500)
+			}
+		}
+	}, [accountData?.widgetToken])
+
+	const handleRotateConfirmed = useCallback(() => {
+		rotateWidgetToken.mutate(undefined, {
+			onSuccess: () => setRotateConfirmOpen(false),
+		})
+	}, [rotateWidgetToken])
 	const pwFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	const schedulePwFeedbackClear = useCallback(() => {
@@ -237,26 +260,6 @@ export function AccountSettingsTab() {
 									</FormItem>
 								)}
 							/>
-							<div className="space-y-2">
-								<Label>{t("settings.account.apiKeyLabel")}</Label>
-								<div className="flex gap-2">
-									<Input
-										type="password"
-										placeholder={t("settings.account.apiKeyPlaceholder")}
-										readOnly
-										className="flex-1"
-									/>
-									<Button variant="outline" size="sm" type="button" disabled>
-										{t("common.copy")}
-									</Button>
-									<Button variant="outline" size="sm" type="button" disabled>
-										{t("settings.account.regenerate")}
-									</Button>
-								</div>
-								<p className="text-muted-foreground text-sm">
-									{t("settings.account.apiKeyHelp")}
-								</p>
-							</div>
 						</CardContent>
 						<CardFooter className="flex justify-end">
 							<Button type="submit" disabled={updateProfile.isPending}>
@@ -364,6 +367,76 @@ export function AccountSettingsTab() {
 						</CardFooter>
 					</form>
 				</Form>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>{t("settings.account.widgetTokenLabel")}</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="flex gap-2">
+						<Input
+							type="text"
+							value={accountData?.widgetToken ?? ""}
+							readOnly
+							className="flex-1 font-mono text-sm"
+							aria-label={t("settings.account.widgetTokenLabel")}
+						/>
+						<Button
+							variant={tokenCopyFailed ? "destructive" : "outline"}
+							size="sm"
+							type="button"
+							onClick={handleCopyWidgetToken}
+							disabled={!accountData?.widgetToken}
+						>
+							{tokenCopied
+								? t("common.copied")
+								: tokenCopyFailed
+									? t("common.failed")
+									: t("common.copy")}
+						</Button>
+						<Dialog
+							open={rotateConfirmOpen}
+							onOpenChange={setRotateConfirmOpen}
+						>
+							<DialogTrigger asChild>
+								<Button
+									variant="outline"
+									size="sm"
+									type="button"
+									disabled={!accountData?.widgetToken}
+								>
+									{t("settings.account.regenerate")}
+								</Button>
+							</DialogTrigger>
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>{t("settings.account.regenerate")}</DialogTitle>
+									<DialogDescription>
+										{t("settings.account.widgetTokenHelp")}
+									</DialogDescription>
+								</DialogHeader>
+								<DialogFooter>
+									<DialogClose asChild>
+										<Button variant="outline" type="button">
+											{t("common.cancel")}
+										</Button>
+									</DialogClose>
+									<Button
+										variant="destructive"
+										type="button"
+										onClick={handleRotateConfirmed}
+										disabled={rotateWidgetToken.isPending}
+									>
+										{rotateWidgetToken.isPending
+											? t("settings.account.saving")
+											: t("settings.account.regenerate")}
+									</Button>
+								</DialogFooter>
+							</DialogContent>
+						</Dialog>
+					</div>
+				</CardContent>
 			</Card>
 
 			<Card className="border-destructive">

@@ -32,6 +32,7 @@
 	"name": "Jméno",
 	"copy": "Kopírovat",
 	"copied": "Zkopírováno!",
+	"failed": "Chyba!",
 	"loading": "Načítání...",
 	"save": "Uložit",
 	"submit": "Odeslat",
@@ -90,10 +91,9 @@
 			"title": "Podrobnosti o účtu",
 			"emailPlaceholder": "vy@priklad.cz",
 			"namePlaceholder": "Vaše jméno",
-			"apiKeyLabel": "API klíč",
-			"apiKeyPlaceholder": "••••••••••••••••",
+			"widgetTokenLabel": "Token widgetu",
+			"widgetTokenHelp": "Tento token ověřuje váš vložený chatovací widget. Obnovením tokenu zneplatníte všechny aktuálně nasazené widgety, dokud je neaktualizujete.",
 			"regenerate": "Znovu vygenerovat",
-			"apiKeyHelp": "Použijte tento klíč k ověření API požadavků.",
 			"saving": "Ukládání...",
 			"saveProfile": "Uložit profil",
 			"changing": "Měnění...",
@@ -186,6 +186,23 @@
 			"invalidExpiry": "Neplatná platnost (MM/RR)",
 			"invalidCvv": "Neplatný CVV",
 			"nameRequired": "Jméno je povinné"
+		}
+	},
+	"mcp": {
+		"customDialog": {
+			"addTitle": "Přidat vlastní MCP server",
+			"editTitle": "Upravit vlastní MCP server",
+			"transportType": "Typ přenosu",
+			"selectType": "Vyberte typ",
+			"httpLabel": "HTTP (URL)",
+			"endpointUrl": "URL koncového bodu",
+			"headers": "Hlavičky",
+			"addHeader": "Přidat hlavičku",
+			"headerKey": "Klíč",
+			"headerValue": "Hodnota",
+			"removeHeader": "Odstranit hlavičku",
+			"saveChanges": "Uložit změny",
+			"addServer": "Přidat server"
 		}
 	},
 	"blacklist": {

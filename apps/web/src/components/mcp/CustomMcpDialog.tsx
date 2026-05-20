@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import type { McpRemoteServerConfig } from "shared"
 import {
 	useCreateCustomServer,
@@ -59,6 +60,7 @@ function toMcpConfig(values: McpConfigFormValues): McpRemoteServerConfig {
 }
 
 export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
+	const { t } = useTranslation()
 	const [open, setOpen] = useState(false)
 	const createMutation = useCreateCustomServer()
 	const updateMutation = useUpdateCustomServer()
@@ -107,7 +109,9 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
 				<DialogHeader>
 					<DialogTitle>
-						{serverId ? "Edit" : "Add"} Custom MCP Server
+						{serverId
+							? t("mcp.customDialog.editTitle")
+							: t("mcp.customDialog.addTitle")}
 					</DialogTitle>
 				</DialogHeader>
 
@@ -118,7 +122,7 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 							name="type"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Transport type</FormLabel>
+									<FormLabel>{t("mcp.customDialog.transportType")}</FormLabel>
 									<Select
 										onValueChange={(val) => {
 											field.onChange(val)
@@ -127,11 +131,15 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 									>
 										<FormControl>
 											<SelectTrigger className="w-full">
-												<SelectValue placeholder="Select type" />
+												<SelectValue
+													placeholder={t("mcp.customDialog.selectType")}
+												/>
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											<SelectItem value="http">HTTP (URL)</SelectItem>
+											<SelectItem value="http">
+												{t("mcp.customDialog.httpLabel")}
+											</SelectItem>
 										</SelectContent>
 									</Select>
 									<FormMessage />
@@ -144,7 +152,7 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 							name="url"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Endpoint URL</FormLabel>
+									<FormLabel>{t("mcp.customDialog.endpointUrl")}</FormLabel>
 									<FormControl>
 										<Input
 											type="url"
@@ -160,7 +168,18 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 
 						{/* Headers */}
 						<div className="space-y-2">
-							<FormLabel>Headers</FormLabel>
+							<div className="flex items-center justify-between">
+								<FormLabel>{t("mcp.customDialog.headers")}</FormLabel>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => headerFields.append({ key: "", value: "" })}
+								>
+									<PlusIcon className="size-4" />
+									{t("mcp.customDialog.addHeader")}
+								</Button>
+							</div>
 							{headerFields.fields.map((fieldItem, index) => (
 								<div key={fieldItem.id} className="flex gap-2">
 									<FormField
@@ -169,7 +188,10 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 										render={({ field }) => (
 											<FormItem className="flex-1">
 												<FormControl>
-													<Input placeholder="Key" {...field} />
+													<Input
+														placeholder={t("mcp.customDialog.headerKey")}
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -181,7 +203,10 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 										render={({ field }) => (
 											<FormItem className="flex-1">
 												<FormControl>
-													<Input placeholder="Value" {...field} />
+													<Input
+														placeholder={t("mcp.customDialog.headerValue")}
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -191,31 +216,22 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 										type="button"
 										variant="ghost"
 										size="icon"
-										aria-label="Remove header"
+										aria-label={t("mcp.customDialog.removeHeader")}
 										onClick={() => headerFields.remove(index)}
 									>
 										<Trash2Icon className="size-4" />
 									</Button>
 								</div>
 							))}
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => headerFields.append({ key: "", value: "" })}
-							>
-								<PlusIcon className="mr-1 size-4" />
-								Add header
-							</Button>
 						</div>
 
 						<DialogFooter showCloseButton>
 							<Button type="submit" disabled={isPending}>
 								{isPending
-									? "Saving..."
+									? t("common.saving")
 									: serverId
-										? "Save changes"
-										: "Add server"}
+										? t("mcp.customDialog.saveChanges")
+										: t("mcp.customDialog.addServer")}
 							</Button>
 						</DialogFooter>
 					</form>
