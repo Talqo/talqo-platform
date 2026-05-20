@@ -104,7 +104,19 @@
 			"saving": "保存中...",
 			"saveProfile": "保存资料",
 			"changing": "修改中...",
-			"changePassword": "修改密码"
+			"changePassword": "修改密码",
+			"dangerZoneTitle": "危险区域",
+			"dangerZoneDescription": "永久删除您的账户及所有关联数据。此操作无法撤销。",
+			"deleteAccount": "删除账户",
+			"deleteAccountTitle": "永久删除账户？",
+			"deleteAccountDescription": "这将立即且不可逆地删除您的账户、小部件、所有对话以及所有其他关联记录。无法撤销。",
+			"confirmPassword": "确认您的密码",
+			"passwordPlaceholder": "输入您的密码",
+			"deleteAccountError": "密码不正确。请重试。",
+			"deleting": "删除中...",
+			"deleteMyAccount": "删除我的账户",
+			"passwordChangedSuccess": "密码修改成功",
+			"passwordChangeFailed": "修改密码失败。请重试。"
 		},
 		"billing": {
 			"title": "用量与限额",
@@ -230,7 +242,10 @@
 	"widget": {
 		"setup": {
 			"errorTitle": "加载客户数据时出错",
-			"errorDescription": "无法加载客户信息，请重试。"
+			"errorDescription": "无法加载客户信息，请重试。",
+			"title": "小部件配置",
+			"configErrorTitle": "加载小部件配置出错",
+			"configErrorDescription": "加载小部件配置失败。请重试。"
 		},
 		"onboarding": {
 			"title": "为网站添加 AI 聊天",
@@ -355,7 +370,17 @@
 			"readOnlyConnector": "只读连接器",
 			"staticFallbackInfo": "静态备用信息",
 			"toolConnector": "工具连接器"
-		}
+		},
+		"mcpToolsTitle": "MCP 工具",
+		"mcpToolsSubtitle": "管理您的机器人的 MCP（模型上下文协议）工具和集成。",
+		"preconfiguredServers": "预配置服务器",
+		"noPreconfiguredServers": "暂无预配置服务器。",
+		"customServers": "自定义服务器",
+		"noCustomServers": "暂无自定义服务器。添加一个以让您的机器人访问您自己的数据源。",
+		"availableTools": "可用工具：",
+		"noToolsFound": "未找到工具",
+		"unknownServer": "未知",
+		"unknownType": "未知"
 	},
 	"botContext": {
 		"fileList": {

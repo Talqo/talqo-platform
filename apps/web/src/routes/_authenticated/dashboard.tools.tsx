@@ -31,28 +31,28 @@ export const Route = createFileRoute("/_authenticated/dashboard/tools")({
 	component: ToolsPage,
 })
 
-function serverLabel(mcpConfig: unknown): string {
+function serverLabel(mcpConfig: unknown, t: (key: string) => string): string {
 	const raw = mcpConfig as Record<string, unknown> | null
-	if (!raw) return "Unknown"
+	if (!raw) return t("tools.unknownServer")
 	if (typeof raw.name === "string") return raw.name
 	if (raw.type === "stdio" || raw.command != null)
-		return String(raw.command ?? "Unknown")
-	return String(raw.url ?? "Unknown")
+		return String(raw.command ?? t("tools.unknownServer"))
+	return String(raw.url ?? t("tools.unknownServer"))
 }
 
-function inferType(mcpConfig: unknown): string {
+function inferType(mcpConfig: unknown, t: (key: string) => string): string {
 	const raw = mcpConfig as Record<string, unknown> | null
-	if (!raw) return "unknown"
+	if (!raw) return t("tools.unknownType")
 	if (raw.type === "http" || raw.type === "stdio") return raw.type
 	if (raw.command != null) return "stdio"
 	if (raw.url != null) return "http"
-	return "unknown"
+	return t("tools.unknownType")
 }
 
-function serverTypeBadge(mcpConfig: unknown) {
+function serverTypeBadge(mcpConfig: unknown, t: (key: string) => string) {
 	return (
 		<Badge variant="outline" className="font-mono text-xs">
-			{inferType(mcpConfig)}
+			{inferType(mcpConfig, t)}
 		</Badge>
 	)
 }
@@ -64,6 +64,7 @@ function ExpandableMcpDetail({
 	serverId: string
 	isVisible: boolean
 }) {
+	const { t } = useTranslation()
 	const { data } = useVerifyMcp({
 		kind: "client",
 		serverId,
@@ -76,9 +77,11 @@ function ExpandableMcpDetail({
 				<Skeleton className="h-4 w-24" />
 			) : data.ok ? (
 				<div className="space-y-1">
-					<p className="font-medium text-xs">Available tools:</p>
+					<p className="font-medium text-xs">{t("tools.availableTools")}</p>
 					{data.tools.length === 0 ? (
-						<p className="text-muted-foreground text-xs">No tools found</p>
+						<p className="text-muted-foreground text-xs">
+							{t("tools.noToolsFound")}
+						</p>
 					) : (
 						<div className="flex flex-wrap gap-1">
 							{data.tools.map((name) => (
@@ -124,7 +127,7 @@ function ToolsPage() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Pre-configured Servers</CardTitle>
+					<CardTitle>{t("tools.preconfiguredServers")}</CardTitle>
 				</CardHeader>
 				<CardContent>
 					{loadingPreMade ? (
@@ -134,7 +137,7 @@ function ToolsPage() {
 						</div>
 					) : !allPreMade?.length ? (
 						<p className="text-muted-foreground text-sm">
-							No pre-configured servers available yet.
+							{t("tools.noPreconfiguredServers")}
 						</p>
 					) : (
 						<div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
@@ -161,7 +164,7 @@ function ToolsPage() {
 															) : (
 																<ChevronDownIcon className="size-4" />
 															)}
-															{serverTypeBadge(server.mcpConfig)}
+															{serverTypeBadge(server.mcpConfig, t)}
 															<span className="truncate font-medium text-sm hover:underline">
 																{server.name}
 															</span>
@@ -169,7 +172,7 @@ function ToolsPage() {
 														</button>
 													) : (
 														<div className="flex items-center gap-3">
-															{serverTypeBadge(server.mcpConfig)}
+															{serverTypeBadge(server.mcpConfig, t)}
 															<span className="truncate font-medium text-sm">
 																{server.name}
 															</span>
@@ -212,7 +215,7 @@ function ToolsPage() {
 
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle>Custom Servers</CardTitle>
+					<CardTitle>{t("tools.customServers")}</CardTitle>
 					<CustomMcpDialog
 						trigger={
 							<Button size="sm">
@@ -251,9 +254,9 @@ function ToolsPage() {
 												) : (
 													<ChevronDownIcon className="size-4" />
 												)}
-												{serverTypeBadge(server.mcpConfig)}
+												{serverTypeBadge(server.mcpConfig, t)}
 												<span className="truncate font-medium text-sm hover:underline">
-													{serverLabel(server.mcpConfig)}
+													{serverLabel(server.mcpConfig, t)}
 												</span>
 												<McpStatusBadge serverId={server.id} />
 											</button>

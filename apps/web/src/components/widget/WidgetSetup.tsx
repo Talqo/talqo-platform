@@ -145,10 +145,9 @@ export function WidgetSetup() {
 				{configError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Error loading widget configuration</AlertTitle>
+						<AlertTitle>{t("widget.setup.configErrorTitle")}</AlertTitle>
 						<AlertDescription>
-							{configError.message ??
-								"Failed to load widget configuration. Please try again."}
+							{configError.message ?? t("widget.setup.configErrorDescription")}
 						</AlertDescription>
 					</Alert>
 				)}
@@ -156,7 +155,9 @@ export function WidgetSetup() {
 				<Card className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm">
 					<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pb-3">
 						<div>
-							<CardTitle className="text-lg">Widget Configuration</CardTitle>
+							<CardTitle className="text-lg">
+								{t("widget.setup.title")}
+							</CardTitle>
 						</div>
 						<div className="flex items-center gap-2">
 							<AlertDialog>

@@ -104,7 +104,19 @@
 			"saving": "Ukládání...",
 			"saveProfile": "Uložit profil",
 			"changing": "Měnění...",
-			"changePassword": "Změnit heslo"
+			"changePassword": "Změnit heslo",
+			"dangerZoneTitle": "Nebezpečná zóna",
+			"dangerZoneDescription": "Trvale smaže váš účet a všechna přidružená data. Tuto akci nelze vrátit zpět.",
+			"deleteAccount": "Smazat účet",
+			"deleteAccountTitle": "Trvale smazat účet?",
+			"deleteAccountDescription": "Tímto okamžitě a nevratně smažete svůj účet, widget, všechny konverzace a každý další přidružený záznam. Není možné vrátit zpět.",
+			"confirmPassword": "Potvrďte své heslo",
+			"passwordPlaceholder": "Zadejte své heslo",
+			"deleteAccountError": "Nesprávné heslo. Zkuste to prosím znovu.",
+			"deleting": "Mazání...",
+			"deleteMyAccount": "Smazat můj účet",
+			"passwordChangedSuccess": "Heslo bylo úspěšně změněno",
+			"passwordChangeFailed": "Nepodařilo se změnit heslo. Zkuste to prosím znovu."
 		},
 		"billing": {
 			"title": "Využití a limity",
@@ -230,7 +242,10 @@
 	"widget": {
 		"setup": {
 			"errorTitle": "Chyba při načítání dat klienta",
-			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu."
+			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu.",
+			"title": "Konfigurace widgetu",
+			"configErrorTitle": "Chyba při načítání konfigurace widgetu",
+			"configErrorDescription": "Nepodařilo se načíst konfiguraci widgetu. Zkuste to prosím znovu."
 		},
 		"onboarding": {
 			"title": "Přidejte AI chat na svůj web",
@@ -355,7 +370,17 @@
 			"readOnlyConnector": "Pouze pro čtení",
 			"staticFallbackInfo": "Statické záložní informace",
 			"toolConnector": "Nástrojový konektor"
-		}
+		},
+		"mcpToolsTitle": "MCP nástroje",
+		"mcpToolsSubtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",
+		"preconfiguredServers": "Předkonfigurované servery",
+		"noPreconfiguredServers": "Zatím nejsou k dispozici žádné předkonfigurované servery.",
+		"customServers": "Vlastní servery",
+		"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat.",
+		"availableTools": "Dostupné nástroje:",
+		"noToolsFound": "Nenalezeny žádné nástroje",
+		"unknownServer": "Neznámý",
+		"unknownType": "neznámý"
 	},
 	"botContext": {
 		"fileList": {

@@ -49,6 +49,7 @@ import {
 } from "@/schemas/auth"
 
 function DeleteAccountDialog() {
+	const { t } = useTranslation()
 	const [open, setOpen] = useState(false)
 	const deleteAccount = useDeleteAccount()
 	const form = useForm<DeleteAccountSchema>({
@@ -77,18 +78,18 @@ function DeleteAccountDialog() {
 		>
 			<DialogTrigger asChild>
 				<Button variant="destructive" size="sm">
-					Delete Account
+					{t("settings.account.deleteAccount")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<DialogHeader>
-							<DialogTitle>Delete account permanently?</DialogTitle>
+							<DialogTitle>
+								{t("settings.account.deleteAccountTitle")}
+							</DialogTitle>
 							<DialogDescription>
-								This will immediately and irreversibly delete your account,
-								widget, all conversations, and every other associated record.
-								There is no undo.
+								{t("settings.account.deleteAccountDescription")}
 							</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-2 py-2">
@@ -97,12 +98,14 @@ function DeleteAccountDialog() {
 								name="password"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Confirm your password</FormLabel>
+										<FormLabel>
+											{t("settings.account.confirmPassword")}
+										</FormLabel>
 										<FormControl>
 											<Input
 												id="delete-password"
 												type="password"
-												placeholder="Enter your password"
+												placeholder={t("settings.account.passwordPlaceholder")}
 												{...field}
 											/>
 										</FormControl>
@@ -113,7 +116,7 @@ function DeleteAccountDialog() {
 							{deleteAccount.isError && (
 								<p className="text-destructive text-sm">
 									{deleteAccount.error?.error?.message ??
-										"Incorrect password. Please try again."}
+										t("settings.account.deleteAccountError")}
 								</p>
 							)}
 						</div>
@@ -286,14 +289,14 @@ export function AccountSettingsTab() {
 										passwordForm.reset()
 										setPwFeedback({
 											type: "success",
-											message: "Password changed successfully",
+											message: t("settings.account.passwordChangedSuccess"),
 										})
 										schedulePwFeedbackClear()
 									},
 									onError: (error: ApiError) => {
 										const msg =
 											error.error?.message ??
-											"Failed to change password. Please try again."
+											t("settings.account.passwordChangeFailed")
 										setPwFeedback({
 											type: "error",
 											message: msg,
@@ -441,10 +444,11 @@ export function AccountSettingsTab() {
 
 			<Card className="border-destructive">
 				<CardHeader>
-					<CardTitle className="text-destructive">Danger Zone</CardTitle>
+					<CardTitle className="text-destructive">
+						{t("settings.account.dangerZoneTitle")}
+					</CardTitle>
 					<CardDescription>
-						Permanently delete your account and all associated data. This action
-						cannot be undone.
+						{t("settings.account.dangerZoneDescription")}
 					</CardDescription>
 				</CardHeader>
 				<CardFooter>

@@ -95,7 +95,10 @@
 	"widget": {
 		"setup": {
 			"errorTitle": "Error loading client data",
-			"errorDescription": "Failed to load client information. Please try again."
+			"errorDescription": "Failed to load client information. Please try again.",
+			"title": "Widget Configuration",
+			"configErrorTitle": "Error loading widget configuration",
+			"configErrorDescription": "Failed to load widget configuration. Please try again."
 		},
 		"onboarding": {
 			"title": "Add AI Chat to Your Website",
@@ -220,7 +223,17 @@
 			"readOnlyConnector": "Read-only connector",
 			"staticFallbackInfo": "Static fallback info",
 			"toolConnector": "Tool connector"
-		}
+		},
+		"mcpToolsTitle": "MCP Tools",
+		"mcpToolsSubtitle": "Manage MCP (Model Context Protocol) tools and integrations for your bot.",
+		"preconfiguredServers": "Pre-configured Servers",
+		"noPreconfiguredServers": "No pre-configured servers available yet.",
+		"customServers": "Custom Servers",
+		"noCustomServers": "No custom servers yet. Add one to give your bot access to your own data sources.",
+		"availableTools": "Available tools:",
+		"noToolsFound": "No tools found",
+		"unknownServer": "Unknown",
+		"unknownType": "unknown"
 	},
 	"botContext": {
 		"fileList": {
@@ -306,7 +319,19 @@
 			"saving": "Saving...",
 			"saveProfile": "Save Profile",
 			"changing": "Changing...",
-			"changePassword": "Change Password"
+			"changePassword": "Change Password",
+			"dangerZoneTitle": "Danger Zone",
+			"dangerZoneDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+			"deleteAccount": "Delete Account",
+			"deleteAccountTitle": "Delete account permanently?",
+			"deleteAccountDescription": "This will immediately and irreversibly delete your account, widget, all conversations, and every other associated record. There is no undo.",
+			"confirmPassword": "Confirm your password",
+			"passwordPlaceholder": "Enter your password",
+			"deleteAccountError": "Incorrect password. Please try again.",
+			"deleting": "Deleting...",
+			"deleteMyAccount": "Delete my account",
+			"passwordChangedSuccess": "Password changed successfully",
+			"passwordChangeFailed": "Failed to change password. Please try again."
 		},
 		"billing": {
 			"title": "Usage & Limits",
