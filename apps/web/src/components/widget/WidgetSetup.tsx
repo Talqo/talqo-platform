@@ -35,12 +35,22 @@ import {
 
 type Feedback = { type: "success" | "error"; message: string }
 
+const MIN_HEIGHT_FOR_SIDEBAR_PREVIEW = 850
+
 export function WidgetSetup() {
 	const { t } = useTranslation()
-	const isImpersonating = Boolean(localStorage.getItem("admin_token"))
+	const [isImpersonating, setIsImpersonating] = useState(false)
 	const [isTallEnough, setIsTallEnough] = useState(
-		() => typeof window !== "undefined" && window.innerHeight >= 850,
+		() =>
+			typeof window !== "undefined" &&
+			window.innerHeight >= MIN_HEIGHT_FOR_SIDEBAR_PREVIEW,
 	)
+
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			setIsImpersonating(Boolean(localStorage.getItem("admin_token")))
+		}
+	}, [])
 	const {
 		data: client,
 		isLoading: isClientLoading,
@@ -62,7 +72,8 @@ export function WidgetSetup() {
 	const hasInitialized = useRef(false)
 
 	useEffect(() => {
-		const handleResize = () => setIsTallEnough(window.innerHeight >= 850)
+		const handleResize = () =>
+			setIsTallEnough(window.innerHeight >= MIN_HEIGHT_FOR_SIDEBAR_PREVIEW)
 		window.addEventListener("resize", handleResize)
 		return () => window.removeEventListener("resize", handleResize)
 	}, [])
