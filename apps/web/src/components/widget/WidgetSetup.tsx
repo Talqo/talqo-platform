@@ -131,8 +131,8 @@ export function WidgetSetup() {
 	const isSaving = updateWidgetConfig.isPending
 
 	return (
-		<div className="flex flex-col gap-6 lg:flex-row">
-			<div className="min-w-0 flex-1 space-y-6">
+		<div className="relative">
+			<div className="space-y-6 lg:mr-[29rem]">
 				{clientError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -236,15 +236,13 @@ export function WidgetSetup() {
 				/>
 			</div>
 
-			<div className="hidden lg:block lg:w-[28rem] lg:flex-shrink-0">
-				<div className="sticky top-4">
-					<WidgetPreview
-						colors={colors}
-						icons={icons}
-						botName={botName}
-						position={position}
-					/>
-				</div>
+			<div className="hidden lg:fixed lg:top-28 lg:right-8 lg:block lg:max-h-[calc(100vh-10rem)] lg:w-[28rem] lg:overflow-auto">
+				<WidgetPreview
+					colors={colors}
+					icons={icons}
+					botName={botName}
+					position={position}
+				/>
 			</div>
 		</div>
 	)
