@@ -132,7 +132,7 @@ export function WidgetSetup() {
 
 	return (
 		<div className="flex flex-col gap-6 lg:flex-row">
-			<div className="flex-1 space-y-6">
+			<div className="min-w-0 flex-1 space-y-6">
 				{clientError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -236,7 +236,7 @@ export function WidgetSetup() {
 				/>
 			</div>
 
-			<div className="hidden lg:sticky lg:top-4 lg:block lg:h-fit lg:w-[28rem]">
+			<div className="hidden lg:sticky lg:top-4 lg:block lg:w-[28rem] lg:self-start">
 				<WidgetPreview
 					colors={colors}
 					icons={icons}
