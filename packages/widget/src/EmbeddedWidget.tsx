@@ -1,3 +1,4 @@
+import { useCallback, useRef, useState } from "react"
 import { getInitialTheme } from "./hooks/useWidget"
 import {
 	WidgetHeader,
@@ -28,6 +29,69 @@ type EmbeddedWidgetProps = {
 	config: ResolvedWidgetConfig
 }
 
+function useResizable() {
+	const panelRef = useRef<HTMLDivElement>(null)
+	const startRef = useRef<{ y: number; h: number } | null>(null)
+	const [panelHeight, setPanelHeight] = useState<number | null>(null)
+
+	const onResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		if (!panelRef.current) return
+		e.preventDefault()
+		e.currentTarget.setPointerCapture(e.pointerId)
+		const rect = panelRef.current.getBoundingClientRect()
+		startRef.current = { y: e.clientY, h: rect.height }
+	}, [])
+
+	const onResizeMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		const start = startRef.current
+		if (!start || !panelRef.current) return
+		const dy = e.clientY - start.y
+		const newHeight = Math.max(
+			300,
+			Math.min(window.innerHeight * 0.85, start.h - dy),
+		)
+		// Update DOM directly for smooth resize without React re-renders
+		panelRef.current.style.height = `${newHeight}px`
+		panelRef.current.style.maxHeight = `${newHeight}px`
+	}, [])
+
+	const onResizeEnd = useCallback(() => {
+		if (!startRef.current || !panelRef.current) {
+			startRef.current = null
+			return
+		}
+		startRef.current = null
+		const s = panelRef.current.style
+		if (s.height) {
+			setPanelHeight(Number.parseFloat(s.height))
+		}
+	}, [])
+
+	const resetSize = useCallback(() => {
+		setPanelHeight(null)
+		if (panelRef.current) {
+			panelRef.current.style.height = ""
+			panelRef.current.style.maxHeight = ""
+		}
+	}, [])
+
+	const panelStyle: React.CSSProperties | undefined =
+		panelHeight !== null
+			? { height: panelHeight, maxHeight: panelHeight }
+			: undefined
+
+	return {
+		panelRef,
+		panelStyle,
+		resetSize,
+		handleProps: {
+			onPointerDown: onResizeStart,
+			onPointerMove: onResizeMove,
+			onPointerUp: onResizeEnd,
+		},
+	}
+}
+
 /**
  * Inner component that consumes widget context.
  * Must be rendered inside WidgetRoot.
@@ -35,6 +99,12 @@ type EmbeddedWidgetProps = {
 function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 	const widget = useWidgetContext()
 	const botAvatarSvg = config.icons.botAvatar
+	const { panelRef, panelStyle, resetSize, handleProps } = useResizable()
+
+	const handleToggleExpanded = useCallback(() => {
+		widget.toggleExpanded()
+		resetSize()
+	}, [widget, resetSize])
 
 	return (
 		<div
@@ -54,7 +124,16 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 				className={"aiw-panel"}
 				data-expanded={widget.isExpanded}
 				aria-label={config.botName}
+				ref={panelRef}
+				style={panelStyle}
 			>
+				{/* Drag handle for resizing */}
+				<div
+					className={"aiw-resize-handle"}
+					aria-hidden="true"
+					{...handleProps}
+				/>
+
 				<WidgetHeader className={"aiw-header"}>
 					<div className={"aiw-header-left"}>
 						<AvatarIcon size={24} iconSvg={botAvatarSvg} />
@@ -74,7 +153,7 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 						<button
 							type="button"
 							className={"aiw-icon-btn"}
-							onClick={widget.toggleExpanded}
+							onClick={handleToggleExpanded}
 							aria-label={widget.isExpanded ? "Minimize" : "Expand"}
 						>
 							{widget.isExpanded ? (
@@ -128,13 +207,24 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 					)}
 					{widget.showRatingPrompt && (
 						<div className={"aiw-rating"}>
-							<p>Rate this conversation</p>
+							<p>
+								{widget.ratingSubmitted
+									? "Thank you for your feedback!"
+									: "Rate this conversation"}
+							</p>
 							<div className={"aiw-rating-stars"}>
 								{[1, 2, 3, 4, 5].map((star) => (
 									<button
 										key={star}
 										type="button"
-										onClick={() => widget.submitRating(star)}
+										onClick={() =>
+											!widget.ratingSubmitted && widget.submitRating(star)
+										}
+										disabled={widget.ratingSubmitted}
+										data-filled={
+											widget.submittedRatingValue !== null &&
+											star <= widget.submittedRatingValue
+										}
 										aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
 									>
 										★
@@ -147,7 +237,15 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 
 				{widget.error && (
 					<div className={"aiw-error"} role="alert">
-						{widget.error}
+						<span>{widget.error}</span>
+						<button
+							type="button"
+							className={"aiw-error-dismiss"}
+							onClick={widget.clearError}
+							aria-label="Dismiss error"
+						>
+							×
+						</button>
 					</div>
 				)}
 

@@ -72,6 +72,7 @@
 
 /* Panel */
 .aiw-panel {
+	position: relative;
 	display: flex;
 	width: 90vw;
 	max-width: min(380px, calc(100vw - 2rem));
@@ -81,6 +82,37 @@
 	background-color: var(--widget-bg-primary);
 	box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 	margin-bottom: 0.75rem;
+}
+
+/* Resize handle — full-width strip at top of panel, drag up/down to resize height */
+.aiw-resize-handle {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 0.625rem;
+	z-index: 10;
+	touch-action: none;
+	user-select: none;
+	cursor: ns-resize;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Centered pill grip indicator */
+.aiw-resize-handle::after {
+	content: "";
+	width: 2rem;
+	height: 3px;
+	border-radius: 9999px;
+	background: var(--widget-primary-foreground, white);
+	opacity: 0.3;
+	transition: opacity 0.15s;
+}
+
+.aiw-resize-handle:hover::after {
+	opacity: 0.8;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -589,6 +621,18 @@
 	transform: scale(0.95);
 }
 
+.aiw-rating-stars button[data-filled="true"] {
+	color: #fbbf24;
+}
+
+.aiw-rating-stars button:disabled {
+	cursor: default;
+}
+
+.aiw-rating-stars button:disabled:hover {
+	transform: none;
+}
+
 /* Cumulative hover: hovering a star highlights it and all preceding stars */
 .aiw-rating-stars:has(button:nth-child(1):hover) button:nth-child(-n + 1),
 .aiw-rating-stars:has(button:nth-child(2):hover) button:nth-child(-n + 2),
@@ -605,6 +649,9 @@
 
 /* Error banner */
 .aiw-error {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 	padding: 0.5rem 1rem;
 	font-size: 0.75rem;
 	color: #dc2626;
@@ -612,10 +659,40 @@
 	border-top: 1px solid #fecaca;
 }
 
+.aiw-error span {
+	flex: 1;
+}
+
+.aiw-error-dismiss {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.25rem;
+	height: 1.25rem;
+	border: none;
+	background: none;
+	color: #dc2626;
+	cursor: pointer;
+	font-size: 1rem;
+	line-height: 1;
+	border-radius: 0.25rem;
+	padding: 0;
+	opacity: 0.7;
+}
+
+.aiw-error-dismiss:hover {
+	opacity: 1;
+}
+
 .aiw-root[data-theme="dark"] .aiw-error {
 	color: #fca5a5;
 	background-color: #450a0a;
 	border-top-color: #7f1d1d;
+}
+
+.aiw-root[data-theme="dark"] .aiw-error-dismiss {
+	color: #fca5a5;
 }
 
 /* Input area */

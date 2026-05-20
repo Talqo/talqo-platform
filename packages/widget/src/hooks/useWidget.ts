@@ -69,10 +69,14 @@ export type UseWidgetReturn = {
 	sendMessage: () => void
 	/** Clear all messages */
 	clearMessages: () => void
+	/** Clear the current error */
+	clearError: () => void
 	/** Whether to show the rating prompt */
 	showRatingPrompt: boolean
 	/** Whether a rating has been submitted */
 	ratingSubmitted: boolean
+	/** The rating value that was submitted (1-5), or null if not yet submitted */
+	submittedRatingValue: number | null
 	/** Submit a satisfaction rating */
 	submitRating: (rating: number) => void
 }
@@ -328,6 +332,41 @@ function parseSseBuffer(buffer: string): {
 	return { items: events, remainder }
 }
 
+// ─── Error mapping ───────────────────────────────────────────────────────────
+
+function toUserFriendlyError(message: string): string {
+	if (
+		/HTTP 429/i.test(message) ||
+		/rate.?limit/i.test(message) ||
+		/too many/i.test(message)
+	) {
+		return "You've sent too many messages. Please wait a moment before trying again."
+	}
+	if (
+		/HTTP 40[13]/i.test(message) ||
+		/unauthorized/i.test(message) ||
+		/forbidden/i.test(message)
+	) {
+		return "Unable to authenticate. Please refresh the page."
+	}
+	if (/HTTP 5\d\d/i.test(message) || /server error/i.test(message)) {
+		return "The chat service is temporarily unavailable. Please try again shortly."
+	}
+	if (/HTTP \d+/i.test(message)) {
+		return "Something went wrong. Please try again."
+	}
+	if (/not initialized/i.test(message)) {
+		return "Chat is starting up. Please try again in a moment."
+	}
+	if (/no response body/i.test(message) || /failed to fetch/i.test(message)) {
+		return "Unable to connect. Please check your connection and try again."
+	}
+	if (/failed to start conversation/i.test(message)) {
+		return "Unable to start a new chat. Please refresh the page."
+	}
+	return message
+}
+
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
 /**
@@ -359,6 +398,9 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 	const [error, setError] = useState<string | null>(null)
 	const [showRatingPrompt, setShowRatingPrompt] = useState(false)
 	const [ratingSubmitted, setRatingSubmitted] = useState(false)
+	const [submittedRatingValue, setSubmittedRatingValue] = useState<
+		number | null
+	>(null)
 
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const isRightPosition = position === "right"
@@ -525,7 +567,11 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 				.catch((err: unknown) => {
 					if (err instanceof Error && err.name === "AbortError") return
 					setMessages((prev) => prev.filter((m) => !m.id.startsWith("stream-")))
-					setError(err instanceof Error ? err.message : String(err))
+					setError(
+						toUserFriendlyError(
+							err instanceof Error ? err.message : String(err),
+						),
+					)
 					setIsTyping(false)
 				})
 				.finally(() => {
@@ -546,9 +592,11 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 					})
 					.catch((err: unknown) => {
 						setError(
-							err instanceof Error
-								? err.message
-								: "Failed to start conversation",
+							toUserFriendlyError(
+								err instanceof Error
+									? err.message
+									: "Failed to start conversation",
+							),
 						)
 					})
 			}
@@ -568,32 +616,36 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 				})
 				.catch((err: unknown) => {
 					setError(
-						err instanceof Error ? err.message : "Failed to connect to chat",
+						toUserFriendlyError(
+							err instanceof Error ? err.message : "Failed to connect to chat",
+						),
 					)
 				})
 		}
 	}, [inputValue, isTyping])
 
 	const submitRating = useCallback((rating: number) => {
-		if (rating < 1 || rating > 5) {
-			setError("Rating must be between 1 and 5")
-			return
-		}
+		if (rating < 1 || rating > 5) return
 		const session = sessionRef.current
 		const conversation = conversationRef.current
 		const api = apiRef.current
 		if (!session || !conversation || !api) {
-			setError("Chat not initialized yet. Please wait.")
+			setError("Chat is starting up. Please try again in a moment.")
 			return
 		}
 		api
 			.submitRating(session.id, conversation.id, rating)
 			.then(() => {
 				setRatingSubmitted(true)
-				setShowRatingPrompt(false)
+				setSubmittedRatingValue(rating)
+				timeoutRef.current = setTimeout(() => {
+					setShowRatingPrompt(false)
+				}, 2500)
 			})
 			.catch((err: unknown) => {
-				setError(err instanceof Error ? err.message : String(err))
+				setError(
+					toUserFriendlyError(err instanceof Error ? err.message : String(err)),
+				)
 			})
 	}, [])
 
@@ -617,10 +669,13 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		])
 		setShowRatingPrompt(false)
 		setRatingSubmitted(false)
+		setSubmittedRatingValue(null)
 
 		// Null out the ref — the next sendMessage will lazily create a new conversation
 		conversationRef.current = null
 	}, [])
+
+	const clearError = useCallback(() => setError(null), [])
 
 	return {
 		isOpen,
@@ -639,8 +694,10 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		setInputValue,
 		sendMessage,
 		clearMessages,
+		clearError,
 		showRatingPrompt,
 		ratingSubmitted,
+		submittedRatingValue,
 		submitRating,
 	}
 }
