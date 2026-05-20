@@ -584,6 +584,21 @@
 			"admin": "管理员",
 			"failedToLoad": "加载失败"
 		},
+		"activityLogs": {
+			"title": "活动日志",
+			"subtitle": "管理员执行的模拟、暂停和重新启用操作",
+			"recentActions": "最近操作",
+			"showingRecent": "显示最近的 100 条管理员操作",
+			"failedToLoad": "加载活动日志失败。",
+			"noLogs": "暂无活动日志。",
+			"timestamp": "时间戳",
+			"admin": "管理员",
+			"action": "操作",
+			"client": "客户",
+			"suspend": "暂停",
+			"reEnable": "重新启用",
+			"impersonate": "模拟"
+		},
 		"stats": {
 			"adminDashboard": "管理仪表盘",
 			"adminDashboardDescription": "管理租户、用户和系统设置",

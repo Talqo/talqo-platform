@@ -450,6 +450,21 @@
 			"admin": "Admin",
 			"failedToLoad": "Failed to load"
 		},
+		"activityLogs": {
+			"title": "Activity Logs",
+			"subtitle": "Impersonate, suspend, and re-enable actions performed by admins",
+			"recentActions": "Recent Actions",
+			"showingRecent": "Showing the 100 most recent admin actions",
+			"failedToLoad": "Failed to load activity logs.",
+			"noLogs": "No activity logs yet.",
+			"timestamp": "Timestamp",
+			"admin": "Admin",
+			"action": "Action",
+			"client": "Client",
+			"suspend": "Suspend",
+			"reEnable": "Re-enable",
+			"impersonate": "Impersonate"
+		},
 		"stats": {
 			"adminDashboard": "Admin Dashboard",
 			"adminDashboardDescription": "Manage tenants, users, and system settings",

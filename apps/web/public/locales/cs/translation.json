@@ -584,6 +584,21 @@
 			"admin": "Administrátor",
 			"failedToLoad": "Nepodařilo se načíst"
 		},
+		"activityLogs": {
+			"title": "Protokoly aktivit",
+			"subtitle": "Akce impersonace, pozastavení a opětovného povolení provedené administrátory",
+			"recentActions": "Nedávné akce",
+			"showingRecent": "Zobrazeno 100 nejnovějších admin akcí",
+			"failedToLoad": "Nepodařilo se načíst protokoly aktivit.",
+			"noLogs": "Zatím žádné protokoly aktivit.",
+			"timestamp": "Časové razítko",
+			"admin": "Administrátor",
+			"action": "Akce",
+			"client": "Klient",
+			"suspend": "Pozastavit",
+			"reEnable": "Znovu povolit",
+			"impersonate": "Impersonovat"
+		},
 		"stats": {
 			"adminDashboard": "Administrátorská nástěnka",
 			"adminDashboardDescription": "Spravujte tenanty, uživatele a systémová nastavení",
