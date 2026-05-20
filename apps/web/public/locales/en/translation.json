@@ -25,6 +25,13 @@
 			"subtitle": "Manage the files your bot uses for context.",
 			"failedToLoadFiles": "Failed to load files",
 			"unexpectedError": "An unexpected error occurred"
+		},
+		"settings": {
+			"title": "Settings",
+			"subtitle": "Manage your account, billing, and AI provider configuration.",
+			"accountTab": "Account",
+			"billingTab": "Billing",
+			"aiProviderTab": "AI Provider"
 		}
 	},
 	"login": "Login",

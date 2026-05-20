@@ -25,6 +25,13 @@
 			"subtitle": "管理机器人用作上下文的文件。",
 			"failedToLoadFiles": "加载文件失败",
 			"unexpectedError": "发生未知错误"
+		},
+		"settings": {
+			"title": "设置",
+			"subtitle": "管理您的账户、账单和 AI 提供商配置。",
+			"accountTab": "账户",
+			"billingTab": "账单",
+			"aiProviderTab": "AI 提供商"
 		}
 	},
 	"login": "登录",

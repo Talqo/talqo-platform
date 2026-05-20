@@ -25,6 +25,13 @@
 			"subtitle": "Spravujte soubory, které bot používá jako kontext.",
 			"failedToLoadFiles": "Nepodařilo se načíst soubory",
 			"unexpectedError": "Došlo k neočekávané chybě"
+		},
+		"settings": {
+			"title": "Nastavení",
+			"subtitle": "Spravujte svůj účet, fakturaci a konfiguraci AI poskytovatele.",
+			"accountTab": "Účet",
+			"billingTab": "Fakturace",
+			"aiProviderTab": "AI poskytovatel"
 		}
 	},
 	"login": "Přihlášení",
