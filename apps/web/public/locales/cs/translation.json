@@ -93,7 +93,18 @@
 	"typeAMessage": "Napište zprávu...",
 	"poweredBy": "Používá PagePal",
 	"aiAssistant": "AI asistent",
-	"error": "Chyba",
+	"error": {
+		"errorBoundary": {
+			"title": "Něco se pokazilo",
+			"description": "Došlo k neočekávané chybě.",
+			"message": "Zkuste stránku obnovit. Pokud problém přetrvává, kontaktujte podporu.",
+			"tryAgain": "Obnovit stránku"
+		},
+		"suspenseBoundary": {
+			"loadingContent": "Načítání...",
+			"loadingPage": "Načítání stránky..."
+		}
+	},
 	"success": "Úspěch",
 	"warning": "Varování",
 	"info": "Informace",
@@ -641,7 +652,8 @@
 		"pagePal": "PagePal",
 		"failedToLoad": "Nepodařilo se načíst",
 		"processing": "Zpracovávání...",
-		"sending": "Odesílání..."
+		"sending": "Odesílání...",
+		"confirmNewPassword": "Potvrďte nové heslo"
 	},
 	"clientDashboard": {
 		"nav": {
