@@ -349,14 +349,16 @@ function toUserFriendlyError(message: string): string {
 	) {
 		return "Unable to authenticate. Please refresh the page."
 	}
-	if (/HTTP 5\d\d/i.test(message) || /server error/i.test(message)) {
+	if (
+		/HTTP 5\d\d/i.test(message) ||
+		/server error/i.test(message) ||
+		/no ai provider/i.test(message) ||
+		/invalid provider config/i.test(message)
+	) {
 		return "The chat service is temporarily unavailable. Please try again shortly."
 	}
 	if (/HTTP \d+/i.test(message)) {
 		return "Something went wrong. Please try again."
-	}
-	if (/not initialized/i.test(message)) {
-		return "Chat is starting up. Please try again in a moment."
 	}
 	if (/no response body/i.test(message) || /failed to fetch/i.test(message)) {
 		return "Unable to connect. Please check your connection and try again."
