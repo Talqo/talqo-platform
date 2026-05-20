@@ -12,8 +12,8 @@ interface WidgetSendButtonProps
  */
 export function WidgetSendButton(props: WidgetSendButtonProps) {
 	const { children, ...buttonProps } = props
-	const { inputValue, sendMessage } = useWidgetContext()
-	const isDisabled = !inputValue.trim()
+	const { inputValue, sendMessage, isTyping } = useWidgetContext()
+	const isDisabled = !inputValue.trim() || isTyping
 
 	return (
 		<button
