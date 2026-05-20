@@ -369,12 +369,10 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		apiRef.current = new WidgetApi({ widgetToken, apiUrl })
 	}, [widgetToken, apiUrl])
 
-	// Initialize session on mount (or when api config changes)
-	useEffect(() => {
-		let cancelled = false
-
+	// Compute browser session ID once from localStorage (or generate a new one)
+	const browserSessionIdRef = useRef<string | null>(null)
+	if (browserSessionIdRef.current === null) {
 		const stored = safeGetItem(SESSION_STORAGE_KEY)
-		let browserSessionId: string
 		try {
 			const parsed = stored ? (JSON.parse(stored) as unknown) : null
 			if (
@@ -383,39 +381,15 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 				"browserSessionId" in parsed &&
 				typeof (parsed as Record<string, unknown>).browserSessionId === "string"
 			) {
-				browserSessionId = (parsed as Record<string, unknown>)
+				browserSessionIdRef.current = (parsed as Record<string, unknown>)
 					.browserSessionId as string
 			} else {
-				browserSessionId = crypto.randomUUID()
+				browserSessionIdRef.current = crypto.randomUUID()
 			}
 		} catch {
-			browserSessionId = crypto.randomUUID()
+			browserSessionIdRef.current = crypto.randomUUID()
 		}
-
-		const api = apiRef.current ?? new WidgetApi({ widgetToken, apiUrl })
-		if (!apiRef.current) apiRef.current = api
-
-		api
-			.createOrResumeSession(browserSessionId)
-			.then((session) => {
-				if (cancelled) return
-				sessionRef.current = session
-				safeSetItem(SESSION_STORAGE_KEY, JSON.stringify(session))
-				return api.startConversation(session.id)
-			})
-			.then((conversation) => {
-				if (cancelled || !conversation) return
-				conversationRef.current = conversation
-			})
-			.catch((err) => {
-				if (!cancelled)
-					setError(err instanceof Error ? err.message : String(err))
-			})
-
-		return () => {
-			cancelled = true
-		}
-	}, [widgetToken, apiUrl])
+	}
 
 	const toggleTheme = useCallback(() => {
 		setTheme((prev) => {
@@ -457,113 +431,151 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		const trimmedInput = inputValue.trim()
 		if (!trimmedInput || isTyping) return
 
-		const session = sessionRef.current
-		const conversation = conversationRef.current
 		const api = apiRef.current
-		if (!session || !conversation || !api) {
-			setError("Chat not initialized yet. Please wait.")
-			return
-		}
+		if (!api) return
 
-		setError(null)
-		setInputValue("")
-		setIsTyping(true)
+		const doSend = (sessionId: string, conversationId: string) => {
+			setError(null)
+			setInputValue("")
+			setIsTyping(true)
 
-		const tempId = `temp-${crypto.randomUUID()}`
-		const userMsg: Message = {
-			id: tempId,
-			role: "user",
-			content: trimmedInput,
-		}
-		setMessages((prev) => [...prev, userMsg])
+			const tempId = `temp-${crypto.randomUUID()}`
+			const userMsg: Message = {
+				id: tempId,
+				role: "user",
+				content: trimmedInput,
+			}
+			setMessages((prev) => [...prev, userMsg])
 
-		const controller = new AbortController()
-		abortRef.current = controller
+			const controller = new AbortController()
+			abortRef.current = controller
 
-		api
-			.sendMessage(
-				session.id,
-				conversation.id,
-				trimmedInput,
-				(event) => {
-					switch (event.type) {
-						case "user_message": {
-							setMessages((prev) => {
-								const withoutTemp = prev.filter((m) => m.id !== tempId)
-								return [
-									...withoutTemp,
-									{
-										id: event.message.id,
-										role: event.message.role as MessageRole,
-										content: event.message.content,
-									},
-								]
-							})
-							break
-						}
-						case "token": {
-							setMessages((prev) => {
-								const last = prev[prev.length - 1]
-								if (last && last.role === "assistant") {
+			api
+				.sendMessage(
+					sessionId,
+					conversationId,
+					trimmedInput,
+					(event) => {
+						switch (event.type) {
+							case "user_message": {
+								setMessages((prev) => {
+									const withoutTemp = prev.filter((m) => m.id !== tempId)
 									return [
-										...prev.slice(0, -1),
-										{ ...last, content: last.content + event.content },
-									]
-								}
-								return [
-									...prev,
-									{
-										id: `stream-${crypto.randomUUID()}`,
-										role: "assistant",
-										content: event.content,
-									},
-								]
-							})
-							break
-						}
-						case "done": {
-							setMessages((prev) => {
-								const last = prev[prev.length - 1]
-								if (
-									last &&
-									last.role === "assistant" &&
-									last.id.startsWith("stream-")
-								) {
-									return [
-										...prev.slice(0, -1),
+										...withoutTemp,
 										{
 											id: event.message.id,
-											role: "assistant",
+											role: event.message.role as MessageRole,
 											content: event.message.content,
 										},
 									]
-								}
-								return prev
-							})
-							setIsTyping(false)
-							break
+								})
+								break
+							}
+							case "token": {
+								setMessages((prev) => {
+									const last = prev[prev.length - 1]
+									if (last && last.role === "assistant") {
+										return [
+											...prev.slice(0, -1),
+											{ ...last, content: last.content + event.content },
+										]
+									}
+									return [
+										...prev,
+										{
+											id: `stream-${crypto.randomUUID()}`,
+											role: "assistant",
+											content: event.content,
+										},
+									]
+								})
+								break
+							}
+							case "done": {
+								setMessages((prev) => {
+									const last = prev[prev.length - 1]
+									if (
+										last &&
+										last.role === "assistant" &&
+										last.id.startsWith("stream-")
+									) {
+										return [
+											...prev.slice(0, -1),
+											{
+												id: event.message.id,
+												role: "assistant",
+												content: event.message.content,
+											},
+										]
+									}
+									return prev
+								})
+								setIsTyping(false)
+								break
+							}
+							case "error": {
+								setMessages((prev) =>
+									prev.filter((m) => !m.id.startsWith("stream-")),
+								)
+								setError(event.message)
+								setIsTyping(false)
+								break
+							}
 						}
-						case "error": {
-							setMessages((prev) =>
-								prev.filter((m) => !m.id.startsWith("stream-")),
-							)
-							setError(event.message)
-							setIsTyping(false)
-							break
-						}
-					}
-				},
-				controller.signal,
-			)
-			.catch((err: unknown) => {
-				if (err instanceof Error && err.name === "AbortError") return
-				setMessages((prev) => prev.filter((m) => !m.id.startsWith("stream-")))
-				setError(err instanceof Error ? err.message : String(err))
-				setIsTyping(false)
-			})
-			.finally(() => {
-				if (abortRef.current === controller) abortRef.current = null
-			})
+					},
+					controller.signal,
+				)
+				.catch((err: unknown) => {
+					if (err instanceof Error && err.name === "AbortError") return
+					setMessages((prev) => prev.filter((m) => !m.id.startsWith("stream-")))
+					setError(err instanceof Error ? err.message : String(err))
+					setIsTyping(false)
+				})
+				.finally(() => {
+					if (abortRef.current === controller) abortRef.current = null
+				})
+		}
+
+		const sendWithSession = (sessionId: string) => {
+			const conversation = conversationRef.current
+			if (conversation) {
+				doSend(sessionId, conversation.id)
+			} else {
+				api
+					.startConversation(sessionId)
+					.then((newConversation) => {
+						conversationRef.current = newConversation
+						doSend(sessionId, newConversation.id)
+					})
+					.catch((err: unknown) => {
+						setError(
+							err instanceof Error
+								? err.message
+								: "Failed to start conversation",
+						)
+					})
+			}
+		}
+
+		const session = sessionRef.current
+		if (session) {
+			sendWithSession(session.id)
+		} else {
+			api
+				.createOrResumeSession(
+					browserSessionIdRef.current ?? crypto.randomUUID(),
+				)
+				.then((newSession) => {
+					sessionRef.current = newSession
+					safeSetItem(SESSION_STORAGE_KEY, JSON.stringify(newSession))
+					sendWithSession(newSession.id)
+				})
+				.catch((err: unknown) => {
+					setError(
+						err instanceof Error ? err.message : "Failed to connect to chat",
+					)
+				})
+		}
 	}, [inputValue, isTyping])
 
 	const submitRating = useCallback((rating: number) => {
@@ -610,22 +622,8 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		setShowRatingPrompt(false)
 		setRatingSubmitted(false)
 
-		// Start a fresh conversation
+		// Null out the ref — the next sendMessage will lazily create a new conversation
 		conversationRef.current = null
-		const session = sessionRef.current
-		const api = apiRef.current
-		if (session && api) {
-			api
-				.startConversation(session.id)
-				.then((conversation) => {
-					conversationRef.current = conversation
-				})
-				.catch((err) => {
-					setError(
-						err instanceof Error ? err.message : "Failed to start conversation",
-					)
-				})
-		}
 	}, [])
 
 	return {
