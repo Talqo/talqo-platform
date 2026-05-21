@@ -27,6 +27,10 @@
 			"unexpectedError": "An unexpected error occurred"
 		}
 	},
+	"impersonation": {
+		"viewingAsClient": "Viewing as client (admin impersonation)",
+		"exitToBackoffice": "Exit to backoffice"
+	},
 	"login": "Login",
 	"email": "Email",
 	"name": "Name",
