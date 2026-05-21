@@ -27,6 +27,10 @@
 			"unexpectedError": "发生未知错误"
 		}
 	},
+	"impersonation": {
+		"viewingAsClient": "以客户端身份查看（管理员模拟）",
+		"exitToBackoffice": "返回后台管理"
+	},
 	"login": "登录",
 	"email": "邮箱",
 	"name": "姓名",

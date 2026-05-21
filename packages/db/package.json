@@ -21,7 +21,7 @@
 	},
 	"scripts": {
 		"build": "tsgo && tsc-alias",
-		"dev": "tsc --watch",
+		"dev": "concurrently \"tsc --watch\" \"tsc-alias --watch\"",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"test": "bun -e \"console.log('No tests in db')\"",
