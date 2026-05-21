@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray, sum } from "drizzle-orm"
+import { and, count, desc, eq, inArray, sql, sum } from "drizzle-orm"
 import type { DB } from "@/db"
 import {
 	adminAccessLogs,
@@ -29,6 +29,15 @@ export class AdminRepository {
 	}
 
 	async listClients(limit: number, offset: number) {
+		const tokenAgg = this.db
+			.select({
+				clientId: usageRecords.clientId,
+				totalTokens: sum(usageRecords.tokensUsed).as("total_tokens"),
+			})
+			.from(usageRecords)
+			.groupBy(usageRecords.clientId)
+			.as("token_agg")
+
 		return this.db
 			.select({
 				id: clients.id,
@@ -38,8 +47,12 @@ export class AdminRepository {
 				status: clients.status,
 				lastActive: clients.lastActive,
 				createdAt: clients.createdAt,
+				totalTokens: sql<number>`coalesce(${tokenAgg.totalTokens}, 0)`.mapWith(
+					Number,
+				),
 			})
 			.from(clients)
+			.leftJoin(tokenAgg, eq(clients.id, tokenAgg.clientId))
 			.limit(limit)
 			.offset(offset)
 			.orderBy(clients.createdAt)

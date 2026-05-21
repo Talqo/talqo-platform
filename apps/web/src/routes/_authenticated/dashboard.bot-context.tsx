@@ -8,6 +8,7 @@ import {
 	useUploadFile,
 } from "@/api/hooks/useFiles"
 import { FileList } from "@/components/bot-context"
+import type { UploadError } from "@/components/bot-context/UploadErrorAlert"
 import { PageContainer } from "@/components/layout"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -22,8 +23,22 @@ function BotContextPage() {
 	const deleteFile = useDeleteFile()
 	const renameFile = useRenameFile()
 
-	const handleFileUpload = async (uploadedFiles: File[]): Promise<void> => {
-		await Promise.all(uploadedFiles.map((f) => uploadFile.mutateAsync(f)))
+	const handleFileUpload = async (
+		uploadedFiles: File[],
+	): Promise<UploadError[]> => {
+		const results = await Promise.allSettled(
+			uploadedFiles.map((f) => uploadFile.mutateAsync(f)),
+		)
+		const errors: UploadError[] = []
+		results.forEach((result, index) => {
+			if (result.status === "rejected") {
+				errors.push({
+					fileName: uploadedFiles[index].name,
+					reason: "server",
+				})
+			}
+		})
+		return errors
 	}
 
 	const handleDelete = (name: string): void => {
@@ -46,6 +61,8 @@ function BotContextPage() {
 		const newNameWithExt = trimmedName.endsWith(ext)
 			? trimmedName
 			: trimmedName + ext
+
+		if (newNameWithExt === name) return { success: true }
 
 		const isDuplicate = files.some(
 			(f) =>

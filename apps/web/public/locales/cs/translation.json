@@ -65,6 +65,10 @@
 			"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat."
 		}
 	},
+	"impersonation": {
+		"viewingAsClient": "Zobrazení jako klient (admin impersonace)",
+		"exitToBackoffice": "Zpět do backoffice"
+	},
 	"login": "Přihlášení",
 	"email": "E-mail",
 	"name": "Jméno",
@@ -356,13 +360,18 @@
 	"charts": {
 		"tokenConsumption": {
 			"title": "Spotřeba tokenů",
-			"description": "Denní spotřeba tokenů za posledních 7 dní",
-			"ariaLabel": "Sloupcový graf zobrazující spotřebu tokenů za posledních 7 dní"
+			"description": "Denní spotřeba tokenů za posledních 30 dní",
+			"ariaLabel": "Sloupcový graf zobrazující spotřebu tokenů za posledních 30 dní"
 		},
 		"questionsAsked": {
 			"title": "Položené otázky",
-			"description": "Interakce koncových uživatelů za posledních 7 dní",
-			"ariaLabel": "Čarový graf zobrazující položené otázky za posledních 7 dní"
+			"description": "Interakce uživatelů za posledních 30 dní",
+			"ariaLabel": "Čarový graf zobrazující položené otázky za posledních 30 dní"
+		},
+		"conversations": {
+			"title": "Konverzace",
+			"description": "Konverzace napříč platformou za posledních 30 dní",
+			"ariaLabel": "Čarový graf zobrazující konverzace napříč platformou za posledních 30 dní"
 		},
 		"dayNames": {
 			"mon": "Po",
@@ -443,6 +452,7 @@
 			"failedToUpload_plural": "Nepodařilo se nahrát {{count}} souborů",
 			"fileAlreadyExists": "Soubor s tímto názvem již existuje",
 			"invalidFileType": "Neplatný typ souboru",
+			"serverError": "Chyba serveru při nahrávání",
 			"dismissErrors": "Zavřít chyby"
 		},
 		"dragOverlay": {
@@ -653,6 +663,21 @@
 			"pagePalAdmin": "PagePal Admin",
 			"admin": "Administrátor",
 			"failedToLoad": "Nepodařilo se načíst"
+		},
+		"activityLogs": {
+			"title": "Protokoly aktivit",
+			"subtitle": "Akce impersonace, pozastavení a opětovného povolení provedené administrátory",
+			"recentActions": "Nedávné akce",
+			"showingRecent": "Zobrazeno 100 nejnovějších admin akcí",
+			"failedToLoad": "Nepodařilo se načíst protokoly aktivit.",
+			"noLogs": "Zatím žádné protokoly aktivit.",
+			"timestamp": "Časové razítko",
+			"admin": "Administrátor",
+			"action": "Akce",
+			"client": "Klient",
+			"suspend": "Pozastavit",
+			"reEnable": "Znovu povolit",
+			"impersonate": "Impersonovat"
 		},
 		"stats": {
 			"adminDashboard": "Administrátorská nástěnka",

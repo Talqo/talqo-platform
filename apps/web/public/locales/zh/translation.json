@@ -65,6 +65,10 @@
 			"noCustomServers": "暂无自定义服务器。添加一个以让机器人访问您自己的数据源。"
 		}
 	},
+	"impersonation": {
+		"viewingAsClient": "以客户端身份查看（管理员模拟）",
+		"exitToBackoffice": "返回后台管理"
+	},
 	"login": "登录",
 	"email": "邮箱",
 	"name": "姓名",
@@ -356,13 +360,18 @@
 	"charts": {
 		"tokenConsumption": {
 			"title": "Token 消耗",
-			"description": "过去 7 天的每日 Token 使用量",
-			"ariaLabel": "显示过去 7 天 Token 消耗的柱状图"
+			"description": "过去 30 天的每日 Token 使用量",
+			"ariaLabel": "显示过去 30 天 Token 消耗的柱状图"
 		},
 		"questionsAsked": {
 			"title": "提问数量",
-			"description": "过去 7 天的终端用户交互",
-			"ariaLabel": "显示过去 7 天提问数量的折线图"
+			"description": "过去 30 天的用户交互",
+			"ariaLabel": "显示过去 30 天提问数量的折线图"
+		},
+		"conversations": {
+			"title": "对话数量",
+			"description": "过去 30 天的全平台对话",
+			"ariaLabel": "显示过去 30 天全平台对话数量的折线图"
 		},
 		"dayNames": {
 			"mon": "周一",
@@ -443,6 +452,7 @@
 			"failedToUpload_plural": "上传 {{count}} 个文件失败",
 			"fileAlreadyExists": "已存在同名文件",
 			"invalidFileType": "无效的文件类型",
+			"serverError": "上传时出现服务器错误",
 			"dismissErrors": "关闭错误"
 		},
 		"dragOverlay": {
@@ -653,6 +663,21 @@
 			"pagePalAdmin": "PagePal 管理",
 			"admin": "管理员",
 			"failedToLoad": "加载失败"
+		},
+		"activityLogs": {
+			"title": "活动日志",
+			"subtitle": "管理员执行的模拟、暂停和重新启用操作",
+			"recentActions": "最近操作",
+			"showingRecent": "显示最近的 100 条管理员操作",
+			"failedToLoad": "加载活动日志失败。",
+			"noLogs": "暂无活动日志。",
+			"timestamp": "时间戳",
+			"admin": "管理员",
+			"action": "操作",
+			"client": "客户",
+			"suspend": "暂停",
+			"reEnable": "重新启用",
+			"impersonate": "模拟"
 		},
 		"stats": {
 			"adminDashboard": "管理仪表盘",

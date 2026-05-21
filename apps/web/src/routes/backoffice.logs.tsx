@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useAdminActivityLogs } from "@/api/hooks/useAdmin"
 import { ActivityLogsTable } from "@/components/backoffice/ActivityLogsTable"
 import {
@@ -15,22 +16,25 @@ export const Route = createFileRoute("/backoffice/logs")({
 })
 
 function ActivityLogsPage() {
+	const { t } = useTranslation()
 	const { data: logs, isLoading, error } = useAdminActivityLogs({ limit: 100 })
 
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="font-bold text-3xl tracking-tight">Activity Logs</h1>
+				<h1 className="font-bold text-3xl tracking-tight">
+					{t("backoffice.activityLogs.title")}
+				</h1>
 				<p className="text-muted-foreground">
-					Impersonate, suspend, and re-enable actions performed by admins
+					{t("backoffice.activityLogs.subtitle")}
 				</p>
 			</div>
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Recent Actions</CardTitle>
+					<CardTitle>{t("backoffice.activityLogs.recentActions")}</CardTitle>
 					<CardDescription>
-						Showing the 100 most recent admin actions
+						{t("backoffice.activityLogs.showingRecent")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -40,7 +44,7 @@ function ActivityLogsPage() {
 						</div>
 					) : error ? (
 						<p className="py-8 text-center text-destructive text-sm">
-							Failed to load activity logs.
+							{t("backoffice.activityLogs.failedToLoad")}
 						</p>
 					) : (
 						<ActivityLogsTable logs={logs ?? []} />
