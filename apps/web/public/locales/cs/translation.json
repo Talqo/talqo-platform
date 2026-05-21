@@ -382,6 +382,7 @@
 			"failedToUpload_plural": "Nepodařilo se nahrát {{count}} souborů",
 			"fileAlreadyExists": "Soubor s tímto názvem již existuje",
 			"invalidFileType": "Neplatný typ souboru",
+			"serverError": "Chyba serveru při nahrávání",
 			"dismissErrors": "Zavřít chyby"
 		},
 		"dragOverlay": {
