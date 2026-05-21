@@ -1721,6 +1721,7 @@ export interface paths {
                             /** @enum {string} */
                             providerType: "openai" | "openai_compatible" | "google" | "anthropic";
                             model: string;
+                            embeddingModel: string | null;
                             baseUrl: string | null;
                             updatedAt: string;
                             apiKeyMasked: string;
@@ -1744,29 +1745,27 @@ export interface paths {
                         providerType: "openai";
                         apiKey: string;
                         model: string;
-                        /** Format: uri */
-                        baseUrl?: string;
+                        embeddingModel?: string;
                     } | {
                         /** @enum {string} */
                         providerType: "openai_compatible";
-                        apiKey: string;
-                        model: string;
                         /** Format: uri */
                         baseUrl: string;
+                        apiKey: string;
+                        model: string;
+                        embeddingModel?: string;
                     } | {
                         /** @enum {string} */
                         providerType: "google";
                         apiKey: string;
                         model: string;
-                        /** Format: uri */
-                        baseUrl?: string;
+                        embeddingModel?: string;
                     } | {
                         /** @enum {string} */
                         providerType: "anthropic";
                         apiKey: string;
                         model: string;
-                        /** Format: uri */
-                        baseUrl?: string;
+                        embeddingModel?: string;
                     };
                 };
             };
@@ -1785,6 +1784,7 @@ export interface paths {
                             /** @enum {string} */
                             providerType: "openai" | "openai_compatible" | "google" | "anthropic";
                             model: string;
+                            embeddingModel: string | null;
                             baseUrl: string | null;
                             updatedAt: string;
                             apiKeyMasked: string;
@@ -3009,6 +3009,7 @@ export interface paths {
                             status: string;
                             lastActive: string | null;
                             createdAt: string;
+                            totalTokens: number;
                         }[];
                     };
                 };
