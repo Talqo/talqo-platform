@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 import type { WidgetColors, WidgetColorsConfig, WidgetIcons } from "./setup"
 import {
 	AppearanceCard,
@@ -34,8 +35,22 @@ import {
 
 type Feedback = { type: "success" | "error"; message: string }
 
+const MIN_HEIGHT_FOR_SIDEBAR_PREVIEW = 850
+
 export function WidgetSetup() {
 	const { t } = useTranslation()
+	const [isImpersonating, setIsImpersonating] = useState(false)
+	const [isTallEnough, setIsTallEnough] = useState(
+		() =>
+			typeof window !== "undefined" &&
+			window.innerHeight >= MIN_HEIGHT_FOR_SIDEBAR_PREVIEW,
+	)
+
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			setIsImpersonating(Boolean(localStorage.getItem("admin_token")))
+		}
+	}, [])
 	const {
 		data: client,
 		isLoading: isClientLoading,
@@ -55,6 +70,13 @@ export function WidgetSetup() {
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
 	const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const hasInitialized = useRef(false)
+
+	useEffect(() => {
+		const handleResize = () =>
+			setIsTallEnough(window.innerHeight >= MIN_HEIGHT_FOR_SIDEBAR_PREVIEW)
+		window.addEventListener("resize", handleResize)
+		return () => window.removeEventListener("resize", handleResize)
+	}, [])
 
 	const scheduleFeedbackClear = () => {
 		if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current)
@@ -132,7 +154,7 @@ export function WidgetSetup() {
 
 	return (
 		<div className="relative">
-			<div className="space-y-6 lg:mr-[29rem]">
+			<div className={cn("space-y-6", isTallEnough && "lg:mr-[29rem]")}>
 				{clientError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -234,16 +256,34 @@ export function WidgetSetup() {
 					widgetToken={client?.widgetToken}
 					isLoading={isLoading}
 				/>
+
+				{!isTallEnough && (
+					<WidgetPreview
+						colors={colors}
+						icons={icons}
+						botName={botName}
+						position={position}
+					/>
+				)}
 			</div>
 
-			<div className="hidden lg:fixed lg:top-24 lg:right-8 lg:block lg:max-h-[calc(100vh-8rem)] lg:w-[28rem] lg:overflow-auto">
-				<WidgetPreview
-					colors={colors}
-					icons={icons}
-					botName={botName}
-					position={position}
-				/>
-			</div>
+			{isTallEnough && (
+				<div
+					className={cn(
+						"hidden lg:fixed lg:right-8 lg:block lg:w-[28rem] lg:overflow-auto",
+						isImpersonating
+							? "lg:top-36 lg:max-h-[calc(100vh-12rem)]"
+							: "lg:top-24 lg:max-h-[calc(100vh-8rem)]",
+					)}
+				>
+					<WidgetPreview
+						colors={colors}
+						icons={icons}
+						botName={botName}
+						position={position}
+					/>
+				</div>
+			)}
 		</div>
 	)
 }
