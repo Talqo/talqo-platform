@@ -126,15 +126,13 @@ export function WidgetSetup() {
 				onSuccess: () => {
 					setFeedback({
 						type: "success",
-						message: "Widget configuration saved.",
+						message: t("widget.setup.saved"),
 					})
 					scheduleFeedbackClear()
 				},
 				onError: (err) => {
 					const message =
-						err instanceof Error
-							? err.message
-							: "Failed to save configuration. Please try again."
+						err instanceof Error ? err.message : t("widget.setup.saveFailed")
 					setFeedback({ type: "error", message })
 					scheduleFeedbackClear()
 				},
@@ -167,10 +165,9 @@ export function WidgetSetup() {
 				{configError && (
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Error loading widget configuration</AlertTitle>
+						<AlertTitle>{t("widget.setup.configErrorTitle")}</AlertTitle>
 						<AlertDescription>
-							{configError.message ??
-								"Failed to load widget configuration. Please try again."}
+							{configError.message ?? t("widget.setup.configErrorDescription")}
 						</AlertDescription>
 					</Alert>
 				)}
@@ -178,7 +175,9 @@ export function WidgetSetup() {
 				<Card className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm">
 					<CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pb-3">
 						<div>
-							<CardTitle className="text-lg">Widget Configuration</CardTitle>
+							<CardTitle className="text-lg">
+								{t("widget.setup.title")}
+							</CardTitle>
 						</div>
 						<div className="flex items-center gap-2">
 							<AlertDialog>
@@ -188,24 +187,25 @@ export function WidgetSetup() {
 										variant="outline"
 										disabled={isLoading || isSaving}
 									>
-										Reset
+										{t("widget.setup.reset")}
 									</Button>
 								</AlertDialogTrigger>
 								<AlertDialogContent>
 									<AlertDialogHeader>
-										<AlertDialogTitle>Reset to defaults?</AlertDialogTitle>
+										<AlertDialogTitle>
+											{t("widget.setup.resetConfirmTitle")}
+										</AlertDialogTitle>
 										<AlertDialogDescription>
-											This will discard all customizations and restore the
-											default theme. This action cannot be undone.
+											{t("widget.setup.resetConfirmDescription")}
 										</AlertDialogDescription>
 									</AlertDialogHeader>
 									<AlertDialogFooter>
-										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
 										<AlertDialogAction
 											onClick={handleReset}
 											className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 										>
-											Reset
+											{t("widget.setup.reset")}
 										</AlertDialogAction>
 									</AlertDialogFooter>
 								</AlertDialogContent>
@@ -218,10 +218,10 @@ export function WidgetSetup() {
 								{isSaving ? (
 									<>
 										<Spinner size="sm" className="mr-2" />
-										Saving...
+										{t("widget.setup.saving")}
 									</>
 								) : (
-									"Save"
+									t("widget.setup.save")
 								)}
 							</Button>
 						</div>

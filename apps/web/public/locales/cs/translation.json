@@ -25,6 +25,44 @@
 			"subtitle": "Spravujte soubory, které bot používá jako kontext.",
 			"failedToLoadFiles": "Nepodařilo se načíst soubory",
 			"unexpectedError": "Došlo k neočekávané chybě"
+		},
+		"settings": {
+			"title": "Nastavení",
+			"subtitle": "Spravujte svůj účet, fakturaci a konfiguraci AI poskytovatele.",
+			"accountTab": "Účet",
+			"billingTab": "Fakturace",
+			"aiProviderTab": "AI poskytovatel"
+		},
+		"widgetSetup": {
+			"title": "Nastavení widgetu",
+			"subtitle": "Přizpůsobte vzhled chatovacího widgetu a vložte jej na svůj web."
+		},
+		"addFunds": {
+			"title": "Dobít zůstatek",
+			"subtitle": "Dobijte zůstatek na svém účtu."
+		},
+		"chats": {
+			"title": "Náhledy chatů",
+			"subtitle": "Prohlížejte konverzace, které vaši návštěvníci vedli s botem (posledních 50).",
+			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
+			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
+			"noMessages": "Žádné zprávy",
+			"conversation": "Konverzace",
+			"started": "Zahájeno"
+		},
+		"chatsTable": {
+			"started": "Zahájeno",
+			"messages": "Zprávy",
+			"rating": "Hodnocení",
+			"preview": "Náhled",
+			"noConversationsFound": "Zatím žádné konverzace",
+			"close": "Zavřít",
+			"view": "Zobrazit"
+		},
+		"tools": {
+			"title": "MCP nástroje",
+			"subtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",
+			"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat."
 		}
 	},
 	"impersonation": {
@@ -101,7 +139,19 @@
 			"saving": "Ukládání...",
 			"saveProfile": "Uložit profil",
 			"changing": "Měnění...",
-			"changePassword": "Změnit heslo"
+			"changePassword": "Změnit heslo",
+			"dangerZoneTitle": "Nebezpečná zóna",
+			"dangerZoneDescription": "Trvale smaže váš účet a všechna přidružená data. Tuto akci nelze vrátit zpět.",
+			"deleteAccount": "Smazat účet",
+			"deleteAccountTitle": "Trvale smazat účet?",
+			"deleteAccountDescription": "Tímto okamžitě a nevratně smažete svůj účet, widget, všechny konverzace a každý další přidružený záznam. Není možné vrátit zpět.",
+			"confirmPassword": "Potvrďte své heslo",
+			"passwordPlaceholder": "Zadejte své heslo",
+			"deleteAccountError": "Nesprávné heslo. Zkuste to prosím znovu.",
+			"deleting": "Mazání...",
+			"deleteMyAccount": "Smazat můj účet",
+			"passwordChangedSuccess": "Heslo bylo úspěšně změněno",
+			"passwordChangeFailed": "Nepodařilo se změnit heslo. Zkuste to prosím znovu."
 		},
 		"billing": {
 			"title": "Využití a limity",
@@ -227,7 +277,17 @@
 	"widget": {
 		"setup": {
 			"errorTitle": "Chyba při načítání dat klienta",
-			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu."
+			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu.",
+			"title": "Konfigurace widgetu",
+			"configErrorTitle": "Chyba při načítání konfigurace widgetu",
+			"configErrorDescription": "Nepodařilo se načíst konfiguraci widgetu. Zkuste to prosím znovu.",
+			"reset": "Obnovit",
+			"save": "Uložit",
+			"saving": "Ukládání...",
+			"saved": "Konfigurace widgetu byla uložena.",
+			"saveFailed": "Uložení konfigurace selhalo. Zkuste to prosím znovu.",
+			"resetConfirmTitle": "Obnovit výchozí nastavení?",
+			"resetConfirmDescription": "Tímto se zruší všechna přizpůsobení a obnoví výchozí motiv. Tuto akci nelze vrátit zpět."
 		},
 		"onboarding": {
 			"title": "Přidejte AI chat na svůj web",
@@ -357,7 +417,17 @@
 			"readOnlyConnector": "Pouze pro čtení",
 			"staticFallbackInfo": "Statické záložní informace",
 			"toolConnector": "Nástrojový konektor"
-		}
+		},
+		"mcpToolsTitle": "MCP nástroje",
+		"mcpToolsSubtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",
+		"preconfiguredServers": "Předkonfigurované servery",
+		"noPreconfiguredServers": "Zatím nejsou k dispozici žádné předkonfigurované servery.",
+		"customServers": "Vlastní servery",
+		"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat.",
+		"availableTools": "Dostupné nástroje:",
+		"noToolsFound": "Nenalezeny žádné nástroje",
+		"unknownServer": "Neznámý",
+		"unknownType": "neznámý"
 	},
 	"botContext": {
 		"fileList": {

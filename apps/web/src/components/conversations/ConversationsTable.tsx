@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import type { ClientConversationSummary } from "shared"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,8 @@ export function ConversationsTable({
 	selectedId,
 	onSelect,
 }: ConversationsTableProps) {
+	const { t } = useTranslation()
+
 	return (
 		<Card className="overflow-hidden dark:border-zinc-800 dark:bg-zinc-900">
 			<div className="overflow-x-auto">
@@ -29,16 +32,16 @@ export function ConversationsTable({
 					<thead className="border-zinc-200 border-b bg-zinc-50 text-xs text-zinc-700 uppercase dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-400">
 						<tr>
 							<th scope="col" className="px-6 py-3">
-								Started
+								{t("dashboard.chatsTable.started")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Messages
+								{t("dashboard.chatsTable.messages")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Rating
+								{t("dashboard.chatsTable.rating")}
 							</th>
 							<th scope="col" className="px-6 py-3 text-right">
-								Preview
+								{t("dashboard.chatsTable.preview")}
 							</th>
 						</tr>
 					</thead>
@@ -58,7 +61,7 @@ export function ConversationsTable({
 									colSpan={4}
 									className="px-6 py-4 text-center text-zinc-500 dark:text-zinc-400"
 								>
-									No conversations yet
+									{t("dashboard.chatsTable.noConversationsFound")}
 								</td>
 							</tr>
 						) : (
@@ -92,7 +95,9 @@ export function ConversationsTable({
 											size="sm"
 											onClick={() => onSelect(conv.id)}
 										>
-											{selectedId === conv.id ? "Close" : "View"}
+											{selectedId === conv.id
+												? t("dashboard.chatsTable.close")
+												: t("dashboard.chatsTable.view")}
 										</Button>
 									</td>
 								</tr>
