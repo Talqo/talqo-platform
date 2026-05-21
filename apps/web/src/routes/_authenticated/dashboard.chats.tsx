@@ -54,6 +54,7 @@ function MessageBubble({
 }
 
 function ConversationPreview({ conversationId }: { conversationId: string }) {
+	const { t } = useTranslation()
 	const { data, isLoading, error } = useClientConversation(conversationId)
 
 	if (isLoading) {
@@ -67,7 +68,7 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 	if (error) {
 		return (
 			<p className="py-6 text-center text-muted-foreground text-sm">
-				Failed to load conversation
+				{t("dashboard.chats.failedToLoadConversation")}
 			</p>
 		)
 	}
@@ -77,7 +78,9 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 	return (
 		<div className="space-y-2 p-4">
 			{data.messages.length === 0 ? (
-				<p className="text-center text-sm text-zinc-500">No messages</p>
+				<p className="text-center text-sm text-zinc-500">
+					{t("dashboard.chats.noMessages")}
+				</p>
 			) : (
 				data.messages.map((msg) => (
 					<MessageBubble
@@ -116,7 +119,7 @@ function ChatsPage() {
 	if (error) {
 		return (
 			<div className="flex h-[400px] items-center justify-center">
-				<p className="text-muted-foreground">Failed to load conversations</p>
+				{t("dashboard.chats.failedToLoadConversations")}
 			</div>
 		)
 	}
@@ -126,8 +129,8 @@ function ChatsPage() {
 	return (
 		<div className="space-y-6">
 			<PageHeader
-				title="Chat Previews"
-				subtitle="Browse conversations your visitors have had with the bot (most recent 50)."
+				title={t("dashboard.chats.title")}
+				subtitle={t("dashboard.chats.subtitle")}
 			/>
 
 			<div className="grid grid-cols-[1fr_1.2fr] items-start gap-6">
@@ -145,9 +148,9 @@ function ChatsPage() {
 							<CardHeader>
 								<div className="flex items-center justify-between">
 									<div>
-										<CardTitle>Conversation</CardTitle>
+										<CardTitle>{t("dashboard.chats.conversation")}</CardTitle>
 										<CardDescription>
-											Started{" "}
+											{t("dashboard.chats.started")}{" "}
 											{new Date(selected.startedAt).toLocaleString(undefined, {
 												dateStyle: "medium",
 												timeStyle: "short",
@@ -156,7 +159,8 @@ function ChatsPage() {
 									</div>
 									{selected.satisfactionRating != null && (
 										<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-											Rating: {selected.satisfactionRating} / 5
+											{t("backoffice.conversationsTable.ratingLabel")}:{" "}
+											{selected.satisfactionRating} / 5
 										</Badge>
 									)}
 								</div>

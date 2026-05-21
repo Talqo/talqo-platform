@@ -32,6 +32,28 @@
 			"accountTab": "Účet",
 			"billingTab": "Fakturace",
 			"aiProviderTab": "AI poskytovatel"
+		},
+		"widgetSetup": {
+			"title": "Nastavení widgetu",
+			"subtitle": "Přizpůsobte vzhled chatovacího widgetu a vložte jej na svůj web."
+		},
+		"addFunds": {
+			"title": "Dobít zůstatek",
+			"subtitle": "Dobijte zůstatek na svém účtu."
+		},
+		"chats": {
+			"title": "Náhledy chatů",
+			"subtitle": "Prohlížejte konverzace, které vaši návštěvníci vedli s botem (posledních 50).",
+			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
+			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
+			"noMessages": "Žádné zprávy",
+			"conversation": "Konverzace",
+			"started": "Zahájeno"
+		},
+		"tools": {
+			"title": "MCP nástroje",
+			"subtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",
+			"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat."
 		}
 	},
 	"login": "Přihlášení",
@@ -245,7 +267,14 @@
 			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu.",
 			"title": "Konfigurace widgetu",
 			"configErrorTitle": "Chyba při načítání konfigurace widgetu",
-			"configErrorDescription": "Nepodařilo se načíst konfiguraci widgetu. Zkuste to prosím znovu."
+			"configErrorDescription": "Nepodařilo se načíst konfiguraci widgetu. Zkuste to prosím znovu.",
+			"reset": "Obnovit",
+			"save": "Uložit",
+			"saving": "Ukládání...",
+			"saved": "Konfigurace widgetu byla uložena.",
+			"saveFailed": "Uložení konfigurace selhalo. Zkuste to prosím znovu.",
+			"resetConfirmTitle": "Obnovit výchozí nastavení?",
+			"resetConfirmDescription": "Tímto se zruší všechna přizpůsobení a obnoví výchozí motiv. Tuto akci nelze vrátit zpět."
 		},
 		"onboarding": {
 			"title": "Přidejte AI chat na svůj web",

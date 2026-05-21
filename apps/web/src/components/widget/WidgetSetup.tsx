@@ -104,15 +104,13 @@ export function WidgetSetup() {
 				onSuccess: () => {
 					setFeedback({
 						type: "success",
-						message: "Widget configuration saved.",
+						message: t("widget.setup.saved"),
 					})
 					scheduleFeedbackClear()
 				},
 				onError: (err) => {
 					const message =
-						err instanceof Error
-							? err.message
-							: "Failed to save configuration. Please try again."
+						err instanceof Error ? err.message : t("widget.setup.saveFailed")
 					setFeedback({ type: "error", message })
 					scheduleFeedbackClear()
 				},
@@ -167,24 +165,25 @@ export function WidgetSetup() {
 										variant="outline"
 										disabled={isLoading || isSaving}
 									>
-										Reset
+										{t("widget.setup.reset")}
 									</Button>
 								</AlertDialogTrigger>
 								<AlertDialogContent>
 									<AlertDialogHeader>
-										<AlertDialogTitle>Reset to defaults?</AlertDialogTitle>
+										<AlertDialogTitle>
+											{t("widget.setup.resetConfirmTitle")}
+										</AlertDialogTitle>
 										<AlertDialogDescription>
-											This will discard all customizations and restore the
-											default theme. This action cannot be undone.
+											{t("widget.setup.resetConfirmDescription")}
 										</AlertDialogDescription>
 									</AlertDialogHeader>
 									<AlertDialogFooter>
-										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
 										<AlertDialogAction
 											onClick={handleReset}
 											className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 										>
-											Reset
+											{t("widget.setup.reset")}
 										</AlertDialogAction>
 									</AlertDialogFooter>
 								</AlertDialogContent>
@@ -197,10 +196,10 @@ export function WidgetSetup() {
 								{isSaving ? (
 									<>
 										<Spinner size="sm" className="mr-2" />
-										Saving...
+										{t("widget.setup.saving")}
 									</>
 								) : (
-									"Save"
+									t("widget.setup.save")
 								)}
 							</Button>
 						</div>

@@ -117,12 +117,9 @@ function ToolsPage() {
 		<PageContainer>
 			<div>
 				<h1 className="font-bold text-2xl text-foreground tracking-tight">
-					MCP Tools
+					{t("dashboard.tools.title")}
 				</h1>
-				<p className="text-muted-foreground">
-					Manage MCP (Model Context Protocol) tools and integrations for your
-					bot.
-				</p>
+				<p className="text-muted-foreground">{t("dashboard.tools.subtitle")}</p>
 			</div>
 
 			<Card>
@@ -232,8 +229,7 @@ function ToolsPage() {
 						</div>
 					) : !customServers?.length ? (
 						<p className="text-muted-foreground text-sm">
-							No custom servers yet. Add one to give your bot access to your own
-							data sources.
+							{t("dashboard.tools.noCustomServers")}
 						</p>
 					) : (
 						<div className="divide-y divide-border overflow-hidden rounded-lg border border-border">

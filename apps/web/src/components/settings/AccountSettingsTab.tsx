@@ -123,7 +123,7 @@ function DeleteAccountDialog() {
 						<DialogFooter>
 							<DialogClose asChild>
 								<Button variant="outline" disabled={deleteAccount.isPending}>
-									Cancel
+									{t("common.cancel")}
 								</Button>
 							</DialogClose>
 							<Button
@@ -131,7 +131,9 @@ function DeleteAccountDialog() {
 								variant="destructive"
 								disabled={!form.watch("password") || deleteAccount.isPending}
 							>
-								{deleteAccount.isPending ? "Deleting..." : "Delete my account"}
+								{deleteAccount.isPending
+									? t("settings.account.deleting")
+									: t("settings.account.deleteMyAccount")}
 							</Button>
 						</DialogFooter>
 					</form>
