@@ -50,6 +50,15 @@
 			"conversation": "Konverzace",
 			"started": "Zahájeno"
 		},
+		"chatsTable": {
+			"started": "Zahájeno",
+			"messages": "Zprávy",
+			"rating": "Hodnocení",
+			"preview": "Náhled",
+			"noConversationsFound": "Zatím žádné konverzace",
+			"close": "Zavřít",
+			"view": "Zobrazit"
+		},
 		"tools": {
 			"title": "MCP nástroje",
 			"subtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",

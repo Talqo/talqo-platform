@@ -50,6 +50,15 @@
 			"conversation": "Conversation",
 			"started": "Started"
 		},
+		"chatsTable": {
+			"started": "Started",
+			"messages": "Messages",
+			"rating": "Rating",
+			"preview": "Preview",
+			"noConversationsFound": "No conversations yet",
+			"close": "Close",
+			"view": "View"
+		},
 		"tools": {
 			"title": "MCP Tools",
 			"subtitle": "Manage MCP (Model Context Protocol) tools and integrations for your bot.",

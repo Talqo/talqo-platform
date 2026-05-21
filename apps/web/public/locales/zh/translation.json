@@ -50,6 +50,15 @@
 			"conversation": "对话",
 			"started": "开始时间"
 		},
+		"chatsTable": {
+			"started": "开始时间",
+			"messages": "消息",
+			"rating": "评分",
+			"preview": "预览",
+			"noConversationsFound": "暂无对话",
+			"close": "关闭",
+			"view": "查看"
+		},
 		"tools": {
 			"title": "MCP 工具",
 			"subtitle": "管理您的机器人的 MCP（模型上下文协议）工具和集成。",
