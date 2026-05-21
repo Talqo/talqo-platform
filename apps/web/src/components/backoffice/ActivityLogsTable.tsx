@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Badge } from "@/components/ui/badge"
 import {
 	Table,
@@ -22,27 +23,37 @@ type ActivityLogsTableProps = {
 }
 
 function ActionBadge({ action }: { action: string }) {
+	const { t } = useTranslation()
 	if (action === "suspend") {
-		return <Badge variant="destructive">Suspend</Badge>
+		return (
+			<Badge variant="destructive">
+				{t("backoffice.activityLogs.suspend")}
+			</Badge>
+		)
 	}
 	if (action === "re-enable") {
 		return (
 			<Badge className="bg-green-600 text-white hover:bg-green-700">
-				Re-enable
+				{t("backoffice.activityLogs.reEnable")}
 			</Badge>
 		)
 	}
 	if (action === "impersonate") {
-		return <Badge variant="secondary">Impersonate</Badge>
+		return (
+			<Badge variant="secondary">
+				{t("backoffice.activityLogs.impersonate")}
+			</Badge>
+		)
 	}
 	return <Badge variant="outline">{action}</Badge>
 }
 
 export function ActivityLogsTable({ logs }: ActivityLogsTableProps) {
+	const { t } = useTranslation()
 	if (logs.length === 0) {
 		return (
 			<p className="py-8 text-center text-muted-foreground text-sm">
-				No activity logs yet.
+				{t("backoffice.activityLogs.noLogs")}
 			</p>
 		)
 	}
@@ -51,10 +62,10 @@ export function ActivityLogsTable({ logs }: ActivityLogsTableProps) {
 		<Table>
 			<TableHeader>
 				<TableRow>
-					<TableHead>Timestamp</TableHead>
-					<TableHead>Admin</TableHead>
-					<TableHead>Action</TableHead>
-					<TableHead>Client</TableHead>
+					<TableHead>{t("backoffice.activityLogs.timestamp")}</TableHead>
+					<TableHead>{t("backoffice.activityLogs.admin")}</TableHead>
+					<TableHead>{t("backoffice.activityLogs.action")}</TableHead>
+					<TableHead>{t("backoffice.activityLogs.client")}</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
