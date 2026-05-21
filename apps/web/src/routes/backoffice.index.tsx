@@ -59,6 +59,7 @@ type Client = {
 	status: string
 	lastActive: string | null
 	createdAt: string
+	totalTokens: number
 }
 
 function mapClientsToTenants(
@@ -74,7 +75,7 @@ function mapClientsToTenants(
 				? (client.status as "active" | "suspended")
 				: "active",
 		apiType: t("backoffice.tenantsTable.platformDefault"),
-		tokenUsage: "N/A",
+		tokenUsage: client.totalTokens.toLocaleString(),
 	}))
 }
 
@@ -247,7 +248,12 @@ function BackofficePage() {
 
 			<div className="grid gap-4 md:grid-cols-2">
 				<TokenConsumptionChart data={tokenChartData} />
-				<QuestionsAskedChart data={conversationChartData} />
+				<QuestionsAskedChart
+					data={conversationChartData}
+					title={t("charts.conversations.title")}
+					description={t("charts.conversations.description")}
+					ariaLabel={t("charts.conversations.ariaLabel")}
+				/>
 			</div>
 
 			<Card>

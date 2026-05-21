@@ -17,7 +17,7 @@ type FileListProps = {
 		newName: string,
 	) => Promise<{ success: boolean; error?: "duplicate" | "server" }>
 	onDelete: (name: string) => void
-	onFilesUploaded: (files: File[]) => Promise<void>
+	onFilesUploaded: (files: File[]) => Promise<UploadError[]>
 }
 
 type EditingState = {
@@ -62,7 +62,10 @@ export function FileList({
 			}
 
 			if (validFiles.length > 0) {
-				await onFilesUploaded(validFiles)
+				const serverErrors = await onFilesUploaded(validFiles)
+				if (serverErrors.length > 0) {
+					setUploadErrors((prev) => [...prev, ...serverErrors])
+				}
 			}
 		},
 		[files, isTextFile, onFilesUploaded],

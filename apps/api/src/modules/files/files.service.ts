@@ -97,6 +97,7 @@ export class FilesService {
 
 	// S3 doesn't directly support move, so we create a new file and delete the old one
 	async move(oldKey: string, newKey: string): Promise<void> {
+		if (oldKey === newKey) return
 		await this.s3.file(newKey).write(this.s3.file(oldKey))
 		await this.s3.delete(oldKey)
 	}
