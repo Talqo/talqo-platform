@@ -24,6 +24,9 @@ api:
     model: ""
     embeddingModel: ""
     baseUrl: ""
+  # Sentry error monitoring — leave blank to disable
+  sentry:
+    dsn: ""
   resources:
     limits:
       cpu: "1000m"

@@ -132,6 +132,7 @@ build-api: _require-tag ## Build API Docker image
 build-web: _require-tag ## Build Web Docker image
 	docker build -f apps/web/Dockerfile \
 		--build-arg VITE_API_URL="$(VITE_API_URL)" \
+		--build-arg VITE_SENTRY_DSN="$(VITE_SENTRY_DSN)" \
 		-t "$(WEB_IMAGE):$(IMAGE_TAG)" .
 
 .PHONY: build-images
@@ -233,7 +234,8 @@ deploy: ns-create helm-deps _require-tag _require-resend-api-key _require-defaul
 		--set api.defaultLlm.apiKey="$$DEFAULT_LLM_API_KEY" \
 		--set api.defaultLlm.model="$$DEFAULT_LLM_MODEL" \
 		--set api.defaultLlm.embeddingModel="$$DEFAULT_EMBEDDING_MODEL" \
-		--set api.defaultLlm.baseUrl="$$DEFAULT_LLM_BASE_URL"
+		--set api.defaultLlm.baseUrl="$$DEFAULT_LLM_BASE_URL" \
+		--set api.sentry.dsn="$$SENTRY_DSN"
 
 .PHONY: undeploy
 undeploy: ## Uninstall from cluster (env based on git branch)

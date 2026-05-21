@@ -101,6 +101,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "pagepal.providerKeySecretName" . }}
                   key: secret
+            - name: SENTRY_DSN
+              value: {{ .Values.api.sentry.dsn | default "" | quote }}
           livenessProbe:
             httpGet:
               path: /health
