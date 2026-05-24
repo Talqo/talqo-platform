@@ -30,45 +30,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import type { Tenant } from "@/data/backoffice"
 import type { ChartDataPoint } from "@/data/charts"
+import { formatPeriod, mapClientsToTenants } from "@/lib/backoffice-utils"
 import { AUTH } from "@/lib/constants"
-
-function formatPeriod(period: string): string {
-	return new Date(period).toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-		timeZone: "UTC",
-	})
-}
-
-type Client = {
-	id: string
-	name: string
-	email: string
-	balanceUsd: string
-	status: string
-	lastActive: string | null
-	createdAt: string
-	totalTokens: number
-}
-
-function mapClientsToTenants(
-	clients: Client[],
-	t: (key: string) => string,
-): Tenant[] {
-	const ALLOWED_STATUSES = new Set(["active", "suspended"])
-	return clients.map((client) => ({
-		id: client.id,
-		name: client.name || client.email,
-		status:
-			client.status && ALLOWED_STATUSES.has(client.status)
-				? (client.status as "active" | "suspended")
-				: "active",
-		apiType: t("backoffice.tenantsTable.platformDefault"),
-		tokenUsage: client.totalTokens.toLocaleString(),
-	}))
-}
 
 export const Route = createFileRoute("/backoffice/")({
 	component: BackofficePage,
@@ -258,7 +222,14 @@ function BackofficePage() {
 				</CardHeader>
 				<CardContent>
 					<TenantsTable
-						tenants={clients ? mapClientsToTenants(clients, t) : []}
+						tenants={
+							clients
+								? mapClientsToTenants(
+										clients,
+										t("backoffice.tenantsTable.platformDefault"),
+									)
+								: []
+						}
 						onSuspend={handleSuspend}
 						onReEnable={handleReEnable}
 						onImpersonate={handleImpersonate}
