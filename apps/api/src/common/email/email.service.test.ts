@@ -54,13 +54,6 @@ describe("email.service", () => {
 			expect(html).toContain("token-abc")
 		})
 
-		it("throws when RESEND_API_KEY is not set", async () => {
-			delete process.env.RESEND_API_KEY
-			await expect(
-				sendVerificationEmail("user@example.com", "token-abc"),
-			).rejects.toThrow("RESEND_API_KEY environment variable is not set")
-		})
-
 		it("throws when resend returns an error", async () => {
 			mockSend.mockImplementationOnce(async () => ({
 				data: null,

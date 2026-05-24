@@ -1,5 +1,6 @@
 import type { ModelMessage } from "ai"
 import { stepCountIs, streamText } from "ai"
+import { BlacklistError } from "@/common/errors"
 import { checkBlacklist } from "./agent.blacklist"
 import { connectMcpServers } from "./agent.mcp"
 import { createLanguageModel } from "./agent.provider"
@@ -53,7 +54,7 @@ export async function streamResponse(
 					}
 					if (part.type === "text-delta") {
 						if (checkBlacklist(part.text, input.wordBlacklist)) {
-							controller.close()
+							controller.error(new BlacklistError())
 							return
 						}
 						controller.enqueue(part.text)

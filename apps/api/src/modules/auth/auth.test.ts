@@ -13,21 +13,48 @@ mock.module("resend", () => ({
 	},
 }))
 
-const { createAuthRouter } = await import("./auth.routes")
-const { InMemoryAuthRepository } = await import("./auth.repository")
+// Dynamic imports after mocks are registered
 const { AuthService } = await import("./auth.service")
+const { InMemoryAuthRepository } = await import("./auth.repository")
 const { errorHandler } = await import("@/common/middleware/error-handler")
+
+type AuthService = InstanceType<typeof AuthService>
+
+let currentAuthService: AuthService | null = null
+
+const authServiceProxy = new Proxy({} as AuthService, {
+	get(_target, prop) {
+		return (...args: unknown[]) => {
+			if (!currentAuthService) {
+				throw new Error("No auth service set")
+			}
+			const method = (currentAuthService as Record<string, unknown>)[
+				prop as string
+			]
+			if (typeof method !== "function") {
+				throw new Error(`Method ${String(prop)} not found on authService`)
+			}
+			return method.apply(currentAuthService, args)
+		}
+	},
+})
+
+mock.module("./index", () => ({ authService: authServiceProxy }))
+
+const { authRoutes } = await import("./auth.routes")
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildApp() {
 	const repo = new InMemoryAuthRepository()
-	const service = new AuthService(repo)
+	currentAuthService = new AuthService(repo)
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	app.use("/*", async (c, next) => {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
 		await next()
 	})
-	return { app: app.route("/auth", createAuthRouter(service)), repo }
+	return { app: app.route("/auth", authRoutes), repo }
 }
 
 const validRegistration = {
@@ -79,8 +106,14 @@ describe("POST /auth/register", () => {
 
 		// Get token from repository to verify email
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 
 		// Second registration with same email
@@ -142,7 +175,7 @@ describe("POST /auth/register", () => {
 	})
 })
 
-describe("GET /auth/verify-email", () => {
+describe("POST /auth/verify-email", () => {
 	let app: ReturnType<typeof buildApp>["app"]
 	let repo: InstanceType<typeof InMemoryAuthRepository>
 
@@ -166,9 +199,15 @@ describe("GET /auth/verify-email", () => {
 
 		// Get token from repository
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 
 		const res = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as { token: string; message: string }
@@ -179,16 +218,22 @@ describe("GET /auth/verify-email", () => {
 
 	it("returns 400 for an unknown token", async () => {
 		const res = await app.fetch(
-			new Request(
-				`http://localhost/auth/verify-email?token=${crypto.randomUUID()}`,
-			),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: crypto.randomUUID() }),
+			}),
 		)
 		expect(res.status).toBe(400)
 	})
 
 	it("returns 400 when token is not a valid UUID", async () => {
 		const res = await app.fetch(
-			new Request("http://localhost/auth/verify-email?token=not-a-uuid"),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: "not-a-uuid" }),
+			}),
 		)
 		expect(res.status).toBe(400)
 	})
@@ -204,16 +249,26 @@ describe("GET /auth/verify-email", () => {
 
 		// Get token from repository
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 
 		const firstRes = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		expect(firstRes.status).toBe(200)
 		const firstBody = (await firstRes.json()) as { token: string }
 
 		// Second verification with same token should also succeed (idempotent)
 		const secondRes = await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		expect(secondRes.status).toBe(200)
 		const secondBody = (await secondRes.json()) as { token: string }
@@ -249,8 +304,14 @@ describe("POST /auth/login", () => {
 
 		// Get token from repository and verify
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		mockSend.mockClear()
 	})
@@ -395,8 +456,14 @@ describe("POST /auth/resend-verification", () => {
 		)
 
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		mockSend.mockClear()
 
@@ -467,8 +534,14 @@ describe("POST /auth/forgot-password", () => {
 			}),
 		)
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		mockSend.mockClear()
 	})
@@ -540,8 +613,14 @@ describe("POST /auth/reset-password", () => {
 			}),
 		)
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		mockSend.mockClear()
 
@@ -674,8 +753,14 @@ describe("GET /auth/verify-reset-token", () => {
 			}),
 		)
 		const pending = await repo.findPendingByEmail(validRegistration.email)
+		if (!pending?.token)
+			throw new Error("Expected pending registration with token")
 		await app.fetch(
-			new Request(`http://localhost/auth/verify-email?token=${pending?.token}`),
+			new Request("http://localhost/auth/verify-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: pending.token }),
+			}),
 		)
 		mockSend.mockClear()
 

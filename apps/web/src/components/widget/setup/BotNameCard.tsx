@@ -1,4 +1,3 @@
-import DOMPurify from "isomorphic-dompurify"
 import { Bot, Upload, X } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { sanitizeSvg } from "@/lib/sanitize-svg"
 import { DEFAULT_BOT_AVATAR } from "./constants"
 
 type BotNameCardProps = {
@@ -28,72 +28,6 @@ export function BotNameCard({
 	const [error, setError] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const hasCustomAvatar = Boolean(botAvatar) && botAvatar !== DEFAULT_BOT_AVATAR
-
-	const sanitizeSvg = useCallback((svgContent: string): string | null => {
-		// Verify content starts with SVG tag (content-sniffing)
-		const trimmed = svgContent.trim().toLowerCase()
-		if (!trimmed.startsWith("<svg")) {
-			return null
-		}
-
-		// Sanitize with DOMPurify configured for SVG using ADD_TAGS/ADD_ATTR
-		// Do not use USE_PROFILES as it overrides our allowlists
-		const sanitized = DOMPurify.sanitize(svgContent, {
-			ADD_TAGS: [
-				"svg",
-				"g",
-				"path",
-				"rect",
-				"circle",
-				"ellipse",
-				"line",
-				"polyline",
-				"polygon",
-				"text",
-				"tspan",
-				"defs",
-				"use",
-				"symbol",
-				"linearGradient",
-				"radialGradient",
-				"stop",
-				"title",
-				"desc",
-			],
-			ADD_ATTR: [
-				"viewBox",
-				"xmlns",
-				"fill",
-				"stroke",
-				"stroke-width",
-				"stroke-linecap",
-				"stroke-linejoin",
-				"d",
-				"cx",
-				"cy",
-				"r",
-				"rx",
-				"ry",
-				"x",
-				"y",
-				"x1",
-				"y1",
-				"x2",
-				"y2",
-				"points",
-				"transform",
-				"class",
-				"id",
-				"href",
-				"xlink:href",
-			],
-		})
-
-		// Strip width/height attributes to allow scaling
-		return sanitized
-			.replace(/width="[^"]*"/g, "")
-			.replace(/height="[^"]*"/g, "")
-	}, [])
 
 	const readSvgFile = useCallback(
 		(file: File) => {
@@ -135,7 +69,7 @@ export function BotNameCard({
 
 			reader.readAsText(file)
 		},
-		[onBotAvatarChange, sanitizeSvg, t],
+		[onBotAvatarChange, t],
 	)
 
 	const handleDragOver = useCallback((e: React.DragEvent) => {

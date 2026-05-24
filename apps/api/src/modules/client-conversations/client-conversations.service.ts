@@ -1,5 +1,6 @@
 import { NotFoundError } from "@/common/errors"
-import type { ClientConversationRepository } from "./client-conversations.repository"
+import { db } from "@/db"
+import { ClientConversationRepository } from "./client-conversations.repository"
 
 export class ClientConversationService {
 	constructor(private readonly repo: ClientConversationRepository) {}
@@ -17,3 +18,6 @@ export class ClientConversationService {
 		return conv
 	}
 }
+
+const repo = new ClientConversationRepository(db)
+export const clientConversationService = new ClientConversationService(repo)

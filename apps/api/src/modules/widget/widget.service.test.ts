@@ -1,18 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 
-// --- Mock config/crypto ---
+// --- Mock config ---
 mock.module("@/common/config", () => ({
 	config: { WIDGET_CONVERSATION_MAX_MESSAGES: 50 },
-	getDefaultProviderConfig: mock(() => null),
-}))
-
-mock.module("@/common/crypto", () => ({
-	decrypt: mock((s: string) => s),
 }))
 
 // --- Post-hoc imports ---
 
-import { NotFoundError } from "@/common/errors"
+import { BadRequestError, NotFoundError } from "@/common/errors"
 import { PLATFORM_SYSTEM_PROMPT } from "@/modules/agent/agent.platform-prompt"
 import { WidgetService } from "./widget.service"
 
@@ -57,8 +52,7 @@ function createMockRepo() {
 			id: "conv-1",
 			sessionId: "sess-1",
 			clientId: "client-1",
-			startedAt: new Date().toISOString(),
-			endedAt: null,
+			startedAt: new Date(),
 			satisfactionRating: null,
 		})),
 		getConversation: mock(async (id: string, clientId: string) =>
@@ -67,8 +61,7 @@ function createMockRepo() {
 						id: "conv-1",
 						sessionId: "sess-1",
 						clientId: "client-1",
-						startedAt: new Date().toISOString(),
-						endedAt: null,
+						startedAt: new Date(),
 						satisfactionRating: null,
 					}
 				: null,
@@ -80,7 +73,7 @@ function createMockRepo() {
 				role: "user",
 				content: "Hi",
 				tokenCount: 2,
-				createdAt: new Date().toISOString(),
+				createdAt: new Date(),
 			},
 		]),
 		getMessageCount: mock(async () => 1),
@@ -92,7 +85,7 @@ function createMockRepo() {
 				role,
 				content,
 				tokenCount: content.length,
-				createdAt: new Date().toISOString(),
+				createdAt: new Date(),
 			}
 		}),
 		recordUsage: mock(async () => {}),
@@ -101,34 +94,69 @@ function createMockRepo() {
 	}
 }
 
-function createMockBotConfigRepo(
-	config: {
-		systemPrompt?: string
-		toneStyle?: string
-	} | null = null,
-) {
+function createMockBotConfigService(overrides?: {
+	systemPrompt?: string | null
+	toneStyle?: string | null
+}) {
 	return {
-		getByClientId: mock(async () => config),
+		getConfig: mock(async (_clientId: string) => ({
+			id: "bot-1",
+			clientId: "client-1",
+			systemPrompt: overrides?.systemPrompt ?? null,
+			defaultRole: null,
+			toneStyle: overrides?.toneStyle ?? null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		})),
 	}
 }
 
-function createMockProviderConfigRepo(
-	provider: {
-		providerType: string
-		apiKeyEncrypted: string
-		model: string
-		baseUrl: string | null
-	} | null = null,
+function createMockProviderConfigService(
+	overrides?: {
+		providerType?: string
+		apiKey?: string
+		model?: string
+	} | null,
 ) {
+	if (overrides === null) {
+		return {
+			resolveForAi: mock(async () => {
+				throw new BadRequestError(
+					"PROVIDER_NOT_CONFIGURED",
+					"No AI provider configured",
+				)
+			}),
+		}
+	}
 	return {
-		getByClientId: mock(async () => provider),
+		resolveForAi: mock(async () => ({
+			config: {
+				providerType: overrides?.providerType ?? "openai",
+				apiKey: overrides?.apiKey ?? "test-key",
+				model: overrides?.model ?? "gpt-4o-mini",
+			},
+			isExternal: true,
+		})),
 	}
 }
 
-function createMockMcpRepo() {
+function createMockMcpService() {
 	return {
 		listCustomServers: mock(async () => []),
 		listEnabledPreMade: mock(async () => []),
+	}
+}
+
+function createMockBlacklistRepo(words: string[] = []) {
+	return {
+		listByClientId: mock(async (_clientId: string) =>
+			words.map((word, i) => ({
+				id: `bl-${i}`,
+				clientId: "client-1",
+				word,
+				createdAt: new Date(),
+			})),
+		),
 	}
 }
 
@@ -136,30 +164,32 @@ describe("WidgetService", () => {
 	let widgetService: WidgetService
 	// biome-ignore lint/suspicious/noExplicitAny: in-memory repos inside tests
 	let repo: any
-	let botConfigRepo: ReturnType<typeof createMockBotConfigRepo>
-	let providerConfigRepo: ReturnType<typeof createMockProviderConfigRepo>
-	let mcpRepo: ReturnType<typeof createMockMcpRepo>
+	let botConfigService: ReturnType<typeof createMockBotConfigService>
+	let providerConfigService: ReturnType<typeof createMockProviderConfigService>
+	let mcpService: ReturnType<typeof createMockMcpService>
+	let blacklistRepo: ReturnType<typeof createMockBlacklistRepo>
 
 	beforeEach(() => {
 		repo = createMockRepo()
-		botConfigRepo = createMockBotConfigRepo({
+		botConfigService = createMockBotConfigService({
 			systemPrompt: "You are a test bot",
 			toneStyle: "friendly",
 		})
-		providerConfigRepo = createMockProviderConfigRepo({
+		providerConfigService = createMockProviderConfigService({
 			providerType: "openai",
-			apiKeyEncrypted: "enc-key-123",
+			apiKey: "test-key",
 			model: "gpt-4o-mini",
-			baseUrl: null,
 		})
-		mcpRepo = createMockMcpRepo()
+		mcpService = createMockMcpService()
+		blacklistRepo = createMockBlacklistRepo(["badword", "spam"])
 		mockStreamResponse = createMockStreamResponse(["Hello", " AI"])
 
 		widgetService = new WidgetService({
 			widgetRepository: repo,
-			botConfigRepository: botConfigRepo,
-			providerConfigRepository: providerConfigRepo,
-			mcpRepository: mcpRepo,
+			botConfigService,
+			providerConfigService,
+			mcpService,
+			blacklistRepository: blacklistRepo,
 			streamResponse: mockStreamResponse,
 		})
 	})
@@ -176,6 +206,10 @@ describe("WidgetService", () => {
 		repo.getMonthlySpend.mockClear?.()
 		repo.getClientLimitSettings.mockClear?.()
 		mockStreamResponse.mockClear()
+		botConfigService.getConfig.mockClear?.()
+		providerConfigService.resolveForAi.mockClear?.()
+		mcpService.listCustomServers.mockClear?.()
+		mcpService.listEnabledPreMade.mockClear?.()
 	})
 
 	describe("createOrResumeSession", () => {
@@ -275,6 +309,19 @@ describe("WidgetService", () => {
 			expect(inputs.context).toContain("You are a test bot")
 		})
 
+		it("passes client blacklist words to streamResponse", async () => {
+			const result = await widgetService.sendMessage(
+				"client-1",
+				"conv-1",
+				"hello",
+			)
+			await result.stream.getReader().read()
+			const inputs = mockStreamResponse.mock.calls[0]?.[0] as {
+				wordBlacklist: string[]
+			}
+			expect(inputs.wordBlacklist).toEqual(["badword", "spam"])
+		})
+
 		it("throws NotFoundError when conversation does not exist", async () => {
 			repo.getMessages = mock(async () => null)
 			await expect(
@@ -290,7 +337,7 @@ describe("WidgetService", () => {
 					role: "user",
 					content: "x",
 					tokenCount: 1,
-					createdAt: new Date().toISOString(),
+					createdAt: new Date(),
 				})),
 			)
 			await expect(
@@ -311,12 +358,13 @@ describe("WidgetService", () => {
 		})
 
 		it("throws PROVIDER_NOT_CONFIGURED when no provider exists and no default", async () => {
-			providerConfigRepo = createMockProviderConfigRepo(null)
+			providerConfigService = createMockProviderConfigService(null)
 			widgetService = new WidgetService({
 				widgetRepository: repo,
-				botConfigRepository: botConfigRepo,
-				providerConfigRepository: providerConfigRepo,
-				mcpRepository: mcpRepo,
+				botConfigService,
+				providerConfigService,
+				mcpService,
+				blacklistRepository: blacklistRepo,
 				streamResponse: mockStreamResponse,
 			})
 			await expect(
@@ -334,21 +382,26 @@ describe("WidgetService", () => {
 		})
 
 		it("returns isExternalProvider=false when using default provider", async () => {
-			const { getDefaultProviderConfig } = await import("@/common/config")
-			;(getDefaultProviderConfig as ReturnType<typeof mock>).mockImplementation(
-				() => ({
-					type: "openai_compatible",
+			providerConfigService = createMockProviderConfigService({
+				providerType: "openai_compatible",
+				apiKey: "platform-key",
+				model: "gemma4",
+			})
+			providerConfigService.resolveForAi = mock(async () => ({
+				config: {
+					providerType: "openai_compatible",
 					apiKey: "platform-key",
 					model: "gemma4",
-					baseURL: "https://api.example.com",
-				}),
-			)
-			providerConfigRepo = createMockProviderConfigRepo(null)
+					baseUrl: "https://api.example.com",
+				},
+				isExternal: false,
+			}))
 			widgetService = new WidgetService({
 				widgetRepository: repo,
-				botConfigRepository: botConfigRepo,
-				providerConfigRepository: providerConfigRepo,
-				mcpRepository: mcpRepo,
+				botConfigService,
+				providerConfigService,
+				mcpService,
+				blacklistRepository: blacklistRepo,
 				streamResponse: mockStreamResponse,
 			})
 
@@ -358,10 +411,6 @@ describe("WidgetService", () => {
 				"Hello",
 			)
 			expect(isExternalProvider).toBe(false)
-
-			;(getDefaultProviderConfig as ReturnType<typeof mock>).mockImplementation(
-				() => null,
-			)
 		})
 	})
 
@@ -420,6 +469,17 @@ describe("InMemoryWidgetRepository", () => {
 
 			expect(repo.balanceDeductions).toHaveLength(1)
 			expect(repo.balanceDeductions[0]?.amount).toBe("0.000000")
+		})
+
+		it("throws when balance is insufficient to cover cost", async () => {
+			const repo = new InMemoryWidgetRepository()
+			const repoAny = repo as unknown as {
+				clients: Map<string, { balanceUsd: string }>
+			}
+			repoAny.clients.set("client-1", { balanceUsd: "0.005" })
+			await expect(
+				repo.recordUsage("client-1", "msg-1", 50, "0.0100"),
+			).rejects.toThrow()
 		})
 	})
 })

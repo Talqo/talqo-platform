@@ -1,8 +1,8 @@
 import { db } from "@/db"
-import { AnalyticsRepository } from "./analytics.repository"
+import { DrizzleAnalyticsRepository } from "./analytics.repository"
 import { AnalyticsService } from "./analytics.service"
 
-const analyticsRepository = new AnalyticsRepository(db)
+const analyticsRepository = new DrizzleAnalyticsRepository(db)
 export const analyticsService = new AnalyticsService(analyticsRepository)
 
 export {

@@ -151,7 +151,9 @@
 			"deleting": "Mazání...",
 			"deleteMyAccount": "Smazat můj účet",
 			"passwordChangedSuccess": "Heslo bylo úspěšně změněno",
-			"passwordChangeFailed": "Nepodařilo se změnit heslo. Zkuste to prosím znovu."
+			"passwordChangeFailed": "Nepodařilo se změnit heslo. Zkuste to prosím znovu.",
+			"profileSaveFailed": "Nepodařilo se uložit profil. Zkuste to prosím znovu.",
+			"rotateFailed": "Nepodařilo se obnovit token. Zkuste to prosím znovu."
 		},
 		"billing": {
 			"title": "Využití a limity",
@@ -243,6 +245,10 @@
 		}
 	},
 	"mcp": {
+		"status": {
+			"ready": "Připraveno",
+			"error": "Chyba"
+		},
 		"customDialog": {
 			"addTitle": "Přidat vlastní MCP server",
 			"editTitle": "Upravit vlastní MCP server",
@@ -256,7 +262,8 @@
 			"headerValue": "Hodnota",
 			"removeHeader": "Odstranit hlavičku",
 			"saveChanges": "Uložit změny",
-			"addServer": "Přidat server"
+			"addServer": "Přidat server",
+			"saveFailed": "Nepodařilo se uložit server. Zkuste to prosím znovu."
 		}
 	},
 	"blacklist": {

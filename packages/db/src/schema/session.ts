@@ -52,6 +52,7 @@ export const conversations = pgTable(
 		satisfactionRating: integer("satisfaction_rating"),
 	},
 	(table) => [
+		index("conversations_client_id_idx").on(table.clientId),
 		check(
 			"conversations_satisfaction_rating_range",
 			sql`${table.satisfactionRating} >= 1 AND ${table.satisfactionRating} <= 5`,

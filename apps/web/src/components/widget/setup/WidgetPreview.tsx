@@ -1,8 +1,9 @@
 import { Bot, Moon, Sun } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { sanitizeSvg } from "@/lib/sanitize-svg"
 import { cn } from "@/lib/utils"
 import { DEFAULT_BOT_AVATAR } from "./constants"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
@@ -23,13 +24,17 @@ type PreviewAvatarProps = {
 // Extracted avatar component to reduce duplication across header, messages, and trigger
 function PreviewAvatar({ botAvatar, size, className }: PreviewAvatarProps) {
 	const hasCustomAvatar = Boolean(botAvatar) && botAvatar !== DEFAULT_BOT_AVATAR
+	const sanitized = useMemo(
+		() => (hasCustomAvatar ? sanitizeSvg(botAvatar) : null),
+		[botAvatar, hasCustomAvatar],
+	)
 
-	if (hasCustomAvatar) {
+	if (sanitized) {
 		return (
 			<div
 				className={className}
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: Trusted SVG
-				dangerouslySetInnerHTML={{ __html: botAvatar }}
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized by DOMPurify
+				dangerouslySetInnerHTML={{ __html: sanitized }}
 			/>
 		)
 	}

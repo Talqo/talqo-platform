@@ -93,8 +93,8 @@ function ColorRow({
 		onDarkChange,
 	)
 
-	const lightPickerValue = tryHslToHex(lightValue) || lightValue
-	const darkPickerValue = tryHslToHex(darkValue) || darkValue
+	const lightPickerValue = tryHslToHex(lightValue) ?? lightValue
+	const darkPickerValue = tryHslToHex(darkValue) ?? darkValue
 
 	return (
 		<div className="grid grid-cols-[140px_1fr_1fr] items-start gap-4">

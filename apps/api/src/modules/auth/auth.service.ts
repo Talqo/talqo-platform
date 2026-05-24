@@ -10,10 +10,10 @@ import {
 } from "@/common/errors"
 import { signToken } from "@/common/jwt"
 import { logger } from "@/common/logger"
-import type { IAuthRepository } from "./auth.repository"
+import type { AuthRepository } from "./auth.repository"
 
 export class AuthService {
-	constructor(private readonly repo: IAuthRepository) {}
+	constructor(private readonly repo: AuthRepository) {}
 
 	async register(name: string, email: string, password: string): Promise<void> {
 		const canonical = email.trim().toLowerCase()

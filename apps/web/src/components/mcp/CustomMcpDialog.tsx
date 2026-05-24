@@ -78,10 +78,13 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 	useEffect(() => {
 		if (open) {
 			form.reset(toFormValues(initialData))
+			createMutation.reset()
+			updateMutation.reset()
 		}
-	}, [open, initialData, form])
+	}, [open, initialData, form, createMutation, updateMutation])
 
 	const isPending = createMutation.isPending || updateMutation.isPending
+	const isError = createMutation.isError || updateMutation.isError
 
 	function onSubmit(values: McpConfigFormValues) {
 		const mcpConfig = toMcpConfig(values)
@@ -225,6 +228,11 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 							))}
 						</div>
 
+						{isError && (
+							<p className="text-destructive text-sm">
+								{t("mcp.customDialog.saveFailed")}
+							</p>
+						)}
 						<DialogFooter showCloseButton>
 							<Button type="submit" disabled={isPending}>
 								{isPending

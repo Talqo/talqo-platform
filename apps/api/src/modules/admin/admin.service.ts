@@ -1,3 +1,4 @@
+import { CLIENT_STATUS_VALUES, type ClientStatus } from "shared"
 import {
 	NotFoundError,
 	UnauthorizedError,
@@ -5,9 +6,6 @@ import {
 } from "@/common/errors"
 import { signToken } from "@/common/jwt"
 import type { AdminRepository } from "./admin.repository"
-
-const VALID_STATUSES = ["active", "suspended"] as const
-type ClientStatus = (typeof VALID_STATUSES)[number]
 
 export class AdminService {
 	constructor(private readonly repo: AdminRepository) {}
@@ -46,9 +44,9 @@ export class AdminService {
 	}
 
 	async updateClientStatus(clientId: string, status: string) {
-		if (!VALID_STATUSES.includes(status as ClientStatus)) {
+		if (!CLIENT_STATUS_VALUES.includes(status as ClientStatus)) {
 			throw new ValidationError(
-				`status must be one of: ${VALID_STATUSES.join(", ")}`,
+				`status must be one of: ${CLIENT_STATUS_VALUES.join(", ")}`,
 			)
 		}
 		const updated = await this.repo.updateClientStatus(clientId, status)

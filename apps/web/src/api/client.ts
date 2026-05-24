@@ -8,7 +8,7 @@ const authMiddleware: Middleware = {
 		const clientToken = localStorage.getItem(AUTH.TOKEN_KEY)
 		const adminToken = localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
 		const isAdminRequest = request.url.includes("/admin")
-		const token = isAdminRequest ? adminToken : clientToken || adminToken
+		const token = isAdminRequest ? adminToken : clientToken
 		if (token) {
 			request.headers.set("Authorization", `Bearer ${token}`)
 		}

@@ -1,17 +1,8 @@
-import { beforeEach, describe, expect, it } from "bun:test"
+import { beforeEach, describe, expect, it, mock } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import type { conversations, messages } from "db/schema"
 import type { AppVariables } from "@/common/jwt"
 import type { ClientConversationRepository } from "./client-conversations.repository"
-
-// Dynamic imports after any necessary mocks would go here (none needed — no JWT)
-const { ClientConversationService } = await import(
-	"./client-conversations.service"
-)
-const { createClientConversationRouter } = await import(
-	"./client-conversations.routes"
-)
-const { errorHandler } = await import("@/common/middleware/error-handler")
 
 // ─── In-memory repository ─────────────────────────────────────────────────────
 
@@ -99,18 +90,41 @@ class InMemoryClientConversationRepository
 	}
 }
 
+// ─── Mock service proxy ───────────────────────────────────────────────────────
+
+const { ClientConversationService } = await import(
+	"./client-conversations.service"
+)
+
+let activeService: ClientConversationService | null = null
+
+const mockService = {
+	listConversations: (clientId: string, limit: number, offset: number) => {
+		if (!activeService) throw new Error("activeService not set")
+		return activeService.listConversations(clientId, limit, offset)
+	},
+	getConversation: (conversationId: string, clientId: string) => {
+		if (!activeService) throw new Error("activeService not set")
+		return activeService.getConversation(conversationId, clientId)
+	},
+}
+
+mock.module("./index", () => ({
+	clientConversationService: mockService,
+}))
+
+// Dynamic imports after mock registration
+const { clientConversationRoutes } = await import(
+	"./client-conversations.routes"
+)
+const { errorHandler } = await import("@/common/middleware/error-handler")
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const CLIENT_A = crypto.randomUUID()
 const CLIENT_B = crypto.randomUUID()
 
-function buildApp(
-	repo: InMemoryClientConversationRepository,
-	clientId: string,
-) {
-	const service = new ClientConversationService(
-		repo as unknown as ClientConversationRepository,
-	)
+function buildApp(clientId: string) {
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.onError(errorHandler)
 	// Simulate clientAuth middleware injecting the authenticated client's ID
@@ -118,7 +132,7 @@ function buildApp(
 		c.set("clientId", clientId)
 		await next()
 	})
-	app.route("/client/me/conversations", createClientConversationRouter(service))
+	app.route("/client/me/conversations", clientConversationRoutes)
 	return app
 }
 
@@ -239,7 +253,10 @@ describe("GET /client/me/conversations", () => {
 
 	beforeEach(() => {
 		repo = new InMemoryClientConversationRepository()
-		app = buildApp(repo, CLIENT_A)
+		activeService = new ClientConversationService(
+			repo as unknown as ClientConversationRepository,
+		)
+		app = buildApp(CLIENT_A)
 	})
 
 	it("returns 200 with conversation list", async () => {
@@ -283,7 +300,10 @@ describe("GET /client/me/conversations/:conversationId", () => {
 
 	beforeEach(() => {
 		repo = new InMemoryClientConversationRepository()
-		app = buildApp(repo, CLIENT_A)
+		activeService = new ClientConversationService(
+			repo as unknown as ClientConversationRepository,
+		)
+		app = buildApp(CLIENT_A)
 	})
 
 	it("returns 200 with conversation and messages", async () => {

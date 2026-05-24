@@ -151,7 +151,9 @@
 			"deleting": "删除中...",
 			"deleteMyAccount": "删除我的账户",
 			"passwordChangedSuccess": "密码修改成功",
-			"passwordChangeFailed": "修改密码失败。请重试。"
+			"passwordChangeFailed": "修改密码失败。请重试。",
+			"profileSaveFailed": "保存个人资料失败。请重试。",
+			"rotateFailed": "重新生成令牌失败。请重试。"
 		},
 		"billing": {
 			"title": "用量与限额",
@@ -243,6 +245,10 @@
 		}
 	},
 	"mcp": {
+		"status": {
+			"ready": "就绪",
+			"error": "错误"
+		},
 		"customDialog": {
 			"addTitle": "添加自定义 MCP 服务器",
 			"editTitle": "编辑自定义 MCP 服务器",
@@ -256,7 +262,8 @@
 			"headerValue": "值",
 			"removeHeader": "删除请求头",
 			"saveChanges": "保存更改",
-			"addServer": "添加服务器"
+			"addServer": "添加服务器",
+			"saveFailed": "保存服务器失败。请重试。"
 		}
 	},
 	"blacklist": {

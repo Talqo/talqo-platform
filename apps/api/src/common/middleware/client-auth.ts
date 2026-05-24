@@ -18,7 +18,7 @@ export const clientAuth: MiddlewareHandler<{
 	const token = authHeader.slice(7)
 	const payload = await verifyToken(token)
 
-	if (payload.role !== "client" && !payload.imp) {
+	if (payload.role !== "client") {
 		throw new ForbiddenError("Invalid token role")
 	}
 

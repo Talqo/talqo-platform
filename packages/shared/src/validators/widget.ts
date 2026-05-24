@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const createSessionBodySchema = z.object({
-	browserSessionId: z.string().min(1),
+	browserSessionId: z.string().min(1).max(128),
 })
 
 export const rateConversationBodySchema = z.object({
@@ -9,7 +9,7 @@ export const rateConversationBodySchema = z.object({
 })
 
 export const sendMessageBodySchema = z.object({
-	content: z.string().min(1),
+	content: z.string().min(1).max(4000),
 })
 
 export const widgetColorsSchema = z.object({

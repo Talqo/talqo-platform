@@ -76,8 +76,8 @@ describe("streamResponse", () => {
 			mcpServers: [],
 			contextDirectory: contextDir,
 			provider: {
-				type: "openai_compatible" as const,
-				baseURL: "https://api.example.com",
+				providerType: "openai_compatible" as const,
+				baseUrl: "https://api.example.com",
 				apiKey: "test-key",
 				model: "gpt-4",
 			},

@@ -50,7 +50,11 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 				/>
 			)}
 
-			<WidgetPanel className={"aiw-panel"} data-expanded={widget.isExpanded}>
+			<WidgetPanel
+				className={"aiw-panel"}
+				data-expanded={widget.isExpanded}
+				aria-label={config.botName}
+			>
 				<WidgetHeader className={"aiw-header"}>
 					<div className={"aiw-header-left"}>
 						<AvatarIcon size={24} iconSvg={botAvatarSvg} />

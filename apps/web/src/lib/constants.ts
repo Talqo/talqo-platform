@@ -13,10 +13,6 @@ export const STORAGE_KEYS = {
 	CHAT_RATING_SHOWN: "chatbot_rating_shown",
 	CHAT_RATING_VALUE: "chatbot_rating_value",
 
-	// Auth
-	TOKEN: "token",
-	ADMIN_TOKEN: "admin_token",
-
 	// i18n
 	LANG: "pagepal:lang",
 } as const

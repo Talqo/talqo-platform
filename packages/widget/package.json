@@ -18,11 +18,9 @@
 		"test": "bun -e \"console.log('No tests in widget')\""
 	},
 	"dependencies": {
-		"i18next": "^26.0.7",
 		"isomorphic-dompurify": "^2.24.0",
 		"react": "^19",
 		"react-dom": "^19",
-		"react-i18next": "^17.0.4",
 		"react-markdown": "^10.1.0",
 		"remark-breaks": "^4.0.0",
 		"remark-gfm": "^4.0.1"

@@ -11,7 +11,7 @@ interface WidgetInputProps extends InputHTMLAttributes<HTMLInputElement> {
  * Unstyled - consumers provide all styling
  */
 export function WidgetInput(props: WidgetInputProps) {
-	const { inputRef, onKeyDown, ...inputProps } = props
+	const { inputRef, onKeyDown, onChange, ...inputProps } = props
 	const { inputValue, setInputValue, sendMessage } = useWidgetContext()
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -29,7 +29,10 @@ export function WidgetInput(props: WidgetInputProps) {
 			ref={inputRef}
 			type="text"
 			value={inputValue}
-			onChange={(e) => setInputValue(e.target.value)}
+			onChange={(e) => {
+				setInputValue(e.target.value)
+				onChange?.(e)
+			}}
 			onKeyDown={handleKeyDown}
 			aria-label="Type your message"
 			{...inputProps}

@@ -1,21 +1,21 @@
 import { db } from "@/db"
 import { AdminRepository } from "./admin.repository"
-import {
-	createAdminActivityLogsRouter,
-	createAdminAuthRouter,
-	createAdminClientRouter,
-	createAdminConversationRouter,
-	createAdminMeRouter,
-} from "./admin.routes"
 import { AdminService } from "./admin.service"
+import { AdminAuditLogRepository } from "./admin-audit-log.repository"
+import { AdminAuditLogService } from "./admin-audit-log.service"
 
 const adminRepository = new AdminRepository(db)
 export const adminService = new AdminService(adminRepository)
 
-export const adminAuthRoutes = createAdminAuthRouter(adminService)
-export const adminClientRoutes = createAdminClientRouter(adminService)
-export const adminMeRoutes = createAdminMeRouter(adminService)
-export const adminConversationRoutes =
-	createAdminConversationRouter(adminService)
-export const adminActivityLogsRoutes =
-	createAdminActivityLogsRouter(adminService)
+const adminAuditLogRepository = new AdminAuditLogRepository(db)
+export const adminAuditLogService = new AdminAuditLogService(
+	adminAuditLogRepository,
+)
+
+export {
+	adminActivityLogsRoutes,
+	adminAuthRoutes,
+	adminClientRoutes,
+	adminConversationRoutes,
+	adminMeRoutes,
+} from "./admin.routes"

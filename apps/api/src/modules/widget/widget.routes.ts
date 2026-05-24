@@ -11,6 +11,7 @@ import {
 	sendMessageBodySchema,
 	widgetVisualConfigSchema,
 } from "shared"
+import { BlacklistError } from "@/common/errors"
 import type { AppVariables } from "@/common/jwt"
 import { widgetRateLimit } from "@/common/middleware/widget-rate-limit"
 import { createRouter } from "@/common/router"
@@ -114,7 +115,7 @@ widgetConversationRoutes.openapi(
 widgetConversationRoutes.openapi(
 	createRoute({
 		method: "patch",
-		path: "/:conversationId",
+		path: "/{conversationId}",
 		tags: ["Widget"],
 		summary: "Submit satisfaction rating",
 		security: [{ widgetToken: [] }],
@@ -277,19 +278,26 @@ widgetMessageRoutes.openapi(
 					})
 				}
 			} catch (err) {
-				logger.error("Widget stream error", { error: String(err) })
 				await reader.cancel().catch((cancelErr) =>
 					logger.warn("Stream reader cancel failed", {
 						error: String(cancelErr),
 					}),
 				)
-				await sse.writeSSE({
-					event: "error",
-					data: JSON.stringify({
-						code: "LLM_ERROR",
-						message: "Something went wrong. Please try again.",
-					}),
-				})
+				if (err instanceof BlacklistError) {
+					await sse.writeSSE({
+						event: "blacklist",
+						data: JSON.stringify({ code: "BLACKLIST_TRIGGERED" }),
+					})
+				} else {
+					logger.error("Widget stream error", { error: String(err) })
+					await sse.writeSSE({
+						event: "error",
+						data: JSON.stringify({
+							code: "LLM_ERROR",
+							message: "Something went wrong. Please try again.",
+						}),
+					})
+				}
 				return
 			}
 
@@ -316,7 +324,14 @@ widgetMessageRoutes.openapi(
 					event: "done",
 					data: JSON.stringify(assistantMessage),
 				})
-			} catch {
+			} catch (err) {
+				c.get("logger").error(
+					"Failed to persist assistant message or record usage",
+					{
+						error: err instanceof Error ? err.message : String(err),
+						conversationId,
+					},
+				)
 				await sse.writeSSE({
 					event: "error",
 					data: JSON.stringify({

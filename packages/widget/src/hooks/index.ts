@@ -2,5 +2,5 @@ export {
 	type UseWidgetOptions,
 	type UseWidgetReturn,
 	useWidget,
+	type WidgetTheme,
 } from "./useWidget"
-export { useWidgetTheme, type WidgetTheme } from "./useWidgetTheme"

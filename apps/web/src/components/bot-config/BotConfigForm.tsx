@@ -43,11 +43,17 @@ function toApi(v: string): string | null {
 	return v.trim() === "" ? null : v
 }
 
-type BotConfigFormInnerProps = {
-	initialValues: BotConfigSchema
+type BotConfigApiData = {
+	systemPrompt?: string | null
+	defaultRole?: string | null
+	toneStyle?: string | null
 }
 
-function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
+type BotConfigFormInnerProps = {
+	data: BotConfigApiData
+}
+
+function BotConfigFormInner({ data }: BotConfigFormInnerProps) {
 	const { t } = useTranslation()
 	const updateBotConfig = useUpdateBotConfig()
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
@@ -66,9 +72,24 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 
 	const form = useForm<BotConfigSchema>({
 		resolver: zodResolver(botConfigSchema),
-		defaultValues: initialValues,
+		defaultValues: {
+			systemPrompt: fromApi(data.systemPrompt),
+			defaultRole: fromApi(data.defaultRole),
+			toneStyle: fromApi(data.toneStyle),
+		},
 		mode: "onBlur",
 	})
+
+	useEffect(() => {
+		form.reset(
+			{
+				systemPrompt: fromApi(data.systemPrompt),
+				defaultRole: fromApi(data.defaultRole),
+				toneStyle: fromApi(data.toneStyle),
+			},
+			{ keepDirtyValues: true },
+		)
+	}, [data, form])
 
 	const onSubmit = async (values: BotConfigSchema) => {
 		try {
@@ -90,6 +111,7 @@ function BotConfigFormInner({ initialValues }: BotConfigFormInnerProps) {
 				type: "error",
 				message: t("botConfig.saveFailed"),
 			})
+			clearFeedback()
 		}
 	}
 
@@ -213,19 +235,6 @@ function BotConfigFormSkeleton() {
 export function BotConfigForm() {
 	const { t } = useTranslation()
 	const { data, isLoading, isError } = useBotConfig()
-	const [initialValues, setInitialValues] = useState<BotConfigSchema | null>(
-		null,
-	)
-
-	useEffect(() => {
-		if (data && !initialValues) {
-			setInitialValues({
-				systemPrompt: fromApi(data.systemPrompt),
-				defaultRole: fromApi(data.defaultRole),
-				toneStyle: fromApi(data.toneStyle),
-			})
-		}
-	}, [data, initialValues])
 
 	if (isError) {
 		return (
@@ -235,7 +244,7 @@ export function BotConfigForm() {
 		)
 	}
 
-	if (isLoading || !initialValues) return <BotConfigFormSkeleton />
+	if (isLoading || !data) return <BotConfigFormSkeleton />
 
-	return <BotConfigFormInner initialValues={initialValues} />
+	return <BotConfigFormInner data={data} />
 }

@@ -58,7 +58,7 @@ mock.module("@/common/crypto", () => ({
 // ─── Mock config BEFORE importing rag.service ────────────────────────────────
 
 const defaultProviderConfig: AiProviderConfig = {
-	type: "openai",
+	providerType: "openai",
 	apiKey: "default-key",
 	model: "gpt-4",
 }
@@ -106,10 +106,10 @@ type FakeProviderConfigRepo = {
 
 function makeDbRow(config: AiProviderConfig): FakeDbRow {
 	return {
-		providerType: config.type,
+		providerType: config.providerType,
 		apiKeyEncrypted: config.apiKey,
 		model: config.model,
-		baseUrl: "baseURL" in config ? (config.baseURL ?? null) : null,
+		baseUrl: "baseUrl" in config ? (config.baseUrl ?? null) : null,
 		embeddingModel: config.embeddingModel ?? null,
 	}
 }
@@ -132,6 +132,7 @@ describe("RagService", () => {
 
 	beforeEach(() => {
 		repo = new InMemoryRagRepository()
+		repo.balances.set(CLIENT_ID, "100.00")
 		filesService = makeFakeFilesService("Hello world, this is some content.")
 		providerConfigRepo = makeFakeProviderConfigRepo(null)
 		mockEmbedMany.mockClear()
@@ -142,7 +143,7 @@ describe("RagService", () => {
 	describe("indexFile", () => {
 		it("chunks text, calls embedMany, and upserts chunks to repo", async () => {
 			const openaiConfig: AiProviderConfig = {
-				type: "openai",
+				providerType: "openai",
 				apiKey: "sk-test",
 				model: "gpt-4",
 			}
@@ -169,7 +170,7 @@ describe("RagService", () => {
 		it("deletes existing chunks and skips embedding when file is empty", async () => {
 			// First index a non-empty file so there's existing data
 			const openaiConfig: AiProviderConfig = {
-				type: "openai",
+				providerType: "openai",
 				apiKey: "sk-test",
 				model: "gpt-4",
 			}
@@ -227,7 +228,7 @@ describe("RagService", () => {
 
 		it("records platform billing usage when provider type is anthropic", async () => {
 			const anthropicConfig: AiProviderConfig = {
-				type: "anthropic",
+				providerType: "anthropic",
 				apiKey: "sk-ant",
 				model: "claude-3",
 			}
@@ -250,7 +251,7 @@ describe("RagService", () => {
 
 		it("does not record billing usage when provider has its own embeddingModel", async () => {
 			const openaiConfig: AiProviderConfig = {
-				type: "openai",
+				providerType: "openai",
 				apiKey: "sk-test",
 				model: "gpt-4",
 				embeddingModel: "text-embedding-3-small",

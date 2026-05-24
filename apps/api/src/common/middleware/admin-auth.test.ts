@@ -38,7 +38,7 @@ mock.module("@/common/jwt", () => ({
 
 // Dynamically import after mocks are registered
 const { adminAuth } = await import("./admin-auth")
-const { adminAuditLog } = await import("./admin-audit-log")
+const { createAdminAuditLog } = await import("./admin-audit-log")
 const { errorHandler } = await import("./error-handler")
 
 // ─── Test app ─────────────────────────────────────────────────────────────────
@@ -132,9 +132,15 @@ describe("adminAuth middleware", () => {
 		mockVerifyResult = { sub: adminId, role: "admin" }
 		mockAdminRow = { id: adminId }
 
+		let capturedEntry: unknown
 		const app = new Hono()
 		app.use("/*", adminAuth)
-		app.use("/*", adminAuditLog)
+		app.use(
+			"/*",
+			createAdminAuditLog(async (entry) => {
+				capturedEntry = entry
+			}),
+		)
 		app.post("/admin/clients/:clientId/status", (c) => c.json({ ok: true }))
 
 		await app.fetch(
@@ -144,7 +150,7 @@ describe("adminAuth middleware", () => {
 			}),
 		)
 
-		expect(auditLogInserted).toMatchObject({ adminId, clientId })
+		expect(capturedEntry).toMatchObject({ adminId, clientId })
 	})
 
 	it("does not write an audit log for read-only requests (GET)", async () => {

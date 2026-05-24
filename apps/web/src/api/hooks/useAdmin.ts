@@ -78,6 +78,7 @@ export function useImpersonateClient() {
 		},
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ["admin", "activity-logs"] })
+			qc.invalidateQueries({ queryKey: ["auth", "me"] })
 		},
 	})
 }

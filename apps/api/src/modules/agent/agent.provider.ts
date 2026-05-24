@@ -7,27 +7,27 @@ import type { AiProviderConfig } from "shared"
 import { logger } from "@/common/logger"
 
 export function createLanguageModel(config: AiProviderConfig): LanguageModel {
-	switch (config.type) {
+	switch (config.providerType) {
 		case "openai":
 			return createOpenAI({
 				apiKey: config.apiKey,
-				baseURL: config.baseURL,
+				baseURL: config.baseUrl,
 			})(config.model)
 		case "openai_compatible":
 			return createOpenAICompatible({
 				name: "custom",
 				apiKey: config.apiKey,
-				baseURL: config.baseURL,
+				baseURL: config.baseUrl,
 			}).chatModel(config.model)
 		case "google":
 			return createGoogleGenerativeAI({
 				apiKey: config.apiKey,
-				baseURL: config.baseURL,
+				baseURL: config.baseUrl,
 			})(config.model)
 		case "anthropic":
 			return createAnthropic({
 				apiKey: config.apiKey,
-				baseURL: config.baseURL,
+				baseURL: config.baseUrl,
 			})(config.model)
 		default: {
 			// TypeScript will error here if a new AiProviderConfig variant is added without a case

@@ -1,7 +1,7 @@
 import type { EmbeddingModel } from "ai"
 import { embed, embedMany } from "ai"
 import type { AiProviderConfig } from "shared"
-import { z } from "zod"
+import { upsertProviderConfigBodySchema } from "shared"
 import { config, getDefaultProviderConfig } from "@/common/config"
 import { decrypt } from "@/common/crypto"
 import { BadRequestError } from "@/common/errors"
@@ -10,37 +10,6 @@ import type { ProviderConfigRepository } from "@/modules/provider-config/provide
 import { chunkText } from "./rag.chunking"
 import { createEmbeddingModel } from "./rag.embedding"
 import type { RagRepository } from "./rag.repository"
-
-const providerConfigSchema = z.discriminatedUnion("type", [
-	z.object({
-		type: z.literal("openai"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().optional(),
-		embeddingModel: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal("openai_compatible"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().min(1),
-		embeddingModel: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal("google"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().optional(),
-		embeddingModel: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal("anthropic"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().optional(),
-		embeddingModel: z.string().optional(),
-	}),
-])
 
 const EMBEDDING_MODEL_RATES: Record<string, number> = {
 	"text-embedding-3-small": 0.02 / 1_000_000,
@@ -156,17 +125,26 @@ export class RagService {
 	): Promise<AiProviderConfig | null> {
 		const row = await this.providerConfigRepo.getByClientId(clientId)
 		if (!row) return null
-		const parsed = providerConfigSchema.safeParse({
-			type: row.providerType,
-			apiKey: await decrypt(row.apiKeyEncrypted),
+		let apiKey: string
+		try {
+			apiKey = await decrypt(row.apiKeyEncrypted)
+		} catch {
+			throw new BadRequestError(
+				"PROVIDER_KEY_DECRYPT_FAILED",
+				"Failed to decrypt provider API key",
+			)
+		}
+		const parsed = upsertProviderConfigBodySchema.safeParse({
+			providerType: row.providerType,
+			apiKey,
 			model: row.model,
-			baseURL: row.baseUrl ?? undefined,
+			baseUrl: row.baseUrl ?? undefined,
 			embeddingModel: row.embeddingModel ?? undefined,
 		})
 		if (!parsed.success) {
 			throw new BadRequestError(
 				"PROVIDER_CONFIG_INVALID",
-				`Invalid provider config: ${parsed.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")}`,
+				`Invalid provider config: ${parsed.error.issues.map(({ path, message }) => `${path.join(".")}: ${message}`).join(", ")}`,
 			)
 		}
 		return parsed.data
@@ -177,7 +155,7 @@ export class RagService {
 	): ResolvedEmbedding {
 		if (
 			providerConfig === null ||
-			providerConfig.type === "anthropic" ||
+			providerConfig.providerType === "anthropic" ||
 			!providerConfig.embeddingModel
 		) {
 			const defaultConfig = getDefaultProviderConfig()

@@ -86,17 +86,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /** Verify email address with token */
-        get: {
+        post: {
             parameters: {
-                query: {
-                    token: string;
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        token: string;
+                    };
+                };
+            };
             responses: {
                 /** @description Email verified successfully, returns JWT token */
                 200: {
@@ -140,8 +147,6 @@ export interface paths {
                 };
             };
         };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2615,7 +2620,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/sessions/{sessionId}/conversations/:conversationId": {
+    "/widget/sessions/{sessionId}/conversations/{conversationId}": {
         parameters: {
             query?: never;
             header?: never;

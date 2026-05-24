@@ -7,11 +7,11 @@ export const updateProfileBodySchema = z.object({
 
 export const changePasswordBodySchema = z.object({
 	currentPassword: z.string().min(1),
-	newPassword: z.string().min(8),
+	newPassword: z.string().min(8).max(100),
 })
 
 export const addFundsBodySchema = z.object({
-	amount: z.number().positive(),
+	amount: z.number().positive().max(10000),
 })
 
 export const usageLimitBodySchema = z.object({

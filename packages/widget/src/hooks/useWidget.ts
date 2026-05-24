@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import type { WidgetTheme } from "@/types"
 import { shouldShowRatingPrompt } from "./ratingTrigger"
 
 export const DEFAULT_WELCOME_MESSAGE = "Hi! How can I help you today?"
 
-export type WidgetTheme = "light" | "dark"
+export type { WidgetTheme }
 
 export type MessageRole = "user" | "assistant"
 
@@ -76,9 +77,9 @@ export type UseWidgetReturn = {
 	submitRating: (rating: number) => void
 }
 
-// Namespaced localStorage key to avoid collisions with host pages
+// Namespaced localStorage keys to avoid collisions with host pages
 const THEME_STORAGE_KEY = "pagepal:widget:theme"
-const SESSION_STORAGE_KEY = "pagepal:widget:session"
+const BROWSER_SESSION_ID_KEY = "pagepal:widget:sessionId"
 
 function safeGetItem(key: string): string | null {
 	try {
@@ -94,6 +95,17 @@ function safeSetItem(key: string, value: string): void {
 	} catch {
 		// localStorage may be unavailable in restricted environments
 	}
+}
+
+const UUID_RE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+export function getOrCreateBrowserSessionId(): string {
+	const existing = safeGetItem(BROWSER_SESSION_ID_KEY)
+	if (existing && UUID_RE.test(existing)) return existing
+	const id = crypto.randomUUID()
+	safeSetItem(BROWSER_SESSION_ID_KEY, id)
+	return id
 }
 
 // ─── API types ───────────────────────────────────────────────────────────────
@@ -353,10 +365,12 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 	const isDark = theme === "dark"
 
 	useEffect(() => {
-		if (shouldShowRatingPrompt(messages, ratingSubmitted)) {
+		if (isTyping) {
+			if (showRatingPrompt) setShowRatingPrompt(false)
+		} else if (shouldShowRatingPrompt(messages, ratingSubmitted)) {
 			setShowRatingPrompt(true)
 		}
-	}, [messages, ratingSubmitted])
+	}, [messages, ratingSubmitted, isTyping, showRatingPrompt])
 
 	const { widgetToken, apiUrl } = apiConfig
 
@@ -369,26 +383,9 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 		apiRef.current = new WidgetApi({ widgetToken, apiUrl })
 	}, [widgetToken, apiUrl])
 
-	// Compute browser session ID once from localStorage (or generate a new one)
 	const browserSessionIdRef = useRef<string | null>(null)
 	if (browserSessionIdRef.current === null) {
-		const stored = safeGetItem(SESSION_STORAGE_KEY)
-		try {
-			const parsed = stored ? (JSON.parse(stored) as unknown) : null
-			if (
-				parsed &&
-				typeof parsed === "object" &&
-				"browserSessionId" in parsed &&
-				typeof (parsed as Record<string, unknown>).browserSessionId === "string"
-			) {
-				browserSessionIdRef.current = (parsed as Record<string, unknown>)
-					.browserSessionId as string
-			} else {
-				browserSessionIdRef.current = crypto.randomUUID()
-			}
-		} catch {
-			browserSessionIdRef.current = crypto.randomUUID()
-		}
+		browserSessionIdRef.current = getOrCreateBrowserSessionId()
 	}
 
 	const toggleTheme = useCallback(() => {
@@ -567,7 +564,6 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 				)
 				.then((newSession) => {
 					sessionRef.current = newSession
-					safeSetItem(SESSION_STORAGE_KEY, JSON.stringify(newSession))
 					sendWithSession(newSession.id)
 				})
 				.catch((err: unknown) => {

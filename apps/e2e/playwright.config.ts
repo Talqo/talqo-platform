@@ -6,6 +6,9 @@ export default defineConfig({
 	// Fail CI fast if a test is accidentally left with `.only`
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
+	// Shared seeded users — cap parallelism on CI to prevent cross-spec race conditions
+	workers: process.env.CI ? 1 : undefined,
+	globalSetup: "./tests/helpers/global-setup.ts",
 	reporter: process.env.CI ? "github" : "html",
 	use: {
 		baseURL: process.env.BASE_URL ?? "http://localhost:5173",

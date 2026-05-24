@@ -1,7 +1,8 @@
 import { db } from "@/db"
-import { BotConfigRepository } from "@/modules/bot-config/bot-config.repository"
-import { McpRepository } from "@/modules/mcp/mcp.repository"
-import { ProviderConfigRepository } from "@/modules/provider-config/provider-config.repository"
+import { BlacklistRepository } from "@/modules/blacklist/blacklist.repository"
+import { botConfigService } from "@/modules/bot-config"
+import { mcpService } from "@/modules/mcp"
+import { providerConfigService } from "@/modules/provider-config"
 import { WidgetRepository } from "./widget.repository"
 import { WidgetService } from "./widget.service"
 
@@ -17,9 +18,10 @@ export const widgetService = (() => {
 			const { ragService } = require("@/modules/rag/index")
 			_widgetService = new WidgetService({
 				widgetRepository: new WidgetRepository(db),
-				botConfigRepository: new BotConfigRepository(db),
-				providerConfigRepository: new ProviderConfigRepository(db),
-				mcpRepository: new McpRepository(db),
+				botConfigService,
+				providerConfigService,
+				mcpService,
+				blacklistRepository: new BlacklistRepository(db),
 				ragService,
 			})
 		}

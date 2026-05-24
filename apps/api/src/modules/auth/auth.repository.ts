@@ -1,4 +1,5 @@
 import { eq, sql } from "drizzle-orm"
+import { CLIENT_STATUS_VALUES, type ClientStatus } from "shared"
 import {
 	AuthConflictError,
 	BadRequestError,
@@ -7,9 +8,6 @@ import {
 import type { DB } from "@/db"
 import { clients, passwordResetTokens, pendingRegistrations } from "@/db/schema"
 
-export type ClientStatus = "active" | "suspended"
-
-// Matches the CLIENT entity in the ERD
 export type Client = {
 	id: string
 	name: string
@@ -22,8 +20,7 @@ export type Client = {
 	createdAt: Date
 }
 
-// Not in the ERD — transient storage for unverified registrations.
-// A CLIENT record is only created after email verification, so no verified flag is needed.
+// Not in the ERD — CLIENT is created only after email verification.
 export type PendingRegistration = {
 	token: string
 	name: string
@@ -34,55 +31,34 @@ export type PendingRegistration = {
 	consumedByClientId?: string | null
 }
 
-// Transient storage for password reset requests.
-// Tokens are single-use and expire after 1 hour.
-// Inferred from Drizzle schema - single source of truth
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
 
-export type IAuthRepository = {
+export type AuthRepository = {
 	findClientByEmail(email: string): Promise<Client | null>
 	findClientById(id: string): Promise<Client | null>
-	// Case-insensitive name lookup; normalizes input internally
 	findClientByName(name: string): Promise<Client | null>
-	// Check if a company name exists in pending registrations (case-insensitive)
 	findPendingByName(name: string): Promise<PendingRegistration | null>
-	// Find pending registration by email (case-insensitive)
 	findPendingByEmail(email: string): Promise<PendingRegistration | null>
-	// Find pending registration by token
 	findPendingByToken(token: string): Promise<PendingRegistration | null>
 	createClient(
 		data: Pick<Client, "name" | "email" | "passwordHash">,
 	): Promise<Client>
 	updateLastActive(clientId: string): Promise<void>
-	// Overwrites any existing pending registration for the same email
-	// Does NOT remove conflicting registrations by name; name conflicts should be
-	// rejected before calling this via findPendingByName() and throwing NAME_TAKEN
+	// Overwrites same-email pending registrations; name conflicts must be rejected by caller first
 	savePendingRegistration(record: PendingRegistration): Promise<void>
-	// Atomically verifies the token, creates the Client record, and deletes the pending
-	// registration in a single transaction (e.g. SELECT … FOR UPDATE in a DB impl).
-	// The deletion happens only after successful creation, so a failed creation leaves
-	// the token intact and the operation is retry-safe.
-	// Callers must NOT call createClient separately for this flow.
-	// Throws INVALID_TOKEN if no pending registration exists for the token.
-	// Throws TOKEN_EXPIRED if the registration has expired.
-	// Throws EMAIL_TAKEN if a client with this email already exists.
+	// Uses SELECT FOR UPDATE + marks-instead-of-deletes to prevent double-consumption and support idempotency
 	consumePendingRegistration(token: string): Promise<Client>
-	// Password reset token methods
 	findPasswordResetToken(token: string): Promise<PasswordResetToken | null>
 	savePasswordResetToken(record: PasswordResetToken): Promise<void>
 	consumePasswordResetToken(token: string): Promise<PasswordResetToken>
 	updateClientPassword(email: string, passwordHash: string): Promise<void>
-	// Atomically consume the token and update the client's password in a single transaction.
-	// Throws INVALID_TOKEN if token doesn't exist, TOKEN_EXPIRED if expired, or TOKEN_ALREADY_USED if consumed.
-	// Throws CLIENT_NOT_FOUND if the client for the token's email doesn't exist.
-	// Returns the clientId and email of the updated client.
 	consumeTokenAndUpdatePassword(
 		token: string,
 		passwordHash: string,
 	): Promise<{ clientId: string; email: string }>
 }
 
-export class InMemoryAuthRepository implements IAuthRepository {
+export class InMemoryAuthRepository implements AuthRepository {
 	private clients = new Map<string, Client>()
 	private pendingRegistrations = new Map<string, PendingRegistration>()
 	private passwordResetTokens = new Map<string, PasswordResetToken>()
@@ -153,8 +129,7 @@ export class InMemoryAuthRepository implements IAuthRepository {
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
-		// Remove any existing pending entry for the same email before saving
-		// This supports legitimate re-registration flow
+		// overwrites same-email entry to support re-registration
 		for (const [token, pending] of this.pendingRegistrations.entries()) {
 			if (pending.email === record.email) {
 				this.pendingRegistrations.delete(token)
@@ -178,15 +153,13 @@ export class InMemoryAuthRepository implements IAuthRepository {
 			// If client somehow missing, continue to recreate
 		}
 
-		// createClient throws EMAIL_TAKEN on duplicate; the token stays intact so
-		// the caller can detect the conflict and retry or surface an error.
+		// token stays intact on EMAIL_TAKEN so caller can poll for the created client
 		const client = await this.createClient({
 			name: record.name,
 			email: record.email,
 			passwordHash: record.passwordHash,
 		})
 
-		// Mark as consumed instead of deleting (preserves token for idempotency)
 		record.consumedAt = new Date()
 		record.consumedByClientId = client.id
 		this.pendingRegistrations.set(token, record)
@@ -194,7 +167,6 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		return client
 	}
 
-	// Password reset token methods
 	async findPasswordResetToken(
 		token: string,
 	): Promise<PasswordResetToken | null> {
@@ -239,8 +211,6 @@ export class InMemoryAuthRepository implements IAuthRepository {
 		token: string,
 		passwordHash: string,
 	): Promise<{ clientId: string; email: string }> {
-		// In-memory: this is inherently atomic
-		// First, find and validate the token without consuming it
 		const record = this.passwordResetTokens.get(token)
 		if (!record)
 			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
@@ -252,17 +222,15 @@ export class InMemoryAuthRepository implements IAuthRepository {
 				"Token has already been used",
 			)
 
-		// Find the client first to ensure they exist
 		const client = Array.from(this.clients.values()).find(
 			(c) => c.email === record.email,
 		)
 		if (!client)
 			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
 
-		// Update password
 		await this.updateClientPassword(record.email, passwordHash)
 
-		// Only consume the token after successful password update
+		// consume only after successful password update
 		record.consumedAt = new Date()
 		this.passwordResetTokens.set(token, record)
 
@@ -270,10 +238,8 @@ export class InMemoryAuthRepository implements IAuthRepository {
 	}
 }
 
-const VALID_STATUSES: readonly string[] = ["active", "suspended"]
-
 function mapClient(row: typeof clients.$inferSelect): Client {
-	const status = VALID_STATUSES.includes(row.status)
+	const status = CLIENT_STATUS_VALUES.includes(row.status as ClientStatus)
 		? (row.status as ClientStatus)
 		: "active"
 	return {
@@ -289,7 +255,7 @@ function mapClient(row: typeof clients.$inferSelect): Client {
 	}
 }
 
-export class DrizzleAuthRepository implements IAuthRepository {
+export class DrizzleAuthRepository implements AuthRepository {
 	constructor(private readonly db: DB) {}
 
 	async findClientByEmail(email: string): Promise<Client | null> {
@@ -306,7 +272,6 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async findClientByName(name: string): Promise<Client | null> {
-		// Self-normalizing: lowercase input for case-insensitive comparison
 		const normalizedName = name.toLowerCase()
 		const rows = await this.db
 			.select()
@@ -364,8 +329,6 @@ export class DrizzleAuthRepository implements IAuthRepository {
 	}
 
 	async savePendingRegistration(record: PendingRegistration): Promise<void> {
-		// Insert or update pending registration
-		// onConflictDoUpdate handles same-email re-registration via email unique constraint
 		await this.db
 			.insert(pendingRegistrations)
 			.values(record)
@@ -386,19 +349,18 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				.select()
 				.from(pendingRegistrations)
 				.where(eq(pendingRegistrations.token, token))
+				.for("update")
 
 			if (!pending)
 				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
 			if (pending.expiresAt < new Date())
 				throw new BadRequestError("TOKEN_EXPIRED", "Token has expired")
 
-			// If already consumed, return the existing client (idempotent)
 			if (pending.consumedAt && pending.consumedByClientId) {
 				const existingClient = await this.findClientById(
 					pending.consumedByClientId,
 				)
 				if (existingClient) return existingClient
-				// If client somehow missing, continue to create new one
 			}
 
 			let client: Client
@@ -419,7 +381,6 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				throw err
 			}
 
-			// Mark as consumed instead of deleting (preserves token for idempotency)
 			await tx
 				.update(pendingRegistrations)
 				.set({
@@ -432,7 +393,6 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		})
 	}
 
-	// Password reset token methods
 	async findPasswordResetToken(
 		token: string,
 	): Promise<PasswordResetToken | null> {
@@ -471,7 +431,7 @@ export class DrizzleAuthRepository implements IAuthRepository {
 				.set({ consumedAt })
 				.where(eq(passwordResetTokens.token, token))
 
-			// Return record with consumedAt set (consistent with InMemoryAuthRepository)
+			// return with consumedAt set so callers see the consumed state immediately
 			return { ...record, consumedAt }
 		})
 	}
@@ -495,7 +455,6 @@ export class DrizzleAuthRepository implements IAuthRepository {
 		passwordHash: string,
 	): Promise<{ clientId: string; email: string }> {
 		return this.db.transaction(async (tx) => {
-			// First, find and validate the token with FOR UPDATE lock (without consuming yet)
 			const [record] = await tx
 				.select({
 					email: passwordResetTokens.email,
@@ -516,18 +475,17 @@ export class DrizzleAuthRepository implements IAuthRepository {
 					"Token has already been used",
 				)
 
-			// Update client password and get client info first
 			const [updated] = await tx
 				.update(clients)
 				.set({ passwordHash })
 				.where(eq(clients.email, record.email))
 				.returning({ id: clients.id })
 
-			// If no client found, treat as invalid token
+			// treat missing client as invalid token to avoid leaking whether the email exists
 			if (!updated)
 				throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
 
-			// Only consume the token after successful password update
+			// consume only after successful password update
 			await tx
 				.update(passwordResetTokens)
 				.set({ consumedAt: new Date() })

@@ -1,7 +1,7 @@
 import { createContext, type ReactNode, useContext } from "react"
 import { type UseWidgetOptions, type UseWidgetReturn, useWidget } from "@/hooks"
 
-interface WidgetContextValue extends UseWidgetReturn {
+type WidgetContextValue = UseWidgetReturn & {
 	/** Optional className prefix for styling */
 	classNamePrefix?: string
 }
@@ -18,7 +18,7 @@ export function useWidgetContext() {
 	return context
 }
 
-interface WidgetRootProps extends UseWidgetOptions {
+type WidgetRootProps = UseWidgetOptions & {
 	children: ReactNode
 	/** Optional className prefix for all child components */
 	classNamePrefix?: string

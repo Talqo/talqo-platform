@@ -14,11 +14,33 @@ mock.module("@/common/jwt", () => ({
 
 // Dynamic imports after mocks are registered
 const { AdminService } = await import("./admin.service")
-const {
-	createAdminAuthRouter,
-	createAdminClientRouter,
-	createAdminConversationRouter,
-} = await import("./admin.routes")
+
+type AdminService = InstanceType<typeof AdminService>
+
+let currentAdminService: AdminService | null = null
+
+const adminServiceProxy = new Proxy({} as AdminService, {
+	get(_target, prop) {
+		if (!currentAdminService) {
+			throw new Error("No admin service set")
+		}
+		const value = (currentAdminService as unknown as Record<string, unknown>)[
+			prop as string
+		]
+		if (typeof value === "function") {
+			return (...args: unknown[]) => value.apply(currentAdminService, args)
+		}
+		if (value === undefined) {
+			throw new Error(`Method ${String(prop)} not found on adminService`)
+		}
+		return value
+	},
+})
+
+mock.module("./index", () => ({ adminService: adminServiceProxy }))
+
+const { adminAuthRoutes, adminClientRoutes, adminConversationRoutes } =
+	await import("./admin.routes")
 const { errorHandler } = await import("@/common/middleware/error-handler")
 
 // ─── In-memory repository ─────────────────────────────────────────────────────
@@ -215,11 +237,12 @@ async function setupRepo() {
 
 function buildApp(repo: InMemoryAdminRepository) {
 	const service = new AdminService(repo as unknown as AdminRepository)
+	currentAdminService = service
 	const app = new OpenAPIHono()
 	app.onError(errorHandler)
-	app.route("/admin/auth", createAdminAuthRouter(service))
-	app.route("/admin/clients", createAdminClientRouter(service))
-	app.route("/admin/conversations", createAdminConversationRouter(service))
+	app.route("/admin/auth", adminAuthRoutes)
+	app.route("/admin/clients", adminClientRoutes)
+	app.route("/admin/conversations", adminConversationRoutes)
 	return { app, service }
 }
 

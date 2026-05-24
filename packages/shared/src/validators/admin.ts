@@ -1,7 +1,11 @@
 import { z } from "zod"
+import { satisfactionRatingSchema } from "./common"
+
+export const CLIENT_STATUS_VALUES = ["active", "suspended"] as const
+export type ClientStatus = (typeof CLIENT_STATUS_VALUES)[number]
 
 export const clientStatusUpdateSchema = z.object({
-	status: z.enum(["active", "suspended"]),
+	status: z.enum(CLIENT_STATUS_VALUES),
 })
 
 export const conversationSummarySchema = z.object({
@@ -10,7 +14,7 @@ export const conversationSummarySchema = z.object({
 	clientName: z.string().nullable(),
 	clientEmail: z.string().nullable(),
 	startedAt: z.string(),
-	satisfactionRating: z.number().int().min(1).max(5).nullable(),
+	satisfactionRating: satisfactionRatingSchema,
 	messageCount: z.number().int(),
 })
 

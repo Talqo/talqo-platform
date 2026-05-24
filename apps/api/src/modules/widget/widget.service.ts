@@ -1,8 +1,6 @@
 import type { ModelMessage } from "ai"
-import type { AiProviderConfig, McpServerConfig } from "shared"
-import { z } from "zod"
-import { config, getDefaultProviderConfig } from "@/common/config"
-import { decrypt } from "@/common/crypto"
+import { type McpServerConfig, mcpServerConfigSchema } from "shared"
+import { config } from "@/common/config"
 import { sendQuotaAlertEmail as defaultSendQuotaAlertEmail } from "@/common/email/email.service"
 import {
 	BadRequestError,
@@ -12,9 +10,10 @@ import {
 import { logger } from "@/common/logger"
 import { PLATFORM_SYSTEM_PROMPT } from "@/modules/agent/agent.platform-prompt"
 import { streamResponse } from "@/modules/agent/agent.service"
-import type { BotConfigRepository } from "@/modules/bot-config/bot-config.repository"
-import type { McpRepository } from "@/modules/mcp/mcp.repository"
-import type { ProviderConfigRepository } from "@/modules/provider-config/provider-config.repository"
+import type { BlacklistRepository } from "@/modules/blacklist/blacklist.repository"
+import type { BotConfigService } from "@/modules/bot-config/bot-config.service"
+import type { McpService } from "@/modules/mcp/mcp.service"
+import type { ProviderConfigService } from "@/modules/provider-config/provider-config.service"
 import type { RagService } from "@/modules/rag/rag.service"
 import type { WidgetRepository } from "./widget.repository"
 
@@ -28,41 +27,15 @@ function computeCostUsd(tokensUsed: { input: number; output: number }): string {
 	return cost.toFixed(6)
 }
 
-const providerConfigSchema = z.discriminatedUnion("type", [
-	z.object({
-		type: z.literal("openai"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal("openai_compatible"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().min(1),
-	}),
-	z.object({
-		type: z.literal("google"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal("anthropic"),
-		apiKey: z.string().min(1),
-		model: z.string().min(1),
-		baseURL: z.string().optional(),
-	}),
-])
-
 type StreamResponse = typeof streamResponse
 type SendQuotaAlertEmail = (to: string, usagePercent: number) => Promise<void>
 
 type WidgetServiceDeps = {
 	widgetRepository: WidgetRepository
-	botConfigRepository: BotConfigRepository
-	providerConfigRepository: ProviderConfigRepository
-	mcpRepository: McpRepository
+	botConfigService: BotConfigService
+	providerConfigService: ProviderConfigService
+	mcpService: McpService
+	blacklistRepository: BlacklistRepository
 	ragService?: Pick<RagService, "retrieve">
 	streamResponse?: StreamResponse
 	sendQuotaAlertEmail?: SendQuotaAlertEmail
@@ -70,18 +43,20 @@ type WidgetServiceDeps = {
 
 export class WidgetService {
 	private readonly repo: WidgetRepository
-	private readonly botConfigRepo: BotConfigRepository
-	private readonly providerConfigRepo: ProviderConfigRepository
-	private readonly mcpRepo: McpRepository
+	private readonly botConfigService: BotConfigService
+	private readonly providerConfigService: ProviderConfigService
+	private readonly mcpService: McpService
+	private readonly blacklistRepo: BlacklistRepository
 	private readonly ragService?: Pick<RagService, "retrieve">
 	private readonly streamResponse: StreamResponse
 	private readonly sendQuotaAlertEmail: SendQuotaAlertEmail
 
 	constructor(deps: WidgetServiceDeps) {
 		this.repo = deps.widgetRepository
-		this.botConfigRepo = deps.botConfigRepository
-		this.providerConfigRepo = deps.providerConfigRepository
-		this.mcpRepo = deps.mcpRepository
+		this.botConfigService = deps.botConfigService
+		this.providerConfigService = deps.providerConfigService
+		this.mcpService = deps.mcpService
+		this.blacklistRepo = deps.blacklistRepository
 		this.ragService = deps.ragService
 		this.streamResponse = deps.streamResponse ?? streamResponse
 		this.sendQuotaAlertEmail =
@@ -151,9 +126,9 @@ export class WidgetService {
 		}
 
 		const { config: provider, isExternal } =
-			await this.resolveProvider(clientId)
+			await this.providerConfigService.resolveForAi(clientId)
 
-		const botConfig = await this.botConfigRepo.getByClientId(clientId)
+		const botConfig = await this.botConfigService.getConfig(clientId)
 
 		let chunks: string[] = []
 		try {
@@ -189,11 +164,13 @@ export class WidgetService {
 			content,
 		)
 
+		const blacklistWords = await this.blacklistRepo.listByClientId(clientId)
+
 		const { stream, usage } = await this.streamResponse({
 			userMessage: content,
 			history,
 			context,
-			wordBlacklist: [],
+			wordBlacklist: blacklistWords.map((w) => w.word),
 			mcpServers,
 			contextDirectory: "",
 			provider,
@@ -205,7 +182,7 @@ export class WidgetService {
 			userMessage,
 			usage,
 			isExternalProvider: isExternal,
-			provider: provider.type,
+			provider: provider.providerType,
 			model: provider.model,
 		}
 	}
@@ -294,44 +271,23 @@ export class WidgetService {
 		return updated
 	}
 
-	private async resolveProvider(
-		clientId: string,
-	): Promise<{ config: AiProviderConfig; isExternal: boolean }> {
-		const providerConfig = await this.providerConfigRepo.getByClientId(clientId)
-		if (providerConfig) {
-			const parsed = providerConfigSchema.safeParse({
-				type: providerConfig.providerType,
-				apiKey: await decrypt(providerConfig.apiKeyEncrypted),
-				model: providerConfig.model,
-				baseURL: providerConfig.baseUrl ?? undefined,
-			})
-			if (!parsed.success) {
-				throw new BadRequestError(
-					"PROVIDER_CONFIG_INVALID",
-					`Invalid provider config: ${parsed.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")}`,
-				)
-			}
-			return { config: parsed.data, isExternal: true }
-		}
-		const defaultConfig = getDefaultProviderConfig()
-		if (!defaultConfig) {
-			throw new BadRequestError(
-				"PROVIDER_NOT_CONFIGURED",
-				"No AI provider configured",
-			)
-		}
-		return { config: defaultConfig, isExternal: false }
-	}
-
 	private async resolveMcpServers(
 		clientId: string,
 	): Promise<McpServerConfig[]> {
-		const custom = await this.mcpRepo.listCustomServers(clientId)
-		const preMade = await this.mcpRepo.listEnabledPreMade(clientId)
-		return [
-			...custom.map((s) => s.mcpConfig as unknown as McpServerConfig),
-			...preMade.map((s) => s.mcpConfig as unknown as McpServerConfig),
-		]
+		const custom = await this.mcpService.listCustomServers(clientId)
+		const preMade = await this.mcpService.listEnabledPreMade(clientId)
+		const configs: McpServerConfig[] = []
+		for (const s of [...custom, ...preMade]) {
+			const parsed = mcpServerConfigSchema.safeParse(s.mcpConfig)
+			if (!parsed.success) {
+				throw new BadRequestError(
+					"MCP_CONFIG_INVALID",
+					`Invalid MCP server config: ${parsed.error.issues.map(({ path, message }) => `${path.join(".")}: ${message}`).join(", ")}`,
+				)
+			}
+			configs.push(parsed.data)
+		}
+		return configs
 	}
 
 	private buildHistory(

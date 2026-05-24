@@ -65,3 +65,9 @@ export class EmailDeliveryError extends AppError {
 		super(500, "EMAIL_FAILED", message)
 	}
 }
+
+export class BlacklistError extends AppError {
+	constructor() {
+		super(422, "BLACKLIST_TRIGGERED", "Response blocked by content filter")
+	}
+}

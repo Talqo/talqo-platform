@@ -1,4 +1,5 @@
 import { and, eq, sql } from "drizzle-orm"
+import { BadRequestError } from "@/common/errors"
 import type { DB } from "@/db"
 import { clients, fileEmbeddings, usageRecords } from "@/db/schema"
 
@@ -128,12 +129,24 @@ export class DrizzleRagRepository implements RagRepository {
 				tokensUsed: usage.tokensUsed,
 				costUsd: usage.costUsd,
 			})
-			await tx
+			const updated = await tx
 				.update(clients)
 				.set({
 					balanceUsd: sql`${clients.balanceUsd} - ${usage.costUsd}`,
 				})
-				.where(eq(clients.id, usage.clientId))
+				.where(
+					and(
+						eq(clients.id, usage.clientId),
+						sql`${clients.balanceUsd} >= ${usage.costUsd}::numeric`,
+					),
+				)
+				.returning({ id: clients.id })
+			if (updated.length === 0) {
+				throw new BadRequestError(
+					"BALANCE_INSUFFICIENT",
+					"Insufficient balance",
+				)
+			}
 		})
 	}
 }
@@ -165,6 +178,7 @@ export class InMemoryRagRepository implements RagRepository {
 	private chunks: Map<string, StoredChunk> = new Map()
 	usageRecords: StoredUsage[] = []
 	balanceDeductions: { clientId: string; amount: string }[] = []
+	balances: Map<string, string> = new Map()
 
 	private chunkKey(
 		clientId: string,
@@ -236,10 +250,16 @@ export class InMemoryRagRepository implements RagRepository {
 	}
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
+		const currentBalance = parseFloat(this.balances.get(usage.clientId) ?? "0")
+		const cost = parseFloat(usage.costUsd)
+		if (currentBalance < cost) {
+			throw new BadRequestError("BALANCE_INSUFFICIENT", "Insufficient balance")
+		}
 		this.usageRecords.push({ ...usage })
 		this.balanceDeductions.push({
 			clientId: usage.clientId,
 			amount: usage.costUsd,
 		})
+		this.balances.set(usage.clientId, (currentBalance - cost).toFixed(6))
 	}
 }

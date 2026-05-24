@@ -69,10 +69,8 @@ export function useRegister() {
 export function useVerifyEmail() {
 	return useMutation<AuthResponse, ApiError, { token: string }>({
 		mutationFn: async ({ token }) => {
-			const { data, error } = await client.GET("/auth/verify-email", {
-				params: {
-					query: { token },
-				},
+			const { data, error } = await client.POST("/auth/verify-email", {
+				body: { token },
 			})
 			if (error) throw error
 			return data as AuthResponse
@@ -87,10 +85,8 @@ export function useVerifyEmailWithCallbacks(
 ) {
 	return useMutation<AuthResponse, ApiError, { token: string }>({
 		mutationFn: async ({ token }) => {
-			const { data, error } = await client.GET("/auth/verify-email", {
-				params: {
-					query: { token },
-				},
+			const { data, error } = await client.POST("/auth/verify-email", {
+				body: { token },
 			})
 			if (error) throw error
 			return data as AuthResponse
@@ -294,6 +290,7 @@ export function useUnifiedLogin() {
 						setIsTryingAdmin(true)
 						adminLogin.mutate(credentials, {
 							onSuccess: () => {
+								clientLogin.reset()
 								tryingAdminRef.current = false
 								setIsTryingAdmin(false)
 								options?.onSuccess?.("admin")

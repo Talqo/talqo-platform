@@ -265,6 +265,11 @@ export function AccountSettingsTab() {
 									</FormItem>
 								)}
 							/>
+							{updateProfile.isError && (
+								<p className="px-6 pb-2 text-destructive text-sm">
+									{t("settings.account.profileSaveFailed")}
+								</p>
+							)}
 						</CardContent>
 						<CardFooter className="flex justify-end">
 							<Button type="submit" disabled={updateProfile.isPending}>
@@ -402,7 +407,10 @@ export function AccountSettingsTab() {
 						</Button>
 						<Dialog
 							open={rotateConfirmOpen}
-							onOpenChange={setRotateConfirmOpen}
+							onOpenChange={(next) => {
+								if (!next) rotateWidgetToken.reset()
+								setRotateConfirmOpen(next)
+							}}
 						>
 							<DialogTrigger asChild>
 								<Button
@@ -421,6 +429,11 @@ export function AccountSettingsTab() {
 										{t("settings.account.widgetTokenHelp")}
 									</DialogDescription>
 								</DialogHeader>
+								{rotateWidgetToken.isError && (
+									<p className="text-destructive text-sm">
+										{t("settings.account.rotateFailed")}
+									</p>
+								)}
 								<DialogFooter>
 									<DialogClose asChild>
 										<Button variant="outline" type="button">

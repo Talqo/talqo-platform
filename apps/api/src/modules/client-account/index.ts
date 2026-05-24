@@ -1,8 +1,8 @@
 import { db } from "@/db"
-import { ClientAccountRepository } from "./client-account.repository"
+import { DrizzleClientAccountRepository } from "./client-account.repository"
 import { ClientAccountService } from "./client-account.service"
 
-const clientAccountRepository = new ClientAccountRepository(db)
+const clientAccountRepository = new DrizzleClientAccountRepository(db)
 export const clientAccountService = new ClientAccountService(
 	clientAccountRepository,
 )

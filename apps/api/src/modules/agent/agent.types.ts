@@ -16,9 +16,3 @@ export type TokenUsage = {
 	input: number
 	output: number
 }
-
-export type AiServiceOutput = {
-	message: string
-	tokensUsed: TokenUsage
-	blocked: boolean
-}

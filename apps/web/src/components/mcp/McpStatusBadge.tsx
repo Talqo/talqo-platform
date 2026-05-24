@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { McpServerConfig } from "shared"
 import { useVerifyMcp } from "@/api/hooks/useMcpVerify"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +11,7 @@ export function McpStatusBadge(
 		"config" in props
 			? ({ kind: "admin", config: props.config } as const)
 			: ({ kind: "client", serverId: props.serverId } as const)
+	const { t } = useTranslation()
 	const { data, isPending } = useVerifyMcp(options)
 
 	if (isPending)
@@ -23,7 +25,7 @@ export function McpStatusBadge(
 				variant="outline"
 				className="border-green-600/30 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
 			>
-				Ready
+				{t("mcp.status.ready")}
 			</Badge>
 		)
 
@@ -32,7 +34,7 @@ export function McpStatusBadge(
 			variant="outline"
 			className="border-red-600/30 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
 		>
-			Error
+			{t("mcp.status.error")}
 		</Badge>
 	)
 }

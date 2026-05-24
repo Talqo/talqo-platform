@@ -2,7 +2,7 @@ import { Scalar } from "@scalar/hono-api-reference"
 import { cors } from "hono/cors"
 import type { AppVariables } from "./common/jwt"
 import { logger } from "./common/logger"
-import { adminAuditLog } from "./common/middleware/admin-audit-log"
+import { createAdminAuditLog } from "./common/middleware/admin-audit-log"
 import { adminAuth } from "./common/middleware/admin-auth"
 import { clientAuth } from "./common/middleware/client-auth"
 import { errorHandler } from "./common/middleware/error-handler"
@@ -12,6 +12,7 @@ import { createRouter } from "./common/router"
 import { SentryExporter } from "./common/sentry-exporter"
 import {
 	adminActivityLogsRoutes,
+	adminAuditLogService,
 	adminAuthRoutes,
 	adminClientRoutes,
 	adminConversationRoutes,
@@ -43,7 +44,6 @@ const filesRoutes = createFilesRouter(filesService, ragService)
 const app = createRouter<{ Variables: AppVariables }>()
 const v1 = createRouter<{ Variables: AppVariables }>()
 
-app.use("/*", cors())
 app.use("/*", async (c, next) => {
 	const requestId = crypto.randomUUID()
 	c.set("requestId", requestId)
@@ -57,6 +57,30 @@ app.use("/*", async (c, next) => {
 		c.res.headers.set("Accept-Patch", "application/json")
 	}
 })
+
+import { config } from "./common/config"
+
+const allowedOrigins =
+	config.ALLOWED_ORIGINS?.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean) ?? []
+
+// Widget routes are embedded in third-party sites — open CORS required
+app.use("/v1/widget/*", cors({ origin: "*" }))
+
+// Client dashboard and admin routes: restrict to known origins
+const restrictedCors = cors({
+	origin: (origin) => {
+		if (!origin) return null
+		if (allowedOrigins.length === 0) return origin
+		return allowedOrigins.includes(origin) ? origin : null
+	},
+	credentials: true,
+})
+app.use("/v1/client/*", restrictedCors)
+app.use("/v1/admin/*", restrictedCors)
+app.use("/v1/auth/*", restrictedCors)
+
 app.onError(errorHandler)
 
 app.get("/", (c) => c.text("PagePal API"))
@@ -95,7 +119,10 @@ v1.route("/admin/auth", adminAuthRoutes)
 
 // ─── Admin dashboard (protected) ─────────────────────────────────────────────
 v1.use("/admin/*", adminAuth)
-v1.use("/admin/*", adminAuditLog)
+v1.use(
+	"/admin/*",
+	createAdminAuditLog((entry) => adminAuditLogService.insert(entry)),
+)
 v1.route("/admin/me", adminMeRoutes)
 v1.route("/admin/clients", adminClientRoutes)
 v1.route("/admin/analytics", adminAnalyticsRoutes)

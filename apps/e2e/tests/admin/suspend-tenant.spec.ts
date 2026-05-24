@@ -12,11 +12,13 @@ test.describe("Admin suspend and re-enable tenant", () => {
 			const isVisible = await reEnableBtn.isVisible().catch(() => false)
 			if (isVisible) {
 				await reEnableBtn.click({ force: true })
-				// Confirm re-enable in the AlertDialog
-				await page
-					.getByRole("alertdialog")
-					.getByRole("button", { name: "Re-enable" })
-					.click()
+				// Wait for the AlertDialog to open, then confirm
+				const cleanupDialog = page.getByRole("alertdialog")
+				await expect(cleanupDialog).toBeVisible()
+				await cleanupDialog.evaluate((el) =>
+					Promise.all(el.getAnimations().map((anim) => anim.finished)),
+				)
+				await cleanupDialog.getByRole("button", { name: "Re-enable" }).click()
 				await expect(row.getByText("Active")).toBeVisible()
 			}
 		} catch {
@@ -46,10 +48,12 @@ test.describe("Admin suspend and re-enable tenant", () => {
 		await tenantRow
 			.getByRole("button", { name: "Suspend" })
 			.click({ force: true })
-		await page
-			.getByRole("alertdialog")
-			.getByRole("button", { name: "Suspend" })
-			.click()
+		const suspendDialog = page.getByRole("alertdialog")
+		await expect(suspendDialog).toBeVisible()
+		await suspendDialog.evaluate((el) =>
+			Promise.all(el.getAnimations().map((anim) => anim.finished)),
+		)
+		await suspendDialog.getByRole("button", { name: "Suspend" }).click()
 		await expect(tenantRow.getByText("Suspended")).toBeVisible()
 		await expect(
 			tenantRow.getByRole("button", { name: "Re-enable" }),
@@ -59,10 +63,12 @@ test.describe("Admin suspend and re-enable tenant", () => {
 		await tenantRow
 			.getByRole("button", { name: "Re-enable" })
 			.click({ force: true })
-		await page
-			.getByRole("alertdialog")
-			.getByRole("button", { name: "Re-enable" })
-			.click()
+		const reEnableDialog = page.getByRole("alertdialog")
+		await expect(reEnableDialog).toBeVisible()
+		await reEnableDialog.evaluate((el) =>
+			Promise.all(el.getAnimations().map((anim) => anim.finished)),
+		)
+		await reEnableDialog.getByRole("button", { name: "Re-enable" }).click()
 		await expect(tenantRow.getByText("Active")).toBeVisible()
 		await expect(
 			tenantRow.getByRole("button", { name: "Suspend" }),

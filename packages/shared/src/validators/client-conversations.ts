@@ -1,9 +1,10 @@
 import { z } from "zod"
+import { satisfactionRatingSchema } from "./common"
 
 export const clientConversationSummarySchema = z.object({
 	id: z.string().uuid(),
 	startedAt: z.string(),
-	satisfactionRating: z.number().int().min(1).max(5).nullable(),
+	satisfactionRating: satisfactionRatingSchema,
 	messageCount: z.number().int(),
 })
 

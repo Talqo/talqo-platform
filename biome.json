@@ -32,7 +32,8 @@
 					"options": {
 						"functions": ["cn", "clsx", "twMerge"]
 					}
-				}
+				},
+				"useNullishCoalescing": "error"
 			},
 			"style": {
 				"useConsistentTypeDefinitions": {

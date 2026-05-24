@@ -4,38 +4,13 @@ import type { MiddlewareHandler } from "hono"
 import { getConnInfo } from "hono/bun"
 import { config } from "@/common/config"
 import { TooManyRequestsError } from "@/common/errors"
+import { isPrivateIp, trustedProxies } from "@/common/ip"
 import { logger } from "@/common/logger"
 import { db } from "@/db"
 import { widgetIpRateLimits } from "@/db/schema"
 
 /** Probability (0–1) of triggering stale window cleanup on any request. */
 const CLEANUP_CHANCE = 0.01
-
-const trustedProxies = new Set(
-	config.TRUSTED_PROXY_IPS?.split(",")
-		.map((s) => s.trim())
-		.filter(Boolean) ?? [],
-)
-
-function isPrivateIp(ip: string): boolean {
-	if (!ip) return false
-	// IPv4 private ranges: 10.x.x.x, 172.16-31.x.x, 192.168.x.x, loopback
-	if (ip.startsWith("10.")) return true
-	if (ip.startsWith("172.")) {
-		const second = Number(ip.split(".")[1])
-		return second >= 16 && second <= 31
-	}
-	if (ip.startsWith("192.168.")) return true
-	if (ip.startsWith("127.")) return true
-	// ::1/128 loopback
-	if (ip === "::1") return true
-	// fc00::/7 unique local addresses
-	if (ip.toLowerCase().startsWith("fc") || ip.toLowerCase().startsWith("fd"))
-		return true
-	// fe80::/10 link-local
-	if (ip.toLowerCase().startsWith("fe8")) return true
-	return false
-}
 
 /** Delete rate-limit rows for windows older than 24 hours. */
 async function cleanupStaleWindows() {
@@ -59,10 +34,7 @@ export const widgetRateLimit: MiddlewareHandler = async (c, next) => {
 	const isTrustedProxy =
 		!!directIp && (trustedProxies.has(directIp) || isPrivateIp(directIp))
 
-	const ip =
-		isTrustedProxy && validForwarded
-			? validForwarded
-			: directIp || validForwarded
+	const ip = isTrustedProxy && validForwarded ? validForwarded : directIp
 
 	if (!ip) {
 		throw new TooManyRequestsError(

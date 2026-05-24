@@ -21,18 +21,18 @@ src/
 ├── db/
 │   └── index.ts    # Local Drizzle client (re-exports schema from packages/db)
 └── modules/<feature>/
-    ├── <feature>.routes.ts     # createRoute + OpenAPIHono factory function
+    ├── <feature>.routes.ts     # createRoute + OpenAPIHono router, exports named route consts
     ├── <feature>.service.ts    # Business logic — no Hono context, no DB access
     ├── <feature>.repository.ts # Drizzle queries; also exports InMemoryRepository for tests
     ├── <feature>.test.ts       # Tests co-located with feature
-    └── index.ts                # Wires repo → service → router, exports named route const
+    └── index.ts                # Wires repo → service, re-exports routes and service
 ```
 
 ## Key conventions
 
-- **Routes are factory functions** — `createAuthRouter(service)` — wired in `index.ts`, not directly imported
-- **Throw `AppError` subclasses** from `src/common/errors.ts`; `errorHandler` middleware converts to `{ error: { code, message } }`. Never build error JSON manually in routes
-- **Available error classes:** `UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404), `ConflictError` / `AuthConflictError` (409), `ValidationError` (422), `BadRequestError` (400, needs code string), `TooManyRequestsError` (429)
+- **Errors: throw, never return JSON** — throw an `AppError` subclass from `src/common/errors.ts`; `errorHandler` converts it to `{ error: { code, message } }`. Never call `c.json({ error: ... })` directly — it bypasses Sentry capture and structured logging.
+- **Read env vars from `config` (`src/common/config.ts`)**, never from `process.env` directly — `config` is Zod-validated at startup; `process.env` bypasses that guarantee
+- **When a repository has multiple implementations (Drizzle + InMemory), define a shared `type XRepository = { ... }` and have both classes implement it** — this lets TypeScript catch type mismatches between implementations, and lets services declare `constructor(repo: XRepository)` to accept either. Repositories with only a Drizzle class do not need a shared type. No `I` prefix on type names.
 - **Response shape** — always use `successResponseSchema` / `errorResponseSchema` from `src/common/schemas.ts` for OpenAPI response definitions
 - **Services are framework-agnostic** — no `c` (Hono context), no Drizzle imports
 - **Repositories own all queries** — services never import Drizzle or run SQL

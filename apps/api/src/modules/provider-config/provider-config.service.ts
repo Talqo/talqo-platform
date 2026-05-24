@@ -1,6 +1,8 @@
-import type { ProviderType } from "shared"
+import type { AiProviderConfig, ProviderType } from "shared"
+import { upsertProviderConfigBodySchema } from "shared"
+import { getDefaultProviderConfig } from "@/common/config"
 import { decrypt, encrypt } from "@/common/crypto"
-import { NotFoundError } from "@/common/errors"
+import { BadRequestError, NotFoundError } from "@/common/errors"
 import type { ProviderConfigRepository } from "./provider-config.repository"
 
 type UpsertInput = {
@@ -62,5 +64,35 @@ export class ProviderConfigService {
 	async deleteConfig(clientId: string) {
 		const deleted = await this.repo.deleteByClientId(clientId)
 		if (!deleted) throw new NotFoundError("No provider config found")
+	}
+
+	async resolveForAi(
+		clientId: string,
+	): Promise<{ config: AiProviderConfig; isExternal: boolean }> {
+		const row = await this.repo.getByClientId(clientId)
+		if (row) {
+			const parsed = upsertProviderConfigBodySchema.safeParse({
+				providerType: row.providerType,
+				apiKey: await decrypt(row.apiKeyEncrypted),
+				model: row.model,
+				baseUrl: row.baseUrl ?? undefined,
+				embeddingModel: row.embeddingModel ?? undefined,
+			})
+			if (!parsed.success) {
+				throw new BadRequestError(
+					"PROVIDER_CONFIG_INVALID",
+					`Invalid provider config: ${parsed.error.issues.map(({ path, message }) => `${path.join(".")}: ${message}`).join(", ")}`,
+				)
+			}
+			return { config: parsed.data, isExternal: true }
+		}
+		const defaultConfig = getDefaultProviderConfig()
+		if (!defaultConfig) {
+			throw new BadRequestError(
+				"PROVIDER_NOT_CONFIGURED",
+				"No AI provider configured",
+			)
+		}
+		return { config: defaultConfig, isExternal: false }
 	}
 }

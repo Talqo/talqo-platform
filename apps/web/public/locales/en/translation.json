@@ -379,7 +379,9 @@
 			"deleting": "Deleting...",
 			"deleteMyAccount": "Delete my account",
 			"passwordChangedSuccess": "Password changed successfully",
-			"passwordChangeFailed": "Failed to change password. Please try again."
+			"passwordChangeFailed": "Failed to change password. Please try again.",
+			"profileSaveFailed": "Failed to save profile. Please try again.",
+			"rotateFailed": "Failed to regenerate token. Please try again."
 		},
 		"billing": {
 			"title": "Usage & Limits",
@@ -471,6 +473,10 @@
 		}
 	},
 	"mcp": {
+		"status": {
+			"ready": "Ready",
+			"error": "Error"
+		},
 		"customDialog": {
 			"addTitle": "Add Custom MCP Server",
 			"editTitle": "Edit Custom MCP Server",
@@ -484,7 +490,8 @@
 			"headerValue": "Value",
 			"removeHeader": "Remove header",
 			"saveChanges": "Save changes",
-			"addServer": "Add server"
+			"addServer": "Add server",
+			"saveFailed": "Failed to save server. Please try again."
 		}
 	},
 	"blacklist": {

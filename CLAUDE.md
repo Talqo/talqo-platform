@@ -47,7 +47,7 @@ Tabs, double quotes, no semicolons, trailing commas, line width 80. `components/
 Run after changes:
 
 ```bash
-bun run check --write --unsafe
+bun run fix
 bun run type-check
 bun run test
 make e2e

@@ -20,6 +20,7 @@ const envSchema = z
 		S3_BUCKET: z.string().min(1),
 		RESEND_API_KEY: z.string().min(1),
 		APP_URL: z.string().url(),
+		ALLOWED_ORIGINS: z.string().optional(),
 		// 32-byte AES-256-GCM key represented as 64 hex characters
 		PROVIDER_KEY_SECRET: z
 			.string()
@@ -112,6 +113,7 @@ const testDefaults = isTest
 			S3_BUCKET: "test",
 			RESEND_API_KEY: "test",
 			APP_URL: "http://localhost:3000",
+			ALLOWED_ORIGINS: "http://localhost:5173",
 			// 64 hex chars = 32 bytes, valid for AES-256-GCM
 			PROVIDER_KEY_SECRET:
 				"0000000000000000000000000000000000000000000000000000000000000000",
@@ -123,6 +125,7 @@ const testDefaults = isTest
 const parsed = envSchema.safeParse({
 	...testDefaults,
 	...process.env,
+	ALLOWED_ORIGINS: normalizeEmpty(process.env.ALLOWED_ORIGINS),
 	DEFAULT_LLM_PROVIDER_TYPE: normalizeEmpty(
 		process.env.DEFAULT_LLM_PROVIDER_TYPE,
 	),
@@ -168,26 +171,26 @@ export function getDefaultProviderConfig(): AiProviderConfig | null {
 			)
 		}
 		return {
-			type: DEFAULT_LLM_PROVIDER_TYPE,
+			providerType: DEFAULT_LLM_PROVIDER_TYPE,
 			apiKey: DEFAULT_LLM_API_KEY,
 			model: DEFAULT_LLM_MODEL,
-			baseURL: DEFAULT_LLM_BASE_URL,
+			baseUrl: DEFAULT_LLM_BASE_URL,
 			embeddingModel: DEFAULT_EMBEDDING_MODEL,
 		}
 	}
 	const result: {
-		type: string
+		providerType: string
 		apiKey: string
 		model: string
-		baseURL?: string
+		baseUrl?: string
 		embeddingModel?: string
 	} = {
-		type: DEFAULT_LLM_PROVIDER_TYPE,
+		providerType: DEFAULT_LLM_PROVIDER_TYPE,
 		apiKey: DEFAULT_LLM_API_KEY,
 		model: DEFAULT_LLM_MODEL,
 	}
 	if (typeof DEFAULT_LLM_BASE_URL === "string" && DEFAULT_LLM_BASE_URL) {
-		result.baseURL = DEFAULT_LLM_BASE_URL
+		result.baseUrl = DEFAULT_LLM_BASE_URL
 	}
 	if (DEFAULT_EMBEDDING_MODEL) {
 		result.embeddingModel = DEFAULT_EMBEDDING_MODEL

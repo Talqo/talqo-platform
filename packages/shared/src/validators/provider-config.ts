@@ -1,11 +1,15 @@
 import { z } from "zod"
 
-const providerTypeSchema = z.enum([
+const PROVIDER_TYPES = [
 	"openai",
 	"openai_compatible",
 	"google",
 	"anthropic",
-])
+] as const
+
+const providerTypeSchema = z.enum(PROVIDER_TYPES)
+
+export type ProviderType = z.infer<typeof providerTypeSchema>
 
 const standardProviderFields = {
 	apiKey: z.string().trim().min(1).max(255),

@@ -1,4 +1,5 @@
 import { and, eq, gte, lt, sql, sum } from "drizzle-orm"
+import { BadRequestError } from "@/common/errors"
 import type { DB } from "@/db"
 import {
 	clients,
@@ -15,7 +16,7 @@ export type WidgetMessage = {
 	role: string
 	content: string
 	tokenCount: number
-	createdAt: string
+	createdAt: Date
 }
 
 export type IWidgetRepository = {
@@ -49,8 +50,7 @@ export type IWidgetRepository = {
 		id: string
 		sessionId: string
 		clientId: string
-		startedAt: string | null
-		endedAt: string | null
+		startedAt: Date
 		satisfactionRating: number | null
 	}>
 	getConversation(
@@ -60,8 +60,7 @@ export type IWidgetRepository = {
 		id: string
 		sessionId: string
 		clientId: string
-		startedAt: string | null
-		endedAt: string | null
+		startedAt: Date
 		satisfactionRating: number | null
 	} | null>
 	deleteConversation(conversationId: string, clientId: string): Promise<boolean>
@@ -73,8 +72,7 @@ export type IWidgetRepository = {
 		id: string
 		sessionId: string
 		clientId: string
-		startedAt: string | null
-		endedAt: string | null
+		startedAt: Date
 		satisfactionRating: number | null
 	} | null>
 	getMessages(
@@ -126,11 +124,11 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			id: string
 			sessionId: string
 			clientId: string
-			startedAt: string | null
-			endedAt: string | null
+			startedAt: Date
 			satisfactionRating: number | null
 		}
 	>()
+	private clients = new Map<string, { balanceUsd: string }>()
 	private messageList: WidgetMessage[] = []
 	private usages: {
 		clientId: string
@@ -176,8 +174,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			id,
 			sessionId,
 			clientId,
-			startedAt: new Date().toISOString(),
-			endedAt: null,
+			startedAt: new Date(),
 			satisfactionRating: null,
 		}
 		this.conversations.set(id, conv)
@@ -235,7 +232,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			role,
 			content,
 			tokenCount,
-			createdAt: new Date().toISOString(),
+			createdAt: new Date(),
 		}
 		this.messageList.push(msg)
 		return msg
@@ -247,6 +244,18 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		tokensUsed: number,
 		costUsd: string,
 	) {
+		const client = this.clients.get(clientId)
+		if (client) {
+			if (parseFloat(client.balanceUsd) < parseFloat(costUsd)) {
+				throw new BadRequestError(
+					"BALANCE_INSUFFICIENT",
+					"Insufficient balance",
+				)
+			}
+			client.balanceUsd = (
+				parseFloat(client.balanceUsd) - parseFloat(costUsd)
+			).toFixed(4)
+		}
 		this.usages.push({ clientId, messageId, tokensUsed, costUsd })
 		this.balanceDeductions.push({ clientId, amount: costUsd })
 	}
@@ -263,7 +272,7 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 	}
 }
 
-export class WidgetRepository {
+export class WidgetRepository implements IWidgetRepository {
 	constructor(private readonly db: DB) {}
 
 	// ─── Sessions ────────────────────────────────────────────────────────────────
@@ -398,10 +407,22 @@ export class WidgetRepository {
 			await tx
 				.insert(usageRecords)
 				.values({ clientId, messageId, tokensUsed, costUsd })
-			await tx
+			const updated = await tx
 				.update(clients)
-				.set({ balanceUsd: sql`${clients.balanceUsd} - ${costUsd}` })
-				.where(eq(clients.id, clientId))
+				.set({ balanceUsd: sql`${clients.balanceUsd} - ${costUsd}::numeric` })
+				.where(
+					and(
+						eq(clients.id, clientId),
+						sql`${clients.balanceUsd} >= ${costUsd}::numeric`,
+					),
+				)
+				.returning({ id: clients.id })
+			if (updated.length === 0) {
+				throw new BadRequestError(
+					"BALANCE_INSUFFICIENT",
+					"Insufficient balance",
+				)
+			}
 		})
 	}
 

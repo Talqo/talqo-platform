@@ -26,7 +26,62 @@ const granularityLiteral = {
 
 export type Granularity = "day" | "week" | "month"
 
-export class AnalyticsRepository {
+type TokenUsageRow = {
+	period: string
+	tokensUsed: number
+	costUsd: string | null
+}
+
+type MessageCountRow = { period: string; messageCount: number }
+
+type ConversationCountRow = { period: string; conversationCount: number }
+
+type ClientSummaryResult = {
+	totalConversations: number
+	uniqueUsers: number
+	avgSatisfactionRating: number | null
+	totalUserMessages: number
+	totalTokens: number
+	totalPageviewSessions: number
+}
+
+type PlatformStatsResult = {
+	totalTokens: number
+	totalCostUsd: string | null
+	activeClients: number
+	totalConversations: number
+}
+
+export type AnalyticsRepository = {
+	getTokenUsage(
+		clientId: string,
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	): Promise<TokenUsageRow[]>
+	getMessageCounts(
+		clientId: string,
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	): Promise<MessageCountRow[]>
+	getClientSummary(clientId: string): Promise<ClientSummaryResult>
+	getPlatformStats(): Promise<PlatformStatsResult>
+	getActiveTenantCount(days: number): Promise<number>
+	getPlatformTokenUsageOverTime(
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	): Promise<TokenUsageRow[]>
+	getPlatformConversationCountsOverTime(
+		from: Date,
+		to: Date,
+		granularity: Granularity,
+	): Promise<ConversationCountRow[]>
+	getAvgPlatformSatisfaction(): Promise<number>
+}
+
+export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 	constructor(private readonly db: DB) {}
 
 	async getTokenUsage(
@@ -222,36 +277,10 @@ export class AnalyticsRepository {
 	}
 }
 
-type TokenUsageRow = {
-	period: string
-	tokensUsed: number
-	costUsd: string | null
-}
-type MessageCountRow = { period: string; messageCount: number }
-type ClientSummary = Awaited<
-	ReturnType<AnalyticsRepository["getClientSummary"]>
->
-type PlatformStats = Awaited<
-	ReturnType<AnalyticsRepository["getPlatformStats"]>
->
-
-export class InMemoryAnalyticsRepository
-	implements
-		Pick<
-			AnalyticsRepository,
-			| "getTokenUsage"
-			| "getMessageCounts"
-			| "getClientSummary"
-			| "getPlatformStats"
-			| "getActiveTenantCount"
-			| "getPlatformTokenUsageOverTime"
-			| "getPlatformConversationCountsOverTime"
-			| "getAvgPlatformSatisfaction"
-		>
-{
+export class InMemoryAnalyticsRepository implements AnalyticsRepository {
 	tokenUsage: TokenUsageRow[] = []
 	messageCounts: MessageCountRow[] = []
-	clientSummary: ClientSummary = {
+	clientSummary: ClientSummaryResult = {
 		totalConversations: 0,
 		uniqueUsers: 0,
 		avgSatisfactionRating: 0,
@@ -259,7 +288,7 @@ export class InMemoryAnalyticsRepository
 		totalTokens: 0,
 		totalPageviewSessions: 0,
 	}
-	platformStats: PlatformStats = {
+	platformStats: PlatformStatsResult = {
 		totalTokens: 0,
 		totalCostUsd: "0",
 		activeClients: 0,

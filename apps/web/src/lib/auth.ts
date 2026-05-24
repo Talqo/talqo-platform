@@ -3,7 +3,7 @@
  * Used by protected routes and auto-login functionality
  */
 import { getApiBaseUrl } from "./api"
-import { STORAGE_KEYS } from "./constants"
+import { AUTH } from "./constants"
 
 export type TokenValidationResult = {
 	valid: boolean
@@ -86,26 +86,26 @@ export async function validateToken(
  * Get client token from storage
  */
 export function getClientToken(): string | null {
-	return localStorage.getItem(STORAGE_KEYS.TOKEN)
+	return localStorage.getItem(AUTH.TOKEN_KEY)
 }
 
 /**
  * Get admin token from storage
  */
 export function getAdminToken(): string | null {
-	return localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN)
+	return localStorage.getItem(AUTH.ADMIN_TOKEN_KEY)
 }
 
 /**
  * Clear client token from storage
  */
 export function clearClientToken(): void {
-	localStorage.removeItem(STORAGE_KEYS.TOKEN)
+	localStorage.removeItem(AUTH.TOKEN_KEY)
 }
 
 /**
  * Clear admin token from storage
  */
 export function clearAdminToken(): void {
-	localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN)
+	localStorage.removeItem(AUTH.ADMIN_TOKEN_KEY)
 }

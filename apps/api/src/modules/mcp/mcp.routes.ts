@@ -322,15 +322,7 @@ clientMcpRoutes.openapi(
 		}
 
 		if (!config) {
-			return c.json(
-				{
-					error: {
-						code: "NOT_FOUND",
-						message: "Server not found or not enabled",
-					},
-				},
-				404,
-			)
+			throw new NotFoundError("Server not found or not enabled")
 		}
 
 		const result = await verifyMcpServer(config)

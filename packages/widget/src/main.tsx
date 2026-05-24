@@ -1,7 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { EmbeddedWidget } from "./EmbeddedWidget"
-import "./i18n"
+import { getOrCreateBrowserSessionId } from "./hooks/useWidget"
 import type {
 	PagePalConfig,
 	ResolvedWidgetConfig,
@@ -59,9 +59,9 @@ const HARDCODED_DEFAULTS: ResolvedWidgetConfig = {
 type WidgetConfigApiResponse = {
 	botName: string
 	position: string
-	lightColors: Record<string, string>
-	darkColors: Record<string, string>
-	icons: Record<string, string>
+	lightColors: Record<string, unknown> | null
+	darkColors: Record<string, unknown> | null
+	icons: Record<string, unknown> | null
 }
 
 function isWidgetConfigApiResponse(
@@ -75,6 +75,44 @@ function isWidgetConfigApiResponse(
 		"darkColors" in data &&
 		"icons" in data
 	)
+}
+
+function toWidgetColors(raw: unknown, defaults: WidgetColors): WidgetColors {
+	const obj =
+		typeof raw === "object" && raw !== null
+			? (raw as Record<string, unknown>)
+			: {}
+	const str = (v: unknown, def: string) => (typeof v === "string" ? v : def)
+	return {
+		primary: str(obj.primary, defaults.primary),
+		bgPrimary: str(obj.bgPrimary, defaults.bgPrimary),
+		bgSecondary: str(obj.bgSecondary, defaults.bgSecondary),
+		textPrimary: str(obj.textPrimary, defaults.textPrimary),
+		textSecondary: str(obj.textSecondary, defaults.textSecondary),
+		border: str(obj.border, defaults.border),
+		headerTitleText: str(obj.headerTitleText, defaults.headerTitleText),
+		userMessageText: str(obj.userMessageText, defaults.userMessageText),
+		sendButtonIcon: str(obj.sendButtonIcon, defaults.sendButtonIcon),
+		footerText: str(obj.footerText, defaults.footerText),
+	}
+}
+
+function toWidgetIcons(raw: unknown, defaults: WidgetIcons): WidgetIcons {
+	const obj =
+		typeof raw === "object" && raw !== null
+			? (raw as Record<string, unknown>)
+			: {}
+	return {
+		botAvatar:
+			typeof obj.botAvatar === "string" ? obj.botAvatar : defaults.botAvatar,
+	}
+}
+
+function generateDarkFromLight(light: WidgetColors): WidgetColors {
+	return {
+		...HARDCODED_DEFAULTS.darkColors,
+		primary: light.primary,
+	}
 }
 
 async function fetchWidgetConfig(token: string): Promise<ResolvedWidgetConfig> {
@@ -92,19 +130,24 @@ async function fetchWidgetConfig(token: string): Promise<ResolvedWidgetConfig> {
 		if (!isWidgetConfigApiResponse(raw)) {
 			return { ...HARDCODED_DEFAULTS, widgetToken: token, apiUrl: API_URL }
 		}
+		const resolvedLight = toWidgetColors(
+			raw.lightColors,
+			HARDCODED_DEFAULTS.colors,
+		)
 		return {
 			widgetToken: token,
 			apiUrl: API_URL,
-			colors: (raw.lightColors as WidgetColors) ?? HARDCODED_DEFAULTS.colors,
-			darkColors:
-				(raw.darkColors as WidgetColors) ?? HARDCODED_DEFAULTS.darkColors,
+			colors: resolvedLight,
+			darkColors: raw.darkColors
+				? toWidgetColors(raw.darkColors, HARDCODED_DEFAULTS.darkColors)
+				: generateDarkFromLight(resolvedLight),
 			position:
 				raw.position === "left" || raw.position === "right"
 					? raw.position
 					: HARDCODED_DEFAULTS.position,
 			defaultOpen: HARDCODED_DEFAULTS.defaultOpen,
 			botName: raw.botName ?? HARDCODED_DEFAULTS.botName,
-			icons: (raw.icons as WidgetIcons) ?? HARDCODED_DEFAULTS.icons,
+			icons: toWidgetIcons(raw.icons, HARDCODED_DEFAULTS.icons),
 		}
 	} catch {
 		clearTimeout(timer)
@@ -183,24 +226,9 @@ function injectCSSVariables(config: ResolvedWidgetConfig): HTMLElement {
 	return root
 }
 
-const SESSION_ID_KEY = "pagepal:widget:sessionId"
-
-function getOrCreateBrowserSessionId(): string | null {
-	try {
-		const existing = localStorage.getItem(SESSION_ID_KEY)
-		if (existing) return existing
-		const id = crypto.randomUUID()
-		localStorage.setItem(SESSION_ID_KEY, id)
-		return id
-	} catch {
-		return null
-	}
-}
-
 function trackPageview(token: string, apiUrl: string): void {
 	if (!token) return
 	const browserSessionId = getOrCreateBrowserSessionId()
-	if (!browserSessionId) return
 	fetch(`${apiUrl}/widget/sessions`, {
 		method: "POST",
 		headers: {

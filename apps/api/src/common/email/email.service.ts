@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { config } from "@/common/config"
 import { logger } from "@/common/logger"
 import {
 	passwordResetEmailTemplate,
@@ -24,11 +25,7 @@ function assertToken(token: string): void {
 }
 
 function createClient(): Resend {
-	const apiKey = process.env.RESEND_API_KEY
-	if (!apiKey) {
-		throw new Error("RESEND_API_KEY environment variable is not set")
-	}
-	return new Resend(apiKey)
+	return new Resend(config.RESEND_API_KEY)
 }
 
 async function send(to: string, subject: string, html: string): Promise<void> {

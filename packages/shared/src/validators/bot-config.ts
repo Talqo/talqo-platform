@@ -6,8 +6,12 @@ export const botConfigFieldsSchema = z.object({
 		.max(4000, "System prompt must be at most 4000 characters"),
 	defaultRole: z
 		.string()
-		.max(200, "Default role must be at most 200 characters"),
-	toneStyle: z.string().max(200, "Tone & style must be at most 200 characters"),
+		.min(1, "Default role must be at least 1 character")
+		.max(255, "Default role must be at most 255 characters"),
+	toneStyle: z
+		.string()
+		.min(1, "Tone & style must be at least 1 character")
+		.max(255, "Tone & style must be at most 255 characters"),
 })
 
 export const updateBotConfigBodySchema = z.object({

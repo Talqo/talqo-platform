@@ -15,7 +15,7 @@ function createOpenAICompatibleEmbedding(
 export function createEmbeddingModel(
 	providerConfig: AiProviderConfig,
 ): EmbeddingModel {
-	switch (providerConfig.type) {
+	switch (providerConfig.providerType) {
 		case "openai": {
 			if (!providerConfig.embeddingModel) {
 				throw new Error("embeddingModel is required for openai provider")
@@ -41,7 +41,7 @@ export function createEmbeddingModel(
 			return createOpenAICompatibleEmbedding(
 				{
 					name: "custom",
-					baseURL: providerConfig.baseURL,
+					baseURL: providerConfig.baseUrl,
 					apiKey: providerConfig.apiKey,
 				},
 				providerConfig.embeddingModel,

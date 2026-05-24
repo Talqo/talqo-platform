@@ -2,7 +2,44 @@ import { eq, sql } from "drizzle-orm"
 import type { DB } from "@/db"
 import { clients, pendingRegistrations } from "@/db/schema"
 
-export class ClientAccountRepository {
+type ClientProfile = {
+	id: string
+	name: string
+	email: string
+	balanceUsd: string
+	monthlyUsageLimit: string | null
+	usageAlertThresholdUsd: string | null
+	widgetToken: string
+	status: string
+	lastActive: Date | null
+	createdAt: Date
+	widgetSetupDismissed: boolean
+} | null
+
+export type ClientAccountRepository = {
+	getClientById(id: string): Promise<ClientProfile>
+	updateClient(
+		id: string,
+		data: Partial<{
+			name: string
+			email: string
+			widgetSetupDismissed: boolean
+		}>,
+	): Promise<{ id: string; name: string; email: string } | null>
+	updatePassword(id: string, passwordHash: string): Promise<void>
+	getPasswordHash(id: string): Promise<string | null>
+	addBalance(id: string, amount: string): Promise<{ balanceUsd: string } | null>
+	setUsageLimit(id: string, limit: string | null): Promise<void>
+	setUsageAlert(id: string, thresholdUsd: string | null): Promise<void>
+	setWidgetToken(
+		id: string,
+		widgetToken: string,
+	): Promise<{ widgetToken: string } | null>
+	findByEmail(email: string): Promise<{ id: string } | null>
+	deleteAccount(id: string): Promise<void>
+}
+
+export class DrizzleClientAccountRepository implements ClientAccountRepository {
 	constructor(private readonly db: DB) {}
 
 	async getClientById(id: string) {
@@ -120,7 +157,9 @@ type ClientRow = {
 	widgetToken: string
 }
 
-export class InMemoryClientAccountRepository {
+export class InMemoryClientAccountRepository
+	implements ClientAccountRepository
+{
 	private store = new Map<string, ClientRow>()
 	deletedIds: string[] = []
 
@@ -140,8 +179,8 @@ export class InMemoryClientAccountRepository {
 			usageAlertThresholdUsd: null as string | null,
 			widgetToken: c.widgetToken,
 			status: "active",
-			lastActive: null as string | null,
-			createdAt: new Date().toISOString(),
+			lastActive: null as Date | null,
+			createdAt: new Date(),
 			widgetSetupDismissed: false,
 		}
 	}
