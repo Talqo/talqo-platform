@@ -21,6 +21,7 @@ export type ConfirmDialogProps = {
 	confirmLoading?: boolean
 	disabled?: boolean
 	error?: string | null
+	trigger?: React.ReactNode
 	children?: React.ReactNode
 }
 
@@ -36,10 +37,12 @@ export function ConfirmDialog({
 	confirmLoading = false,
 	disabled = false,
 	error = null,
+	trigger,
 	children,
 }: ConfirmDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
+			{trigger}
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>

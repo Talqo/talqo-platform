@@ -7,19 +7,9 @@ import {
 	useWidgetConfig,
 } from "@/api/hooks"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import type { WidgetColors, WidgetColorsConfig, WidgetIcons } from "./setup"
@@ -68,6 +58,7 @@ export function WidgetSetup() {
 	const [botName, setBotName] = useState<string>(DEFAULT_BOT_NAME)
 	const [position, setPosition] = useState<"left" | "right">("right")
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
+	const [isResetOpen, setIsResetOpen] = useState(false)
 	const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const hasInitialized = useRef(false)
 
@@ -180,36 +171,24 @@ export function WidgetSetup() {
 							</CardTitle>
 						</div>
 						<div className="flex items-center gap-2">
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
-									<Button
-										type="button"
-										variant="outline"
-										disabled={isLoading || isSaving}
-									>
-										{t("widget.setup.reset")}
-									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											{t("widget.setup.resetConfirmTitle")}
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											{t("widget.setup.resetConfirmDescription")}
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-										<AlertDialogAction
-											onClick={handleReset}
-											className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-										>
-											{t("widget.setup.reset")}
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
+							<Button
+								type="button"
+								variant="outline"
+								disabled={isLoading || isSaving}
+								onClick={() => setIsResetOpen(true)}
+							>
+								{t("widget.setup.reset")}
+							</Button>
+							<ConfirmDialog
+								open={isResetOpen}
+								onOpenChange={setIsResetOpen}
+								title={t("widget.setup.resetConfirmTitle")}
+								description={t("widget.setup.resetConfirmDescription")}
+								confirmLabel={t("widget.setup.reset")}
+								cancelLabel={t("common.cancel")}
+								variant="destructive"
+								onConfirm={handleReset}
+							/>
 							<Button
 								type="button"
 								onClick={handleSave}
