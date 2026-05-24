@@ -22,16 +22,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import {
 	Form,
 	FormControl,
@@ -405,54 +396,34 @@ export function AccountSettingsTab() {
 									? t("common.failed")
 									: t("common.copy")}
 						</Button>
-						<Dialog
+						<Button
+							variant="outline"
+							size="sm"
+							type="button"
+							disabled={!accountData?.widgetToken}
+							onClick={() => setRotateConfirmOpen(true)}
+						>
+							{t("settings.account.regenerate")}
+						</Button>
+						<ConfirmDialog
 							open={rotateConfirmOpen}
 							onOpenChange={(next) => {
 								if (!next) rotateWidgetToken.reset()
 								setRotateConfirmOpen(next)
 							}}
-						>
-							<DialogTrigger asChild>
-								<Button
-									variant="outline"
-									size="sm"
-									type="button"
-									disabled={!accountData?.widgetToken}
-								>
-									{t("settings.account.regenerate")}
-								</Button>
-							</DialogTrigger>
-							<DialogContent>
-								<DialogHeader>
-									<DialogTitle>{t("settings.account.regenerate")}</DialogTitle>
-									<DialogDescription>
-										{t("settings.account.widgetTokenHelp")}
-									</DialogDescription>
-								</DialogHeader>
-								{rotateWidgetToken.isError && (
-									<p className="text-destructive text-sm">
-										{t("settings.account.rotateFailed")}
-									</p>
-								)}
-								<DialogFooter>
-									<DialogClose asChild>
-										<Button variant="outline" type="button">
-											{t("common.cancel")}
-										</Button>
-									</DialogClose>
-									<Button
-										variant="destructive"
-										type="button"
-										onClick={handleRotateConfirmed}
-										disabled={rotateWidgetToken.isPending}
-									>
-										{rotateWidgetToken.isPending
-											? t("settings.account.saving")
-											: t("settings.account.regenerate")}
-									</Button>
-								</DialogFooter>
-							</DialogContent>
-						</Dialog>
+							title={t("settings.account.regenerate")}
+							description={t("settings.account.widgetTokenHelp")}
+							confirmLabel={t("settings.account.regenerate")}
+							cancelLabel={t("common.cancel")}
+							variant="destructive"
+							onConfirm={handleRotateConfirmed}
+							confirmLoading={rotateWidgetToken.isPending}
+							error={
+								rotateWidgetToken.isError
+									? t("settings.account.rotateFailed")
+									: null
+							}
+						/>
 					</div>
 				</CardContent>
 			</Card>
