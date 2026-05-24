@@ -60,29 +60,27 @@ function DeleteAccountDialog() {
 	}
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={(next) => {
-				if (!next) form.reset()
-				setOpen(next)
-			}}
-		>
-			<DialogTrigger asChild>
-				<Button variant="destructive" size="sm">
-					{t("settings.account.deleteAccount")}
-				</Button>
-			</DialogTrigger>
-			<DialogContent>
+		<>
+			<Button variant="destructive" size="sm" onClick={() => setOpen(true)}>
+				{t("settings.account.deleteAccount")}
+			</Button>
+			<ConfirmDialog
+				open={open}
+				onOpenChange={(next) => {
+					if (!next) form.reset()
+					setOpen(next)
+				}}
+				title={t("settings.account.deleteAccountTitle")}
+				description={t("settings.account.deleteAccountDescription")}
+				confirmLabel={t("settings.account.deleteMyAccount")}
+				cancelLabel={t("common.cancel")}
+				variant="destructive"
+				onConfirm={form.handleSubmit(onSubmit)}
+				confirmLoading={deleteAccount.isPending}
+				disabled={!form.watch("password")}
+			>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)}>
-						<DialogHeader>
-							<DialogTitle>
-								{t("settings.account.deleteAccountTitle")}
-							</DialogTitle>
-							<DialogDescription>
-								{t("settings.account.deleteAccountDescription")}
-							</DialogDescription>
-						</DialogHeader>
+					<form id="delete-account-form" onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="space-y-2 py-2">
 							<FormField
 								control={form.control}
@@ -104,33 +102,17 @@ function DeleteAccountDialog() {
 									</FormItem>
 								)}
 							/>
-							{deleteAccount.isError && (
-								<p className="text-destructive text-sm">
-									{deleteAccount.error?.error?.message ??
-										t("settings.account.deleteAccountError")}
-								</p>
-							)}
 						</div>
-						<DialogFooter>
-							<DialogClose asChild>
-								<Button variant="outline" disabled={deleteAccount.isPending}>
-									{t("common.cancel")}
-								</Button>
-							</DialogClose>
-							<Button
-								type="submit"
-								variant="destructive"
-								disabled={!form.watch("password") || deleteAccount.isPending}
-							>
-								{deleteAccount.isPending
-									? t("settings.account.deleting")
-									: t("settings.account.deleteMyAccount")}
-							</Button>
-						</DialogFooter>
 					</form>
 				</Form>
-			</DialogContent>
-		</Dialog>
+				{deleteAccount.isError && (
+					<p className="text-destructive text-sm">
+						{deleteAccount.error?.error?.message ??
+							t("settings.account.deleteAccountError")}
+					</p>
+				)}
+			</ConfirmDialog>
+		</>
 	)
 }
 
