@@ -30,8 +30,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import type { ChartDataPoint } from "@/data/charts"
-import { formatPeriod, mapClientsToTenants } from "@/lib/backoffice-utils"
+import { useBackofficeChartData } from "@/hooks/useBackofficeChartData"
+import { mapClientsToTenants } from "@/lib/backoffice-utils"
 import { AUTH } from "@/lib/constants"
 
 export const Route = createFileRoute("/backoffice/")({
@@ -60,18 +60,9 @@ function BackofficePage() {
 		"suspend",
 	)
 
-	const tokenChartData: ChartDataPoint[] = (tokenData ?? []).map((d) => ({
-		name: formatPeriod(d.period),
-		tokens: d.tokensUsed,
-		questions: 0,
-	}))
-
-	const conversationChartData: ChartDataPoint[] = (conversationData ?? []).map(
-		(d) => ({
-			name: formatPeriod(d.period),
-			tokens: 0,
-			questions: d.conversationCount,
-		}),
+	const { tokenChartData, conversationChartData } = useBackofficeChartData(
+		tokenData,
+		conversationData,
 	)
 
 	function handleSuspend(id: string) {
