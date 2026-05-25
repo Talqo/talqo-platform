@@ -10,6 +10,7 @@
 			"allTime": "Celkem",
 			"questionsAnswered": "Zodpovězené otázky",
 			"activeConnectors": "Aktivní konektory",
+			"customServers": "{{count}} vlastních",
 			"currentSpend": "Aktuální výdaje",
 			"totalConversations": "Celkem konverzací",
 			"uniqueUsers": "Unikátní uživatelé",

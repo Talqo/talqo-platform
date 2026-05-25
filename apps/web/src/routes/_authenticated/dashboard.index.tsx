@@ -9,6 +9,7 @@ import {
 	useMessageAnalytics,
 	useTokenAnalytics,
 } from "@/api/hooks"
+import { useCustomServers, useEnabledPreMadeServers } from "@/api/hooks/useMcp"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { PageHeader } from "@/components/layout"
 import { StatCard } from "@/components/stats/StatCard"
@@ -36,6 +37,8 @@ function AdminDashboard() {
 	const { data: tokenData } = useTokenAnalytics()
 	const { data: messageData } = useMessageAnalytics()
 	const { data: summary } = useClientAnalyticsSummary()
+	const { data: enabledPreMade } = useEnabledPreMadeServers()
+	const { data: customServers } = useCustomServers()
 
 	useEffect(() => {
 		if (isSuccess && currentUser?.widgetSetupDismissed === false) {
@@ -77,6 +80,20 @@ function AdminDashboard() {
 			? `${((summary.uniqueUsers / summary.totalPageviewSessions) * 100).toFixed(1)}%`
 			: t("dashboard.overview.noData")
 
+	const activeConnectorCount =
+		(enabledPreMade?.length ?? 0) + (customServers?.length ?? 0)
+	const connectorParts = enabledPreMade?.map((s) => s.name) ?? []
+	const customCount = customServers?.length ?? 0
+	if (customCount > 0) {
+		connectorParts.push(
+			t("dashboard.overview.customServers", { count: customCount }),
+		)
+	}
+	const connectorSubtitle =
+		connectorParts.length > 0
+			? connectorParts.join(", ")
+			: t("dashboard.overview.noData")
+
 	return (
 		<div className="space-y-6">
 			<PageHeader
@@ -114,8 +131,8 @@ function AdminDashboard() {
 				/>
 				<StatCard
 					title={t("dashboard.overview.activeConnectors")}
-					value="2"
-					subtitle="Product DB, Internal Wiki"
+					value={activeConnectorCount.toString()}
+					subtitle={connectorSubtitle}
 					icon="bot"
 				/>
 				<StatCard

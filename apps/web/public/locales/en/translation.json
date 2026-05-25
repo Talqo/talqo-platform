@@ -10,6 +10,7 @@
 			"allTime": "All Time",
 			"questionsAnswered": "Questions Answered",
 			"activeConnectors": "Active Connectors",
+			"customServers": "{{count}} custom",
 			"currentSpend": "Current Spend",
 			"totalConversations": "Total Conversations",
 			"uniqueUsers": "Unique Users",
