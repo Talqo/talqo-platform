@@ -337,9 +337,9 @@
 	flex-shrink: 0;
 }
 
-.aiw-message-avatar > svg {
-	width: 100%;
-	height: 100%;
+.aiw-message-avatar > svg,
+.aiw-message-avatar > span > svg {
+	flex-shrink: 0;
 }
 
 .aiw-message[data-role="user"] .aiw-message-avatar {
