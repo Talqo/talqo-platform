@@ -12,6 +12,7 @@ import {
 	useUpdateClientProfile,
 } from "@/api/hooks"
 import type { ApiError } from "@/api/hooks/useAuth"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,7 +23,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import {
 	Form,
 	FormControl,

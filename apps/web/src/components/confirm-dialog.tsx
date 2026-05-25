@@ -1,3 +1,7 @@
+import type { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
 	Dialog,
 	DialogContent,
@@ -6,8 +10,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export type ConfirmDialogProps = {
 	open: boolean
@@ -21,8 +23,8 @@ export type ConfirmDialogProps = {
 	confirmLoading?: boolean
 	disabled?: boolean
 	error?: string | null
-	trigger?: React.ReactNode
-	children?: React.ReactNode
+	trigger?: ReactNode
+	children?: ReactNode
 }
 
 export function ConfirmDialog({
@@ -31,7 +33,7 @@ export function ConfirmDialog({
 	title,
 	description,
 	confirmLabel,
-	cancelLabel = "Cancel",
+	cancelLabel,
 	variant = "default",
 	onConfirm,
 	confirmLoading = false,
@@ -40,6 +42,9 @@ export function ConfirmDialog({
 	trigger,
 	children,
 }: ConfirmDialogProps) {
+	const { t } = useTranslation()
+	const resolvedCancelLabel = cancelLabel ?? t("common.cancel")
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			{trigger}
@@ -61,12 +66,12 @@ export function ConfirmDialog({
 						disabled={confirmLoading}
 						type="button"
 					>
-						{cancelLabel}
+						{resolvedCancelLabel}
 					</Button>
 					<Button
 						variant={variant}
 						onClick={onConfirm}
-						disabled={disabled || confirmLoading}
+						disabled={disabled ?? confirmLoading}
 						type="button"
 					>
 						{confirmLabel}

@@ -647,6 +647,14 @@
 			"updateFailed": "Failed to update server. Please try again.",
 			"deleteFailed": "Failed to delete server. Please try again.",
 			"deleting": "Deleting..."
+		},
+		"client": {
+			"suspendTitle": "Suspend client?",
+			"suspendDescription": "This will immediately block the client from accessing their dashboard and widget.",
+			"suspendConfirm": "Suspend",
+			"reEnableTitle": "Re-enable client?",
+			"reEnableDescription": "This will restore the client's access to their dashboard and widget.",
+			"reEnableConfirm": "Re-enable"
 		}
 	},
 	"auth": {

@@ -6,10 +6,10 @@ import {
 	useUpdateWidgetConfig,
 	useWidgetConfig,
 } from "@/api/hooks"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import type { WidgetColors, WidgetColorsConfig, WidgetIcons } from "./setup"
@@ -136,6 +136,7 @@ export function WidgetSetup() {
 		setIcons(defaultIcons)
 		setBotName(DEFAULT_BOT_NAME)
 		setPosition("right")
+		setIsResetOpen(false)
 	}
 
 	const isLoading = isClientLoading || isConfigLoading

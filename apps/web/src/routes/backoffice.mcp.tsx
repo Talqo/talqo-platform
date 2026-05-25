@@ -13,9 +13,9 @@ import {
 } from "@/api/hooks/useAdmin"
 import { McpDialog } from "@/components/backoffice/McpDialog"
 import { McpTable } from "@/components/backoffice/McpTable"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 type PreMadeServerResponse =
 	paths["/admin/mcp/pre-made"]["get"]["responses"][200]["content"]["application/json"][number]

@@ -21,6 +21,7 @@ import {
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
 import { TenantsTable } from "@/components/backoffice/TenantsTable"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import {
 	Card,
 	CardContent,
@@ -28,7 +29,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import type { Tenant } from "@/data/backoffice"
 import type { ChartDataPoint } from "@/data/charts"
 import { AUTH } from "@/lib/constants"
@@ -270,15 +270,21 @@ function BackofficePage() {
 					if (!open) setConfirmAction(null)
 				}}
 				title={
-					dialogType === "suspend" ? "Suspend client?" : "Re-enable client?"
+					dialogType === "suspend"
+						? t("backoffice.client.suspendTitle")
+						: t("backoffice.client.reEnableTitle")
 				}
 				description={
 					dialogType === "suspend"
-						? "This will immediately block the client from accessing their dashboard and widget."
-						: "This will restore the client's access to their dashboard and widget."
+						? t("backoffice.client.suspendDescription")
+						: t("backoffice.client.reEnableDescription")
 				}
-				confirmLabel={dialogType === "suspend" ? "Suspend" : "Re-enable"}
-				cancelLabel="Cancel"
+				confirmLabel={
+					dialogType === "suspend"
+						? t("backoffice.client.suspendConfirm")
+						: t("backoffice.client.reEnableConfirm")
+				}
+				cancelLabel={t("common.cancel")}
 				variant="destructive"
 				onConfirm={handleConfirm}
 				confirmLoading={updateStatus.isPending}
