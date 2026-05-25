@@ -71,7 +71,7 @@ export function ConfirmDialog({
 					<Button
 						variant={variant}
 						onClick={onConfirm}
-						disabled={disabled ?? confirmLoading}
+						disabled={disabled || confirmLoading}
 						type="button"
 					>
 						{confirmLabel}

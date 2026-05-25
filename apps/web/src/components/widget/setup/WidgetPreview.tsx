@@ -3,11 +3,11 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useWidgetPreviewStyles } from "@/components/widget/setup/useWidgetPreviewStyles"
 import { sanitizeSvg } from "@/lib/sanitize-svg"
 import { cn } from "@/lib/utils"
 import { DEFAULT_BOT_AVATAR } from "./constants"
 import type { WidgetColorsConfig, WidgetIcons } from "./types"
-import { useWidgetPreviewStyles } from "./useWidgetPreviewStyles"
 
 type WidgetPreviewProps = {
 	colors: WidgetColorsConfig

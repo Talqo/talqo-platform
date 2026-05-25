@@ -1,4 +1,4 @@
-import type { WidgetColors } from "./types"
+import type { WidgetColors } from "@/components/widget/setup/types"
 
 export function useWidgetPreviewStyles(themeColors: WidgetColors) {
 	return {

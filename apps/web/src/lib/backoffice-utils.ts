@@ -1,5 +1,9 @@
+import type { Tenant } from "@/data/backoffice"
+
 export function formatPeriod(period: string): string {
-	return new Date(period).toLocaleDateString("en-US", {
+	const date = new Date(period)
+	if (Number.isNaN(date.getTime())) return ""
+	return date.toLocaleDateString("en-US", {
 		month: "short",
 		day: "numeric",
 		timeZone: "UTC",
@@ -15,14 +19,6 @@ type Client = {
 	lastActive: string | null
 	createdAt: string
 	totalTokens: number
-}
-
-type Tenant = {
-	id: string
-	name: string
-	status: "active" | "suspended"
-	apiType: string
-	tokenUsage: string
 }
 
 const ALLOWED_STATUSES = new Set(["active", "suspended"])
