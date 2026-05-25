@@ -9,7 +9,7 @@
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",
-		"type-check": "tsgo --noEmit",
+		"type-check": "tsr generate && tsgo --noEmit",
 		"test": "bun -e \"console.log('No tests in web')\"",
 		"preview": "vite preview",
 		"generate-routes": "tsr generate",
