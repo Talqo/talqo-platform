@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import {
 	BarChart3,
@@ -85,6 +86,7 @@ export const Route = createFileRoute("/backoffice/")({
 
 function BackofficePage() {
 	const navigate = useNavigate()
+	const qc = useQueryClient()
 	const { t } = useTranslation()
 	const { data: clients, isLoading, error } = useAdminClients({ limit: 50 })
 	const { data: stats } = useAdminAnalyticsSummary()
@@ -155,6 +157,7 @@ function BackofficePage() {
 		impersonate.mutate(id, {
 			onSuccess: ({ token }) => {
 				localStorage.setItem(AUTH.TOKEN_KEY, token)
+				qc.clear()
 				navigate({ to: "/dashboard" })
 			},
 			onSettled: () => setPendingId(undefined),
