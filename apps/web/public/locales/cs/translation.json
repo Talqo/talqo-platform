@@ -794,5 +794,11 @@
 			"deleteFailed": "Nepodařilo se smazat server. Zkuste to znovu.",
 			"deleting": "Mazání..."
 		}
+	},
+	"notFound": {
+		"title": "Stránka nenalezena",
+		"description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
+		"goDashboard": "Přejít na nástěnku",
+		"goHome": "Přejít na úvod"
 	}
 }
