@@ -13,7 +13,10 @@
 		"test": "bun -e \"console.log('No tests in web')\"",
 		"preview": "vite preview",
 		"generate-routes": "tsr generate",
-		"generate-api": "bun run scripts/generate-api.ts"
+		"generate-api": "bun run scripts/generate-api.ts",
+		"check-i18n-unused": "bun run scripts/check-i18n-unused.ts",
+		"check-i18n-hardcoded": "bash scripts/check-i18n-hardcoded.sh",
+		"check-i18n": "bun run check-i18n-unused && bash scripts/check-i18n-hardcoded.sh"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.2.2",
