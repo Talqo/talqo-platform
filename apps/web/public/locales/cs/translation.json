@@ -793,6 +793,14 @@
 			"updateFailed": "Nepodařilo se aktualizovat server. Zkuste to znovu.",
 			"deleteFailed": "Nepodařilo se smazat server. Zkuste to znovu.",
 			"deleting": "Mazání..."
+		},
+		"client": {
+			"suspendTitle": "Pozastavit klienta?",
+			"suspendDescription": "Tím okamžitě zablokujete klientovi přístup k nástěnce a widgetu.",
+			"suspendConfirm": "Pozastavit",
+			"reEnableTitle": "Znovu povolit klienta?",
+			"reEnableDescription": "Tím obnovíte klientovi přístup k nástěnce a widgetu.",
+			"reEnableConfirm": "Znovu povolit"
 		}
 	},
 	"notFound": {

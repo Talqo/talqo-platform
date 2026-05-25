@@ -22,17 +22,7 @@ import {
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
 import { TenantsTable } from "@/components/backoffice/TenantsTable"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-	AlertDialog,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import {
 	Card,
 	CardContent,
@@ -277,40 +267,32 @@ function BackofficePage() {
 				</CardContent>
 			</Card>
 
-			<AlertDialog
+			<ConfirmDialog
 				open={confirmAction !== null}
 				onOpenChange={(open) => {
 					if (!open) setConfirmAction(null)
 				}}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							{dialogType === "suspend"
-								? "Suspend client?"
-								: "Re-enable client?"}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{dialogType === "suspend"
-								? "This will immediately block the client from accessing their dashboard and widget."
-								: "This will restore the client's access to their dashboard and widget."}
-						</AlertDialogDescription>
-						{actionError && (
-							<Alert variant="destructive" className="mt-4">
-								<AlertDescription>{actionError}</AlertDescription>
-							</Alert>
-						)}
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel disabled={updateStatus.isPending}>
-							Cancel
-						</AlertDialogCancel>
-						<Button onClick={handleConfirm} disabled={updateStatus.isPending}>
-							{dialogType === "suspend" ? "Suspend" : "Re-enable"}
-						</Button>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				title={
+					dialogType === "suspend"
+						? t("backoffice.client.suspendTitle")
+						: t("backoffice.client.reEnableTitle")
+				}
+				description={
+					dialogType === "suspend"
+						? t("backoffice.client.suspendDescription")
+						: t("backoffice.client.reEnableDescription")
+				}
+				confirmLabel={
+					dialogType === "suspend"
+						? t("backoffice.client.suspendConfirm")
+						: t("backoffice.client.reEnableConfirm")
+				}
+				cancelLabel={t("common.cancel")}
+				variant="destructive"
+				onConfirm={handleConfirm}
+				confirmLoading={updateStatus.isPending}
+				error={actionError}
+			/>
 		</div>
 	)
 }
