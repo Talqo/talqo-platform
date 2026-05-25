@@ -29,6 +29,67 @@ type EmbeddedWidgetProps = {
 	config: ResolvedWidgetConfig
 }
 
+function useDraggable() {
+	const rootRef = useRef<HTMLDivElement>(null)
+	const dragState = useRef<{ startX: number; startLeft: number } | null>(null)
+	const didDrag = useRef(false)
+	const [posX, setPosX] = useState<number | null>(null)
+
+	const onPointerDown = useCallback((e: React.PointerEvent) => {
+		if (!rootRef.current) return
+		e.currentTarget.setPointerCapture(e.pointerId)
+		didDrag.current = false
+		dragState.current = {
+			startX: e.clientX,
+			startLeft: rootRef.current.getBoundingClientRect().left,
+		}
+	}, [])
+
+	const onPointerMove = useCallback((e: React.PointerEvent) => {
+		const state = dragState.current
+		if (!state || !rootRef.current) return
+		const dx = e.clientX - state.startX
+		if (Math.abs(dx) < 5) return
+		didDrag.current = true
+		const maxLeft = window.innerWidth - rootRef.current.offsetWidth
+		const newLeft = Math.max(0, Math.min(maxLeft, state.startLeft + dx))
+		rootRef.current.style.left = `${newLeft}px`
+		rootRef.current.style.right = "auto"
+	}, [])
+
+	const onPointerUp = useCallback((e: React.PointerEvent) => {
+		const state = dragState.current
+		dragState.current = null
+		if (!state || !rootRef.current || !didDrag.current) return
+		const dx = e.clientX - state.startX
+		const maxLeft = window.innerWidth - rootRef.current.offsetWidth
+		setPosX(Math.max(0, Math.min(maxLeft, state.startLeft + dx)))
+	}, [])
+
+	const onHeaderPointerDown = useCallback(
+		(e: React.PointerEvent) => {
+			if ((e.target as HTMLElement).closest("button")) return
+			onPointerDown(e)
+		},
+		[onPointerDown],
+	)
+
+	const rootStyle: React.CSSProperties =
+		posX !== null ? { left: posX, right: "auto" } : {}
+
+	return {
+		rootRef,
+		rootStyle,
+		didDrag,
+		triggerDragProps: { onPointerDown, onPointerMove, onPointerUp },
+		headerDragProps: {
+			onPointerDown: onHeaderPointerDown,
+			onPointerMove,
+			onPointerUp,
+		},
+	}
+}
+
 function useResizable() {
 	const panelRef = useRef<HTMLDivElement>(null)
 	const startRef = useRef<{ y: number; h: number } | null>(null)
@@ -100,6 +161,8 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 	const widget = useWidgetContext()
 	const botAvatarSvg = config.icons.botAvatar
 	const { panelRef, panelStyle, resetSize, handleProps } = useResizable()
+	const { rootRef, rootStyle, didDrag, triggerDragProps, headerDragProps } =
+		useDraggable()
 
 	const handleToggleExpanded = useCallback(() => {
 		widget.toggleExpanded()
@@ -108,15 +171,25 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 
 	return (
 		<div
+			ref={rootRef}
 			className={"aiw-root"}
 			data-position={config.position}
 			data-theme={widget.isDark ? "dark" : "light"}
+			style={rootStyle}
 		>
 			{/* Only show trigger button when widget is closed */}
 			{!widget.isOpen && (
 				<WidgetTrigger
 					className={"aiw-trigger"}
 					closedContent={<AvatarIcon size={28} iconSvg={botAvatarSvg} />}
+					onClick={() => {
+						if (didDrag.current) {
+							didDrag.current = false
+							return
+						}
+						widget.toggleOpen()
+					}}
+					{...triggerDragProps}
 				/>
 			)}
 
@@ -134,7 +207,7 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 					{...handleProps}
 				/>
 
-				<WidgetHeader className={"aiw-header"}>
+				<WidgetHeader className={"aiw-header"} {...headerDragProps}>
 					<div className={"aiw-header-left"}>
 						<AvatarIcon size={24} iconSvg={botAvatarSvg} />
 						<span className={"aiw-header-title"}>{config.botName}</span>
