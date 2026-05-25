@@ -92,7 +92,18 @@
 	"typeAMessage": "Type a message...",
 	"poweredBy": "Powered by PagePal",
 	"aiAssistant": "AI Assistant",
-	"error": "Error",
+	"error": {
+		"errorBoundary": {
+			"title": "Something Went Wrong",
+			"description": "An unexpected error occurred.",
+			"message": "Please try refreshing the page. If the problem persists, contact support.",
+			"tryAgain": "Refresh Page"
+		},
+		"suspenseBoundary": {
+			"loadingContent": "Loading...",
+			"loadingPage": "Loading page..."
+		}
+	},
 	"success": "Success",
 	"warning": "Warning",
 	"info": "Info",
@@ -354,7 +365,8 @@
 		"pleaseTryAgain": "Please try again",
 		"switchToLightMode": "Switch to light mode",
 		"switchToDarkMode": "Switch to dark mode",
-		"logIn": "Log in"
+		"logIn": "Log in",
+		"confirmNewPassword": "Confirm New Password"
 	},
 	"settings": {
 		"account": {
