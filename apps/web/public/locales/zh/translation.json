@@ -793,6 +793,14 @@
 			"updateFailed": "更新服务器失败，请重试。",
 			"deleteFailed": "删除服务器失败，请重试。",
 			"deleting": "删除中..."
+		},
+		"client": {
+			"suspendTitle": "暂停客户？",
+			"suspendDescription": "这将立即阻止客户访问其仪表板和小部件。",
+			"suspendConfirm": "暂停",
+			"reEnableTitle": "重新启用客户？",
+			"reEnableDescription": "这将恢复客户对其仪表板和小部件的访问权限。",
+			"reEnableConfirm": "重新启用"
 		}
 	}
 }
