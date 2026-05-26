@@ -36,7 +36,6 @@ function AdminDashboard() {
 	const { data: tokenData } = useTokenAnalytics()
 	const { data: messageData } = useMessageAnalytics()
 	const { data: summary } = useClientAnalyticsSummary()
-
 	useEffect(() => {
 		if (isSuccess && currentUser?.widgetSetupDismissed === false) {
 			setShowPopup(true)
@@ -91,7 +90,7 @@ function AdminDashboard() {
 				subtitle={t("dashboard.overview.subtitle")}
 			/>
 
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<StatCard
 					title={t("dashboard.overview.currentBalance")}
 					value={balanceValue}
@@ -124,12 +123,6 @@ function AdminDashboard() {
 					value={totalMessages}
 					subtitle={t("dashboard.overview.allTime")}
 					icon="message"
-				/>
-				<StatCard
-					title={t("dashboard.overview.activeConnectors")}
-					value="2"
-					subtitle="Product DB, Internal Wiki"
-					icon="bot"
 				/>
 			</div>
 
