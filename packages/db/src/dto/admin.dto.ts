@@ -13,7 +13,7 @@ export const adminUserResponseSchema = createSelectSchema(adminUsers, {
 export const clientSummarySchema = createSelectSchema(clients, {
 	name: z.string(),
 	email: z.string(),
-	balanceUsd: z.string(),
+	balanceUsd: z.number(),
 	status: z.string(),
 	lastActive: z.string().nullable(),
 	createdAt: z.string(),

@@ -6,15 +6,15 @@ import { aiProviderConfigs, botConfigs, clients } from "@/schema/client"
 export const clientResponseSchema = createSelectSchema(clients, {
 	name: z.string(),
 	email: z.string(),
-	balanceUsd: z.string(),
-	monthlyUsageLimit: z.string().nullable(),
-	usageAlertThresholdUsd: z.string().nullable(),
+	balanceUsd: z.number(),
+	monthlyUsageLimit: z.number().nullable(),
+	usageAlertThresholdUsd: z.number().nullable(),
 	widgetToken: z.string(),
 	status: z.string(),
 	lastActive: z.string().nullable(),
 	createdAt: z.string(),
 	widgetSetupDismissed: z.boolean(),
-}).omit({ passwordHash: true, widgetToken: true })
+}).omit({ passwordHash: true })
 
 export const clientInsertSchema = createInsertSchema(clients).omit({
 	id: true,

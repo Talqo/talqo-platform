@@ -3,6 +3,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useWidgetPreviewStyles } from "@/components/widget/setup/useWidgetPreviewStyles"
 import { sanitizeSvg } from "@/lib/sanitize-svg"
 import { cn } from "@/lib/utils"
 import { DEFAULT_BOT_AVATAR } from "./constants"
@@ -51,6 +52,7 @@ export function WidgetPreview({
 	const { t } = useTranslation()
 	const [isDark, setIsDark] = useState(false)
 	const themeColors = isDark ? colors.dark : colors.light
+	const styles = useWidgetPreviewStyles(themeColors)
 
 	return (
 		<Card data-testid="live-preview-card">
@@ -119,12 +121,12 @@ export function WidgetPreview({
 						{/* Chat Panel */}
 						<div
 							className="mb-3 w-[280px] overflow-hidden rounded-xl shadow-2xl"
-							style={{ backgroundColor: themeColors.bgPrimary }}
+							style={styles.panel}
 						>
 							{/* Header */}
 							<div
 								className="flex items-center justify-between p-3"
-								style={{ backgroundColor: themeColors.primary }}
+								style={styles.header}
 							>
 								<div className="flex items-center gap-2">
 									<div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white">
@@ -136,7 +138,7 @@ export function WidgetPreview({
 									</div>
 									<span
 										className="font-semibold text-sm"
-										style={{ color: themeColors.headerTitleText }}
+										style={styles.headerTitle}
 									>
 										{botName}
 									</span>
@@ -144,15 +146,12 @@ export function WidgetPreview({
 							</div>
 
 							{/* Messages */}
-							<div
-								className="h-[180px] space-y-3 p-3"
-								style={{ backgroundColor: themeColors.bgPrimary }}
-							>
+							<div className="h-[180px] space-y-3 p-3" style={styles.messages}>
 								{/* Bot message */}
 								<div className="flex gap-2">
 									<div
 										className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-white"
-										style={{ backgroundColor: themeColors.primary }}
+										style={styles.avatar}
 									>
 										<PreviewAvatar
 											botAvatar={icons.botAvatar}
@@ -162,11 +161,7 @@ export function WidgetPreview({
 									</div>
 									<div
 										className="max-w-[80%] rounded-2xl rounded-tl-md px-3 py-2 text-sm"
-										style={{
-											backgroundColor: themeColors.bgSecondary,
-											color: themeColors.textPrimary,
-											border: `1px solid ${themeColors.border}`,
-										}}
+										style={styles.botMessage}
 									>
 										{t("widget.preview.botMessage")}
 									</div>
@@ -176,10 +171,7 @@ export function WidgetPreview({
 								<div className="flex flex-row-reverse gap-2">
 									<div
 										className="max-w-[80%] rounded-2xl rounded-tr-md px-3 py-2 text-sm"
-										style={{
-											backgroundColor: themeColors.primary,
-											color: themeColors.userMessageText,
-										}}
+										style={styles.userMessage}
 									>
 										{t("widget.preview.userMessage")}
 									</div>
@@ -187,42 +179,23 @@ export function WidgetPreview({
 							</div>
 
 							{/* Input */}
-							<div
-								className="flex gap-2 border-t p-3"
-								style={{
-									backgroundColor: themeColors.bgPrimary,
-									borderColor: themeColors.border,
-								}}
-							>
+							<div className="flex gap-2 border-t p-3" style={styles.input}>
 								<div
 									className="flex-1 rounded-full px-3 py-2 text-sm"
-									style={{
-										backgroundColor: themeColors.bgSecondary,
-										border: `1px solid ${themeColors.border}`,
-										color: themeColors.textSecondary,
-									}}
+									style={styles.inputField}
 								>
 									{t("widget.preview.typeAMessage")}
 								</div>
 								<div
 									className="flex h-9 w-9 items-center justify-center rounded-lg"
-									style={{
-										backgroundColor: themeColors.primary,
-										color: themeColors.sendButtonIcon,
-									}}
+									style={styles.sendButton}
 								>
 									→
 								</div>
 							</div>
 
 							{/* Footer */}
-							<div
-								className="py-2 text-center text-xs"
-								style={{
-									backgroundColor: themeColors.primary,
-									color: themeColors.footerText,
-								}}
-							>
+							<div className="py-2 text-center text-xs" style={styles.footer}>
 								{t("widget.preview.poweredBy")}
 							</div>
 						</div>
@@ -230,7 +203,7 @@ export function WidgetPreview({
 						{/* Trigger Button */}
 						<div
 							className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg"
-							style={{ backgroundColor: themeColors.primary }}
+							style={styles.trigger}
 						>
 							<PreviewAvatar
 								botAvatar={icons.botAvatar}

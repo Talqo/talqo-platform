@@ -17,8 +17,9 @@ Never: "whose code wins?" — wrong question. Both sides may be partially correc
 ## Flow
 
 ```bash
-# 1. Find your base branch — check PR description or ask
-git log --oneline HEAD..origin/<base-branch>   # shows commits on base branch not in your branch (what you'll be rebasing onto)
+# 1. Determine the base branch — MANDATORY, do this before anything else
+gh pr view --json baseRefName --jq '.baseRefName'
+# If no PR exists, ask the user. NEVER assume 'main' or 'master'.
 
 # 2. Fetch latest base
 git fetch origin
@@ -71,5 +72,6 @@ Abort when: conflict unclear, or you don't understand what the base change did.
 
 ## Anti-Patterns
 
+- **Do not assume the base branch** — always run `gh pr view` first; PRs often target `dev`, `staging`, or a feature branch, not `main`
 - **Do not rebase directly onto remote base without fetching first** — replays onto stale history
 - **Do not rebase shared branches** — rewrites history; only safe on your own PR branch
