@@ -89,7 +89,7 @@ function createMockRepo() {
 			}
 		}),
 		recordUsage: mock(async () => {}),
-		getMonthlySpend: mock(async () => "0"),
+		getMonthlySpend: mock(async () => 0),
 		getClientLimitSettings: mock(async () => null),
 	}
 }
@@ -347,11 +347,11 @@ describe("WidgetService", () => {
 
 		it("throws MONTHLY_LIMIT_REACHED when monthly spend equals or exceeds limit", async () => {
 			repo.getClientLimitSettings = mock(async () => ({
-				monthlyUsageLimit: "10.0000",
+				monthlyUsageLimit: 10,
 				usageAlertThresholdUsd: null,
 				email: "client@example.com",
 			}))
-			repo.getMonthlySpend = mock(async () => "10.0000")
+			repo.getMonthlySpend = mock(async () => 10)
 			await expect(
 				widgetService.sendMessage("client-1", "conv-1", "Hello"),
 			).rejects.toHaveProperty("code", "MONTHLY_LIMIT_REACHED")
@@ -456,30 +456,110 @@ describe("InMemoryWidgetRepository", () => {
 	describe("recordUsage", () => {
 		it("records a balance deduction matching the cost", async () => {
 			const repo = new InMemoryWidgetRepository()
-			await repo.recordUsage("client-1", "msg-1", 15, "0.000003")
+			const repoAny = repo as unknown as {
+				clients: Map<string, { balanceUsd: number }>
+			}
+			repoAny.clients.set("client-1", { balanceUsd: 1 })
+			await repo.recordUsage("client-1", "msg-1", 15, 0.000003)
 
 			expect(repo.balanceDeductions).toHaveLength(1)
 			expect(repo.balanceDeductions[0]?.clientId).toBe("client-1")
-			expect(repo.balanceDeductions[0]?.amount).toBe("0.000003")
+			expect(repo.balanceDeductions[0]?.amount).toBe(0.000003)
 		})
 
 		it("does not deduct balance when called without a cost", async () => {
 			const repo = new InMemoryWidgetRepository()
-			await repo.recordUsage("client-1", "msg-1", 0, "0.000000")
+			const repoAny = repo as unknown as {
+				clients: Map<string, { balanceUsd: number }>
+			}
+			repoAny.clients.set("client-1", { balanceUsd: 1 })
+			await repo.recordUsage("client-1", "msg-1", 0, 0)
 
 			expect(repo.balanceDeductions).toHaveLength(1)
-			expect(repo.balanceDeductions[0]?.amount).toBe("0.000000")
+			expect(repo.balanceDeductions[0]?.amount).toBe(0)
+		})
+
+		it("throws CLIENT_NOT_FOUND when the client has not been seeded", async () => {
+			const repo = new InMemoryWidgetRepository()
+			await expect(
+				repo.recordUsage("missing-client", "msg-x", 10, 0.001),
+			).rejects.toMatchObject({ code: "CLIENT_NOT_FOUND" })
 		})
 
 		it("throws when balance is insufficient to cover cost", async () => {
 			const repo = new InMemoryWidgetRepository()
 			const repoAny = repo as unknown as {
-				clients: Map<string, { balanceUsd: string }>
+				clients: Map<string, { balanceUsd: number }>
 			}
-			repoAny.clients.set("client-1", { balanceUsd: "0.005" })
+			repoAny.clients.set("client-1", { balanceUsd: 0.005 })
 			await expect(
-				repo.recordUsage("client-1", "msg-1", 50, "0.0100"),
+				repo.recordUsage("client-1", "msg-1", 50, 0.01),
 			).rejects.toThrow()
+		})
+
+		it("does not record usage when balance is insufficient (atomic rollback)", async () => {
+			const repo = new InMemoryWidgetRepository()
+			const repoAny = repo as unknown as {
+				clients: Map<string, { balanceUsd: number }>
+				usages: { clientId: string; tokensUsed: number }[]
+			}
+			repoAny.clients.set("client-1", { balanceUsd: 0.005 })
+			await expect(
+				repo.recordUsage("client-1", "msg-1", 50, 0.01),
+			).rejects.toThrow()
+			expect(repoAny.usages).toHaveLength(0)
+			expect(repoAny.clients.get("client-1")?.balanceUsd).toBe(0.005)
+		})
+	})
+
+	describe("getMonthlySpend", () => {
+		it("returns 0 for a month that has no usage records", async () => {
+			const repo = new InMemoryWidgetRepository()
+			const repoAny = repo as unknown as {
+				clients: Map<string, { balanceUsd: number }>
+			}
+			repoAny.clients.set("client-1", { balanceUsd: 1 })
+			await repo.recordUsage("client-1", "msg-1", 100, 0.001)
+
+			// Request spend for year 2000, month 1 — no usage was recorded in that period
+			const spend = await repo.getMonthlySpend("client-1", 2000, 1)
+			expect(spend).toBe(0)
+		})
+
+		it("returns only the spend recorded in the requested month", async () => {
+			const repo = new InMemoryWidgetRepository()
+			// Simulate usage from a different month by directly injecting with a past date
+			const repoAny = repo as unknown as {
+				usages: {
+					clientId: string
+					messageId: string
+					tokensUsed: number
+					costUsd: number
+					recordedAt: Date
+				}[]
+			}
+			const pastDate = new Date(2023, 0, 15) // January 2023
+			repoAny.usages.push({
+				clientId: "client-1",
+				messageId: "msg-old",
+				tokensUsed: 50,
+				costUsd: 0.005,
+				recordedAt: pastDate,
+			})
+
+			// Current usage (February 2023)
+			const currentDate = new Date(2023, 1, 10)
+			repoAny.usages.push({
+				clientId: "client-1",
+				messageId: "msg-new",
+				tokensUsed: 100,
+				costUsd: 0.01,
+				recordedAt: currentDate,
+			})
+
+			// Only February spend should be returned
+			const spend = await repo.getMonthlySpend("client-1", 2023, 2)
+			expect(spend).toBe(0.01)
 		})
 	})
 })

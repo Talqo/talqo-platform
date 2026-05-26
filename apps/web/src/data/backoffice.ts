@@ -10,18 +10,18 @@ export type Stat = {
 	variant?: "default" | "success"
 }
 
-export type Tenant = {
+export type ClientEntry = {
 	id: string
 	name: string
 	status: "active" | "suspended"
-	apiType: string
+	aiProvider: string
 	tokenUsage: string
 }
 
 export const STATS: Stat[] = [
 	{
-		id: "tenants",
-		title: "Total Active Tenants",
+		id: "clients",
+		title: "Total Active Clients",
 		value: "142",
 		subtitle: "+12 this week",
 		icon: Users,
@@ -50,19 +50,19 @@ export const STATS: Stat[] = [
 	},
 ]
 
-export const TENANTS: Tenant[] = [
+export const CLIENTS: ClientEntry[] = [
 	{
 		id: "acme",
 		name: "Acme Corp",
 		status: "active",
-		apiType: "Platform Default",
+		aiProvider: "Platform Default",
 		tokenUsage: "120K / 500K",
 	},
 	{
 		id: "globex",
 		name: "Globex Inc",
 		status: "suspended",
-		apiType: "Custom API Key",
+		aiProvider: "OpenAI",
 		tokenUsage: "0 / 0",
 	},
 ]

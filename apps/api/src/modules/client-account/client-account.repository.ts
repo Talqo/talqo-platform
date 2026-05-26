@@ -6,9 +6,9 @@ type ClientProfile = {
 	id: string
 	name: string
 	email: string
-	balanceUsd: string
-	monthlyUsageLimit: string | null
-	usageAlertThresholdUsd: string | null
+	balanceUsd: number
+	monthlyUsageLimit: number | null
+	usageAlertThresholdUsd: number | null
 	widgetToken: string
 	status: string
 	lastActive: Date | null
@@ -28,9 +28,9 @@ export type ClientAccountRepository = {
 	): Promise<{ id: string; name: string; email: string } | null>
 	updatePassword(id: string, passwordHash: string): Promise<void>
 	getPasswordHash(id: string): Promise<string | null>
-	addBalance(id: string, amount: string): Promise<{ balanceUsd: string } | null>
-	setUsageLimit(id: string, limit: string | null): Promise<void>
-	setUsageAlert(id: string, thresholdUsd: string | null): Promise<void>
+	addBalance(id: string, amount: number): Promise<{ balanceUsd: number } | null>
+	setUsageLimit(id: string, limit: number | null): Promise<void>
+	setUsageAlert(id: string, thresholdUsd: number | null): Promise<void>
 	setWidgetToken(
 		id: string,
 		widgetToken: string,
@@ -98,7 +98,7 @@ export class DrizzleClientAccountRepository implements ClientAccountRepository {
 		return row?.passwordHash ?? null
 	}
 
-	async addBalance(id: string, amount: string) {
+	async addBalance(id: string, amount: number) {
 		const [updated] = await this.db
 			.update(clients)
 			.set({ balanceUsd: sql`${clients.balanceUsd} + ${amount}` })
@@ -107,17 +107,19 @@ export class DrizzleClientAccountRepository implements ClientAccountRepository {
 		return updated ?? null
 	}
 
-	async setUsageLimit(id: string, limit: string | null) {
+	async setUsageLimit(id: string, limit: number | null) {
 		await this.db
 			.update(clients)
 			.set({ monthlyUsageLimit: limit })
 			.where(eq(clients.id, id))
 	}
 
-	async setUsageAlert(id: string, thresholdUsd: string | null) {
+	async setUsageAlert(id: string, thresholdUsd: number | null) {
 		await this.db
 			.update(clients)
-			.set({ usageAlertThresholdUsd: thresholdUsd })
+			.set({
+				usageAlertThresholdUsd: thresholdUsd,
+			})
 			.where(eq(clients.id, id))
 	}
 
@@ -153,7 +155,7 @@ type ClientRow = {
 	name: string
 	email: string
 	passwordHash: string
-	balanceUsd: string
+	balanceUsd: number
 	widgetToken: string
 }
 
@@ -175,8 +177,8 @@ export class InMemoryClientAccountRepository
 			name: c.name,
 			email: c.email,
 			balanceUsd: c.balanceUsd,
-			monthlyUsageLimit: null as string | null,
-			usageAlertThresholdUsd: null as string | null,
+			monthlyUsageLimit: null as number | null,
+			usageAlertThresholdUsd: null as number | null,
 			widgetToken: c.widgetToken,
 			status: "active",
 			lastActive: null as Date | null,
@@ -208,18 +210,16 @@ export class InMemoryClientAccountRepository
 		return this.store.get(id)?.passwordHash ?? null
 	}
 
-	async addBalance(id: string, amount: string) {
+	async addBalance(id: string, amount: number) {
 		const c = this.store.get(id)
 		if (!c) return null
-		c.balanceUsd = (
-			Number.parseFloat(c.balanceUsd) + Number.parseFloat(amount)
-		).toFixed(4)
+		c.balanceUsd += amount
 		return { balanceUsd: c.balanceUsd }
 	}
 
-	async setUsageLimit(_id: string, _limit: string | null) {}
+	async setUsageLimit(_id: string, _limit: number | null) {}
 
-	async setUsageAlert(_id: string, _thresholdUsd: string | null) {}
+	async setUsageAlert(_id: string, _thresholdUsd: number | null) {}
 
 	async setWidgetToken(id: string, widgetToken: string) {
 		const c = this.store.get(id)

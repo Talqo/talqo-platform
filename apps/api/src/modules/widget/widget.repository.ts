@@ -93,16 +93,16 @@ export type IWidgetRepository = {
 		clientId: string,
 		messageId: string,
 		tokensUsed: number,
-		costUsd: string,
+		costUsd: number,
 	): Promise<void>
 	getMonthlySpend(
 		clientId: string,
 		year: number,
 		month: number,
-	): Promise<string>
+	): Promise<number>
 	getClientLimitSettings(clientId: string): Promise<{
-		monthlyUsageLimit: string | null
-		usageAlertThresholdUsd: string | null
+		monthlyUsageLimit: number | null
+		usageAlertThresholdUsd: number | null
 		email: string
 	} | null>
 }
@@ -128,15 +128,16 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			satisfactionRating: number | null
 		}
 	>()
-	private clients = new Map<string, { balanceUsd: string }>()
+	private clients = new Map<string, { balanceUsd: number }>()
 	private messageList: WidgetMessage[] = []
 	private usages: {
 		clientId: string
 		messageId: string
 		tokensUsed: number
-		costUsd: string
+		costUsd: number
+		recordedAt: Date
 	}[] = []
-	balanceDeductions: { clientId: string; amount: string }[] = []
+	balanceDeductions: { clientId: string; amount: number }[] = []
 	private idCounters = { session: 0, conversation: 0, message: 0 }
 
 	async findOrCreateSession(clientId: string, browserSessionId: string) {
@@ -242,29 +243,38 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		clientId: string,
 		messageId: string,
 		tokensUsed: number,
-		costUsd: string,
+		costUsd: number,
 	) {
 		const client = this.clients.get(clientId)
-		if (client) {
-			if (parseFloat(client.balanceUsd) < parseFloat(costUsd)) {
-				throw new BadRequestError(
-					"BALANCE_INSUFFICIENT",
-					"Insufficient balance",
-				)
-			}
-			client.balanceUsd = (
-				parseFloat(client.balanceUsd) - parseFloat(costUsd)
-			).toFixed(4)
+		if (!client) {
+			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 		}
-		this.usages.push({ clientId, messageId, tokensUsed, costUsd })
+		if (client.balanceUsd < costUsd) {
+			throw new BadRequestError("BALANCE_INSUFFICIENT", "Insufficient balance")
+		}
+		client.balanceUsd -= costUsd
+		this.usages.push({
+			clientId,
+			messageId,
+			tokensUsed,
+			costUsd,
+			recordedAt: new Date(),
+		})
 		this.balanceDeductions.push({ clientId, amount: costUsd })
 	}
 
-	async getMonthlySpend(clientId: string, _year: number, _month: number) {
+	async getMonthlySpend(clientId: string, year: number, month: number) {
+		const start = new Date(year, month - 1, 1)
+		const end = new Date(year, month, 1)
 		const total = this.usages
-			.filter((u) => u.clientId === clientId)
-			.reduce((acc, u) => acc + parseFloat(u.costUsd), 0)
-		return total.toFixed(6)
+			.filter(
+				(u) =>
+					u.clientId === clientId &&
+					u.recordedAt >= start &&
+					u.recordedAt < end,
+			)
+			.reduce((acc, u) => acc + u.costUsd, 0)
+		return total
 	}
 
 	async getClientLimitSettings(_clientId: string) {
@@ -401,19 +411,28 @@ export class WidgetRepository implements IWidgetRepository {
 		clientId: string,
 		messageId: string,
 		tokensUsed: number,
-		costUsd: string,
+		costUsd: number,
 	) {
 		await this.db.transaction(async (tx) => {
+			const [client] = await tx
+				.select({ id: clients.id })
+				.from(clients)
+				.where(eq(clients.id, clientId))
+			if (!client) {
+				throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
+			}
 			await tx
 				.insert(usageRecords)
 				.values({ clientId, messageId, tokensUsed, costUsd })
 			const updated = await tx
 				.update(clients)
-				.set({ balanceUsd: sql`${clients.balanceUsd} - ${costUsd}::numeric` })
+				.set({
+					balanceUsd: sql`${clients.balanceUsd} - ${costUsd}`,
+				})
 				.where(
 					and(
 						eq(clients.id, clientId),
-						sql`${clients.balanceUsd} >= ${costUsd}::numeric`,
+						sql`${clients.balanceUsd} >= ${costUsd}`,
 					),
 				)
 				.returning({ id: clients.id })
@@ -439,7 +458,7 @@ export class WidgetRepository implements IWidgetRepository {
 					lt(usageRecords.recordedAt, end),
 				),
 			)
-		return row?.total ?? "0"
+		return Number(row?.total ?? 0) // sum() always returns string | null
 	}
 
 	async getClientLimitSettings(clientId: string) {

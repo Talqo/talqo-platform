@@ -24,6 +24,7 @@ pagepal/
 - **Pre-commit hook** runs `lint-staged` (Biome on staged files). Commit-msg hook runs commitlint
 - **`verbatimModuleSyntax`** enabled — use `import type` for type-only imports
 - **Commit format:** conventional commits (`type(scope): subject`), max 100 char header, no trailing period. Types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `test`, `perf`, `ci`, `revert`
+- **Reuse over duplication** — before creating a new component, hook, or utility, check if a suitable shared abstraction already exists. Prefer extending existing shadcn/ui primitives or domain-specific shared components (e.g., `ConfirmDialog`) over copy-pasting markup. If a pattern appears three or more times, extract it.
 
 ## Biome formatting (auto-enforced, no override)
 

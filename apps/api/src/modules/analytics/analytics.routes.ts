@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi"
 import { analyticsQuerySchema } from "shared"
 import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
-import { successResponseSchema } from "@/common/schemas"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
 import { analyticsService } from "./index"
 
 // ─── Client analytics ──────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ clientAnalyticsRoutes.openapi(
 								z.object({
 									period: z.string(),
 									tokensUsed: z.number(),
-									costUsd: z.string().nullable(),
+									costUsd: z.number().nullable(),
 								}),
 							),
 						),
@@ -98,6 +98,7 @@ clientAnalyticsRoutes.openapi(
 								totalUserMessages: z.number(),
 								avgSatisfactionRating: z.number().nullable(),
 								totalPageviewSessions: z.number(),
+								last30DaysSpendUsd: z.number(),
 							}),
 						),
 					},
@@ -131,13 +132,17 @@ adminAnalyticsRoutes.openapi(
 						schema: successResponseSchema(
 							z.object({
 								totalTokens: z.number(),
-								totalCostUsd: z.string().nullable(),
-								activeClients: z.number(),
+								totalCostUsd: z.number().nullable(),
+								registeredClients: z.number(),
 								totalConversations: z.number(),
 							}),
 						),
 					},
 				},
+			},
+			401: {
+				description: "Unauthorized",
+				content: { "application/json": { schema: errorResponseSchema } },
 			},
 		},
 	}),
@@ -152,7 +157,7 @@ adminAnalyticsRoutes.openapi(
 		method: "get",
 		path: "/summary",
 		tags: ["Admin"],
-		summary: "Platform-wide summary including active tenants and satisfaction",
+		summary: "Platform-wide summary including active clients and satisfaction",
 		security: [{ bearerAuth: [] }],
 		responses: {
 			200: {
@@ -162,15 +167,19 @@ adminAnalyticsRoutes.openapi(
 						schema: successResponseSchema(
 							z.object({
 								totalTokens: z.number(),
-								totalCostUsd: z.string().nullable(),
-								activeClients: z.number(),
+								totalCostUsd: z.number().nullable(),
+								registeredClients: z.number(),
 								totalConversations: z.number(),
-								activeTenantsLast30Days: z.number(),
+								activeClientsLast30Days: z.number(),
 								avgSatisfactionRating: z.number(),
 							}),
 						),
 					},
 				},
+			},
+			401: {
+				description: "Unauthorized",
+				content: { "application/json": { schema: errorResponseSchema } },
 			},
 		},
 	}),
@@ -198,7 +207,7 @@ adminAnalyticsRoutes.openapi(
 								z.object({
 									period: z.string(),
 									tokensUsed: z.number(),
-									costUsd: z.string().nullable(),
+									costUsd: z.number().nullable(),
 								}),
 							),
 						),
