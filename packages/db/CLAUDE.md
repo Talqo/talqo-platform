@@ -20,7 +20,7 @@ migrate.ts       # Standalone migration runner (bun --env-file=../../.env migrat
 ## Schema conventions
 
 - `pgEnum` values defined alongside table that owns them (see `client.ts`)
-- Monetary columns use `numeric` with `{ precision: 12, scale: 4 }` — come back as strings from postgres-js; DTOs reflect this with `z.string()`
+- Monetary columns use `numeric` with `{ precision: 14, scale: 8, mode: "number" }` — `mode: "number"` makes Drizzle return JS `number` directly; DTOs use `z.number()` (or `z.number().nullable()`) for these fields. Note: `sum()` aggregates always return `string | null` regardless of column mode — wrap with `Number()` at the call site
 - All timestamps use `{ withTimezone: true }`
 - Cascade deletes (`onDelete: "cascade"`) set on FK columns that are child-owned records
 

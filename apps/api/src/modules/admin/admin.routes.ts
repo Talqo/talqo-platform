@@ -202,7 +202,7 @@ adminClientRoutes.openapi(
 						schema: successResponseSchema(
 							clientSummarySchema.extend({
 								totalTokens: z.number(),
-								totalCostUsd: z.string().nullable(),
+								totalCostUsd: z.number().nullable(),
 								totalConversations: z.number(),
 							}),
 						),

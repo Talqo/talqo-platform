@@ -18,7 +18,8 @@
 			"siteVisitorsWhoChatted": "Site visitors who chatted",
 			"avgSatisfaction": "Avg. Satisfaction",
 			"satisfactionRating": "Satisfaction Rating",
-			"noData": "No data available"
+			"noData": "No data available",
+			"last30Days": "Last 30 days"
 		},
 		"botContext": {
 			"title": "Bot Context",

@@ -127,6 +127,20 @@
 			"when": 1779457836566,
 			"tag": "0017_majestic_lady_ursula",
 			"breakpoints": true
+		},
+		{
+			"idx": 18,
+			"version": "7",
+			"when": 1779705916944,
+			"tag": "0018_silly_star_brand",
+			"breakpoints": true
+		},
+		{
+			"idx": 19,
+			"version": "7",
+			"when": 1779712130593,
+			"tag": "0019_special_maggott",
+			"breakpoints": true
 		}
 	]
 }

@@ -15,7 +15,7 @@ export type UpsertChunk = {
 export type UsageInsert = {
 	clientId: string
 	tokensUsed: number
-	costUsd: string
+	costUsd: number
 }
 
 export type RagRepository = {
@@ -122,6 +122,13 @@ export class DrizzleRagRepository implements RagRepository {
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
 		await this.db.transaction(async (tx) => {
+			const [client] = await tx
+				.select({ id: clients.id })
+				.from(clients)
+				.where(eq(clients.id, usage.clientId))
+			if (!client) {
+				throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
+			}
 			await tx.insert(usageRecords).values({
 				clientId: usage.clientId,
 				messageId: null,
@@ -137,7 +144,7 @@ export class DrizzleRagRepository implements RagRepository {
 				.where(
 					and(
 						eq(clients.id, usage.clientId),
-						sql`${clients.balanceUsd} >= ${usage.costUsd}::numeric`,
+						sql`${clients.balanceUsd} >= ${usage.costUsd}`,
 					),
 				)
 				.returning({ id: clients.id })
@@ -163,7 +170,7 @@ type StoredChunk = {
 type StoredUsage = {
 	clientId: string
 	tokensUsed: number
-	costUsd: string
+	costUsd: number
 }
 
 function cosineSimilarity(a: number[], b: number[]): number {
@@ -177,8 +184,8 @@ function cosineSimilarity(a: number[], b: number[]): number {
 export class InMemoryRagRepository implements RagRepository {
 	private chunks: Map<string, StoredChunk> = new Map()
 	usageRecords: StoredUsage[] = []
-	balanceDeductions: { clientId: string; amount: string }[] = []
-	balances: Map<string, string> = new Map()
+	balanceDeductions: { clientId: string; amount: number }[] = []
+	balances: Map<string, number> = new Map()
 
 	private chunkKey(
 		clientId: string,
@@ -250,9 +257,11 @@ export class InMemoryRagRepository implements RagRepository {
 	}
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
-		const currentBalance = parseFloat(this.balances.get(usage.clientId) ?? "0")
-		const cost = parseFloat(usage.costUsd)
-		if (currentBalance < cost) {
+		if (!this.balances.has(usage.clientId)) {
+			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
+		}
+		const currentBalance = this.balances.get(usage.clientId) ?? 0
+		if (currentBalance < usage.costUsd) {
 			throw new BadRequestError("BALANCE_INSUFFICIENT", "Insufficient balance")
 		}
 		this.usageRecords.push({ ...usage })
@@ -260,6 +269,6 @@ export class InMemoryRagRepository implements RagRepository {
 			clientId: usage.clientId,
 			amount: usage.costUsd,
 		})
-		this.balances.set(usage.clientId, (currentBalance - cost).toFixed(6))
+		this.balances.set(usage.clientId, currentBalance - usage.costUsd)
 	}
 }

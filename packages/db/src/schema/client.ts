@@ -46,16 +46,22 @@ export const clients = pgTable("clients", {
 	name: varchar("name", { length: 255 }).notNull(),
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-	balanceUsd: numeric("balance_usd", { precision: 12, scale: 4 })
+	balanceUsd: numeric("balance_usd", {
+		precision: 14,
+		scale: 8,
+		mode: "number",
+	})
 		.notNull()
-		.default("0"),
+		.default(0),
 	monthlyUsageLimit: numeric("monthly_usage_limit", {
-		precision: 12,
-		scale: 4,
+		precision: 14,
+		scale: 8,
+		mode: "number",
 	}),
 	usageAlertThresholdUsd: numeric("usage_alert_threshold_usd", {
-		precision: 12,
-		scale: 4,
+		precision: 14,
+		scale: 8,
+		mode: "number",
 	}),
 	// Token scoping widget requests to this client (never exposed to the dashboard UI)
 	widgetToken: uuid("widget_token").notNull().unique().defaultRandom(),

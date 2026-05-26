@@ -18,7 +18,8 @@
 			"siteVisitorsWhoChatted": "Návštěvníci, kteří chatovali",
 			"avgSatisfaction": "Prům. spokojenost",
 			"satisfactionRating": "Hodnocení spokojenosti",
-			"noData": "Žádná data k dispozici"
+			"noData": "Žádná data k dispozici",
+			"last30Days": "Posledních 30 dní"
 		},
 		"botContext": {
 			"title": "Kontext bota",
@@ -712,7 +713,7 @@
 			"conversations": "Konverzace",
 			"allTime": "Celkem",
 			"avgSatisfaction": "Průměrná spokojenost",
-			"platformWideRating": "Hodnocení napříč platformou",
+			"platformWideRating": "Hodnocení celé platformy",
 			"failedToLoadClients": "Nepodařilo se načíst klienty",
 			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
 			"clients": "Klienti",

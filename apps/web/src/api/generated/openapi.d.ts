@@ -1682,6 +1682,7 @@ export interface paths {
                             totalUserMessages: number;
                             avgSatisfactionRating: number | null;
                             totalPageviewSessions: number;
+                            last30DaysSpendUsd: string;
                         };
                     };
                 };

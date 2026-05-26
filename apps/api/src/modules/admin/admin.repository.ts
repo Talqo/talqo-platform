@@ -96,7 +96,10 @@ export class AdminRepository {
 		return {
 			...client,
 			totalTokens: usage?.totalTokens ?? 0,
-			totalCostUsd: usage?.totalCostUsd ?? "0",
+			totalCostUsd:
+				usage?.totalCostUsd !== null && usage?.totalCostUsd !== undefined
+					? Number(usage.totalCostUsd)
+					: null,
 			totalConversations: convStats?.totalConversations ?? 0,
 		}
 	}

@@ -27,7 +27,7 @@ clientAnalyticsRoutes.openapi(
 								z.object({
 									period: z.string(),
 									tokensUsed: z.number(),
-									costUsd: z.string().nullable(),
+									costUsd: z.number().nullable(),
 								}),
 							),
 						),
@@ -98,6 +98,7 @@ clientAnalyticsRoutes.openapi(
 								totalUserMessages: z.number(),
 								avgSatisfactionRating: z.number().nullable(),
 								totalPageviewSessions: z.number(),
+								last30DaysSpendUsd: z.number(),
 							}),
 						),
 					},
@@ -131,7 +132,7 @@ adminAnalyticsRoutes.openapi(
 						schema: successResponseSchema(
 							z.object({
 								totalTokens: z.number(),
-								totalCostUsd: z.string().nullable(),
+								totalCostUsd: z.number().nullable(),
 								registeredClients: z.number(),
 								totalConversations: z.number(),
 							}),
@@ -166,7 +167,7 @@ adminAnalyticsRoutes.openapi(
 						schema: successResponseSchema(
 							z.object({
 								totalTokens: z.number(),
-								totalCostUsd: z.string().nullable(),
+								totalCostUsd: z.number().nullable(),
 								registeredClients: z.number(),
 								totalConversations: z.number(),
 								activeClientsLast30Days: z.number(),
@@ -206,7 +207,7 @@ adminAnalyticsRoutes.openapi(
 								z.object({
 									period: z.string(),
 									tokensUsed: z.number(),
-									costUsd: z.string().nullable(),
+									costUsd: z.number().nullable(),
 								}),
 							),
 						),

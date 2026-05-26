@@ -24,7 +24,11 @@ export const usageRecords = pgTable(
 		}),
 		type: usageTypeEnum("type").notNull().default("message"),
 		tokensUsed: integer("tokens_used").notNull(),
-		costUsd: numeric("cost_usd", { precision: 12, scale: 6 }).notNull(),
+		costUsd: numeric("cost_usd", {
+			precision: 14,
+			scale: 8,
+			mode: "number",
+		}).notNull(),
 		recordedAt: timestamp("recorded_at", { withTimezone: true })
 			.defaultNow()
 			.notNull(),

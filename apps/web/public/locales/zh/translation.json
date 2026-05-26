@@ -18,7 +18,8 @@
 			"siteVisitorsWhoChatted": "发起聊天的访客",
 			"avgSatisfaction": "平均满意度",
 			"satisfactionRating": "满意度评分",
-			"noData": "暂无数据"
+			"noData": "暂无数据",
+			"last30Days": "过去30天"
 		},
 		"botContext": {
 			"title": "机器人上下文",
@@ -712,7 +713,7 @@
 			"conversations": "对话",
 			"allTime": "累计",
 			"avgSatisfaction": "平均满意度",
-			"platformWideRating": "全平台评分",
+			"platformWideRating": "平台整体评分",
 			"failedToLoadClients": "加载客户失败",
 			"failedToLoadConversations": "加载对话失败",
 			"clients": "客户",
