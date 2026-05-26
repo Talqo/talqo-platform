@@ -59,7 +59,9 @@ const dynamicPrefixes = [...DYNAMIC_PREFIX_ALLOWLIST, ...detectedPrefixes]
 const unusedKeys: string[] = []
 for (const key of allKeys) {
 	if (dynamicPrefixes.some((p) => key.startsWith(p))) continue
-	if (!allSource.includes(`"${key}"`)) unusedKeys.push(key)
+	const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+	const keyUsageRegex = new RegExp(`["'\`]${escapedKey}["'\`]`)
+	if (!keyUsageRegex.test(allSource)) unusedKeys.push(key)
 }
 
 if (unusedKeys.length === 0) {
