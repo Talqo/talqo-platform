@@ -20,7 +20,7 @@ import {
 	useUpdateClientStatus,
 } from "@/api/hooks/useAdmin"
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
-import { TenantsTable } from "@/components/backoffice/TenantsTable"
+import { ClientsTable } from "@/components/backoffice/ClientsTable"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import {
@@ -30,9 +30,47 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import type { ClientEntry } from "@/data/backoffice"
 import { useBackofficeChartData } from "@/hooks/useBackofficeChartData"
-import { mapClientsToTenants } from "@/lib/backoffice-utils"
 import { AUTH } from "@/lib/constants"
+
+type Client = {
+	id: string
+	name: string
+	email: string
+	balanceUsd: string
+	status: string
+	lastActive: string | null
+	createdAt: string
+	totalTokens: number
+	aiProvider: string | null
+}
+
+const PROVIDER_LABELS: Record<string, string> = {
+	openai: "OpenAI",
+	openai_compatible: "OpenAI Compatible",
+	google: "Google",
+	anthropic: "Anthropic",
+}
+
+function mapToClientEntries(
+	clients: Client[],
+	t: (key: string) => string,
+): ClientEntry[] {
+	const ALLOWED_STATUSES = new Set(["active", "suspended"])
+	return clients.map((client) => ({
+		id: client.id,
+		name: client.name || client.email,
+		status:
+			client.status && ALLOWED_STATUSES.has(client.status)
+				? (client.status as "active" | "suspended")
+				: "active",
+		aiProvider: client.aiProvider
+			? (PROVIDER_LABELS[client.aiProvider] ?? client.aiProvider)
+			: t("backoffice.clientsTable.platformDefault"),
+		tokenUsage: client.totalTokens.toLocaleString(),
+	}))
+}
 
 export const Route = createFileRoute("/backoffice/")({
 	component: BackofficePage,
@@ -140,17 +178,37 @@ function BackofficePage() {
 
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<BackOfficeStatCard
-					title={t("backoffice.stats.totalTenants")}
+					title={t("backoffice.stats.totalClients")}
 					value={clients?.length?.toString() ?? "0"}
-					subtitle={t("backoffice.stats.registeredTenants")}
+					subtitle={t("backoffice.stats.allClients")}
 					icon={Building2}
 				/>
 				<BackOfficeStatCard
-					title={t("backoffice.stats.activeClients")}
-					value={stats?.activeClients?.toString() ?? "—"}
-					subtitle={t("backoffice.stats.currentlyActive")}
-					icon={Building2}
+					title={t("backoffice.stats.activeClientsLast30d")}
+					value={stats?.activeClientsLast30Days?.toString() ?? "—"}
+					subtitle={t("backoffice.stats.activeClientsLast30dSubtitle")}
+					icon={Users}
 				/>
+
+				<BackOfficeStatCard
+					title={t("backoffice.stats.conversations")}
+					value={stats?.totalConversations?.toString() ?? "—"}
+					subtitle={t("backoffice.stats.allTime")}
+					icon={MessageSquare}
+				/>
+				<BackOfficeStatCard
+					title={t("backoffice.stats.avgSatisfaction")}
+					value={
+						stats?.avgSatisfactionRating != null
+							? `${Number(stats.avgSatisfactionRating).toFixed(1)} / 5`
+							: "—"
+					}
+					subtitle={t("backoffice.stats.platformWideRating")}
+					icon={Star}
+				/>
+			</div>
+
+			<div className="grid gap-4 md:grid-cols-2">
 				<BackOfficeStatCard
 					title={t("backoffice.stats.platformTokens")}
 					value={
@@ -170,28 +228,6 @@ function BackofficePage() {
 					subtitle={t("backoffice.stats.platformSpend")}
 					icon={DollarSign}
 				/>
-				<BackOfficeStatCard
-					title={t("backoffice.stats.conversations")}
-					value={stats?.totalConversations?.toString() ?? "—"}
-					subtitle={t("backoffice.stats.allTime")}
-					icon={MessageSquare}
-				/>
-				<BackOfficeStatCard
-					title="Active Tenants (30d)"
-					value={stats?.activeTenantsLast30Days?.toString() ?? "—"}
-					subtitle="With conversations in last 30 days"
-					icon={Users}
-				/>
-				<BackOfficeStatCard
-					title="Avg Satisfaction"
-					value={
-						stats?.avgSatisfactionRating != null
-							? `${Number(stats.avgSatisfactionRating).toFixed(1)} / 5`
-							: "No data"
-					}
-					subtitle="Platform-wide rating"
-					icon={Star}
-				/>
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2">
@@ -206,21 +242,14 @@ function BackofficePage() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>{t("backoffice.stats.tenants")}</CardTitle>
+					<CardTitle>{t("backoffice.stats.clients")}</CardTitle>
 					<CardDescription>
-						{t("backoffice.stats.manageTenants")}
+						{t("backoffice.stats.manageClients")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<TenantsTable
-						tenants={
-							clients
-								? mapClientsToTenants(
-										clients,
-										t("backoffice.tenantsTable.platformDefault"),
-									)
-								: []
-						}
+					<ClientsTable
+						clients={clients ? mapToClientEntries(clients, t) : []}
 						onSuspend={handleSuspend}
 						onReEnable={handleReEnable}
 						onImpersonate={handleImpersonate}
@@ -236,18 +265,18 @@ function BackofficePage() {
 				}}
 				title={
 					dialogType === "suspend"
-						? t("backoffice.client.suspendTitle")
-						: t("backoffice.client.reEnableTitle")
+						? t("backoffice.clientActions.suspendTitle")
+						: t("backoffice.clientActions.reEnableTitle")
 				}
 				description={
 					dialogType === "suspend"
-						? t("backoffice.client.suspendDescription")
-						: t("backoffice.client.reEnableDescription")
+						? t("backoffice.clientActions.suspendDescription")
+						: t("backoffice.clientActions.reEnableDescription")
 				}
 				confirmLabel={
 					dialogType === "suspend"
-						? t("backoffice.client.suspendConfirm")
-						: t("backoffice.client.reEnableConfirm")
+						? t("backoffice.clientsTable.suspend")
+						: t("backoffice.clientsTable.reEnable")
 				}
 				cancelLabel={t("common.cancel")}
 				variant="destructive"

@@ -539,7 +539,7 @@
 	"backoffice": {
 		"nav": {
 			"adminDashboard": "Admin Dashboard",
-			"tenants": "Tenants",
+			"clients": "Clients",
 			"chats": "Chats",
 			"activityLogs": "Activity Logs",
 			"mcpServers": "MCP Servers",
@@ -566,35 +566,43 @@
 		},
 		"stats": {
 			"adminDashboard": "Admin Dashboard",
-			"adminDashboardDescription": "Manage tenants, users, and system settings",
-			"totalTenants": "Total Tenants",
-			"registeredTenants": "Registered tenants",
-			"activeClients": "Active Clients",
-			"currentlyActive": "Currently active",
+			"adminDashboardDescription": "Manage clients, users, and system settings",
+			"totalClients": "Total Clients",
+			"allClients": "All registered clients",
+			"activeClientsLast30d": "Active Clients",
+			"activeClientsLast30dSubtitle": "With conversations in last 30 days",
 			"platformTokens": "Platform Tokens",
 			"totalConsumed": "Total consumed",
 			"totalCost": "Total Cost",
 			"platformSpend": "Platform spend",
 			"conversations": "Conversations",
 			"allTime": "All time",
+			"avgSatisfaction": "Avg Satisfaction",
+			"platformWideRating": "Platform-wide rating",
 			"failedToLoadClients": "Failed to load clients",
 			"failedToLoadConversations": "Failed to load conversations",
-			"tenants": "Tenants",
-			"manageTenants": "Manage all tenants in the system"
+			"clients": "Clients",
+			"manageClients": "Manage all clients in the system"
 		},
-		"tenantsTable": {
+		"clientsTable": {
 			"client": "Client",
 			"status": "Status",
-			"apiType": "API Type",
+			"aiProvider": "AI Provider",
 			"tokenUsage": "Token Usage",
 			"actions": "Actions",
 			"active": "Active",
 			"suspended": "Suspended",
-			"noTenantsFound": "No tenants found",
+			"noClientsFound": "No clients found",
 			"impersonate": "Impersonate",
 			"suspend": "Suspend",
 			"reEnable": "Re-enable",
 			"platformDefault": "Platform Default"
+		},
+		"clientActions": {
+			"suspendTitle": "Suspend client?",
+			"suspendDescription": "This will immediately block the client from accessing their dashboard and widget.",
+			"reEnableTitle": "Re-enable client?",
+			"reEnableDescription": "This will restore the client's access to their dashboard and widget."
 		},
 		"conversationsTable": {
 			"client": "Client",
@@ -623,9 +631,9 @@
 		},
 		"mcp": {
 			"pageTitle": "MCP Servers",
-			"pageDescription": "Manage pre-made MCP server configurations available to tenants",
+			"pageDescription": "Manage pre-made MCP server configurations available to clients",
 			"deleteConfirmTitle": "Delete MCP server?",
-			"deleteConfirmDescription": "This will permanently remove the server configuration. Tenants using it will lose access.",
+			"deleteConfirmDescription": "This will permanently remove the server configuration. Clients using it will lose access.",
 			"addServer": "Add Server",
 			"editServer": "Edit Server",
 			"name": "Name",

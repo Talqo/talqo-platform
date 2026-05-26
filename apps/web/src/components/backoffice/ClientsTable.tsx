@@ -3,23 +3,23 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
-import type { Tenant } from "@/data/backoffice"
+import type { ClientEntry } from "@/data/backoffice"
 
-type TenantsTableProps = {
-	tenants?: Tenant[]
+type ClientsTableProps = {
+	clients?: ClientEntry[]
 	onSuspend?: (id: string) => void
 	onReEnable?: (id: string) => void
 	onImpersonate?: (id: string) => void
 	pendingId?: string
 }
 
-export function TenantsTable({
-	tenants,
+export function ClientsTable({
+	clients,
 	onSuspend,
 	onReEnable,
 	onImpersonate,
 	pendingId,
-}: TenantsTableProps) {
+}: ClientsTableProps) {
 	const { t } = useTranslation()
 
 	return (
@@ -29,24 +29,24 @@ export function TenantsTable({
 					<thead className="border-zinc-200 border-b bg-zinc-50 text-xs text-zinc-700 uppercase dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-400">
 						<tr>
 							<th scope="col" className="px-6 py-3">
-								{t("backoffice.tenantsTable.client")}
+								{t("backoffice.clientsTable.client")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								{t("backoffice.tenantsTable.status")}
+								{t("backoffice.clientsTable.status")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								{t("backoffice.tenantsTable.apiType")}
+								{t("backoffice.clientsTable.aiProvider")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								{t("backoffice.tenantsTable.tokenUsage")}
+								{t("backoffice.clientsTable.tokenUsage")}
 							</th>
 							<th scope="col" className="px-6 py-3 text-right">
-								{t("backoffice.tenantsTable.actions")}
+								{t("backoffice.clientsTable.actions")}
 							</th>
 						</tr>
 					</thead>
 					<tbody>
-						{tenants === undefined ? (
+						{clients === undefined ? (
 							<tr>
 								<td
 									colSpan={5}
@@ -55,72 +55,72 @@ export function TenantsTable({
 									<Spinner size="md" className="mx-auto text-primary" />
 								</td>
 							</tr>
-						) : tenants.length === 0 ? (
+						) : clients.length === 0 ? (
 							<tr>
 								<td
 									colSpan={5}
 									className="px-6 py-4 text-center text-zinc-500 dark:text-zinc-400"
 								>
-									{t("backoffice.tenantsTable.noTenantsFound")}
+									{t("backoffice.clientsTable.noClientsFound")}
 								</td>
 							</tr>
 						) : (
-							tenants.map((tenant) => (
+							clients.map((client) => (
 								<tr
-									key={tenant.id}
+									key={client.id}
 									className="border-zinc-200 border-b bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
 								>
 									<td className="px-6 py-4 font-medium text-zinc-900 dark:text-white">
-										{tenant.name}
+										{client.name}
 									</td>
 									<td className="px-6 py-4">
-										{tenant.status === "active" ? (
+										{client.status === "active" ? (
 											<Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400">
-												{t("backoffice.tenantsTable.active")}
+												{t("backoffice.clientsTable.active")}
 											</Badge>
 										) : (
 											<Badge className="bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400">
-												{t("backoffice.tenantsTable.suspended")}
+												{t("backoffice.clientsTable.suspended")}
 											</Badge>
 										)}
 									</td>
 									<td className="px-6 py-4 dark:text-zinc-300">
-										{tenant.apiType}
+										{client.aiProvider}
 									</td>
 									<td className="px-6 py-4 dark:text-zinc-300">
-										{tenant.tokenUsage}
+										{client.tokenUsage}
 									</td>
 									<td className="space-x-2 px-6 py-4 text-right">
 										<Button
 											variant="outline"
 											size="sm"
-											disabled={pendingId === tenant.id}
-											onClick={() => onImpersonate?.(tenant.id)}
+											disabled={pendingId === client.id}
+											onClick={() => onImpersonate?.(client.id)}
 										>
-											{pendingId === tenant.id ? (
+											{pendingId === client.id ? (
 												<Spinner size="sm" className="mr-1" />
 											) : null}
-											{t("backoffice.tenantsTable.impersonate")}
+											{t("backoffice.clientsTable.impersonate")}
 										</Button>
-										{tenant.status === "active" ? (
+										{client.status === "active" ? (
 											<Button
 												variant="outline"
 												size="sm"
 												className="text-red-600 hover:text-red-700 dark:text-red-500"
-												disabled={pendingId === tenant.id}
-												onClick={() => onSuspend?.(tenant.id)}
+												disabled={pendingId === client.id}
+												onClick={() => onSuspend?.(client.id)}
 											>
-												{t("backoffice.tenantsTable.suspend")}
+												{t("backoffice.clientsTable.suspend")}
 											</Button>
 										) : (
 											<Button
 												variant="outline"
 												size="sm"
 												className="text-green-600 hover:text-green-700 dark:text-green-500"
-												disabled={pendingId === tenant.id}
-												onClick={() => onReEnable?.(tenant.id)}
+												disabled={pendingId === client.id}
+												onClick={() => onReEnable?.(client.id)}
 											>
-												{t("backoffice.tenantsTable.reEnable")}
+												{t("backoffice.clientsTable.reEnable")}
 											</Button>
 										)}
 									</td>

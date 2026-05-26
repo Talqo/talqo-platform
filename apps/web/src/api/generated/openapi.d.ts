@@ -3015,6 +3015,7 @@ export interface paths {
                             lastActive: string | null;
                             createdAt: string;
                             totalTokens: number;
+                            aiProvider: string | null;
                         }[];
                     };
                 };
@@ -3234,7 +3235,7 @@ export interface paths {
                         "application/json": {
                             totalTokens: number;
                             totalCostUsd: string | null;
-                            activeClients: number;
+                            registeredClients: number;
                             totalConversations: number;
                         };
                     };
@@ -3256,7 +3257,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Platform-wide summary including active tenants and satisfaction */
+        /** Platform-wide summary including active clients and satisfaction */
         get: {
             parameters: {
                 query?: never;
@@ -3275,9 +3276,9 @@ export interface paths {
                         "application/json": {
                             totalTokens: number;
                             totalCostUsd: string | null;
-                            activeClients: number;
+                            registeredClients: number;
                             totalConversations: number;
-                            activeTenantsLast30Days: number;
+                            activeClientsLast30Days: number;
                             avgSatisfactionRating: number;
                         };
                     };

@@ -1,15 +1,15 @@
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog"
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 
 export type ConfirmDialogProps = {
 	open: boolean
@@ -46,20 +46,22 @@ export function ConfirmDialog({
 	const resolvedCancelLabel = cancelLabel ?? t("common.cancel")
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			{trigger}
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-					{description && <DialogDescription>{description}</DialogDescription>}
-				</DialogHeader>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>{title}</AlertDialogTitle>
+					{description && (
+						<AlertDialogDescription>{description}</AlertDialogDescription>
+					)}
+				</AlertDialogHeader>
 				{children}
 				{error && (
 					<Alert variant="destructive" className="mt-4">
 						<AlertDescription>{error}</AlertDescription>
 					</Alert>
 				)}
-				<DialogFooter>
+				<AlertDialogFooter>
 					<Button
 						variant="outline"
 						onClick={() => onOpenChange(false)}
@@ -76,8 +78,8 @@ export function ConfirmDialog({
 					>
 						{confirmLabel}
 					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	)
 }

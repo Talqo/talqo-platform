@@ -168,6 +168,7 @@ adminClientRoutes.openapi(
 							z.array(
 								clientSummarySchema.extend({
 									totalTokens: z.number(),
+									aiProvider: z.string().nullable(),
 								}),
 							),
 						),
