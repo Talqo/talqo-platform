@@ -67,7 +67,10 @@ function DeleteAccountDialog() {
 			<ConfirmDialog
 				open={open}
 				onOpenChange={(next) => {
-					if (!next) form.reset()
+					if (!next) {
+						deleteAccount.reset()
+						form.reset()
+					}
 					setOpen(next)
 				}}
 				title={t("settings.account.deleteAccountTitle")}

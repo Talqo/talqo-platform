@@ -8,7 +8,7 @@ import type { AppVariables } from "@/common/jwt"
 const mockService = {
 	getTokenAnalytics: mock(
 		async () =>
-			[] as { period: string; tokensUsed: number; costUsd: string | null }[],
+			[] as { period: string; tokensUsed: number; costUsd: number | null }[],
 	),
 	getMessageAnalytics: mock(
 		async () => [] as { period: string; messageCount: number }[],
@@ -23,20 +23,20 @@ const mockService = {
 	})),
 	getPlatformStats: mock(async () => ({
 		totalTokens: 0,
-		totalCostUsd: "0" as string | null,
+		totalCostUsd: 0,
 		registeredClients: 0,
 		totalConversations: 0,
 	})),
 	getAdminTokenAnalytics: mock(
 		async () =>
-			[] as { period: string; tokensUsed: number; costUsd: string | null }[],
+			[] as { period: string; tokensUsed: number; costUsd: number | null }[],
 	),
 	getAdminConversationAnalytics: mock(
 		async () => [] as { period: string; conversationCount: number }[],
 	),
 	getAdminSummary: mock(async () => ({
 		totalTokens: 0,
-		totalCostUsd: "0" as string | null,
+		totalCostUsd: 0,
 		registeredClients: 0,
 		totalConversations: 0,
 		activeClientsLast30Days: 0,
@@ -138,9 +138,7 @@ describe("AnalyticsService.getTokenAnalytics()", () => {
 	})
 
 	it("returns data from the repository", async () => {
-		repo.tokenUsage = [
-			{ period: "2024-01-01", tokensUsed: 42, costUsd: "0.01" },
-		]
+		repo.tokenUsage = [{ period: "2024-01-01", tokensUsed: 42, costUsd: 0.01 }]
 		const result = await service.getTokenAnalytics(CLIENT_ID, {})
 		expect(result).toEqual(repo.tokenUsage)
 	})
@@ -226,7 +224,7 @@ describe("AnalyticsService.getPlatformStats()", () => {
 	it("returns the repository result unchanged", async () => {
 		repo.platformStats = {
 			totalTokens: 99999,
-			totalCostUsd: "12.34",
+			totalCostUsd: 12.34,
 			registeredClients: 7,
 			totalConversations: 200,
 		}
@@ -244,7 +242,7 @@ describe("GET /analytics/tokens", () => {
 		app = buildClientApp()
 		mockService.getTokenAnalytics.mockClear()
 		mockService.getTokenAnalytics.mockImplementation(async () => [
-			{ period: "2024-01-01T00:00:00.000Z", tokensUsed: 100, costUsd: "0.05" },
+			{ period: "2024-01-01T00:00:00.000Z", tokensUsed: 100, costUsd: 0.05 },
 		])
 	})
 
@@ -365,7 +363,7 @@ describe("GET /analytics/ (admin)", () => {
 		mockService.getPlatformStats.mockClear()
 		mockService.getPlatformStats.mockImplementation(async () => ({
 			totalTokens: 50000,
-			totalCostUsd: "25.00",
+			totalCostUsd: 25,
 			registeredClients: 3,
 			totalConversations: 150,
 		}))
@@ -393,7 +391,7 @@ describe("GET /analytics/summary (admin)", () => {
 		mockService.getAdminSummary.mockClear()
 		mockService.getAdminSummary.mockImplementation(async () => ({
 			totalTokens: 10000,
-			totalCostUsd: "5.00",
+			totalCostUsd: 5,
 			registeredClients: 2,
 			totalConversations: 80,
 			activeClientsLast30Days: 1,
@@ -426,7 +424,7 @@ describe("GET /analytics/tokens (admin)", () => {
 		app = buildAdminApp()
 		mockService.getAdminTokenAnalytics.mockClear()
 		mockService.getAdminTokenAnalytics.mockImplementation(async () => [
-			{ period: "2024-01-01T00:00:00.000Z", tokensUsed: 200, costUsd: "0.10" },
+			{ period: "2024-01-01T00:00:00.000Z", tokensUsed: 200, costUsd: 0.1 },
 		])
 	})
 

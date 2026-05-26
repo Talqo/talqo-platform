@@ -126,7 +126,9 @@ const testDefaults = isTest
 const parsed = envSchema.safeParse({
 	...testDefaults,
 	...process.env,
-	ALLOWED_ORIGINS: normalizeEmpty(process.env.ALLOWED_ORIGINS),
+	ALLOWED_ORIGINS: normalizeEmpty(
+		process.env.ALLOWED_ORIGINS ?? testDefaults.ALLOWED_ORIGINS,
+	),
 	DEFAULT_LLM_PROVIDER_TYPE: normalizeEmpty(
 		process.env.DEFAULT_LLM_PROVIDER_TYPE,
 	),

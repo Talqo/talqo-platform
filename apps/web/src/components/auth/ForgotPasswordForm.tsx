@@ -64,7 +64,7 @@ export function ForgotPasswordForm({
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>{t("common.email")}</FormLabel>
 									<FormControl>
 										<div className="relative">
 											<Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

@@ -206,10 +206,11 @@ function BotConfigFormInner({ data }: BotConfigFormInnerProps) {
 }
 
 function BotConfigFormSkeleton() {
+	const { t } = useTranslation()
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Bot Personality & Behavior</CardTitle>
+				<CardTitle>{t("botConfig.personalityTitle")}</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="space-y-2">

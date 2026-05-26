@@ -31,12 +31,17 @@ export function createLanguageModel(config: AiProviderConfig): LanguageModel {
 			})(config.model)
 		default: {
 			// TypeScript will error here if a new AiProviderConfig variant is added without a case
-			const _exhaustive: never = config
+			const _exhaustiveCheck: (_: never) => void = () => {}
+			_exhaustiveCheck(config)
+			const sanitized = {
+				providerType: (config as AiProviderConfig).providerType,
+				model: (config as AiProviderConfig).model,
+			}
 			logger.error("Unknown AI provider config", {
-				config: JSON.stringify(_exhaustive),
+				config: sanitized,
 			})
 			throw new Error(
-				`Unknown AI provider config: ${JSON.stringify(_exhaustive)}`,
+				`Unknown AI provider config: ${JSON.stringify(sanitized)}`,
 			)
 		}
 	}

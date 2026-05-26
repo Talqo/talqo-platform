@@ -7,7 +7,7 @@ PagePal is a white-label AI chat platform. Businesses (clients) embed a lightwei
 | Actor | Role |
 |-------|------|
 | **End user** | Customer on a client's website who chats with the widget |
-| **Client / Tenant** | Business that registers, configures the bot, and embeds the widget |
+| **Client** | Business that registers, configures the bot, and embeds the widget |
 | **Platform admin** | Internal operator managing clients via a back-office |
 
 ## Documentation

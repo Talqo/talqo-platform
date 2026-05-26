@@ -328,6 +328,7 @@
 	"common": {
 		"email": "Email",
 		"name": "Name",
+		"password": "Password",
 		"cardNumber": "Card Number",
 		"loading": "Loading...",
 		"saving": "Saving...",
@@ -669,14 +670,6 @@
 			"updateFailed": "Failed to update server. Please try again.",
 			"deleteFailed": "Failed to delete server. Please try again.",
 			"deleting": "Deleting..."
-		},
-		"client": {
-			"suspendTitle": "Suspend client?",
-			"suspendDescription": "This will immediately block the client from accessing their dashboard and widget.",
-			"suspendConfirm": "Suspend",
-			"reEnableTitle": "Re-enable client?",
-			"reEnableDescription": "This will restore the client's access to their dashboard and widget.",
-			"reEnableConfirm": "Re-enable"
 		}
 	},
 	"auth": {
@@ -818,5 +811,11 @@
 		"description": "The page you're looking for doesn't exist or has been moved.",
 		"goDashboard": "Go to Dashboard",
 		"goHome": "Go to Home"
+	},
+	"provider": {
+		"openai": "OpenAI",
+		"openaiCompatible": "OpenAI Compatible",
+		"google": "Google",
+		"anthropic": "Anthropic"
 	}
 }

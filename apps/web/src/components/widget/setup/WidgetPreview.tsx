@@ -3,7 +3,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useWidgetPreviewStyles } from "@/components/widget/setup/useWidgetPreviewStyles"
+import { getWidgetPreviewStyles } from "@/components/widget/setup/useWidgetPreviewStyles"
 import { sanitizeSvg } from "@/lib/sanitize-svg"
 import { cn } from "@/lib/utils"
 import { DEFAULT_BOT_AVATAR } from "./constants"
@@ -52,7 +52,7 @@ export function WidgetPreview({
 	const { t } = useTranslation()
 	const [isDark, setIsDark] = useState(false)
 	const themeColors = isDark ? colors.dark : colors.light
-	const styles = useWidgetPreviewStyles(themeColors)
+	const styles = getWidgetPreviewStyles(themeColors)
 
 	return (
 		<Card data-testid="live-preview-card">

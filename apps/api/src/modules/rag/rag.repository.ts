@@ -121,6 +121,19 @@ export class DrizzleRagRepository implements RagRepository {
 	}
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
+		if (
+			typeof usage.tokensUsed !== "number" ||
+			typeof usage.costUsd !== "number" ||
+			!Number.isFinite(usage.tokensUsed) ||
+			!Number.isFinite(usage.costUsd) ||
+			usage.tokensUsed < 0 ||
+			usage.costUsd < 0
+		) {
+			throw new BadRequestError(
+				"INVALID_USAGE",
+				"tokensUsed and costUsd must be non-negative numbers",
+			)
+		}
 		await this.db.transaction(async (tx) => {
 			const [client] = await tx
 				.select({ id: clients.id })
@@ -257,6 +270,19 @@ export class InMemoryRagRepository implements RagRepository {
 	}
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
+		if (
+			typeof usage.tokensUsed !== "number" ||
+			typeof usage.costUsd !== "number" ||
+			!Number.isFinite(usage.tokensUsed) ||
+			!Number.isFinite(usage.costUsd) ||
+			usage.tokensUsed < 0 ||
+			usage.costUsd < 0
+		) {
+			throw new BadRequestError(
+				"INVALID_USAGE",
+				"tokensUsed and costUsd must be non-negative numbers",
+			)
+		}
 		if (!this.balances.has(usage.clientId)) {
 			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 		}

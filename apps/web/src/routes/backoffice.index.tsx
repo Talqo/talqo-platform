@@ -47,10 +47,10 @@ type Client = {
 }
 
 const PROVIDER_LABELS: Record<string, string> = {
-	openai: "OpenAI",
-	openai_compatible: "OpenAI Compatible",
-	google: "Google",
-	anthropic: "Anthropic",
+	openai: "provider.openai",
+	openai_compatible: "provider.openaiCompatible",
+	google: "provider.google",
+	anthropic: "provider.anthropic",
 }
 
 function mapToClientEntries(
@@ -66,7 +66,9 @@ function mapToClientEntries(
 				? (client.status as "active" | "suspended")
 				: "active",
 		aiProvider: client.aiProvider
-			? (PROVIDER_LABELS[client.aiProvider] ?? client.aiProvider)
+			? PROVIDER_LABELS[client.aiProvider]
+				? t(PROVIDER_LABELS[client.aiProvider])
+				: client.aiProvider
 			: t("backoffice.clientsTable.platformDefault"),
 		tokenUsage: client.totalTokens.toLocaleString(),
 	}))

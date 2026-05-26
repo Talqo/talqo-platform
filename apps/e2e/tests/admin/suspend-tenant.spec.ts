@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 import { fillAndSubmitLogin, SEEDED_USERS } from "@/helpers/auth"
 
-test.describe("Admin suspend and re-enable tenant", () => {
+test.describe("Admin suspend and re-enable client", () => {
 	test.afterEach(async ({ page }) => {
 		// Ensure TechStartup is always re-enabled so parallel tests using
 		// the same seeded client do not hit 401 on shared server state.
@@ -26,7 +26,7 @@ test.describe("Admin suspend and re-enable tenant", () => {
 		}
 	})
 
-	test("admin suspends and re-enables a tenant from the backoffice", async ({
+	test("admin suspends and re-enables a client from the backoffice", async ({
 		page,
 	}) => {
 		await fillAndSubmitLogin(
@@ -36,16 +36,16 @@ test.describe("Admin suspend and re-enable tenant", () => {
 		)
 		await expect(page).toHaveURL(/\/backoffice/)
 
-		// Find the active tenant row (TechStartup) — NOT Acme Corp,
+		// Find the active client row (TechStartup) — NOT Acme Corp,
 		// because Acme Corp is used concurrently by client dashboard tests.
-		const tenantRow = page.locator("tr", {
+		const clientRow = page.locator("tr", {
 			hasText: "TechStartup",
 		})
-		await expect(tenantRow).toBeVisible()
-		await expect(tenantRow.getByText("Active")).toBeVisible()
+		await expect(clientRow).toBeVisible()
+		await expect(clientRow.getByText("Active")).toBeVisible()
 
 		// Suspend — clicking the table button opens a confirmation dialog
-		await tenantRow
+		await clientRow
 			.getByRole("button", { name: "Suspend" })
 			.click({ force: true })
 		const suspendDialog = page.getByRole("alertdialog")
@@ -54,13 +54,13 @@ test.describe("Admin suspend and re-enable tenant", () => {
 			Promise.all(el.getAnimations().map((anim) => anim.finished)),
 		)
 		await suspendDialog.getByRole("button", { name: "Suspend" }).click()
-		await expect(tenantRow.getByText("Suspended")).toBeVisible()
+		await expect(clientRow.getByText("Suspended")).toBeVisible()
 		await expect(
-			tenantRow.getByRole("button", { name: "Re-enable" }),
+			clientRow.getByRole("button", { name: "Re-enable" }),
 		).toBeVisible()
 
 		// Re-enable — same confirmation dialog pattern
-		await tenantRow
+		await clientRow
 			.getByRole("button", { name: "Re-enable" })
 			.click({ force: true })
 		const reEnableDialog = page.getByRole("alertdialog")
@@ -69,9 +69,9 @@ test.describe("Admin suspend and re-enable tenant", () => {
 			Promise.all(el.getAnimations().map((anim) => anim.finished)),
 		)
 		await reEnableDialog.getByRole("button", { name: "Re-enable" }).click()
-		await expect(tenantRow.getByText("Active")).toBeVisible()
+		await expect(clientRow.getByText("Active")).toBeVisible()
 		await expect(
-			tenantRow.getByRole("button", { name: "Suspend" }),
+			clientRow.getByRole("button", { name: "Suspend" }),
 		).toBeVisible()
 	})
 })

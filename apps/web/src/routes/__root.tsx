@@ -46,7 +46,7 @@ function NotFoundPage() {
 						<div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
 							<FileQuestion className="h-10 w-10 text-primary" />
 						</div>
-						<span className="font-mono text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+						<span className="font-mono font-semibold text-muted-foreground text-sm uppercase tracking-widest">
 							Error 404
 						</span>
 					</div>

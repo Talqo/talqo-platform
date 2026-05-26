@@ -1,5 +1,6 @@
 import { Scalar } from "@scalar/hono-api-reference"
 import { cors } from "hono/cors"
+import { config } from "./common/config"
 import type { AppVariables } from "./common/jwt"
 import { logger } from "./common/logger"
 import { createAdminAuditLog } from "./common/middleware/admin-audit-log"
@@ -41,6 +42,11 @@ import { widgetConfigClientRoutes } from "./modules/widget-config"
 
 const filesRoutes = createFilesRouter(filesService, ragService)
 
+const allowedOrigins =
+	config.ALLOWED_ORIGINS?.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean) ?? []
+
 const app = createRouter<{ Variables: AppVariables }>()
 const v1 = createRouter<{ Variables: AppVariables }>()
 
@@ -58,13 +64,6 @@ app.use("/*", async (c, next) => {
 	}
 })
 
-import { config } from "./common/config"
-
-const allowedOrigins =
-	config.ALLOWED_ORIGINS?.split(",")
-		.map((s) => s.trim())
-		.filter(Boolean) ?? []
-
 // Widget routes are embedded in third-party sites — open CORS required
 app.use("/v1/widget/*", cors({ origin: "*" }))
 
@@ -72,7 +71,10 @@ app.use("/v1/widget/*", cors({ origin: "*" }))
 const restrictedCors = cors({
 	origin: (origin) => {
 		if (!origin) return null
-		if (allowedOrigins.length === 0) return origin
+		if (allowedOrigins.length === 0) {
+			// Deny by default when no origins are configured
+			return null
+		}
 		return allowedOrigins.includes(origin) ? origin : null
 	},
 	credentials: true,

@@ -163,7 +163,7 @@ e2e: db-up ## Run e2e tests (build, migrate, seed, start services, test, clean u
 	bun --env-file=.env.example packages/db/migrate.ts
 	bun --env-file=.env.example apps/api/src/db/seed.ts
 	@PIDS=""; \
-	APP_URL=http://localhost:$(E2E_PORT) bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
+	APP_URL=http://localhost:$(E2E_PORT) ALLOWED_ORIGINS=http://localhost:$(E2E_PORT) bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
 	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
 	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
 		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \

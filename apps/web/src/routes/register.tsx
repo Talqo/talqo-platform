@@ -176,7 +176,7 @@ function RegisterPage() {
 									name="name"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Name</FormLabel>
+											<FormLabel>{t("common.name")}</FormLabel>
 											<FormControl>
 												<Input
 													type="text"
@@ -194,7 +194,7 @@ function RegisterPage() {
 									name="email"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Email</FormLabel>
+											<FormLabel>{t("common.email")}</FormLabel>
 											<FormControl>
 												<Input
 													type="email"
@@ -212,7 +212,7 @@ function RegisterPage() {
 									name="password"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Password</FormLabel>
+											<FormLabel>{t("common.password")}</FormLabel>
 											<FormControl>
 												<Input
 													type="password"

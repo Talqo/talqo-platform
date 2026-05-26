@@ -26,7 +26,7 @@ migrate.ts       # Standalone migration runner (bun --env-file=../../.env migrat
 
 ## DTO conventions
 
-- Use `createSelectSchema` / `createInsertSchema` from `drizzle-zod`, then override individual fields where Zod v4 compatibility requires explicit types (e.g. timestamps → `z.string()`, nullable numerics → `z.string().nullable()`)
+- Use `createSelectSchema` / `createInsertSchema` from `drizzle-zod`, then override individual fields where Zod v4 compatibility requires explicit types (e.g. timestamps → `z.string()`, nullable numerics → `z.number().nullable()`)
 - Response schemas always omit sensitive fields (`passwordHash`, `apiKeyEncrypted`, `widgetToken`) and add masked variants when needed
 - Export both Zod schema and inferred `type` from each DTO file
 

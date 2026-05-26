@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test"
+import { beforeEach, describe, expect, it } from "bun:test"
 import { OpenAPIHono } from "@hono/zod-openapi"
 import type { conversations, messages } from "db/schema"
 import type { AppVariables } from "@/common/jwt"
@@ -109,15 +109,13 @@ const mockService = {
 	},
 }
 
-mock.module("./index", () => ({
-	clientConversationService: mockService,
-}))
-
 // Dynamic imports after mock registration
-const { clientConversationRoutes } = await import(
+const { createClientConversationsRouter } = await import(
 	"./client-conversations.routes"
 )
 const { errorHandler } = await import("@/common/middleware/error-handler")
+
+const clientConversationRoutes = createClientConversationsRouter(mockService)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

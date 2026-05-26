@@ -478,6 +478,28 @@ describe("RagService", () => {
 			expect(repo.balanceDeductions[0]?.amount).toBe(computeEmbeddingCostUsd(5))
 		})
 
+		it("throws when platform billing is required but balance is insufficient", async () => {
+			providerConfigRepo = makeFakeProviderConfigRepo(null)
+			repo.balances.set(CLIENT_ID, computeEmbeddingCostUsd(5) - 1e-9)
+
+			mockEmbed.mockImplementation(async () => ({
+				embedding: [0.1, 0.2, 0.3],
+				usage: { tokens: 5 },
+			}))
+
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			await expect(service.retrieve(CLIENT_ID, "test query")).rejects.toThrow(
+				"Insufficient balance",
+			)
+			expect(repo.usageRecords.length).toBe(0)
+			expect(repo.balanceDeductions.length).toBe(0)
+		})
+
 		it("does not record billing usage for query embedding when client has own embedding model", async () => {
 			const openaiConfig: AiProviderConfig = {
 				providerType: "openai",

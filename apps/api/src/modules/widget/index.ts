@@ -1,9 +1,3 @@
-import { db } from "@/db"
-import { BlacklistRepository } from "@/modules/blacklist/blacklist.repository"
-import { botConfigService } from "@/modules/bot-config"
-import { mcpService } from "@/modules/mcp"
-import { providerConfigService } from "@/modules/provider-config"
-import { WidgetRepository } from "./widget.repository"
 import { WidgetService } from "./widget.service"
 
 export { WidgetService } from "./widget.service"
@@ -14,6 +8,20 @@ let _widgetService: WidgetService | undefined
 export const widgetService = (() => {
 	const get = () => {
 		if (!_widgetService) {
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { db } = require("@/db")
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const {
+				BlacklistRepository,
+			} = require("@/modules/blacklist/blacklist.repository")
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { botConfigService } = require("@/modules/bot-config")
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { mcpService } = require("@/modules/mcp")
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { providerConfigService } = require("@/modules/provider-config")
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { WidgetRepository } = require("./widget.repository")
 			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const { ragService } = require("@/modules/rag/index")
 			_widgetService = new WidgetService({

@@ -1,6 +1,6 @@
 import type { WidgetColors } from "@/components/widget/setup/types"
 
-export function useWidgetPreviewStyles(themeColors: WidgetColors) {
+export function getWidgetPreviewStyles(themeColors: WidgetColors) {
 	return {
 		panel: { backgroundColor: themeColors.bgPrimary },
 		header: { backgroundColor: themeColors.primary },

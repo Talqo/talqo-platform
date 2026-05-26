@@ -5,7 +5,7 @@
 | Actor | Description |
 |-------|-------------|
 | **End user** | The client's customer who interacts with the widget on the client's website |
-| **Client** / **Tenant** | A business that registers on the platform, configures the bot, and embeds the widget |
+| **Client** | A business that registers on the platform, configures the bot, and embeds the widget |
 | **Platform admin** | Our team member managing clients via the back-office |
 
 ---
@@ -92,7 +92,7 @@
 
 ### FR-3: Back-office
 
-> The internal tool used by platform admins to manage tenants and platform health.
+> The internal tool used by platform admins to manage clients and platform health.
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
@@ -102,11 +102,11 @@
 | FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
 | FR-3.4.1 | Platform admin can view a log of impersonate, suspend, and re-enable actions in the back-office | Medium | Approved | Done |
 | FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |
-| FR-3.5.2 | Platform admin can view the number of active tenants (clients with at least one conversation in the past 30 days) | Low | Approved | Done |
+| FR-3.5.2 | Platform admin can view the number of active clients (with at least one conversation in the past 30 days) | Low | Approved | Done |
 | FR-3.5.3 | Platform admin can view platform-wide error rates (percentage of failed API and MCP requests) | Low | Approved | Not started |
 | FR-3.6 | Platform admin can view a graph of official (platform) API key usage over time | Low | Approved | Done |
-| FR-3.7 | Platform admin can view a graph of total conversation count across all tenants over time | Low | Approved | Done |
-| FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all tenants | Low | Approved | Done |
+| FR-3.7 | Platform admin can view a graph of total conversation count across all clients over time | Low | Approved | Done |
+| FR-3.8 | Platform admin can view aggregated end-user satisfaction ratings across all clients | Low | Approved | Done |
 | FR-3.9 | Platform admin can manage pre-made MCP server configurations (add, edit, delete) | Medium | Approved | Done |
 | FR-3.9.1 | Platform admin can verify pre-made MCP server connectivity and preview available tools | Medium | Approved | Done |
 

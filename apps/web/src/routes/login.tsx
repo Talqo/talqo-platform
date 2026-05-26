@@ -150,7 +150,7 @@ function LoginPage() {
 									name="email"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Email</FormLabel>
+											<FormLabel>{t("common.email")}</FormLabel>
 											<FormControl>
 												<Input
 													type="email"
@@ -169,7 +169,7 @@ function LoginPage() {
 									render={({ field }) => (
 										<FormItem>
 											<div className="flex items-center justify-between">
-												<FormLabel>Password</FormLabel>
+												<FormLabel>{t("common.password")}</FormLabel>
 												<Link
 													to="/forgot-password"
 													className="text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"

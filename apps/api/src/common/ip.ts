@@ -1,3 +1,4 @@
+import { isIP } from "node:net"
 import { config } from "@/common/config"
 
 export const trustedProxies = new Set(
@@ -7,7 +8,7 @@ export const trustedProxies = new Set(
 )
 
 export function isPrivateIp(ip: string): boolean {
-	if (!ip) return false
+	if (!ip || isIP(ip) === 0) return false
 	if (ip.startsWith("10.")) return true
 	if (ip.startsWith("172.")) {
 		const second = Number(ip.split(".")[1])

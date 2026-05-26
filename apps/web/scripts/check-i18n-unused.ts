@@ -76,7 +76,7 @@ for (const key of unusedKeys) {
 	console.log(`  ${key}`)
 }
 console.log(
-	"\nNote: keys used only in template literals (e.g. t(`prefix.${x}`))",
+	"\nNote: keys used only in template literals (e.g. t('prefix.<variable>'))",
 )
 console.log(
 	"may appear as false positives. Add their prefix to DYNAMIC_PREFIX_ALLOWLIST.",

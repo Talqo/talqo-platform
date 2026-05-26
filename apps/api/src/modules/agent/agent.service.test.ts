@@ -221,7 +221,7 @@ describe("streamResponse", () => {
 			// Output: "Hello world" = 11 chars → ceil(11/4) = 3 tokens
 			expect(result.output).toBe(3)
 			// Input: "You are a bot" + "\n" + "Hi there" = 22 chars → 6 tokens
-			expect(result.input).toBeGreaterThan(0)
+			expect(result.input).toBe(6)
 		})
 
 		it("estimates input from system + history + user message when only output is reported", async () => {
@@ -239,9 +239,9 @@ describe("streamResponse", () => {
 			const result = await usage
 			// Output stays as reported
 			expect(result.output).toBe(42)
-			// Input is estimated and must include history (proves we re-bill the
-			// whole conversation each turn when there's no caching)
-			expect(result.input).toBeGreaterThan(0)
+			// Input: "system prompt" + "\n" + "earlier turn" + "\n" +
+			// "earlier reply" + "\n" + "follow-up" = 50 chars → 13 tokens
+			expect(result.input).toBe(13)
 		})
 	})
 })

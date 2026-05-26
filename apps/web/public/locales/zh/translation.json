@@ -616,6 +616,7 @@
 	"common": {
 		"email": "邮箱",
 		"name": "姓名",
+		"password": "密码",
 		"cardNumber": "卡号",
 		"loading": "加载中...",
 		"saving": "保存中...",
@@ -803,14 +804,6 @@
 			"updateFailed": "更新服务器失败，请重试。",
 			"deleteFailed": "删除服务器失败，请重试。",
 			"deleting": "删除中..."
-		},
-		"client": {
-			"suspendTitle": "暂停客户？",
-			"suspendDescription": "这将立即阻止客户访问其仪表板和小部件。",
-			"suspendConfirm": "暂停",
-			"reEnableTitle": "重新启用客户？",
-			"reEnableDescription": "这将恢复客户对其仪表板和小部件的访问权限。",
-			"reEnableConfirm": "重新启用"
 		}
 	},
 	"notFound": {
@@ -818,5 +811,11 @@
 		"description": "您访问的页面不存在或已被移动。",
 		"goDashboard": "前往仪表盘",
 		"goHome": "返回首页"
+	},
+	"provider": {
+		"openai": "OpenAI",
+		"openaiCompatible": "兼容 OpenAI",
+		"google": "Google",
+		"anthropic": "Anthropic"
 	}
 }

@@ -616,6 +616,7 @@
 	"common": {
 		"email": "E-mail",
 		"name": "Jméno",
+		"password": "Heslo",
 		"cardNumber": "Číslo karty",
 		"loading": "Načítání...",
 		"saving": "Ukládání...",
@@ -803,14 +804,6 @@
 			"updateFailed": "Nepodařilo se aktualizovat server. Zkuste to znovu.",
 			"deleteFailed": "Nepodařilo se smazat server. Zkuste to znovu.",
 			"deleting": "Mazání..."
-		},
-		"client": {
-			"suspendTitle": "Pozastavit klienta?",
-			"suspendDescription": "Tím okamžitě zablokujete klientovi přístup k nástěnce a widgetu.",
-			"suspendConfirm": "Pozastavit",
-			"reEnableTitle": "Znovu povolit klienta?",
-			"reEnableDescription": "Tím obnovíte klientovi přístup k nástěnce a widgetu.",
-			"reEnableConfirm": "Znovu povolit"
 		}
 	},
 	"notFound": {
@@ -818,5 +811,11 @@
 		"description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
 		"goDashboard": "Přejít na nástěnku",
 		"goHome": "Přejít na úvod"
+	},
+	"provider": {
+		"openai": "OpenAI",
+		"openaiCompatible": "Kompatibilní s OpenAI",
+		"google": "Google",
+		"anthropic": "Anthropic"
 	}
 }

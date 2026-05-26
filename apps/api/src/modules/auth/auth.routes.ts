@@ -8,7 +8,11 @@ import {
 	VerifyEmailSchema,
 	VerifyResetTokenSchema,
 } from "shared"
-import { AppError, ForbiddenError, UnauthorizedError } from "@/common/errors"
+import {
+	BadRequestError,
+	ForbiddenError,
+	UnauthorizedError,
+} from "@/common/errors"
 import type { AppVariables } from "@/common/jwt"
 import { authRateLimit } from "@/common/middleware/auth-rate-limit"
 import { createRouter } from "@/common/router"
@@ -202,7 +206,6 @@ authRoutes.openapi(
 		} catch (err) {
 			// Log error but still return success to prevent user enumeration
 			c.get("logger").error("Failed to resend verification email", {
-				email,
 				error: err instanceof Error ? err.message : String(err),
 			})
 		}
@@ -295,7 +298,7 @@ authRoutes.openapi(
 		const { token } = c.req.valid("query")
 		const isValid = await authService.verifyResetToken(token)
 		if (!isValid) {
-			throw new AppError(400, "INVALID_TOKEN", "Invalid or expired token")
+			throw new BadRequestError("INVALID_TOKEN", "Invalid or expired token")
 		}
 		return c.json({ valid: true as const }, 200)
 	},

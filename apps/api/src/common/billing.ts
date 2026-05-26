@@ -27,8 +27,13 @@ export function computeMessageCostUsd(tokens: {
 	input: number
 	output: number
 }): number {
-	if (tokens.input < 0 || tokens.output < 0) {
-		throw new RangeError("Token counts must be non-negative")
+	if (
+		!Number.isFinite(tokens.input) ||
+		!Number.isFinite(tokens.output) ||
+		tokens.input < 0 ||
+		tokens.output < 0
+	) {
+		throw new RangeError("Token counts must be finite and non-negative")
 	}
 	return (
 		tokens.input * PLATFORM_INPUT_RATE_USD +
@@ -37,8 +42,8 @@ export function computeMessageCostUsd(tokens: {
 }
 
 export function computeEmbeddingCostUsd(tokens: number): number {
-	if (tokens < 0) {
-		throw new RangeError("Token count must be non-negative")
+	if (!Number.isFinite(tokens) || tokens < 0) {
+		throw new RangeError("Token count must be finite and non-negative")
 	}
 	return tokens * PLATFORM_EMBEDDING_RATE_USD
 }
