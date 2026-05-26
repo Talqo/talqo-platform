@@ -82,7 +82,7 @@ class InMemoryAdminRepository
 	async listClients(limit: number, offset: number) {
 		return [...this.clientsMap.values()]
 			.slice(offset, offset + limit)
-			.map((c) => ({ ...c, totalTokens: 0 }))
+			.map((c) => ({ ...c, totalTokens: 0, aiProvider: null }))
 	}
 
 	async getClientDetail(clientId: string) {
@@ -496,6 +496,14 @@ describe("GET /admin/clients", () => {
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Array<{ totalTokens: unknown }>
 		expect(typeof body[0]?.totalTokens).toBe("number")
+	})
+
+	it("includes aiProvider in each client item", async () => {
+		repo.addClient({ name: "Client A" })
+		const res = await app.fetch(new Request("http://localhost/admin/clients"))
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as Array<{ aiProvider: unknown }>
+		expect(body[0]?.aiProvider).toBeNull()
 	})
 })
 

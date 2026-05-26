@@ -31,7 +31,7 @@ export function BackofficeLayout({ children }: BackofficeLayoutProps) {
 	const navItems = [
 		{
 			icon: Building2,
-			label: t("backoffice.nav.tenants"),
+			label: t("backoffice.nav.clients"),
 			href: "/backoffice",
 		},
 		{

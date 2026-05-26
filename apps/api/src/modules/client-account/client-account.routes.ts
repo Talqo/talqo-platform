@@ -141,7 +141,7 @@ router.openapi(
 				description: "Balance updated",
 				content: {
 					"application/json": {
-						schema: successResponseSchema(z.object({ balanceUsd: z.string() })),
+						schema: successResponseSchema(z.object({ balanceUsd: z.number() })),
 					},
 				},
 			},

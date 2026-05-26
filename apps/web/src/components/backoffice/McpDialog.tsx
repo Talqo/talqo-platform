@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -168,6 +169,11 @@ export function McpDialog({
 							? t("backoffice.mcp.editServer")
 							: t("backoffice.mcp.addServer")}
 					</DialogTitle>
+					<DialogDescription className="sr-only">
+						{isEdit
+							? t("backoffice.mcp.editServer")
+							: t("backoffice.mcp.addServer")}
+					</DialogDescription>
 				</DialogHeader>
 
 				<Form {...form}>

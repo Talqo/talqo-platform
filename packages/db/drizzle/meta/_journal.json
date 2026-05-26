@@ -127,6 +127,13 @@
 			"when": 1779457836566,
 			"tag": "0017_majestic_lady_ursula",
 			"breakpoints": true
+		},
+		{
+			"idx": 18,
+			"version": "7",
+			"when": 1779803621296,
+			"tag": "0018_handy_malcolm_colcord",
+			"breakpoints": true
 		}
 	]
 }

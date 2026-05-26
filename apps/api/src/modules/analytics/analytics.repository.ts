@@ -29,7 +29,7 @@ export type Granularity = "day" | "week" | "month"
 type TokenUsageRow = {
 	period: string
 	tokensUsed: number
-	costUsd: string | null
+	costUsd: number | null
 }
 
 type MessageCountRow = { period: string; messageCount: number }
@@ -43,12 +43,13 @@ type ClientSummaryResult = {
 	totalUserMessages: number
 	totalTokens: number
 	totalPageviewSessions: number
+	last30DaysSpendUsd: number
 }
 
 type PlatformStatsResult = {
 	totalTokens: number
-	totalCostUsd: string | null
-	activeClients: number
+	totalCostUsd: number | null
+	registeredClients: number
 	totalConversations: number
 }
 
@@ -67,7 +68,7 @@ export type AnalyticsRepository = {
 	): Promise<MessageCountRow[]>
 	getClientSummary(clientId: string): Promise<ClientSummaryResult>
 	getPlatformStats(): Promise<PlatformStatsResult>
-	getActiveTenantCount(days: number): Promise<number>
+	getActiveClientCount(days: number): Promise<number>
 	getPlatformTokenUsageOverTime(
 		from: Date,
 		to: Date,
@@ -107,6 +108,12 @@ export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 			)
 			.groupBy(bucket)
 			.orderBy(bucket)
+			.then((rows) =>
+				rows.map((r) => ({
+					...r,
+					costUsd: r.costUsd !== null ? Number(r.costUsd) : null,
+				})),
+			)
 	}
 
 	async getMessageCounts(
@@ -176,6 +183,19 @@ export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 			.from(endUserSessions)
 			.where(eq(endUserSessions.clientId, clientId))
 
+		const now = new Date()
+		const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+		const [recentSpendRow] = await this.db
+			.select({ last30DaysSpendUsd: sum(usageRecords.costUsd) })
+			.from(usageRecords)
+			.where(
+				and(
+					eq(usageRecords.clientId, clientId),
+					gte(usageRecords.recordedAt, thirtyDaysAgo),
+					lte(usageRecords.recordedAt, now),
+				),
+			)
+
 		return {
 			totalConversations: convRow?.totalConversations ?? 0,
 			uniqueUsers: engagedRow?.uniqueUsers ?? 0,
@@ -183,6 +203,7 @@ export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 			totalUserMessages: msgRow?.totalUserMessages ?? 0,
 			totalTokens: tokenRow?.totalTokens ?? 0,
 			totalPageviewSessions: pageviewRow?.totalPageviewSessions ?? 0,
+			last30DaysSpendUsd: Number(recentSpendRow?.last30DaysSpendUsd ?? 0),
 		}
 	}
 
@@ -196,10 +217,9 @@ export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 
 		const [clientStats] = await this.db
 			.select({
-				activeClients: countDistinct(clients.id),
+				registeredClients: countDistinct(clients.id),
 			})
 			.from(clients)
-			.where(eq(clients.status, "active"))
 
 		const [convStats] = await this.db
 			.select({ totalConversations: count(conversations.id) })
@@ -207,13 +227,17 @@ export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 
 		return {
 			totalTokens: tokenStats?.totalTokens ?? 0,
-			totalCostUsd: tokenStats?.totalCostUsd ?? "0",
-			activeClients: clientStats?.activeClients ?? 0,
+			totalCostUsd:
+				tokenStats?.totalCostUsd !== null &&
+				tokenStats?.totalCostUsd !== undefined
+					? Number(tokenStats.totalCostUsd)
+					: null,
+			registeredClients: clientStats?.registeredClients ?? 0,
 			totalConversations: convStats?.totalConversations ?? 0,
 		}
 	}
 
-	async getActiveTenantCount(days: number) {
+	async getActiveClientCount(days: number) {
 		const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 		const [row] = await this.db
 			.select({ count: countDistinct(conversations.clientId) })
@@ -243,6 +267,12 @@ export class DrizzleAnalyticsRepository implements AnalyticsRepository {
 			)
 			.groupBy(bucket)
 			.orderBy(bucket)
+			.then((rows) =>
+				rows.map((r) => ({
+					...r,
+					costUsd: r.costUsd !== null ? Number(r.costUsd) : null,
+				})),
+			)
 	}
 
 	async getPlatformConversationCountsOverTime(
@@ -287,14 +317,15 @@ export class InMemoryAnalyticsRepository implements AnalyticsRepository {
 		totalUserMessages: 0,
 		totalTokens: 0,
 		totalPageviewSessions: 0,
+		last30DaysSpendUsd: 0,
 	}
 	platformStats: PlatformStatsResult = {
 		totalTokens: 0,
-		totalCostUsd: "0",
-		activeClients: 0,
+		totalCostUsd: null,
+		registeredClients: 0,
 		totalConversations: 0,
 	}
-	activeTenantCount = 0
+	activeClientCount = 0
 	platformTokenUsage: TokenUsageRow[] = []
 	platformConversationCounts: { period: string; conversationCount: number }[] =
 		[]
@@ -345,8 +376,8 @@ export class InMemoryAnalyticsRepository implements AnalyticsRepository {
 		return this.platformStats
 	}
 
-	async getActiveTenantCount(_days: number) {
-		return this.activeTenantCount
+	async getActiveClientCount(_days: number) {
+		return this.activeClientCount
 	}
 
 	async getPlatformTokenUsageOverTime(

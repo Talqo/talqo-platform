@@ -23,7 +23,17 @@ function makeMockReader(chunks: string[]) {
 	}
 }
 
-const mockUsage = Promise.resolve({ inputTokens: 5, outputTokens: 10 })
+type MockUsageShape = {
+	inputTokens?: number
+	outputTokens?: number
+	totalTokens?: number
+}
+
+let mockUsageValue: MockUsageShape = {
+	inputTokens: 5,
+	outputTokens: 10,
+	totalTokens: 15,
+}
 
 const mockStreamText = mock((_opts: unknown) => {
 	return {
@@ -37,7 +47,8 @@ const mockStreamText = mock((_opts: unknown) => {
 			}),
 		},
 		consumeStream: mock(async () => {}),
-		usage: mockUsage,
+		usage: Promise.resolve(mockUsageValue),
+		totalUsage: Promise.resolve(mockUsageValue),
 	}
 })
 
@@ -84,6 +95,7 @@ describe("streamResponse", () => {
 		}
 
 		mockStreamChunks = ["Hello", " from", " AI"]
+		mockUsageValue = { inputTokens: 5, outputTokens: 10, totalTokens: 15 }
 		mockStreamText.mockClear()
 		mockClose.mockClear()
 		mockCreateMCPClient.mockClear()
@@ -167,5 +179,69 @@ describe("streamResponse", () => {
 			chunks.push(value)
 		}
 		expect(chunks).toEqual(["Hello", " from", " AI"])
+	})
+
+	describe("token usage fallback", () => {
+		async function drainStream(stream: ReadableStream<string>): Promise<void> {
+			const reader = stream.getReader()
+			while (true) {
+				const { done } = await reader.read()
+				if (done) break
+			}
+		}
+
+		it("uses reported tokens when provider reports both input and output", async () => {
+			mockUsageValue = {
+				inputTokens: 100,
+				outputTokens: 50,
+				totalTokens: 150,
+			}
+			const { stream, usage } = await streamResponse(baseInput)
+			await drainStream(stream)
+			expect(await usage).toEqual({ input: 100, output: 50 })
+		})
+
+		it("attributes totalTokens to input when provider gives no split", async () => {
+			mockUsageValue = { totalTokens: 200 }
+			const { stream, usage } = await streamResponse(baseInput)
+			await drainStream(stream)
+			expect(await usage).toEqual({ input: 200, output: 0 })
+		})
+
+		it("falls back to estimating from prompt + output text when provider reports nothing", async () => {
+			mockUsageValue = {}
+			mockStreamChunks = ["Hello", " world"]
+			const { stream, usage } = await streamResponse({
+				...baseInput,
+				userMessage: "Hi there",
+				context: "You are a bot",
+			})
+			await drainStream(stream)
+			const result = await usage
+			// Output: "Hello world" = 11 chars → ceil(11/4) = 3 tokens
+			expect(result.output).toBe(3)
+			// Input: "You are a bot" + "\n" + "Hi there" = 22 chars → 6 tokens
+			expect(result.input).toBeGreaterThan(0)
+		})
+
+		it("estimates input from system + history + user message when only output is reported", async () => {
+			mockUsageValue = { outputTokens: 42 }
+			const { stream, usage } = await streamResponse({
+				...baseInput,
+				history: [
+					{ role: "user", content: "earlier turn" },
+					{ role: "assistant", content: "earlier reply" },
+				],
+				userMessage: "follow-up",
+				context: "system prompt",
+			})
+			await drainStream(stream)
+			const result = await usage
+			// Output stays as reported
+			expect(result.output).toBe(42)
+			// Input is estimated and must include history (proves we re-bill the
+			// whole conversation each turn when there's no caching)
+			expect(result.input).toBeGreaterThan(0)
+		})
 	})
 })

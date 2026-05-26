@@ -2,6 +2,7 @@ import type { EmbeddingModel } from "ai"
 import { embed, embedMany } from "ai"
 import type { AiProviderConfig } from "shared"
 import { upsertProviderConfigBodySchema } from "shared"
+import { computeEmbeddingCostUsd, estimateTokens } from "@/common/billing"
 import { config, getDefaultProviderConfig } from "@/common/config"
 import { decrypt } from "@/common/crypto"
 import { BadRequestError } from "@/common/errors"
@@ -11,24 +12,11 @@ import { chunkText } from "./rag.chunking"
 import { createEmbeddingModel } from "./rag.embedding"
 import type { RagRepository } from "./rag.repository"
 
-const EMBEDDING_MODEL_RATES: Record<string, number> = {
-	"text-embedding-3-small": 0.02 / 1_000_000,
-	"text-embedding-3-large": 0.13 / 1_000_000,
-	"text-embedding-ada-002": 0.1 / 1_000_000,
+type ResolvedEmbedding = {
+	model: EmbeddingModel
+	modelId: string
+	usePlatformBilling: boolean
 }
-
-function getEmbeddingRateForModel(modelId: string): number {
-	return EMBEDDING_MODEL_RATES[modelId] ?? 0.02 / 1_000_000
-}
-
-type ResolvedEmbedding =
-	| { model: EmbeddingModel; modelId: string; usePlatformBilling: false }
-	| {
-			model: EmbeddingModel
-			modelId: string
-			usePlatformBilling: true
-			platformRatePerToken: number
-	  }
 
 export class RagService {
 	constructor(
@@ -79,13 +67,20 @@ export class RagService {
 
 		await this.repo.upsertChunks(upsertData)
 
-		if (resolved.usePlatformBilling && usage?.tokens) {
-			const costUsd = usage.tokens * resolved.platformRatePerToken
-			await this.repo.recordEmbeddingUsage({
-				clientId,
-				tokensUsed: usage.tokens,
-				costUsd: costUsd.toFixed(6),
-			})
+		if (resolved.usePlatformBilling) {
+			// Fall back to estimating tokens from the raw chunk text when the
+			// provider doesn't report usage.
+			const tokens =
+				usage?.tokens && usage.tokens > 0
+					? usage.tokens
+					: chunks.reduce((acc, c) => acc + estimateTokens(c.text), 0)
+			if (tokens > 0) {
+				await this.repo.recordEmbeddingUsage({
+					clientId,
+					tokensUsed: tokens,
+					costUsd: computeEmbeddingCostUsd(tokens),
+				})
+			}
 		}
 	}
 
@@ -113,9 +108,26 @@ export class RagService {
 		if (message.trim().length === 0) return []
 
 		const providerConfig = await this.resolveProviderConfig(clientId)
-		const { model } = this.resolveEmbeddingConfig(providerConfig)
+		const resolved = this.resolveEmbeddingConfig(providerConfig)
 
-		const { embedding } = await embed({ model, value: message })
+		const { embedding, usage } = await embed({
+			model: resolved.model,
+			value: message,
+		})
+
+		if (resolved.usePlatformBilling) {
+			const tokens =
+				usage?.tokens && usage.tokens > 0
+					? usage.tokens
+					: estimateTokens(message)
+			if (tokens > 0) {
+				await this.repo.recordEmbeddingUsage({
+					clientId,
+					tokensUsed: tokens,
+					costUsd: computeEmbeddingCostUsd(tokens),
+				})
+			}
+		}
 
 		return this.repo.search(clientId, embedding, topK ?? 5)
 	}
@@ -170,9 +182,6 @@ export class RagService {
 				model: createEmbeddingModel(configWithModel),
 				modelId: configWithModel.embeddingModel,
 				usePlatformBilling: true,
-				platformRatePerToken: getEmbeddingRateForModel(
-					configWithModel.embeddingModel,
-				),
 			}
 		}
 		return {
