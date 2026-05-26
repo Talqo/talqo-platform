@@ -19,7 +19,8 @@
 			"siteVisitorsWhoChatted": "发起聊天的访客",
 			"avgSatisfaction": "平均满意度",
 			"satisfactionRating": "满意度评分",
-			"noData": "暂无数据"
+			"noData": "暂无数据",
+			"last30Days": "过去30天"
 		},
 		"botContext": {
 			"title": "机器人上下文",
@@ -94,7 +95,18 @@
 	"typeAMessage": "输入消息...",
 	"poweredBy": "由 PagePal 提供支持",
 	"aiAssistant": "AI 助手",
-	"error": "错误",
+	"error": {
+		"errorBoundary": {
+			"title": "出现错误",
+			"description": "发生了意外错误。",
+			"message": "请尝试刷新页面。如果问题仍然存在，请联系支持。",
+			"tryAgain": "刷新页面"
+		},
+		"suspenseBoundary": {
+			"loadingContent": "加载中...",
+			"loadingPage": "正在加载页面..."
+		}
+	},
 	"success": "成功",
 	"warning": "警告",
 	"info": "信息",
@@ -642,7 +654,8 @@
 		"pagePal": "PagePal",
 		"failedToLoad": "加载失败",
 		"processing": "处理中...",
-		"sending": "发送中..."
+		"sending": "发送中...",
+		"confirmNewPassword": "确认新密码"
 	},
 	"clientDashboard": {
 		"nav": {
@@ -662,7 +675,7 @@
 	"backoffice": {
 		"nav": {
 			"adminDashboard": "管理仪表盘",
-			"tenants": "租户",
+			"clients": "客户",
 			"chats": "聊天记录",
 			"activityLogs": "活动日志",
 			"mcpServers": "MCP 服务器",
@@ -689,35 +702,43 @@
 		},
 		"stats": {
 			"adminDashboard": "管理仪表盘",
-			"adminDashboardDescription": "管理租户、用户和系统设置",
-			"totalTenants": "租户总数",
-			"registeredTenants": "已注册租户",
-			"activeClients": "活跃客户",
-			"currentlyActive": "当前活跃",
+			"adminDashboardDescription": "管理客户、用户和系统设置",
+			"totalClients": "客户总数",
+			"allClients": "所有已注册客户",
+			"activeClientsLast30d": "活跃客户",
+			"activeClientsLast30dSubtitle": "最近30天内有对话",
 			"platformTokens": "平台 Token",
 			"totalConsumed": "总消耗",
 			"totalCost": "总费用",
 			"platformSpend": "平台支出",
 			"conversations": "对话",
 			"allTime": "累计",
+			"avgSatisfaction": "平均满意度",
+			"platformWideRating": "平台整体评分",
 			"failedToLoadClients": "加载客户失败",
 			"failedToLoadConversations": "加载对话失败",
-			"tenants": "租户",
-			"manageTenants": "管理系统中的所有租户"
+			"clients": "客户",
+			"manageClients": "管理系统中的所有客户"
 		},
-		"tenantsTable": {
+		"clientsTable": {
 			"client": "客户",
 			"status": "状态",
-			"apiType": "API 类型",
+			"aiProvider": "AI 提供商",
 			"tokenUsage": "Token 用量",
 			"actions": "操作",
 			"active": "活跃",
 			"suspended": "已暂停",
-			"noTenantsFound": "未找到租户",
+			"noClientsFound": "未找到客户",
 			"impersonate": "模拟",
 			"suspend": "暂停",
 			"reEnable": "重新启用",
 			"platformDefault": "平台默认"
+		},
+		"clientActions": {
+			"suspendTitle": "暂停客户？",
+			"suspendDescription": "这将立即阻止客户访问其仪表盘和小部件。",
+			"reEnableTitle": "重新启用客户？",
+			"reEnableDescription": "这将恢复客户对其仪表盘和小部件的访问权限。"
 		},
 		"conversationsTable": {
 			"client": "客户",
@@ -746,9 +767,9 @@
 		},
 		"mcp": {
 			"pageTitle": "MCP 服务器",
-			"pageDescription": "管理租户可用的预制 MCP 服务器配置",
+			"pageDescription": "管理客户可用的预制 MCP 服务器配置",
 			"deleteConfirmTitle": "删除 MCP 服务器？",
-			"deleteConfirmDescription": "这将永久删除服务器配置。使用该配置的租户将失去访问权限。",
+			"deleteConfirmDescription": "这将永久删除服务器配置。使用该配置的客户将失去访问权限。",
 			"addServer": "添加服务器",
 			"editServer": "编辑服务器",
 			"name": "名称",
@@ -782,6 +803,14 @@
 			"updateFailed": "更新服务器失败，请重试。",
 			"deleteFailed": "删除服务器失败，请重试。",
 			"deleting": "删除中..."
+		},
+		"client": {
+			"suspendTitle": "暂停客户？",
+			"suspendDescription": "这将立即阻止客户访问其仪表板和小部件。",
+			"suspendConfirm": "暂停",
+			"reEnableTitle": "重新启用客户？",
+			"reEnableDescription": "这将恢复客户对其仪表板和小部件的访问权限。",
+			"reEnableConfirm": "重新启用"
 		}
 	}
 }

@@ -1,5 +1,5 @@
 export { BackOfficeStatCard } from "./BackOfficeStatCard"
+export { ClientsTable } from "./ClientsTable"
 export { McpDialog } from "./McpDialog"
 export { McpTable } from "./McpTable"
 export { MarkdownContent } from "./markdown-content"
-export { TenantsTable } from "./TenantsTable"

@@ -18,10 +18,10 @@ export function LandingHeader() {
 				<span className="font-semibold text-card-foreground">PagePal</span>
 			</div>
 			<nav className="flex items-center gap-4">
-				<button
-					type="button"
+				<Button
+					variant="ghost"
+					size="icon"
 					onClick={toggleTheme}
-					className="text-muted-foreground hover:text-foreground"
 					aria-label={
 						theme === "dark"
 							? t("landing.header.switchToLightTheme")
@@ -29,7 +29,7 @@ export function LandingHeader() {
 					}
 				>
 					{theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-				</button>
+				</Button>
 				<LanguageSwitcher />
 				<Link
 					to="/login"

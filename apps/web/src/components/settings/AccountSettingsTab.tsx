@@ -12,6 +12,7 @@ import {
 	useUpdateClientProfile,
 } from "@/api/hooks"
 import type { ApiError } from "@/api/hooks/useAuth"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,16 +23,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog"
 import {
 	Form,
 	FormControl,
@@ -69,29 +60,27 @@ function DeleteAccountDialog() {
 	}
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={(next) => {
-				if (!next) form.reset()
-				setOpen(next)
-			}}
-		>
-			<DialogTrigger asChild>
-				<Button variant="destructive" size="sm">
-					{t("settings.account.deleteAccount")}
-				</Button>
-			</DialogTrigger>
-			<DialogContent>
+		<>
+			<Button variant="destructive" size="sm" onClick={() => setOpen(true)}>
+				{t("settings.account.deleteAccount")}
+			</Button>
+			<ConfirmDialog
+				open={open}
+				onOpenChange={(next) => {
+					if (!next) form.reset()
+					setOpen(next)
+				}}
+				title={t("settings.account.deleteAccountTitle")}
+				description={t("settings.account.deleteAccountDescription")}
+				confirmLabel={t("settings.account.deleteMyAccount")}
+				cancelLabel={t("common.cancel")}
+				variant="destructive"
+				onConfirm={form.handleSubmit(onSubmit)}
+				confirmLoading={deleteAccount.isPending}
+				disabled={!form.watch("password")}
+			>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)}>
-						<DialogHeader>
-							<DialogTitle>
-								{t("settings.account.deleteAccountTitle")}
-							</DialogTitle>
-							<DialogDescription>
-								{t("settings.account.deleteAccountDescription")}
-							</DialogDescription>
-						</DialogHeader>
+					<form id="delete-account-form" onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="space-y-2 py-2">
 							<FormField
 								control={form.control}
@@ -113,33 +102,17 @@ function DeleteAccountDialog() {
 									</FormItem>
 								)}
 							/>
-							{deleteAccount.isError && (
-								<p className="text-destructive text-sm">
-									{deleteAccount.error?.error?.message ??
-										t("settings.account.deleteAccountError")}
-								</p>
-							)}
 						</div>
-						<DialogFooter>
-							<DialogClose asChild>
-								<Button variant="outline" disabled={deleteAccount.isPending}>
-									{t("common.cancel")}
-								</Button>
-							</DialogClose>
-							<Button
-								type="submit"
-								variant="destructive"
-								disabled={!form.watch("password") || deleteAccount.isPending}
-							>
-								{deleteAccount.isPending
-									? t("settings.account.deleting")
-									: t("settings.account.deleteMyAccount")}
-							</Button>
-						</DialogFooter>
 					</form>
 				</Form>
-			</DialogContent>
-		</Dialog>
+				{deleteAccount.isError && (
+					<p className="text-destructive text-sm">
+						{deleteAccount.error?.error?.message ??
+							t("settings.account.deleteAccountError")}
+					</p>
+				)}
+			</ConfirmDialog>
+		</>
 	)
 }
 
@@ -405,54 +378,34 @@ export function AccountSettingsTab() {
 									? t("common.failed")
 									: t("common.copy")}
 						</Button>
-						<Dialog
+						<Button
+							variant="outline"
+							size="sm"
+							type="button"
+							disabled={!accountData?.widgetToken}
+							onClick={() => setRotateConfirmOpen(true)}
+						>
+							{t("settings.account.regenerate")}
+						</Button>
+						<ConfirmDialog
 							open={rotateConfirmOpen}
 							onOpenChange={(next) => {
 								if (!next) rotateWidgetToken.reset()
 								setRotateConfirmOpen(next)
 							}}
-						>
-							<DialogTrigger asChild>
-								<Button
-									variant="outline"
-									size="sm"
-									type="button"
-									disabled={!accountData?.widgetToken}
-								>
-									{t("settings.account.regenerate")}
-								</Button>
-							</DialogTrigger>
-							<DialogContent>
-								<DialogHeader>
-									<DialogTitle>{t("settings.account.regenerate")}</DialogTitle>
-									<DialogDescription>
-										{t("settings.account.widgetTokenHelp")}
-									</DialogDescription>
-								</DialogHeader>
-								{rotateWidgetToken.isError && (
-									<p className="text-destructive text-sm">
-										{t("settings.account.rotateFailed")}
-									</p>
-								)}
-								<DialogFooter>
-									<DialogClose asChild>
-										<Button variant="outline" type="button">
-											{t("common.cancel")}
-										</Button>
-									</DialogClose>
-									<Button
-										variant="destructive"
-										type="button"
-										onClick={handleRotateConfirmed}
-										disabled={rotateWidgetToken.isPending}
-									>
-										{rotateWidgetToken.isPending
-											? t("settings.account.saving")
-											: t("settings.account.regenerate")}
-									</Button>
-								</DialogFooter>
-							</DialogContent>
-						</Dialog>
+							title={t("settings.account.regenerate")}
+							description={t("settings.account.widgetTokenHelp")}
+							confirmLabel={t("settings.account.regenerate")}
+							cancelLabel={t("common.cancel")}
+							variant="destructive"
+							onConfirm={handleRotateConfirmed}
+							confirmLoading={rotateWidgetToken.isPending}
+							error={
+								rotateWidgetToken.isError
+									? t("settings.account.rotateFailed")
+									: null
+							}
+						/>
 					</div>
 				</CardContent>
 			</Card>

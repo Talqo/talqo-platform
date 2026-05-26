@@ -63,6 +63,7 @@ const envSchema = z
 		DEPLOYMENT_ID: z.string().optional(),
 		REGION: z.string().optional(),
 		SENTRY_DSN: z.string().url().optional(),
+		SENTRY_ENVIRONMENT: z.string().default("development"),
 	})
 	.refine(
 		(data) => {
@@ -135,6 +136,7 @@ const parsed = envSchema.safeParse({
 	DEFAULT_EMBEDDING_MODEL: normalizeEmpty(process.env.DEFAULT_EMBEDDING_MODEL),
 	TRUSTED_PROXY_IPS: normalizeEmpty(process.env.TRUSTED_PROXY_IPS),
 	SENTRY_DSN: normalizeEmpty(process.env.SENTRY_DSN),
+	SENTRY_ENVIRONMENT: normalizeEmpty(process.env.SENTRY_ENVIRONMENT),
 })
 
 if (!parsed.success) {

@@ -3,6 +3,7 @@ import type { DB } from "@/db"
 import {
 	adminAccessLogs,
 	adminUsers,
+	aiProviderConfigs,
 	clients,
 	conversations,
 	messages,
@@ -50,9 +51,11 @@ export class AdminRepository {
 				totalTokens: sql<number>`coalesce(${tokenAgg.totalTokens}, 0)`.mapWith(
 					Number,
 				),
+				aiProvider: aiProviderConfigs.providerType,
 			})
 			.from(clients)
 			.leftJoin(tokenAgg, eq(clients.id, tokenAgg.clientId))
+			.leftJoin(aiProviderConfigs, eq(clients.id, aiProviderConfigs.clientId))
 			.limit(limit)
 			.offset(offset)
 			.orderBy(clients.createdAt)
@@ -93,7 +96,10 @@ export class AdminRepository {
 		return {
 			...client,
 			totalTokens: usage?.totalTokens ?? 0,
-			totalCostUsd: usage?.totalCostUsd ?? "0",
+			totalCostUsd:
+				usage?.totalCostUsd !== null && usage?.totalCostUsd !== undefined
+					? Number(usage.totalCostUsd)
+					: null,
 			totalConversations: convStats?.totalConversations ?? 0,
 		}
 	}

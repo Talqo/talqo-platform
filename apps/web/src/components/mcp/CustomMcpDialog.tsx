@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -26,13 +27,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select"
 import { kvPairsToRecord, recordToKvPairs } from "@/lib/mcp-utils"
 import { type McpConfigFormValues, mcpConfigFormSchema } from "@/schemas/mcp"
 
@@ -43,9 +37,8 @@ type Props = {
 }
 
 function toFormValues(config?: McpRemoteServerConfig): McpConfigFormValues {
-	if (!config) return { type: "http", url: "", headers: [] }
+	if (!config) return { url: "", headers: [] }
 	return {
-		type: "http",
 		url: config.url,
 		headers: recordToKvPairs(config.headers),
 	}
@@ -75,13 +68,17 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 		name: "headers",
 	})
 
+	const { reset: createReset } = createMutation
+	const { reset: updateReset } = updateMutation
+	const { reset: resetForm } = form
+
 	useEffect(() => {
 		if (open) {
-			form.reset(toFormValues(initialData))
-			createMutation.reset()
-			updateMutation.reset()
+			resetForm(toFormValues(initialData))
+			createReset()
+			updateReset()
 		}
-	}, [open, initialData, form, createMutation, updateMutation])
+	}, [open, initialData, resetForm, createReset, updateReset])
 
 	const isPending = createMutation.isPending || updateMutation.isPending
 	const isError = createMutation.isError || updateMutation.isError
@@ -116,40 +113,15 @@ export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
 							? t("mcp.customDialog.editTitle")
 							: t("mcp.customDialog.addTitle")}
 					</DialogTitle>
+					<DialogDescription className="sr-only">
+						{serverId
+							? t("mcp.customDialog.editTitle")
+							: t("mcp.customDialog.addTitle")}
+					</DialogDescription>
 				</DialogHeader>
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormField
-							control={form.control}
-							name="type"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>{t("mcp.customDialog.transportType")}</FormLabel>
-									<Select
-										onValueChange={(val) => {
-											field.onChange(val)
-										}}
-										value={field.value}
-									>
-										<FormControl>
-											<SelectTrigger className="w-full">
-												<SelectValue
-													placeholder={t("mcp.customDialog.selectType")}
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="http">
-												{t("mcp.customDialog.httpLabel")}
-											</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
 						<FormField
 							control={form.control}
 							name="url"
