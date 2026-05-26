@@ -4,16 +4,7 @@ import { AppError } from "@/common/errors"
 import { logger } from "@/common/logger"
 
 export const errorHandler: ErrorHandler = (err, c) => {
-	Sentry.withScope((scope) => {
-		scope.setTag("request_id", c.get("requestId") ?? "")
-		scope.setTag("method", c.req.method)
-		scope.setTag("path", c.req.path)
-		if (err instanceof AppError) {
-			scope.setTag("status_code", String(err.statusCode))
-		}
-		Sentry.captureException(err)
-	})
-
+	// Skip expected client errors (validation, auth) to avoid Sentry noise
 	if (err instanceof AppError) {
 		return c.json(
 			{
@@ -22,6 +13,15 @@ export const errorHandler: ErrorHandler = (err, c) => {
 			err.statusCode as 400 | 401 | 403 | 404 | 409 | 422 | 500,
 		)
 	}
+
+	// Unhandled error — these indicate real bugs and must be tracked
+	Sentry.withScope((scope) => {
+		scope.setTag("request_id", c.get("requestId") ?? "")
+		scope.setTag("method", c.req.method)
+		scope.setTag("path", c.req.path)
+		scope.setTag("status_code", "500")
+		Sentry.captureException(err)
+	})
 
 	logger.error("Unhandled error", {
 		message: err.message,

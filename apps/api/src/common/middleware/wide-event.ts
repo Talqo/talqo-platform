@@ -24,7 +24,7 @@ export function createWideEventMiddleware(exporters: EventExporter[] = []) {
 		try {
 			await next()
 			event.status_code = c.res.status
-			event.outcome = "success"
+			event.outcome = c.res.status >= 400 ? "error" : "success"
 		} catch (err) {
 			event.status_code = err instanceof AppError ? err.statusCode : 500
 			event.outcome = "error"
