@@ -812,5 +812,11 @@
 			"reEnableDescription": "这将恢复客户对其仪表板和小部件的访问权限。",
 			"reEnableConfirm": "重新启用"
 		}
+	},
+	"notFound": {
+		"title": "页面未找到",
+		"description": "您访问的页面不存在或已被移动。",
+		"goDashboard": "前往仪表盘",
+		"goHome": "返回首页"
 	}
 }

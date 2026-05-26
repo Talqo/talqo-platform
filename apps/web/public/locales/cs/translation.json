@@ -812,5 +812,11 @@
 			"reEnableDescription": "Tím obnovíte klientovi přístup k nástěnce a widgetu.",
 			"reEnableConfirm": "Znovu povolit"
 		}
+	},
+	"notFound": {
+		"title": "Stránka nenalezena",
+		"description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
+		"goDashboard": "Přejít na nástěnku",
+		"goHome": "Přejít na úvod"
 	}
 }

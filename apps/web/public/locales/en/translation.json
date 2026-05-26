@@ -812,5 +812,11 @@
 		"connectorsSubtitle": "Product DB, Internal Wiki",
 		"currentSpend": "Current Spend",
 		"spendSubtitle": "Limit: 0.00 / month"
+	},
+	"notFound": {
+		"title": "Page Not Found",
+		"description": "The page you're looking for doesn't exist or has been moved.",
+		"goDashboard": "Go to Dashboard",
+		"goHome": "Go to Home"
 	}
 }
