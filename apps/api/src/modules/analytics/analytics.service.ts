@@ -68,14 +68,14 @@ export class AnalyticsService {
 	}
 
 	async getAdminSummary() {
-		const [stats, activeTenants, avgSatisfaction] = await Promise.all([
+		const [stats, activeClients, avgSatisfaction] = await Promise.all([
 			this.repo.getPlatformStats(),
-			this.repo.getActiveTenantCount(30),
+			this.repo.getActiveClientCount(30),
 			this.repo.getAvgPlatformSatisfaction(),
 		])
 		return {
 			...stats,
-			activeTenantsLast30Days: activeTenants,
+			activeClientsLast30Days: activeClients,
 			avgSatisfactionRating: avgSatisfaction,
 		}
 	}

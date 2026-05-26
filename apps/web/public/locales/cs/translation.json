@@ -10,6 +10,7 @@
 			"allTime": "Celkem",
 			"questionsAnswered": "Zodpovězené otázky",
 			"activeConnectors": "Aktivní konektory",
+			"customServers": "{{count}} vlastních",
 			"currentSpend": "Aktuální výdaje",
 			"totalConversations": "Celkem konverzací",
 			"uniqueUsers": "Unikátní uživatelé",
@@ -18,7 +19,8 @@
 			"siteVisitorsWhoChatted": "Návštěvníci, kteří chatovali",
 			"avgSatisfaction": "Prům. spokojenost",
 			"satisfactionRating": "Hodnocení spokojenosti",
-			"noData": "Žádná data k dispozici"
+			"noData": "Žádná data k dispozici",
+			"last30Days": "Posledních 30 dní"
 		},
 		"botContext": {
 			"title": "Kontext bota",
@@ -673,7 +675,7 @@
 	"backoffice": {
 		"nav": {
 			"adminDashboard": "Administrátorská nástěnka",
-			"tenants": "Tenanti",
+			"clients": "Klienti",
 			"chats": "Chaty",
 			"activityLogs": "Protokoly aktivit",
 			"mcpServers": "MCP Servery",
@@ -700,35 +702,43 @@
 		},
 		"stats": {
 			"adminDashboard": "Administrátorská nástěnka",
-			"adminDashboardDescription": "Spravujte tenanty, uživatele a systémová nastavení",
-			"totalTenants": "Celkem tenantů",
-			"registeredTenants": "Registrovaní tenanti",
-			"activeClients": "Aktivní klienti",
-			"currentlyActive": "Aktuálně aktivní",
+			"adminDashboardDescription": "Spravujte klienty, uživatele a systémová nastavení",
+			"totalClients": "Celkem klientů",
+			"allClients": "Všichni registrovaní klienti",
+			"activeClientsLast30d": "Aktivní klienti",
+			"activeClientsLast30dSubtitle": "S konverzacemi za posledních 30 dní",
 			"platformTokens": "Tokeny platformy",
 			"totalConsumed": "Celkem spotřebováno",
 			"totalCost": "Celkové náklady",
 			"platformSpend": "Výdaje platformy",
 			"conversations": "Konverzace",
 			"allTime": "Celkem",
+			"avgSatisfaction": "Průměrná spokojenost",
+			"platformWideRating": "Hodnocení celé platformy",
 			"failedToLoadClients": "Nepodařilo se načíst klienty",
 			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
-			"tenants": "Tenanti",
-			"manageTenants": "Spravovat všechny tenanty v systému"
+			"clients": "Klienti",
+			"manageClients": "Spravovat všechny klienty v systému"
 		},
-		"tenantsTable": {
+		"clientsTable": {
 			"client": "Klient",
 			"status": "Stav",
-			"apiType": "Typ API",
+			"aiProvider": "AI poskytovatel",
 			"tokenUsage": "Spotřeba tokenů",
 			"actions": "Akce",
 			"active": "Aktivní",
 			"suspended": "Pozastavený",
-			"noTenantsFound": "Nebyli nalezeni žádní tenanti",
+			"noClientsFound": "Nebyli nalezeni žádní klienti",
 			"impersonate": "Impersonovat",
 			"suspend": "Pozastavit",
 			"reEnable": "Znovu povolit",
 			"platformDefault": "Výchozí platforma"
+		},
+		"clientActions": {
+			"suspendTitle": "Pozastavit klienta?",
+			"suspendDescription": "Klient okamžitě ztratí přístup ke své nástěnce a widgetu.",
+			"reEnableTitle": "Znovu povolit klienta?",
+			"reEnableDescription": "Klientovi bude obnoven přístup k jeho nástěnce a widgetu."
 		},
 		"conversationsTable": {
 			"client": "Klient",
@@ -757,9 +767,9 @@
 		},
 		"mcp": {
 			"pageTitle": "MCP Servery",
-			"pageDescription": "Správa předpřipravených konfigurací MCP serverů dostupných tenantům",
+			"pageDescription": "Správa předpřipravených konfigurací MCP serverů dostupných klientům",
 			"deleteConfirmTitle": "Smazat MCP server?",
-			"deleteConfirmDescription": "Tato akce trvale odstraní konfiguraci serveru. Tenanti, kteří jej používají, ztratí přístup.",
+			"deleteConfirmDescription": "Tato akce trvale odstraní konfiguraci serveru. Klienti, kteří jej používají, ztratí přístup.",
 			"addServer": "Přidat server",
 			"editServer": "Upravit server",
 			"name": "Název",

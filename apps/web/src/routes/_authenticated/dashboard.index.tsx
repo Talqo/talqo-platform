@@ -36,7 +36,6 @@ function AdminDashboard() {
 	const { data: tokenData } = useTokenAnalytics()
 	const { data: messageData } = useMessageAnalytics()
 	const { data: summary } = useClientAnalyticsSummary()
-
 	useEffect(() => {
 		if (isSuccess && currentUser?.widgetSetupDismissed === false) {
 			setShowPopup(true)
@@ -77,6 +76,13 @@ function AdminDashboard() {
 			? `${((summary.uniqueUsers / summary.totalPageviewSessions) * 100).toFixed(1)}%`
 			: t("dashboard.overview.noData")
 
+	const currentSpendRaw = Number(summary?.last30DaysSpendUsd)
+	const currentSpendValue =
+		summary && Number.isFinite(currentSpendRaw)
+			? `$${currentSpendRaw.toFixed(2)}`
+			: "—"
+	const currentSpendSubtitle = t("dashboard.overview.last30Days")
+
 	return (
 		<div className="space-y-6">
 			<PageHeader
@@ -84,7 +90,7 @@ function AdminDashboard() {
 				subtitle={t("dashboard.overview.subtitle")}
 			/>
 
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<StatCard
 					title={t("dashboard.overview.currentBalance")}
 					value={balanceValue}
@@ -101,6 +107,12 @@ function AdminDashboard() {
 					}
 				/>
 				<StatCard
+					title={t("dashboard.overview.currentSpend")}
+					value={currentSpendValue}
+					subtitle={currentSpendSubtitle}
+					icon="card"
+				/>
+				<StatCard
 					title={t("dashboard.overview.totalTokens")}
 					value={totalTokens}
 					subtitle={t("dashboard.overview.allTime")}
@@ -111,18 +123,6 @@ function AdminDashboard() {
 					value={totalMessages}
 					subtitle={t("dashboard.overview.allTime")}
 					icon="message"
-				/>
-				<StatCard
-					title={t("dashboard.overview.activeConnectors")}
-					value="2"
-					subtitle="Product DB, Internal Wiki"
-					icon="bot"
-				/>
-				<StatCard
-					title={t("dashboard.overview.currentSpend")}
-					value="$12.50"
-					subtitle="Limit: $50.00 / month"
-					icon="card"
 				/>
 			</div>
 

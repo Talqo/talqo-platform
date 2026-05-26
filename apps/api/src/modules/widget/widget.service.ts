@@ -1,5 +1,6 @@
 import type { ModelMessage } from "ai"
 import { type McpServerConfig, mcpServerConfigSchema } from "shared"
+import { computeMessageCostUsd } from "@/common/billing"
 import { config } from "@/common/config"
 import { sendQuotaAlertEmail as defaultSendQuotaAlertEmail } from "@/common/email/email.service"
 import {
@@ -16,16 +17,6 @@ import type { McpService } from "@/modules/mcp/mcp.service"
 import type { ProviderConfigService } from "@/modules/provider-config/provider-config.service"
 import type { RagService } from "@/modules/rag/rag.service"
 import type { WidgetRepository } from "./widget.repository"
-
-const PLATFORM_MODEL_INPUT_RATE = 0.1 / 1_000_000
-const PLATFORM_MODEL_OUTPUT_RATE = 0.2 / 1_000_000
-
-function computeCostUsd(tokensUsed: { input: number; output: number }): string {
-	const cost =
-		tokensUsed.input * PLATFORM_MODEL_INPUT_RATE +
-		tokensUsed.output * PLATFORM_MODEL_OUTPUT_RATE
-	return cost.toFixed(6)
-}
 
 type StreamResponse = typeof streamResponse
 type SendQuotaAlertEmail = (to: string, usagePercent: number) => Promise<void>
@@ -115,9 +106,7 @@ export class WidgetService {
 				now.getFullYear(),
 				now.getMonth() + 1,
 			)
-			if (
-				parseFloat(monthlySpend) >= parseFloat(clientSettings.monthlyUsageLimit)
-			) {
+			if (monthlySpend >= clientSettings.monthlyUsageLimit) {
 				throw new BadRequestError(
 					"MONTHLY_LIMIT_REACHED",
 					"Monthly usage limit reached",
@@ -203,7 +192,7 @@ export class WidgetService {
 		)
 
 		if (tokensUsed !== undefined) {
-			const costUsd = computeCostUsd(tokensUsed)
+			const costUsd = computeMessageCostUsd(tokensUsed)
 			const now = new Date()
 			const year = now.getFullYear()
 			const month = now.getMonth() + 1
@@ -217,22 +206,17 @@ export class WidgetService {
 			)
 
 			const clientSettings = await this.repo.getClientLimitSettings(clientId)
-			if (clientSettings?.usageAlertThresholdUsd) {
-				const threshold = parseFloat(clientSettings.usageAlertThresholdUsd)
+			if (clientSettings?.usageAlertThresholdUsd != null) {
+				const threshold = clientSettings.usageAlertThresholdUsd
 				const spendAfter = await this.repo.getMonthlySpend(
 					clientId,
 					year,
 					month,
 				)
-				if (
-					parseFloat(spendBefore) < threshold &&
-					parseFloat(spendAfter) >= threshold
-				) {
+				if (spendBefore < threshold && spendAfter >= threshold) {
 					const limit = clientSettings.monthlyUsageLimit
-						? parseFloat(clientSettings.monthlyUsageLimit)
-						: null
 					const usagePercent = limit
-						? Math.min(100, Math.round((parseFloat(spendAfter) / limit) * 100))
+						? Math.min(100, Math.round((spendAfter / limit) * 100))
 						: 100
 					this.sendQuotaAlertEmail(clientSettings.email, usagePercent).catch(
 						(err) =>

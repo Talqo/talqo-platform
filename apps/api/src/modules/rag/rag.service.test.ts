@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import type { AiProviderConfig } from "shared"
+import { computeEmbeddingCostUsd } from "@/common/billing"
 import { InMemoryRagRepository } from "./rag.repository"
 
 // ─── Mock ai package BEFORE importing rag.service ─────────────────────────────
@@ -132,7 +133,7 @@ describe("RagService", () => {
 
 	beforeEach(() => {
 		repo = new InMemoryRagRepository()
-		repo.balances.set(CLIENT_ID, "100.00")
+		repo.balances.set(CLIENT_ID, 100)
 		filesService = makeFakeFilesService("Hello world, this is some content.")
 		providerConfigRepo = makeFakeProviderConfigRepo(null)
 		mockEmbedMany.mockClear()
@@ -288,8 +289,9 @@ describe("RagService", () => {
 
 			expect(repo.balanceDeductions.length).toBe(1)
 			expect(repo.balanceDeductions[0]?.clientId).toBe(CLIENT_ID)
-			// 100 tokens * (0.02 / 1_000_000) = 0.000002
-			expect(repo.balanceDeductions[0]?.amount).toBe("0.000002")
+			expect(repo.balanceDeductions[0]?.amount).toBe(
+				computeEmbeddingCostUsd(100),
+			)
 		})
 	})
 
@@ -452,6 +454,52 @@ describe("RagService", () => {
 			const results = await service.retrieve(CLIENT_ID, "query", 2)
 
 			expect(results.length).toBe(2)
+		})
+
+		it("records platform billing usage for query embedding when using platform provider", async () => {
+			providerConfigRepo = makeFakeProviderConfigRepo(null)
+			repo.balances.set(CLIENT_ID, 100)
+
+			mockEmbed.mockImplementation(async () => ({
+				embedding: [0.1, 0.2, 0.3],
+				usage: { tokens: 5 },
+			}))
+
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+			await service.retrieve(CLIENT_ID, "test query")
+
+			expect(repo.usageRecords.length).toBe(1)
+			expect(repo.usageRecords[0]?.tokensUsed).toBe(5)
+			expect(repo.balanceDeductions.length).toBe(1)
+			expect(repo.balanceDeductions[0]?.amount).toBe(computeEmbeddingCostUsd(5))
+		})
+
+		it("does not record billing usage for query embedding when client has own embedding model", async () => {
+			const openaiConfig: AiProviderConfig = {
+				providerType: "openai",
+				apiKey: "sk-test",
+				model: "gpt-4",
+				embeddingModel: "text-embedding-3-small",
+			}
+			providerConfigRepo = makeFakeProviderConfigRepo(openaiConfig)
+
+			mockEmbed.mockImplementation(async () => ({
+				embedding: [0.1, 0.2, 0.3],
+				usage: { tokens: 5 },
+			}))
+
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+			await service.retrieve(CLIENT_ID, "test query")
+
+			expect(repo.usageRecords.length).toBe(0)
 		})
 	})
 })

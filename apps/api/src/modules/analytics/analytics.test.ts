@@ -24,7 +24,7 @@ const mockService = {
 	getPlatformStats: mock(async () => ({
 		totalTokens: 0,
 		totalCostUsd: "0" as string | null,
-		activeClients: 0,
+		registeredClients: 0,
 		totalConversations: 0,
 	})),
 	getAdminTokenAnalytics: mock(
@@ -37,9 +37,9 @@ const mockService = {
 	getAdminSummary: mock(async () => ({
 		totalTokens: 0,
 		totalCostUsd: "0" as string | null,
-		activeClients: 0,
+		registeredClients: 0,
 		totalConversations: 0,
-		activeTenantsLast30Days: 0,
+		activeClientsLast30Days: 0,
 		avgSatisfactionRating: 0,
 	})),
 }
@@ -227,7 +227,7 @@ describe("AnalyticsService.getPlatformStats()", () => {
 		repo.platformStats = {
 			totalTokens: 99999,
 			totalCostUsd: "12.34",
-			activeClients: 7,
+			registeredClients: 7,
 			totalConversations: 200,
 		}
 		const result = await service.getPlatformStats()
@@ -366,7 +366,7 @@ describe("GET /analytics/ (admin)", () => {
 		mockService.getPlatformStats.mockImplementation(async () => ({
 			totalTokens: 50000,
 			totalCostUsd: "25.00",
-			activeClients: 3,
+			registeredClients: 3,
 			totalConversations: 150,
 		}))
 	})
@@ -376,10 +376,10 @@ describe("GET /analytics/ (admin)", () => {
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
 			totalTokens: number
-			activeClients: number
+			registeredClients: number
 		}
 		expect(body.totalTokens).toBe(50000)
-		expect(body.activeClients).toBe(3)
+		expect(body.registeredClients).toBe(3)
 	})
 })
 
@@ -394,9 +394,9 @@ describe("GET /analytics/summary (admin)", () => {
 		mockService.getAdminSummary.mockImplementation(async () => ({
 			totalTokens: 10000,
 			totalCostUsd: "5.00",
-			activeClients: 2,
+			registeredClients: 2,
 			totalConversations: 80,
-			activeTenantsLast30Days: 1,
+			activeClientsLast30Days: 1,
 			avgSatisfactionRating: 4.2,
 		}))
 	})
@@ -407,11 +407,13 @@ describe("GET /analytics/summary (admin)", () => {
 		)
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as {
-			activeTenantsLast30Days: number
+			activeClientsLast30Days: number
 			avgSatisfactionRating: number
+			registeredClients: number
 		}
-		expect(body.activeTenantsLast30Days).toBe(1)
+		expect(body.activeClientsLast30Days).toBe(1)
 		expect(body.avgSatisfactionRating).toBe(4.2)
+		expect(body.registeredClients).toBe(2)
 	})
 })
 

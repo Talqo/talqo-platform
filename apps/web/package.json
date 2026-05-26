@@ -13,7 +13,10 @@
 		"test": "bun -e \"console.log('No tests in web')\"",
 		"preview": "vite preview",
 		"generate-routes": "tsr generate",
-		"generate-api": "bun run scripts/generate-api.ts"
+		"generate-api": "bun run scripts/generate-api.ts",
+		"check-i18n-unused": "bun run scripts/check-i18n-unused.ts",
+		"check-i18n-hardcoded": "bash scripts/check-i18n-hardcoded.sh",
+		"check-i18n": "bun run check-i18n-unused && bash scripts/check-i18n-hardcoded.sh"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.2.2",
@@ -25,6 +28,7 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tanstack/react-query": "^5.96.1",
 		"@tanstack/react-router": "^1.168.1",
+		"@tanstack/react-router-devtools": "^1.167.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"i18next": "^26.0.7",
@@ -51,7 +55,6 @@
 		"@tailwindcss/vite": "^4.2.0",
 		"@tanstack/react-query-devtools": "^5.96.1",
 		"@tanstack/router-cli": "^1.166.16",
-		"@tanstack/router-devtools": "^1.166.10",
 		"@tanstack/router-plugin": "^1.167.2",
 		"@types/dompurify": "^3.2.0",
 		"@types/node": "^24.10.1",

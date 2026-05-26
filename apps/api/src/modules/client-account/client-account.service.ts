@@ -48,7 +48,7 @@ export class ClientAccountService {
 
 	async addFunds(clientId: string, amount: number) {
 		if (amount <= 0) throw new ValidationError("Amount must be positive")
-		const updated = await this.repo.addBalance(clientId, amount.toFixed(4))
+		const updated = await this.repo.addBalance(clientId, amount)
 		if (!updated) throw new NotFoundError("Client not found")
 		return updated
 	}
@@ -56,19 +56,13 @@ export class ClientAccountService {
 	async setUsageLimit(clientId: string, limit: number | null) {
 		if (limit !== null && limit < 0)
 			throw new ValidationError("Limit must be non-negative")
-		await this.repo.setUsageLimit(
-			clientId,
-			limit !== null ? limit.toFixed(4) : null,
-		)
+		await this.repo.setUsageLimit(clientId, limit)
 	}
 
 	async setUsageAlert(clientId: string, thresholdUsd: number | null) {
 		if (thresholdUsd !== null && thresholdUsd < 0)
 			throw new ValidationError("Threshold must be non-negative")
-		await this.repo.setUsageAlert(
-			clientId,
-			thresholdUsd !== null ? thresholdUsd.toFixed(4) : null,
-		)
+		await this.repo.setUsageAlert(clientId, thresholdUsd)
 	}
 
 	async dismissWidgetSetup(clientId: string) {
