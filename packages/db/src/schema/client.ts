@@ -47,19 +47,19 @@ export const clients = pgTable("clients", {
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
 	balanceUsd: numeric("balance_usd", {
-		precision: 14,
+		precision: 16,
 		scale: 8,
 		mode: "number",
 	})
 		.notNull()
 		.default(0),
 	monthlyUsageLimit: numeric("monthly_usage_limit", {
-		precision: 14,
+		precision: 16,
 		scale: 8,
 		mode: "number",
 	}),
 	usageAlertThresholdUsd: numeric("usage_alert_threshold_usd", {
-		precision: 14,
+		precision: 16,
 		scale: 8,
 		mode: "number",
 	}),

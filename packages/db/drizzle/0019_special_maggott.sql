@@ -1,2 +1,0 @@
-ALTER TABLE "clients" ALTER COLUMN "monthly_usage_limit" SET DATA TYPE numeric(14, 8);--> statement-breakpoint
-ALTER TABLE "clients" ALTER COLUMN "usage_alert_threshold_usd" SET DATA TYPE numeric(14, 8);

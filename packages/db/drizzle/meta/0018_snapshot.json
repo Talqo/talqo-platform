@@ -1,5 +1,5 @@
 {
-	"id": "0cebe717-2c57-48a1-8085-420bd7189476",
+	"id": "fd068ba9-a302-4482-a8f5-b956f441a78d",
 	"prevId": "a15260da-fa63-4c1a-bcc9-cae082250034",
 	"version": "7",
 	"dialect": "postgresql",
@@ -408,20 +408,20 @@
 				},
 				"balance_usd": {
 					"name": "balance_usd",
-					"type": "numeric(14, 8)",
+					"type": "numeric(16, 8)",
 					"primaryKey": false,
 					"notNull": true,
-					"default": "'0'"
+					"default": 0
 				},
 				"monthly_usage_limit": {
 					"name": "monthly_usage_limit",
-					"type": "numeric(12, 4)",
+					"type": "numeric(16, 8)",
 					"primaryKey": false,
 					"notNull": false
 				},
 				"usage_alert_threshold_usd": {
 					"name": "usage_alert_threshold_usd",
-					"type": "numeric(12, 4)",
+					"type": "numeric(16, 8)",
 					"primaryKey": false,
 					"notNull": false
 				},
@@ -1056,7 +1056,7 @@
 				},
 				"cost_usd": {
 					"name": "cost_usd",
-					"type": "numeric(14, 8)",
+					"type": "numeric(16, 8)",
 					"primaryKey": false,
 					"notNull": true
 				},

@@ -131,15 +131,8 @@
 		{
 			"idx": 18,
 			"version": "7",
-			"when": 1779705916944,
-			"tag": "0018_silly_star_brand",
-			"breakpoints": true
-		},
-		{
-			"idx": 19,
-			"version": "7",
-			"when": 1779712130593,
-			"tag": "0019_special_maggott",
+			"when": 1779803621296,
+			"tag": "0018_handy_malcolm_colcord",
 			"breakpoints": true
 		}
 	]
