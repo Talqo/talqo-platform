@@ -10,6 +10,7 @@
 			"allTime": "累计",
 			"questionsAnswered": "已回答问题",
 			"activeConnectors": "活跃连接器",
+			"customServers": "{{count}} 自定义",
 			"currentSpend": "当前支出",
 			"totalConversations": "总会话数",
 			"uniqueUsers": "独立用户",
