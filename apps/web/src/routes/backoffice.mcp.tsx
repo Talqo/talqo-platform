@@ -13,16 +13,7 @@ import {
 } from "@/api/hooks/useAdmin"
 import { McpDialog } from "@/components/backoffice/McpDialog"
 import { McpTable } from "@/components/backoffice/McpTable"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-	AlertDialog,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -185,7 +176,7 @@ function BackofficeMcpPage() {
 				error={mutationError}
 			/>
 
-			<AlertDialog
+			<ConfirmDialog
 				open={serverToDelete !== undefined}
 				onOpenChange={(open) => {
 					if (!open) {
@@ -193,42 +184,15 @@ function BackofficeMcpPage() {
 						setDeleteError(null)
 					}
 				}}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							{t("backoffice.mcp.deleteConfirmTitle")}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{t("backoffice.mcp.deleteConfirmDescription")}
-						</AlertDialogDescription>
-						{deleteError && (
-							<Alert variant="destructive" className="mt-4">
-								<AlertDescription>{deleteError}</AlertDescription>
-							</Alert>
-						)}
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel disabled={deletePreMadeServer.isPending}>
-							{t("common.cancel")}
-						</AlertDialogCancel>
-						<Button
-							variant="destructive"
-							onClick={handleConfirmDelete}
-							disabled={deletePreMadeServer.isPending}
-						>
-							{deletePreMadeServer.isPending ? (
-								<>
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									{t("backoffice.mcp.deleting")}
-								</>
-							) : (
-								t("backoffice.mcpServersTable.delete")
-							)}
-						</Button>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				title={t("backoffice.mcp.deleteConfirmTitle")}
+				description={t("backoffice.mcp.deleteConfirmDescription")}
+				confirmLabel={t("backoffice.mcpServersTable.delete")}
+				cancelLabel={t("common.cancel")}
+				variant="destructive"
+				onConfirm={handleConfirmDelete}
+				confirmLoading={deletePreMadeServer.isPending}
+				error={deleteError}
+			/>
 		</div>
 	)
 }
