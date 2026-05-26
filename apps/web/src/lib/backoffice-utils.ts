@@ -27,14 +27,20 @@ export function mapClientsToTenants(
 	clients: Client[],
 	defaultApiType: string,
 ): Tenant[] {
-	return clients.map((client) => ({
-		id: client.id,
-		name: client.name || client.email,
-		status:
-			client.status && ALLOWED_STATUSES.has(client.status)
+	return clients.map((client) => {
+		if (client.status && !ALLOWED_STATUSES.has(client.status)) {
+			throw new Error(
+				`Invalid client status "${client.status}" for client ${client.id}`,
+			)
+		}
+		return {
+			id: client.id,
+			name: client.name || client.email,
+			status: client.status
 				? (client.status as "active" | "suspended")
 				: "active",
-		apiType: defaultApiType,
-		tokenUsage: client.totalTokens.toLocaleString(),
-	}))
+			apiType: defaultApiType,
+			tokenUsage: client.totalTokens.toLocaleString(),
+		}
+	})
 }
