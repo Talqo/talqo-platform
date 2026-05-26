@@ -15,8 +15,6 @@ import {
 import {
 	AvatarIcon,
 	ClearIcon,
-	ExpandIcon,
-	MinimizeIcon,
 	MoonIcon,
 	SendIcon,
 	SunIcon,
@@ -29,92 +27,57 @@ type EmbeddedWidgetProps = {
 	config: ResolvedWidgetConfig
 }
 
-function useDraggable() {
-	const rootRef = useRef<HTMLDivElement>(null)
-	const dragState = useRef<{ startX: number; startLeft: number } | null>(null)
-	const didDrag = useRef(false)
-	const [posX, setPosX] = useState<number | null>(null)
-
-	const onPointerDown = useCallback((e: React.PointerEvent) => {
-		if (!rootRef.current) return
-		e.currentTarget.setPointerCapture(e.pointerId)
-		didDrag.current = false
-		dragState.current = {
-			startX: e.clientX,
-			startLeft: rootRef.current.getBoundingClientRect().left,
-		}
-	}, [])
-
-	const onPointerMove = useCallback((e: React.PointerEvent) => {
-		const state = dragState.current
-		if (!state || !rootRef.current) return
-		const dx = e.clientX - state.startX
-		if (Math.abs(dx) < 5) return
-		didDrag.current = true
-		const maxLeft = window.innerWidth - rootRef.current.offsetWidth
-		const newLeft = Math.max(0, Math.min(maxLeft, state.startLeft + dx))
-		rootRef.current.style.left = `${newLeft}px`
-		rootRef.current.style.right = "auto"
-	}, [])
-
-	const onPointerUp = useCallback((e: React.PointerEvent) => {
-		const state = dragState.current
-		dragState.current = null
-		if (!state || !rootRef.current || !didDrag.current) return
-		const dx = e.clientX - state.startX
-		const maxLeft = window.innerWidth - rootRef.current.offsetWidth
-		setPosX(Math.max(0, Math.min(maxLeft, state.startLeft + dx)))
-	}, [])
-
-	const onHeaderPointerDown = useCallback(
-		(e: React.PointerEvent) => {
-			if ((e.target as HTMLElement).closest("button")) return
-			onPointerDown(e)
-		},
-		[onPointerDown],
-	)
-
-	const rootStyle: React.CSSProperties =
-		posX !== null ? { left: posX, right: "auto" } : {}
-
-	return {
-		rootRef,
-		rootStyle,
-		didDrag,
-		triggerDragProps: { onPointerDown, onPointerMove, onPointerUp },
-		headerDragProps: {
-			onPointerDown: onHeaderPointerDown,
-			onPointerMove,
-			onPointerUp,
-		},
-	}
-}
-
-function useResizable() {
+function useResizable(position: "left" | "right") {
 	const panelRef = useRef<HTMLDivElement>(null)
-	const startRef = useRef<{ y: number; h: number } | null>(null)
+	const startRef = useRef<{
+		x: number
+		y: number
+		w: number
+		h: number
+	} | null>(null)
 	const [panelHeight, setPanelHeight] = useState<number | null>(null)
+	const [panelWidth, setPanelWidth] = useState<number | null>(null)
 
 	const onResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
 		if (!panelRef.current) return
 		e.preventDefault()
 		e.currentTarget.setPointerCapture(e.pointerId)
+		panelRef.current.dataset.resizing = "true"
 		const rect = panelRef.current.getBoundingClientRect()
-		startRef.current = { y: e.clientY, h: rect.height }
+		startRef.current = {
+			x: e.clientX,
+			y: e.clientY,
+			w: rect.width,
+			h: rect.height,
+		}
 	}, [])
 
-	const onResizeMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-		const start = startRef.current
-		if (!start || !panelRef.current) return
-		const dy = e.clientY - start.y
-		const newHeight = Math.max(
-			300,
-			Math.min(window.innerHeight * 0.85, start.h - dy),
-		)
-		// Update DOM directly for smooth resize without React re-renders
-		panelRef.current.style.height = `${newHeight}px`
-		panelRef.current.style.maxHeight = `${newHeight}px`
-	}, [])
+	const onResizeMove = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			const start = startRef.current
+			if (!start || !panelRef.current) return
+			const dy = e.clientY - start.y
+			const dx = e.clientX - start.x
+			const newHeight = Math.max(
+				300,
+				Math.min(window.innerHeight * 0.85, start.h - dy),
+			)
+			// Right-positioned: corner is top-left, drag left = wider (dx negative)
+			// Left-positioned: corner is top-right, drag right = wider (dx positive)
+			const delta = position === "right" ? -dx : dx
+			const newWidth = Math.max(
+				280,
+				Math.min(window.innerWidth * 0.9, start.w + delta),
+			)
+			panelRef.current.style.height = `${newHeight}px`
+			panelRef.current.style.maxHeight = `${newHeight}px`
+			panelRef.current.style.width = `${newWidth}px`
+			panelRef.current.style.maxWidth = `${newWidth}px`
+			panelRef.current.dataset.size =
+				newWidth >= 560 ? "xl" : newWidth >= 460 ? "lg" : ""
+		},
+		[position],
+	)
 
 	const onResizeEnd = useCallback(() => {
 		if (!startRef.current || !panelRef.current) {
@@ -122,30 +85,36 @@ function useResizable() {
 			return
 		}
 		startRef.current = null
+		delete panelRef.current.dataset.resizing
 		const s = panelRef.current.style
-		if (s.height) {
-			setPanelHeight(Number.parseFloat(s.height))
-		}
+		if (s.height) setPanelHeight(Number.parseFloat(s.height))
+		if (s.width) setPanelWidth(Number.parseFloat(s.width))
 	}, [])
 
 	const resetSize = useCallback(() => {
 		setPanelHeight(null)
+		setPanelWidth(null)
 		if (panelRef.current) {
 			panelRef.current.style.height = ""
 			panelRef.current.style.maxHeight = ""
+			panelRef.current.style.width = ""
+			panelRef.current.style.maxWidth = ""
+			panelRef.current.dataset.size = ""
 		}
 	}, [])
 
-	const panelStyle: React.CSSProperties | undefined =
-		panelHeight !== null
+	const panelStyle: React.CSSProperties = {
+		...(panelHeight !== null
 			? { height: panelHeight, maxHeight: panelHeight }
-			: undefined
+			: {}),
+		...(panelWidth !== null ? { width: panelWidth, maxWidth: panelWidth } : {}),
+	}
 
 	return {
 		panelRef,
-		panelStyle,
+		panelStyle: Object.keys(panelStyle).length ? panelStyle : undefined,
 		resetSize,
-		handleProps: {
+		cornerHandleProps: {
 			onPointerDown: onResizeStart,
 			onPointerMove: onResizeMove,
 			onPointerUp: onResizeEnd,
@@ -160,36 +129,21 @@ function useResizable() {
 function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 	const widget = useWidgetContext()
 	const botAvatarSvg = config.icons.botAvatar
-	const { panelRef, panelStyle, resetSize, handleProps } = useResizable()
-	const { rootRef, rootStyle, didDrag, triggerDragProps, headerDragProps } =
-		useDraggable()
-
-	const handleToggleExpanded = useCallback(() => {
-		widget.toggleExpanded()
-		resetSize()
-	}, [widget, resetSize])
+	const { panelRef, panelStyle, cornerHandleProps } = useResizable(
+		config.position,
+	)
 
 	return (
 		<div
-			ref={rootRef}
 			className={"aiw-root"}
 			data-position={config.position}
 			data-theme={widget.isDark ? "dark" : "light"}
-			style={rootStyle}
 		>
 			{/* Only show trigger button when widget is closed */}
 			{!widget.isOpen && (
 				<WidgetTrigger
 					className={"aiw-trigger"}
 					closedContent={<AvatarIcon size={28} iconSvg={botAvatarSvg} />}
-					onClick={() => {
-						if (didDrag.current) {
-							didDrag.current = false
-							return
-						}
-						widget.toggleOpen()
-					}}
-					{...triggerDragProps}
 				/>
 			)}
 
@@ -200,14 +154,14 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 				ref={panelRef}
 				style={panelStyle}
 			>
-				{/* Drag handle for resizing */}
+				{/* Corner handle — drag to resize both width and height */}
 				<div
-					className={"aiw-resize-handle"}
+					className={"aiw-resize-corner"}
 					aria-hidden="true"
-					{...handleProps}
+					{...cornerHandleProps}
 				/>
 
-				<WidgetHeader className={"aiw-header"} {...headerDragProps}>
+				<WidgetHeader className={"aiw-header"}>
 					<div className={"aiw-header-left"}>
 						<AvatarIcon size={24} iconSvg={botAvatarSvg} />
 						<span className={"aiw-header-title"}>{config.botName}</span>
@@ -222,18 +176,6 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 							}
 						>
 							{widget.isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
-						</button>
-						<button
-							type="button"
-							className={"aiw-icon-btn"}
-							onClick={handleToggleExpanded}
-							aria-label={widget.isExpanded ? "Minimize" : "Expand"}
-						>
-							{widget.isExpanded ? (
-								<MinimizeIcon size={18} />
-							) : (
-								<ExpandIcon size={18} />
-							)}
 						</button>
 						<button
 							type="button"
