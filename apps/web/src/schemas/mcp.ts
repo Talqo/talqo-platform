@@ -9,7 +9,6 @@ export const kvPairSchema = z.object({
 export type KvPair = z.infer<typeof kvPairSchema>
 
 export const mcpConfigFormSchema = z.object({
-	type: z.literal("http"),
 	url: mcpUrlField,
 	headers: z.array(kvPairSchema).optional(),
 })
