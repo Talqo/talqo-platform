@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/router-devtools"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { FileQuestion, Moon, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { ErrorBoundary } from "@/components/error"
