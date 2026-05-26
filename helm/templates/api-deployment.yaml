@@ -101,8 +101,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "pagepal.providerKeySecretName" . }}
                   key: secret
-            - name: NODE_ENV
-              value: "production"
+            - name: SENTRY_ENVIRONMENT
+              value: {{ .Values.api.sentry.environment | default "production" | quote }}
             - name: SENTRY_DSN
               value: {{ .Values.api.sentry.dsn | default "" | quote }}
           livenessProbe:
