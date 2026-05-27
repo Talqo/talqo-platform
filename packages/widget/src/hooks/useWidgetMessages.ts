@@ -4,7 +4,7 @@ import type { ConversationData, SessionData } from "@/api/types"
 import { toUserFriendlyError } from "@/lib/errors"
 import { getOrCreateBrowserSessionId } from "@/lib/storage"
 import type { WidgetApiConfig } from "@/types"
-import type { Message, MessageRole } from "./types"
+import type { Message } from "./types"
 import { DEFAULT_WELCOME_MESSAGE } from "./types"
 
 type UseWidgetMessagesOptions = {
@@ -38,9 +38,11 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 		apiRef.current = new WidgetApi({ widgetToken, apiUrl })
 	}, [widgetToken, apiUrl])
 
-	if (browserSessionIdRef.current === null) {
-		browserSessionIdRef.current = getOrCreateBrowserSessionId()
-	}
+	useEffect(() => {
+		if (browserSessionIdRef.current === null) {
+			browserSessionIdRef.current = getOrCreateBrowserSessionId()
+		}
+	}, [])
 
 	useEffect(() => {
 		return () => {
@@ -124,7 +126,7 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 											...withoutTemp,
 											{
 												id: event.message.id,
-												role: event.message.role as MessageRole,
+												role: event.message.role,
 												content: event.message.content,
 											},
 										]

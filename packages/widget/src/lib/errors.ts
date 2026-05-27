@@ -30,5 +30,6 @@ export function toUserFriendlyError(message: string): string {
 	if (/failed to start conversation/i.test(message)) {
 		return "Unable to start a new chat. Please refresh the page."
 	}
-	return message
+	console.warn("Unhandled error message", message)
+	return "An unexpected error occurred"
 }

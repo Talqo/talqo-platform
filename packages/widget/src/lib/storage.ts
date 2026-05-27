@@ -21,6 +21,7 @@ export function safeSetItem(key: string, value: string): void {
 }
 
 export function getOrCreateBrowserSessionId(): string {
+	if (typeof window === "undefined") return ""
 	const existing = safeGetItem(BROWSER_SESSION_ID_KEY)
 	if (existing && UUID_RE.test(existing)) return existing
 	const id = crypto.randomUUID()

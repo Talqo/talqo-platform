@@ -18,7 +18,7 @@ export type ConversationData = {
 export type MessageData = {
 	id: string
 	conversationId: string
-	role: string
+	role: "user" | "assistant"
 	content: string
 	tokenCount: number
 	createdAt: string

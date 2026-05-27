@@ -259,7 +259,12 @@ widgetMessageRoutes.openapi(
 
 		return streamSSE(c, async (sse) => {
 			const keepaliveInterval = setInterval(() => {
-				sse.write(":ping\n\n").catch(() => {})
+				sse.write(":ping\n\n").catch((err) => {
+					clearInterval(keepaliveInterval)
+					logger.error("SSE keepalive write failed", {
+						error: err instanceof Error ? err.message : String(err),
+					})
+				})
 			}, 15000)
 			try {
 				await sse.writeSSE({

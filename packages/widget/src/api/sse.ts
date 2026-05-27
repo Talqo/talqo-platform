@@ -5,7 +5,7 @@ export function parseSseBuffer(buffer: string): {
 	remainder: string
 } {
 	const events: (SseEvent | null)[] = []
-	const rawEvents = buffer.split("\n\n")
+	const rawEvents = buffer.split(/\r?\n\r?\n/)
 	const remainder = rawEvents.pop() ?? ""
 	for (const raw of rawEvents) {
 		const lines = raw
@@ -52,8 +52,8 @@ export function parseSseBuffer(buffer: string): {
 					})
 					break
 			}
-		} catch {
-			// ignore malformed event
+		} catch (err) {
+			console.error("Malformed SSE event", err)
 		}
 	}
 	return { items: events, remainder }
