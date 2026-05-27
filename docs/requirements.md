@@ -157,6 +157,13 @@
 | NFR-5.3 | Client dashboard must be usable on common desktop and tablet screen sizes | Minimum supported viewport: 768 px wide | Medium |
 | NFR-5.4 | Back-office is a desktop-only tool; responsive design for mobile viewports is not required | Intended for internal use on desktop browsers only | Low |
 
+### NFR-6: Test Coverage
+
+| ID | Requirement | Notes | Priority | Completion |
+|----|-------------|-------|----------|------------|
+| NFR-6.1 | API must have integration tests covering all major modules (auth, client, widget, admin) with mocked external services | Integration tests use real DB; unit tests use in-memory repo | High | Done |
+| NFR-6.2 | Integration tests must run in CI pipeline on every PR | Separate job with postgres service | High | Done |
+
 ---
 
 ## Out of Scope

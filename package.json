@@ -24,6 +24,7 @@
 		"check": "biome check .",
 		"type-check": "turbo type-check",
 		"test": "turbo test --filter=!./apps/e2e",
+		"test:integration": "turbo build --filter=db --filter=shared && cd apps/api && bun run test:integration",
 		"format": "biome format --write .",
 		"fix": "biome check --write --unsafe ."
 	},
@@ -43,6 +44,6 @@
 		]
 	},
 	"dependencies": {
-		"zod": "^4.3.6"
+		"zod": "^4.4.3"
 	}
 }
