@@ -145,9 +145,9 @@ Add a new job after the `test` job:
           DATABASE_URL: postgres://test:test@localhost:5432/test
 ```
 
-- [ ] **Step 2: Update the build job to not block integration tests unnecessarily**
+- [ ] **Step 2: Verify job dependency chain**
 
-Integration tests depend on `build` (not `lint`) since they need the compiled code. The current `test` job depends on `lint`. This is fine.
+Integration tests depend on `build` (not `lint`) since they need compiled code. The `test` job also depends on `build`, which in turn depends on `lint`. This is fine.
 
 - [ ] **Step 3: Commit**
 
@@ -190,7 +190,11 @@ Add these tests inside the existing `describe` block:
 	})
 
 	it("POST /auth/verify-email with invalid token returns 400", async () => {
-		const res = await realApp.request("/v1/auth/verify-email?token=invalid-token")
+		const res = await realApp.request("/v1/auth/verify-email", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ token: "invalid-token" }),
+		})
 		expect(res.status).toBe(400)
 	})
 

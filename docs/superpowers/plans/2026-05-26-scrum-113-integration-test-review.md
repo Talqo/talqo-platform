@@ -61,7 +61,7 @@ git commit -m "test(api): rename integration test files to *.integration.test.ts
 Change the script from a hardcoded list to Bun's auto-discovery:
 
 ```json
-"test:integration": "bun test --timeout 30000 '.*\\.integration\\.test\\.ts'",
+"test:integration": "bun --env-file=../../.env.example test --timeout 30000 ./src/modules/**/*.integration.ts",
 ```
 
 **Why single-quoted glob:** the shell must prevent expansion so Bun receives the pattern.
@@ -186,7 +186,7 @@ In each file, delete the `setupTestEnv` import and the `setupTestEnv()` call ins
 - [ ] **Step 4: Commit**
 
 ```bash
-git add apps/api/src/common/test-utils.ts apps/api/src/modules/admin/admin.integration.test.ts apps/api/src/modules/auth/auth.integration.test.ts apps/api/src/modules/client-account/client.integration.test.ts
+git add apps/api/src/common/test-utils.ts apps/api/src/modules/admin/admin.integration.test.ts apps/api/src/modules/auth/auth.integration.test.ts apps/api/src/modules/client-account/client-account.integration.test.ts
 git commit -m "refactor(api): remove setupTestEnv helper, rely on .env.example for integration test env"
 ```
 

@@ -21,6 +21,7 @@ describe("Auth integration tests with real app", () => {
 	const createdEmails = new Set<string>()
 
 	beforeAll(async () => {
+		process.env.NODE_ENV ??= "test"
 		const mod = await import("@/app")
 		realApp = mod.default
 	})
