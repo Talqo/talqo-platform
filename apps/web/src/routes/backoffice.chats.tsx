@@ -6,7 +6,10 @@ import {
 	useAdminConversations,
 } from "@/api/hooks/useAdmin"
 import { MarkdownContent } from "@/components/backoffice"
-import { ConversationsTable } from "@/components/backoffice/ConversationsTable"
+import {
+	ConversationsTable,
+	getTablePanelHeight,
+} from "@/components/backoffice/ConversationsTable"
 import { Badge } from "@/components/ui/badge"
 import {
 	Card,
@@ -16,6 +19,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
+
+const PAGE_SIZE = 10
 
 export const Route = createFileRoute("/backoffice/chats")({
 	component: BackofficeChatsPage,
@@ -100,16 +105,28 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 }
 
 function BackofficeChatsPage() {
+	const { t } = useTranslation()
+	const [page, setPage] = useState(0)
+	const [selectedId, setSelectedId] = useState<string | undefined>()
+
 	const {
 		data: conversations,
 		isLoading,
 		error,
-	} = useAdminConversations({ limit: 50 })
-	const [selectedId, setSelectedId] = useState<string | undefined>()
-	const { t } = useTranslation()
+	} = useAdminConversations({ limit: PAGE_SIZE + 1, offset: page * PAGE_SIZE })
 
 	function handleSelect(id: string) {
 		setSelectedId((prev) => (prev === id ? undefined : id))
+	}
+
+	function handlePrev() {
+		setPage((p) => p - 1)
+		setSelectedId(undefined)
+	}
+
+	function handleNext() {
+		setPage((p) => p + 1)
+		setSelectedId(undefined)
 	}
 
 	if (isLoading) {
@@ -130,10 +147,12 @@ function BackofficeChatsPage() {
 		)
 	}
 
-	const selected = conversations?.find((c) => c.id === selectedId)
+	const hasNextPage = (conversations?.length ?? 0) > PAGE_SIZE
+	const displayedConversations = conversations?.slice(0, PAGE_SIZE)
+	const selected = displayedConversations?.find((c) => c.id === selectedId)
 
 	return (
-		<div className="space-y-6">
+		<div className="flex flex-col gap-6">
 			<div>
 				<h1 className="font-bold text-3xl tracking-tight">
 					{t("backoffice.conversationsTable.chatPreviews")}
@@ -143,18 +162,28 @@ function BackofficeChatsPage() {
 				</p>
 			</div>
 
-			<div className="grid grid-cols-[1fr_1.2fr] items-start gap-6">
-				<div className="min-w-0">
+			<div
+				className="grid grid-cols-[1fr_1.2fr] gap-6"
+				style={{ height: getTablePanelHeight(PAGE_SIZE) }}
+			>
+				<div className="min-h-0 min-w-0 h-full">
 					<ConversationsTable
-						conversations={conversations}
+						conversations={displayedConversations}
 						selectedId={selectedId}
 						onSelect={handleSelect}
+						pageSize={PAGE_SIZE}
+						pagination={{
+							page,
+							hasNextPage,
+							onPrev: handlePrev,
+							onNext: handleNext,
+						}}
 					/>
 				</div>
 
-				<div className="sticky top-6 min-w-0">
+				<div className="min-h-0 min-w-0 h-full">
 					{selected ? (
-						<Card>
+						<Card className="flex h-full flex-col">
 							<CardHeader>
 								<div className="flex items-center justify-between">
 									<div>
@@ -179,12 +208,12 @@ function BackofficeChatsPage() {
 									)}
 								</div>
 							</CardHeader>
-							<CardContent className="max-h-[calc(100vh-16rem)] overflow-y-auto">
+							<CardContent className="min-h-0 flex-1 overflow-y-auto">
 								<ConversationPreview conversationId={selected.id} />
 							</CardContent>
 						</Card>
 					) : (
-						<div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
+						<div className="flex h-full items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
 							{t("backoffice.conversationsTable.selectConversationPlaceholder")}
 						</div>
 					)}
