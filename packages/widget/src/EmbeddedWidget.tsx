@@ -118,6 +118,8 @@ function useResizable(position: "left" | "right") {
 			onPointerDown: onResizeStart,
 			onPointerMove: onResizeMove,
 			onPointerUp: onResizeEnd,
+			onPointerCancel: onResizeEnd,
+			onLostPointerCapture: onResizeEnd,
 		},
 	}
 }
