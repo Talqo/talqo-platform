@@ -51,5 +51,7 @@ Run after changes:
 bun run fix
 bun run type-check
 bun run test
+bun run test:integration
 make e2e
 ```
+

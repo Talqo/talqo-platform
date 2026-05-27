@@ -34,6 +34,14 @@ export class AuthService {
 		if (pendingName)
 			throw new AuthConflictError("NAME_TAKEN", "This name is already taken")
 
+		const pendingEmail = await this.repo.findPendingByEmail(canonical)
+		if (pendingEmail && pendingEmail.expiresAt >= new Date()) {
+			throw new AuthConflictError(
+				"EMAIL_TAKEN",
+				"This email is already registered",
+			)
+		}
+
 		const passwordHash = await Bun.password.hash(password)
 
 		// Create pending registration and send verification email

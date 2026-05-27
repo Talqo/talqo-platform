@@ -155,6 +155,7 @@ const env = parsed.data
 export const config = {
 	...env,
 	DATABASE_URL: `postgres://${env.POSTGRES_USER}:${env.POSTGRES_PASSWORD}@${env.POSTGRES_HOST}:${env.POSTGRES_PORT}/${env.POSTGRES_DB}`,
+	isTest,
 }
 
 export function getDefaultProviderConfig(): AiProviderConfig | null {

@@ -91,7 +91,7 @@ export const Route = createFileRoute("/login")({
 	component: LoginPage,
 })
 
-function LoginPage() {
+export function LoginPage() {
 	const navigate = useNavigate()
 	const { mutate: login, isPending, error } = useUnifiedLogin()
 	const { t } = useTranslation()
