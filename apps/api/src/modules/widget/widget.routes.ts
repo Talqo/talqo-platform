@@ -289,8 +289,11 @@ widgetMessageRoutes.openapi(
 					)
 					if (err instanceof BlacklistError) {
 						await sse.writeSSE({
-							event: "blacklist",
-							data: JSON.stringify({ code: "BLACKLIST_TRIGGERED" }),
+							event: "error",
+							data: JSON.stringify({
+								code: "BLACKLIST_TRIGGERED",
+								message: "Response blocked by content filter.",
+							}),
 						})
 					} else {
 						logger.error("Widget stream error", { error: String(err) })

@@ -512,10 +512,13 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 							)
 							const preservedIds = new Set(preserved.map((m) => m.id))
 							for (const msg of serverMsgs) {
-								if (!preservedIds.has(msg.id)) {
+								if (
+									!preservedIds.has(msg.id) &&
+									(msg.role === "user" || msg.role === "assistant")
+								) {
 									preserved.push({
 										id: msg.id,
-										role: msg.role as MessageRole,
+										role: msg.role,
 										content: msg.content,
 									})
 								}
@@ -528,7 +531,13 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 							setIsTyping(false)
 						}
 					})
-					.catch(() => {})
+					.catch((err: unknown) => {
+						setError(
+							toUserFriendlyError(
+								err instanceof Error ? err.message : String(err),
+							),
+						)
+					})
 			}
 
 			api
