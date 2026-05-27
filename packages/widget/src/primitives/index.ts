@@ -1,3 +1,4 @@
+export { AvatarIcon } from "./WidgetAvatar"
 export { WidgetHeader } from "./WidgetHeader"
 export { WidgetInput } from "./WidgetInput"
 export { WidgetMarkdownContent } from "./WidgetMarkdownContent"

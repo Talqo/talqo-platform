@@ -1,4 +1,4 @@
-import { DEFAULT_WELCOME_MESSAGE, type Message } from "./useWidget"
+import { DEFAULT_WELCOME_MESSAGE, type Message } from "./types"
 
 export function shouldShowRatingPrompt(
 	messages: Message[],

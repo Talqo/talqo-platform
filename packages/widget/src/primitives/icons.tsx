@@ -1,162 +1,26 @@
-import DOMPurify from "isomorphic-dompurify"
-import BotIconSvg from "@/assets/bot-icon.svg?react"
-import ClearIconSvg from "@/assets/clear-icon.svg?react"
-import CloseIconSvg from "@/assets/close-icon.svg?react"
-import ExpandIconSvg from "@/assets/expand-icon.svg?react"
-import MinimizeIconSvg from "@/assets/minimize-icon.svg?react"
-import MoonIconSvg from "@/assets/moon-icon.svg?react"
+import type { FunctionComponent, SVGProps } from "react"
+import ClearChatIconSvg from "@/assets/clear-chat.svg?react"
+import CloseIconSvg from "@/assets/close.svg?react"
+import DarkModeIconSvg from "@/assets/dark-mode.svg?react"
+import LightModeIconSvg from "@/assets/light-mode.svg?react"
 import SendIconSvg from "@/assets/send-icon.svg?react"
-import SunIconSvg from "@/assets/sun-icon.svg?react"
-import XLargeIconSvg from "@/assets/x-large-icon.svg?react"
 
 type IconProps = {
 	size?: number
 	className?: string
 }
 
-interface AvatarIconProps extends IconProps {
-	/** SVG string for custom icon, or "bot" for default */
-	iconSvg?: string
-}
-
-// Default avatar sentinel value - must match EmbedCodeCard and BotNameCard
-export const DEFAULT_BOT_AVATAR = "bot"
-
-export function AvatarIcon({
-	size = 24,
-	className = "",
-	iconSvg,
-}: AvatarIconProps) {
-	// If custom SVG is provided, render it with sanitization
-	if (iconSvg && iconSvg !== DEFAULT_BOT_AVATAR) {
-		// Sanitize SVG to prevent XSS attacks
-		const sanitizedSvg = DOMPurify.sanitize(iconSvg, {
-			USE_PROFILES: { svg: true },
-		})
-
-		return (
-			<span
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG is sanitized with DOMPurify above
-				dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
-				className={className}
-				style={{
-					width: size,
-					height: size,
-					display: "inline-flex",
-					alignItems: "center",
-					justifyContent: "center",
-				}}
-				aria-hidden="true"
-			/>
-		)
-	}
-
-	// Default bot icon
-	return (
-		<BotIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
+function createIcon(
+	Svg: FunctionComponent<SVGProps<SVGSVGElement>>,
+	defaultSize: number,
+) {
+	return ({ size = defaultSize, className = "" }: IconProps) => (
+		<Svg width={size} height={size} className={className} aria-hidden="true" />
 	)
 }
 
-export function SendIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<SendIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function BotIcon({ size = 28, className = "" }: IconProps) {
-	return (
-		<BotIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function ClearIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<ClearIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function ExpandIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<ExpandIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function MinimizeIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<MinimizeIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function SunIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<SunIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function MoonIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<MoonIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function CloseIcon({ size = 16, className = "" }: IconProps) {
-	return (
-		<CloseIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
-
-export function XLargeIcon({ size = 24, className = "" }: IconProps) {
-	return (
-		<XLargeIconSvg
-			width={size}
-			height={size}
-			className={className}
-			aria-hidden="true"
-		/>
-	)
-}
+export const SendIcon = createIcon(SendIconSvg, 16)
+export const ClearChatIcon = createIcon(ClearChatIconSvg, 16)
+export const LightModeIcon = createIcon(LightModeIconSvg, 16)
+export const DarkModeIcon = createIcon(DarkModeIconSvg, 16)
+export const CloseIcon = createIcon(CloseIconSvg, 24)
