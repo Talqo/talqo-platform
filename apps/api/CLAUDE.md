@@ -51,10 +51,18 @@ src/
 
 ## Testing
 
-- Tests use `app.fetch()` directly — no real server needed
+### Unit Tests (`*.test.ts`)
+- Tests use `app.request()` directly — no real server needed
 - Repositories export `InMemoryRepository` alongside Drizzle implementation; tests wire in-memory variant
 - Mocks must be declared **before** dynamic `await import(...)` due to Bun module caching order
 - Config auto-provides safe defaults in test env (`NODE_ENV=test` or `BUN_TEST=1`) — no `.env` required
+
+### Integration Tests (`*.integration.ts`)
+- Use the real `OpenAPIHono` app from `@/app` with real DB + real middleware
+- Mock external services only (Resend, AI providers, S3) using `mock.module()` at file scope
+- Use raw SQL for DB cleanup in `afterAll` — do NOT import repositories (avoids importing the mocked module when running alongside unit tests)
+- Set required env vars in `beforeAll` before dynamic `import("@/app")`
+- Timeout: 30s (`bun test --timeout 30000`)
 
 ## Logging
 
