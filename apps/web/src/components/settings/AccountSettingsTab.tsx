@@ -198,6 +198,64 @@ export function AccountSettingsTab() {
 		<div className="space-y-6">
 			<Card>
 				<CardHeader>
+					<CardTitle>{t("settings.account.widgetTokenLabel")}</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="flex gap-2">
+						<Input
+							type="text"
+							value={accountData?.widgetToken ?? ""}
+							readOnly
+							className="flex-1 font-mono text-sm"
+							aria-label={t("settings.account.widgetTokenLabel")}
+						/>
+						<Button
+							variant={tokenCopyFailed ? "destructive" : "outline"}
+							size="sm"
+							type="button"
+							onClick={handleCopyWidgetToken}
+							disabled={!accountData?.widgetToken}
+						>
+							{tokenCopied
+								? t("common.copied")
+								: tokenCopyFailed
+									? t("common.failed")
+									: t("common.copy")}
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							type="button"
+							disabled={!accountData?.widgetToken}
+							onClick={() => setRotateConfirmOpen(true)}
+						>
+							{t("settings.account.regenerate")}
+						</Button>
+						<ConfirmDialog
+							open={rotateConfirmOpen}
+							onOpenChange={(next) => {
+								if (!next) rotateWidgetToken.reset()
+								setRotateConfirmOpen(next)
+							}}
+							title={t("settings.account.regenerate")}
+							description={t("settings.account.widgetTokenHelp")}
+							confirmLabel={t("settings.account.regenerate")}
+							cancelLabel={t("common.cancel")}
+							variant="destructive"
+							onConfirm={handleRotateConfirmed}
+							confirmLoading={rotateWidgetToken.isPending}
+							error={
+								rotateWidgetToken.isError
+									? t("settings.account.rotateFailed")
+									: null
+							}
+						/>
+					</div>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
 					<CardTitle>{t("settings.account.title")}</CardTitle>
 				</CardHeader>
 				<Form {...profileForm}>
@@ -353,64 +411,6 @@ export function AccountSettingsTab() {
 						</CardFooter>
 					</form>
 				</Form>
-			</Card>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>{t("settings.account.widgetTokenLabel")}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="flex gap-2">
-						<Input
-							type="text"
-							value={accountData?.widgetToken ?? ""}
-							readOnly
-							className="flex-1 font-mono text-sm"
-							aria-label={t("settings.account.widgetTokenLabel")}
-						/>
-						<Button
-							variant={tokenCopyFailed ? "destructive" : "outline"}
-							size="sm"
-							type="button"
-							onClick={handleCopyWidgetToken}
-							disabled={!accountData?.widgetToken}
-						>
-							{tokenCopied
-								? t("common.copied")
-								: tokenCopyFailed
-									? t("common.failed")
-									: t("common.copy")}
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							type="button"
-							disabled={!accountData?.widgetToken}
-							onClick={() => setRotateConfirmOpen(true)}
-						>
-							{t("settings.account.regenerate")}
-						</Button>
-						<ConfirmDialog
-							open={rotateConfirmOpen}
-							onOpenChange={(next) => {
-								if (!next) rotateWidgetToken.reset()
-								setRotateConfirmOpen(next)
-							}}
-							title={t("settings.account.regenerate")}
-							description={t("settings.account.widgetTokenHelp")}
-							confirmLabel={t("settings.account.regenerate")}
-							cancelLabel={t("common.cancel")}
-							variant="destructive"
-							onConfirm={handleRotateConfirmed}
-							confirmLoading={rotateWidgetToken.isPending}
-							error={
-								rotateWidgetToken.isError
-									? t("settings.account.rotateFailed")
-									: null
-							}
-						/>
-					</div>
-				</CardContent>
 			</Card>
 
 			<Card className="border-destructive">
