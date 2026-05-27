@@ -166,7 +166,7 @@ function BackofficeChatsPage() {
 				className="grid grid-cols-[1fr_1.2fr] gap-6"
 				style={{ height: getTablePanelHeight(PAGE_SIZE) }}
 			>
-				<div className="min-h-0 min-w-0 h-full">
+				<div className="h-full min-h-0 min-w-0">
 					<ConversationsTable
 						conversations={displayedConversations}
 						selectedId={selectedId}
@@ -181,7 +181,7 @@ function BackofficeChatsPage() {
 					/>
 				</div>
 
-				<div className="min-h-0 min-w-0 h-full">
+				<div className="h-full min-h-0 min-w-0">
 					{selected ? (
 						<Card className="flex h-full flex-col">
 							<CardHeader>

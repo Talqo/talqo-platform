@@ -48,7 +48,7 @@ export function ConversationsTable({
 	return (
 		<Card className="flex flex-col overflow-hidden dark:border-zinc-800 dark:bg-zinc-900">
 			<div
-				className="overflow-y-auto overflow-x-auto"
+				className="overflow-x-auto overflow-y-auto"
 				style={
 					pageSize !== undefined
 						? { height: HEADER_HEIGHT + pageSize * ROW_HEIGHT }
