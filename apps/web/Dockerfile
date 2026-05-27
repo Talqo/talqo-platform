@@ -16,6 +16,8 @@ ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 ARG VITE_SENTRY_DSN
 ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+# Build shared first (types consumed by widget during its build step)
+RUN cd packages/shared && bun run build
 # Build widget bundle with API URL baked in
 RUN cd packages/widget && bun run build
 # Copy widget bundle to web public so Vite copies it to dist
