@@ -64,6 +64,45 @@ function MessageBubble({
 	)
 }
 
+function SelectedConversationCard({
+	conversationId,
+}: {
+	conversationId: string
+}) {
+	const { t } = useTranslation()
+	const { data } = useClientConversation(conversationId)
+
+	return (
+		<Card className="flex h-full flex-col">
+			<CardHeader>
+				<div className="flex items-center justify-between">
+					<div>
+						<CardTitle>{t("dashboard.chats.conversation")}</CardTitle>
+						{data && (
+							<CardDescription>
+								{t("dashboard.chats.started")}{" "}
+								{new Date(data.startedAt).toLocaleString(undefined, {
+									dateStyle: "medium",
+									timeStyle: "short",
+								})}
+							</CardDescription>
+						)}
+					</div>
+					{data?.satisfactionRating != null && (
+						<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+							{t("backoffice.conversationsTable.ratingLabel")}:{" "}
+							{data.satisfactionRating} / 5
+						</Badge>
+					)}
+				</div>
+			</CardHeader>
+			<CardContent className="min-h-0 flex-1 overflow-y-auto">
+				<ConversationPreview conversationId={conversationId} />
+			</CardContent>
+		</Card>
+	)
+}
+
 function ConversationPreview({ conversationId }: { conversationId: string }) {
 	const { t } = useTranslation()
 	const { data, isLoading, error } = useClientConversation(conversationId)
@@ -123,12 +162,10 @@ function ChatsPage() {
 
 	function handlePrev() {
 		setPage((p) => p - 1)
-		setSelectedId(undefined)
 	}
 
 	function handleNext() {
 		setPage((p) => p + 1)
-		setSelectedId(undefined)
 	}
 
 	if (isLoading) {
@@ -149,7 +186,6 @@ function ChatsPage() {
 
 	const hasNextPage = (conversations?.length ?? 0) > PAGE_SIZE
 	const displayedConversations = conversations?.slice(0, PAGE_SIZE)
-	const selected = displayedConversations?.find((c) => c.id === selectedId)
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -178,32 +214,8 @@ function ChatsPage() {
 				</div>
 
 				<div className="h-full min-h-0 min-w-0">
-					{selected ? (
-						<Card className="flex h-full flex-col">
-							<CardHeader>
-								<div className="flex items-center justify-between">
-									<div>
-										<CardTitle>{t("dashboard.chats.conversation")}</CardTitle>
-										<CardDescription>
-											{t("dashboard.chats.started")}{" "}
-											{new Date(selected.startedAt).toLocaleString(undefined, {
-												dateStyle: "medium",
-												timeStyle: "short",
-											})}
-										</CardDescription>
-									</div>
-									{selected.satisfactionRating != null && (
-										<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-											{t("backoffice.conversationsTable.ratingLabel")}:{" "}
-											{selected.satisfactionRating} / 5
-										</Badge>
-									)}
-								</div>
-							</CardHeader>
-							<CardContent className="min-h-0 flex-1 overflow-y-auto">
-								<ConversationPreview conversationId={selected.id} />
-							</CardContent>
-						</Card>
+					{selectedId ? (
+						<SelectedConversationCard conversationId={selectedId} />
 					) : (
 						<div className="flex h-full items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
 							{t("backoffice.conversationsTable.selectConversationPlaceholder")}
