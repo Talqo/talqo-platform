@@ -192,6 +192,15 @@ class WidgetApi {
 		)
 	}
 
+	async getMessages(
+		sessionId: string,
+		conversationId: string,
+	): Promise<MessageData[]> {
+		return this.fetchJson<MessageData[]>(
+			`/widget/sessions/${sessionId}/conversations/${conversationId}/messages`,
+		)
+	}
+
 	async sendMessage(
 		sessionId: string,
 		conversationId: string,
@@ -491,6 +500,37 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 			const controller = new AbortController()
 			abortRef.current = controller
 
+			const recoverMessages = () => {
+				api
+					.getMessages(sessionId, conversationId)
+					.then((serverMsgs) => {
+						if (!serverMsgs.length) return
+						setMessages((prev) => {
+							const serverIds = new Set(serverMsgs.map((m) => m.id))
+							const preserved = prev.filter(
+								(m) => m.id === "welcome" || serverIds.has(m.id),
+							)
+							const preservedIds = new Set(preserved.map((m) => m.id))
+							for (const msg of serverMsgs) {
+								if (!preservedIds.has(msg.id)) {
+									preserved.push({
+										id: msg.id,
+										role: msg.role as MessageRole,
+										content: msg.content,
+									})
+								}
+							}
+							return preserved
+						})
+						const last = serverMsgs[serverMsgs.length - 1]
+						if (last && last.role === "assistant") {
+							setError(null)
+							setIsTyping(false)
+						}
+					})
+					.catch(() => {})
+			}
+
 			api
 				.sendMessage(
 					sessionId,
@@ -560,6 +600,7 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 								)
 								setError(event.message)
 								setIsTyping(false)
+								recoverMessages()
 								break
 							}
 						}
@@ -575,6 +616,7 @@ export function useWidget(options: UseWidgetOptions): UseWidgetReturn {
 						),
 					)
 					setIsTyping(false)
+					recoverMessages()
 				})
 				.finally(() => {
 					if (abortRef.current === controller) abortRef.current = null

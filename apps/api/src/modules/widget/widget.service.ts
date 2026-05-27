@@ -176,57 +176,71 @@ export class WidgetService {
 		}
 	}
 
-	async saveAssistantMessage(
-		clientId: string,
+	async createAssistantMessage(
+		_clientId: string,
 		conversationId: string,
 		content: string,
 		tokensUsed?: { input: number; output: number },
 	) {
 		const tokenCount =
 			tokensUsed !== undefined ? tokensUsed.input + tokensUsed.output : 0
-		const assistantMessage = await this.repo.createMessage(
+		return this.repo.createMessage(
 			conversationId,
 			"assistant",
 			content,
 			tokenCount,
 		)
+	}
+
+	async recordUsageAndAlert(
+		clientId: string,
+		messageId: string,
+		tokensUsed: { input: number; output: number },
+	) {
+		const costUsd = computeMessageCostUsd(tokensUsed)
+		const tokenCount = tokensUsed.input + tokensUsed.output
+		const now = new Date()
+		const year = now.getFullYear()
+		const month = now.getMonth() + 1
+
+		const spendBefore = await this.repo.getMonthlySpend(clientId, year, month)
+		await this.repo.recordUsage(clientId, messageId, tokenCount, costUsd)
+
+		const clientSettings = await this.repo.getClientLimitSettings(clientId)
+		if (clientSettings?.usageAlertThresholdUsd != null) {
+			const threshold = clientSettings.usageAlertThresholdUsd
+			const spendAfter = await this.repo.getMonthlySpend(clientId, year, month)
+			if (spendBefore < threshold && spendAfter >= threshold) {
+				const limit = clientSettings.monthlyUsageLimit
+				const usagePercent = limit
+					? Math.min(100, Math.round((spendAfter / limit) * 100))
+					: 100
+				this.sendQuotaAlertEmail(clientSettings.email, usagePercent).catch(
+					(err) =>
+						logger.warn("Quota alert email failed", {
+							email: clientSettings.email,
+							error: err,
+						}),
+				)
+			}
+		}
+	}
+
+	async saveAssistantMessage(
+		clientId: string,
+		conversationId: string,
+		content: string,
+		tokensUsed?: { input: number; output: number },
+	) {
+		const assistantMessage = await this.createAssistantMessage(
+			clientId,
+			conversationId,
+			content,
+			tokensUsed,
+		)
 
 		if (tokensUsed !== undefined) {
-			const costUsd = computeMessageCostUsd(tokensUsed)
-			const now = new Date()
-			const year = now.getFullYear()
-			const month = now.getMonth() + 1
-
-			const spendBefore = await this.repo.getMonthlySpend(clientId, year, month)
-			await this.repo.recordUsage(
-				clientId,
-				assistantMessage.id,
-				tokenCount,
-				costUsd,
-			)
-
-			const clientSettings = await this.repo.getClientLimitSettings(clientId)
-			if (clientSettings?.usageAlertThresholdUsd != null) {
-				const threshold = clientSettings.usageAlertThresholdUsd
-				const spendAfter = await this.repo.getMonthlySpend(
-					clientId,
-					year,
-					month,
-				)
-				if (spendBefore < threshold && spendAfter >= threshold) {
-					const limit = clientSettings.monthlyUsageLimit
-					const usagePercent = limit
-						? Math.min(100, Math.round((spendAfter / limit) * 100))
-						: 100
-					this.sendQuotaAlertEmail(clientSettings.email, usagePercent).catch(
-						(err) =>
-							logger.warn("Quota alert email failed", {
-								email: clientSettings.email,
-								error: err,
-							}),
-					)
-				}
-			}
+			await this.recordUsageAndAlert(clientId, assistantMessage.id, tokensUsed)
 		}
 
 		return assistantMessage

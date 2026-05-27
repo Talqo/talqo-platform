@@ -258,88 +258,100 @@ widgetMessageRoutes.openapi(
 		const requestId = c.get("requestId")
 
 		return streamSSE(c, async (sse) => {
-			await sse.writeSSE({
-				event: "user_message",
-				data: JSON.stringify(userMessage),
-			})
-
-			let fullContent = ""
-			const reader = stream.getReader()
-
+			const keepaliveInterval = setInterval(() => {
+				sse.write(":ping\n\n").catch(() => {})
+			}, 15000)
 			try {
-				while (true) {
-					const { done, value } = await reader.read()
-					if (done) break
+				await sse.writeSSE({
+					event: "user_message",
+					data: JSON.stringify(userMessage),
+				})
 
-					fullContent += value
-					await sse.writeSSE({
-						event: "token",
-						data: JSON.stringify({ content: value }),
-					})
-				}
-			} catch (err) {
-				await reader.cancel().catch((cancelErr) =>
-					logger.warn("Stream reader cancel failed", {
-						error: String(cancelErr),
-					}),
-				)
-				if (err instanceof BlacklistError) {
-					await sse.writeSSE({
-						event: "blacklist",
-						data: JSON.stringify({ code: "BLACKLIST_TRIGGERED" }),
-					})
-				} else {
-					logger.error("Widget stream error", { error: String(err) })
-					await sse.writeSSE({
-						event: "error",
-						data: JSON.stringify({
-							code: "LLM_ERROR",
-							message: "Something went wrong. Please try again.",
+				let fullContent = ""
+				const reader = stream.getReader()
+
+				try {
+					while (true) {
+						const { done, value } = await reader.read()
+						if (done) break
+
+						fullContent += value
+						await sse.writeSSE({
+							event: "token",
+							data: JSON.stringify({ content: value }),
+						})
+					}
+				} catch (err) {
+					await reader.cancel().catch((cancelErr) =>
+						logger.warn("Stream reader cancel failed", {
+							error: String(cancelErr),
 						}),
-					})
+					)
+					if (err instanceof BlacklistError) {
+						await sse.writeSSE({
+							event: "blacklist",
+							data: JSON.stringify({ code: "BLACKLIST_TRIGGERED" }),
+						})
+					} else {
+						logger.error("Widget stream error", { error: String(err) })
+						await sse.writeSSE({
+							event: "error",
+							data: JSON.stringify({
+								code: "LLM_ERROR",
+								message: "Something went wrong. Please try again.",
+							}),
+						})
+					}
+					return
 				}
-				return
-			}
 
-			try {
 				const tokensUsed = isExternalProvider ? undefined : await usage
-				const assistantMessage = await widgetService.saveAssistantMessage(
+				const assistantMessage = await widgetService.createAssistantMessage(
 					clientId,
 					conversationId,
 					fullContent,
 					tokensUsed,
 				)
 
+				await sse.writeSSE({
+					event: "done",
+					data: JSON.stringify(assistantMessage),
+				})
+
 				if (tokensUsed) {
-					logger?.info("ai_usage", {
+					logger.info("ai_usage", {
 						request_id: requestId,
 						conversation_id: conversationId,
 						prompt_tokens: tokensUsed.input,
 						completion_tokens: tokensUsed.output,
 						total_tokens: tokensUsed.input + tokensUsed.output,
 					})
+					widgetService
+						.recordUsageAndAlert(clientId, assistantMessage.id, tokensUsed)
+						.catch((recordErr) =>
+							logger.error("Background usage recording failed", {
+								error:
+									recordErr instanceof Error
+										? recordErr.message
+										: String(recordErr),
+								conversationId,
+							}),
+						)
 				}
-
-				await sse.writeSSE({
-					event: "done",
-					data: JSON.stringify(assistantMessage),
-				})
 			} catch (err) {
-				c.get("logger").error(
-					"Failed to persist assistant message or record usage",
-					{
-						error: err instanceof Error ? err.message : String(err),
-						conversationId,
-					},
-				)
+				logger.error("Widget SSE unexpected error", {
+					error: err instanceof Error ? err.message : String(err),
+					conversationId,
+				})
 				await sse.writeSSE({
 					event: "error",
 					data: JSON.stringify({
-						code: "PERSISTENCE_ERROR",
-						message: "Failed to save response. Please try again.",
+						code: "INTERNAL_ERROR",
+						message: "Something went wrong. Please try again.",
 					}),
 				})
-				return
+			} finally {
+				clearInterval(keepaliveInterval)
 			}
 		})
 	},
