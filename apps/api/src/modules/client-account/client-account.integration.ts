@@ -20,6 +20,7 @@ describe("Client Account integration tests", () => {
 	const createdEmails = new Set<string>()
 
 	beforeAll(async () => {
+		process.env.NODE_ENV ??= "test"
 		const mod = await import("@/app")
 		realApp = mod.default
 	})
