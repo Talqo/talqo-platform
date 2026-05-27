@@ -72,8 +72,9 @@ const restrictedCors = cors({
 	origin: (origin) => {
 		if (!origin) return null
 		if (allowedOrigins.length === 0) {
-			// Deny by default when no origins are configured
-			return null
+			// Allow common local dev origins when no explicit list is configured
+			const isLocalDev = /^http:\/\/localhost:\d+$/.test(origin)
+			return isLocalDev ? origin : null
 		}
 		return allowedOrigins.includes(origin) ? origin : null
 	},
