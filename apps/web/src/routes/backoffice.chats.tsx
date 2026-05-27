@@ -6,7 +6,10 @@ import {
 	useAdminConversations,
 } from "@/api/hooks/useAdmin"
 import { MarkdownContent } from "@/components/backoffice"
-import { ConversationsTable } from "@/components/backoffice/ConversationsTable"
+import {
+	ConversationsTable,
+	getTablePanelHeight,
+} from "@/components/backoffice/ConversationsTable"
 import { Badge } from "@/components/ui/badge"
 import {
 	Card,
@@ -16,6 +19,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
+
+const PAGE_SIZE = 10
 
 export const Route = createFileRoute("/backoffice/chats")({
 	component: BackofficeChatsPage,
@@ -54,6 +59,49 @@ function MessageBubble({
 				</p>
 			</div>
 		</div>
+	)
+}
+
+function SelectedConversationCard({
+	conversationId,
+}: {
+	conversationId: string
+}) {
+	const { t } = useTranslation()
+	const { data } = useAdminConversation(conversationId)
+
+	return (
+		<Card className="flex h-full flex-col">
+			<CardHeader>
+				<div className="flex items-center justify-between">
+					<div>
+						<CardTitle>
+							{data
+								? data.clientName || data.clientEmail || data.clientId
+								: null}
+						</CardTitle>
+						{data && (
+							<CardDescription>
+								{t("backoffice.conversationsTable.started")}{" "}
+								{new Date(data.startedAt).toLocaleString(undefined, {
+									dateStyle: "medium",
+									timeStyle: "short",
+								})}
+							</CardDescription>
+						)}
+					</div>
+					{data?.satisfactionRating != null && (
+						<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+							{t("backoffice.conversationsTable.ratingLabel")}:{" "}
+							{data.satisfactionRating} / 5
+						</Badge>
+					)}
+				</div>
+			</CardHeader>
+			<CardContent className="min-h-0 flex-1 overflow-y-auto">
+				<ConversationPreview conversationId={conversationId} />
+			</CardContent>
+		</Card>
 	)
 }
 
@@ -100,16 +148,26 @@ function ConversationPreview({ conversationId }: { conversationId: string }) {
 }
 
 function BackofficeChatsPage() {
+	const { t } = useTranslation()
+	const [page, setPage] = useState(0)
+	const [selectedId, setSelectedId] = useState<string | undefined>()
+
 	const {
 		data: conversations,
 		isLoading,
 		error,
-	} = useAdminConversations({ limit: 50 })
-	const [selectedId, setSelectedId] = useState<string | undefined>()
-	const { t } = useTranslation()
+	} = useAdminConversations({ limit: PAGE_SIZE + 1, offset: page * PAGE_SIZE })
 
 	function handleSelect(id: string) {
 		setSelectedId((prev) => (prev === id ? undefined : id))
+	}
+
+	function handlePrev() {
+		setPage((p) => p - 1)
+	}
+
+	function handleNext() {
+		setPage((p) => p + 1)
 	}
 
 	if (isLoading) {
@@ -130,10 +188,11 @@ function BackofficeChatsPage() {
 		)
 	}
 
-	const selected = conversations?.find((c) => c.id === selectedId)
+	const hasNextPage = (conversations?.length ?? 0) > PAGE_SIZE
+	const displayedConversations = conversations?.slice(0, PAGE_SIZE)
 
 	return (
-		<div className="space-y-6">
+		<div className="flex flex-col gap-6">
 			<div>
 				<h1 className="font-bold text-3xl tracking-tight">
 					{t("backoffice.conversationsTable.chatPreviews")}
@@ -143,48 +202,30 @@ function BackofficeChatsPage() {
 				</p>
 			</div>
 
-			<div className="grid grid-cols-[1fr_1.2fr] items-start gap-6">
-				<div className="min-w-0">
+			<div
+				className="grid grid-cols-[1fr_1.2fr] gap-6"
+				style={{ height: getTablePanelHeight(PAGE_SIZE) }}
+			>
+				<div className="h-full min-h-0 min-w-0">
 					<ConversationsTable
-						conversations={conversations}
+						conversations={displayedConversations}
 						selectedId={selectedId}
 						onSelect={handleSelect}
+						pageSize={PAGE_SIZE}
+						pagination={{
+							page,
+							hasNextPage,
+							onPrev: handlePrev,
+							onNext: handleNext,
+						}}
 					/>
 				</div>
 
-				<div className="sticky top-6 min-w-0">
-					{selected ? (
-						<Card>
-							<CardHeader>
-								<div className="flex items-center justify-between">
-									<div>
-										<CardTitle>
-											{selected.clientName ||
-												selected.clientEmail ||
-												selected.clientId}
-										</CardTitle>
-										<CardDescription>
-											{t("backoffice.conversationsTable.started")}{" "}
-											{new Date(selected.startedAt).toLocaleString(undefined, {
-												dateStyle: "medium",
-												timeStyle: "short",
-											})}
-										</CardDescription>
-									</div>
-									{selected.satisfactionRating != null && (
-										<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-											{t("backoffice.conversationsTable.ratingLabel")}:{" "}
-											{selected.satisfactionRating} / 5
-										</Badge>
-									)}
-								</div>
-							</CardHeader>
-							<CardContent className="max-h-[calc(100vh-16rem)] overflow-y-auto">
-								<ConversationPreview conversationId={selected.id} />
-							</CardContent>
-						</Card>
+				<div className="h-full min-h-0 min-w-0">
+					{selectedId ? (
+						<SelectedConversationCard conversationId={selectedId} />
 					) : (
-						<div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
+						<div className="flex h-full items-center justify-center rounded-lg border border-dashed text-muted-foreground text-sm">
 							{t("backoffice.conversationsTable.selectConversationPlaceholder")}
 						</div>
 					)}

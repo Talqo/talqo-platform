@@ -45,7 +45,7 @@
 		},
 		"chats": {
 			"title": "聊天预览",
-			"subtitle": "浏览访客与机器人的对话（最近 50 条）。",
+			"subtitle": "浏览访客与机器人的对话。",
 			"failedToLoadConversations": "加载对话失败",
 			"failedToLoadConversation": "加载对话失败",
 			"noMessages": "暂无消息",
@@ -59,7 +59,12 @@
 			"preview": "预览",
 			"noConversationsFound": "暂无对话",
 			"close": "关闭",
-			"view": "查看"
+			"view": "查看",
+			"pagination": {
+				"previous": "上一页",
+				"next": "下一页",
+				"page": "第 {{page}} 页"
+			}
 		},
 		"tools": {
 			"title": "MCP 工具",
@@ -753,7 +758,12 @@
 			"failedToLoadConversation": "加载对话失败",
 			"noMessages": "暂无消息",
 			"chatPreviews": "聊天预览",
-			"chatPreviewsDescription": "浏览并查看终端用户对话（显示最近 50 条）",
+			"chatPreviewsDescription": "浏览并查看终端用户对话",
+			"pagination": {
+				"previous": "上一页",
+				"next": "下一页",
+				"page": "第 {{page}} 页"
+			},
 			"ratingLabel": "评分",
 			"selectConversationPlaceholder": "选择对话以预览"
 		},

@@ -45,7 +45,7 @@
 		},
 		"chats": {
 			"title": "Náhledy chatů",
-			"subtitle": "Prohlížejte konverzace, které vaši návštěvníci vedli s botem (posledních 50).",
+			"subtitle": "Prohlížejte konverzace, které vaši návštěvníci vedli s botem.",
 			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
 			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
 			"noMessages": "Žádné zprávy",
@@ -59,7 +59,12 @@
 			"preview": "Náhled",
 			"noConversationsFound": "Zatím žádné konverzace",
 			"close": "Zavřít",
-			"view": "Zobrazit"
+			"view": "Zobrazit",
+			"pagination": {
+				"previous": "Předchozí",
+				"next": "Další",
+				"page": "Stránka {{page}}"
+			}
 		},
 		"tools": {
 			"title": "MCP nástroje",
@@ -753,7 +758,12 @@
 			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
 			"noMessages": "Žádné zprávy",
 			"chatPreviews": "Náhledy chatů",
-			"chatPreviewsDescription": "Prohlížejte a kontrolujte konverzace koncových uživatelů (zobrazuje posledních 50)",
+			"chatPreviewsDescription": "Prohlížejte a kontrolujte konverzace koncových uživatelů",
+			"pagination": {
+				"previous": "Předchozí",
+				"next": "Další",
+				"page": "Stránka {{page}}"
+			},
 			"ratingLabel": "Hodnocení",
 			"selectConversationPlaceholder": "Vyberte konverzaci pro náhled"
 		},

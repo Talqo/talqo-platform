@@ -45,7 +45,7 @@
 		},
 		"chats": {
 			"title": "Chat Previews",
-			"subtitle": "Browse conversations your visitors have had with the bot (most recent 50).",
+			"subtitle": "Browse conversations your visitors have had with the bot.",
 			"failedToLoadConversations": "Failed to load conversations",
 			"failedToLoadConversation": "Failed to load conversation",
 			"noMessages": "No messages",
@@ -59,7 +59,12 @@
 			"preview": "Preview",
 			"noConversationsFound": "No conversations yet",
 			"close": "Close",
-			"view": "View"
+			"view": "View",
+			"pagination": {
+				"previous": "Previous",
+				"next": "Next",
+				"page": "Page {{page}}"
+			}
 		},
 		"tools": {
 			"title": "MCP Tools",
@@ -619,7 +624,12 @@
 			"failedToLoadConversation": "Failed to load conversation",
 			"noMessages": "No messages",
 			"chatPreviews": "Chat Previews",
-			"chatPreviewsDescription": "Browse and inspect end-user conversations (showing most recent 50)",
+			"chatPreviewsDescription": "Browse and inspect end-user conversations",
+			"pagination": {
+				"previous": "Previous",
+				"next": "Next",
+				"page": "Page {{page}}"
+			},
 			"ratingLabel": "Rating",
 			"selectConversationPlaceholder": "Select a conversation to preview it"
 		},
