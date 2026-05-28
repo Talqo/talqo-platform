@@ -105,6 +105,7 @@ export type IWidgetRepository = {
 		usageAlertThresholdUsd: number | null
 		email: string
 	} | null>
+	getClientBalance(clientId: string): Promise<number | null>
 }
 
 export class InMemoryWidgetRepository implements IWidgetRepository {
@@ -279,6 +280,10 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 
 	async getClientLimitSettings(_clientId: string) {
 		return null
+	}
+
+	async getClientBalance(clientId: string) {
+		return this.clients.get(clientId)?.balanceUsd ?? null
 	}
 }
 
@@ -471,5 +476,13 @@ export class WidgetRepository implements IWidgetRepository {
 			.from(clients)
 			.where(eq(clients.id, clientId))
 			.then((rows) => rows[0] ?? null)
+	}
+
+	async getClientBalance(clientId: string) {
+		return this.db
+			.select({ balanceUsd: clients.balanceUsd })
+			.from(clients)
+			.where(eq(clients.id, clientId))
+			.then((rows) => rows[0]?.balanceUsd ?? null)
 	}
 }

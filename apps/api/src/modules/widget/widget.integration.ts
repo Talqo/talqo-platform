@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, mock } from "bun:test"
 import type { OpenAPIHono } from "@hono/zod-openapi"
 import type { AppVariables } from "@/common/jwt"
 import {
+	addFundsToClient,
 	cleanupEmails,
 	createUniqueEmail,
 	registerClient,
@@ -132,6 +133,7 @@ describe("Widget integration tests", () => {
 			email,
 			`Widget Message Test ${crypto.randomUUID()}`,
 		)
+		await addFundsToClient(client.id, 100)
 
 		const sessionRes = await realApp.request("/v1/widget/sessions", {
 			method: "POST",

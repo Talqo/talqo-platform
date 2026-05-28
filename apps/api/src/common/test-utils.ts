@@ -156,6 +156,18 @@ export async function createAdminUser(
 }
 
 /**
+ * Add funds to a client's balance (raw SQL, bypasses payment flow).
+ */
+export async function addFundsToClient(
+	clientId: string,
+	amount: number,
+): Promise<void> {
+	return withSql(async (sql) => {
+		await sql`UPDATE clients SET balance_usd = balance_usd + ${amount} WHERE id = ${clientId}`
+	})
+}
+
+/**
  * Register, verify, and log in a client; return the JWT token.
  */
 export async function registerAndVerify(

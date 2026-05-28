@@ -91,6 +91,7 @@ function createMockRepo() {
 		recordUsage: mock(async () => {}),
 		getMonthlySpend: mock(async () => 0),
 		getClientLimitSettings: mock(async () => null),
+		getClientBalance: mock(async () => null),
 	}
 }
 
@@ -205,6 +206,7 @@ describe("WidgetService", () => {
 		repo.recordUsage.mockClear?.()
 		repo.getMonthlySpend.mockClear?.()
 		repo.getClientLimitSettings.mockClear?.()
+		repo.getClientBalance.mockClear?.()
 		mockStreamResponse.mockClear()
 		botConfigService.getConfig.mockClear?.()
 		providerConfigService.resolveForAi.mockClear?.()
@@ -405,6 +407,77 @@ describe("WidgetService", () => {
 				streamResponse: mockStreamResponse,
 			})
 
+			const { isExternalProvider } = await widgetService.sendMessage(
+				"client-1",
+				"conv-1",
+				"Hello",
+			)
+			expect(isExternalProvider).toBe(false)
+		})
+
+		it("throws BALANCE_INSUFFICIENT when client has zero balance and uses platform provider", async () => {
+			providerConfigService = createMockProviderConfigService({
+				providerType: "openai_compatible",
+				apiKey: "platform-key",
+				model: "gemma4",
+			})
+			providerConfigService.resolveForAi = mock(async () => ({
+				config: {
+					providerType: "openai_compatible",
+					apiKey: "platform-key",
+					model: "gemma4",
+					baseUrl: "https://api.example.com",
+				},
+				isExternal: false,
+			}))
+			repo.getClientBalance = mock(async () => 0)
+			widgetService = new WidgetService({
+				widgetRepository: repo,
+				botConfigService,
+				providerConfigService,
+				mcpService,
+				blacklistRepository: blacklistRepo,
+				streamResponse: mockStreamResponse,
+			})
+			await expect(
+				widgetService.sendMessage("client-1", "conv-1", "Hello"),
+			).rejects.toHaveProperty("code", "BALANCE_INSUFFICIENT")
+		})
+
+		it("does not throw BALANCE_INSUFFICIENT when using external provider with zero balance", async () => {
+			repo.getClientBalance = mock(async () => 0)
+			const { isExternalProvider } = await widgetService.sendMessage(
+				"client-1",
+				"conv-1",
+				"Hello",
+			)
+			expect(isExternalProvider).toBe(true)
+		})
+
+		it("allows sending message when client has positive balance and uses platform provider", async () => {
+			providerConfigService = createMockProviderConfigService({
+				providerType: "openai_compatible",
+				apiKey: "platform-key",
+				model: "gemma4",
+			})
+			providerConfigService.resolveForAi = mock(async () => ({
+				config: {
+					providerType: "openai_compatible",
+					apiKey: "platform-key",
+					model: "gemma4",
+					baseUrl: "https://api.example.com",
+				},
+				isExternal: false,
+			}))
+			repo.getClientBalance = mock(async () => 1)
+			widgetService = new WidgetService({
+				widgetRepository: repo,
+				botConfigService,
+				providerConfigService,
+				mcpService,
+				blacklistRepository: blacklistRepo,
+				streamResponse: mockStreamResponse,
+			})
 			const { isExternalProvider } = await widgetService.sendMessage(
 				"client-1",
 				"conv-1",

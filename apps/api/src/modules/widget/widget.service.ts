@@ -117,6 +117,16 @@ export class WidgetService {
 		const { config: provider, isExternal } =
 			await this.providerConfigService.resolveForAi(clientId)
 
+		if (!isExternal) {
+			const balance = await this.repo.getClientBalance(clientId)
+			if (balance !== null && balance <= 0) {
+				throw new BadRequestError(
+					"BALANCE_INSUFFICIENT",
+					"Insufficient balance",
+				)
+			}
+		}
+
 		const botConfig = await this.botConfigService.getConfig(clientId)
 
 		let chunks: string[] = []
