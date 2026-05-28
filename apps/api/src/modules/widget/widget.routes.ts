@@ -257,6 +257,7 @@ widgetMessageRoutes.openapi(
 		const logger = c.get("logger")
 		const requestId = c.get("requestId")
 
+		c.header("X-Accel-Buffering", "no")
 		return streamSSE(c, async (sse) => {
 			const keepaliveInterval = setInterval(() => {
 				sse.write(":ping\n\n").catch((err) => {
