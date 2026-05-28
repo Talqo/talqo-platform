@@ -6,6 +6,9 @@ export function toUserFriendlyError(message: string): string {
 	) {
 		return "You've sent too many messages. Please wait a moment before trying again."
 	}
+	if (/insufficient balance/i.test(message)) {
+		return "Account balance depleted"
+	}
 	if (
 		/HTTP 40[13]/i.test(message) ||
 		/unauthorized/i.test(message) ||
