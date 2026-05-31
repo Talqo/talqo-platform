@@ -21,3 +21,4 @@ jobs:
           package: ${{ matrix.package }}
           delete-tags: "sha-*"
           keep-n-tagged: 5
+          delete-untagged: "true"
