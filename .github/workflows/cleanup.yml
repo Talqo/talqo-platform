@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   cleanup:
-    name: Prune old GHCR sha tags (${{ matrix.package }})
+    name: Prune old GHCR images (${{ matrix.package }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,9 +18,6 @@ jobs:
     steps:
       - uses: dataaxiom/ghcr-cleanup-action@v1.2.1
         with:
-          owner: pagepal-agent
           package: ${{ matrix.package }}
-          delete-tags: ^sha-.+
-          exclude-tags: ^v?[0-9]+\.[0-9]+\.[0-9]+$
+          delete-tags: "sha-*"
           keep-n-tagged: 5
-          use-regex: true
