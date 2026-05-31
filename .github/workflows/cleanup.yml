@@ -10,18 +10,17 @@ permissions:
 
 jobs:
   cleanup:
-    name: Prune old GHCR images (${{ matrix.package }})
+    name: Prune old GHCR sha tags (${{ matrix.package }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
         package: [pagepal-api, pagepal-web]
     steps:
-      - uses: snok/container-retention-policy@v3.0.0
+      - uses: dataaxiom/ghcr-cleanup-action@v1.2.1
         with:
-          account: ${{ github.repository_owner }}
-          token: ${{ github.token }}
-          image-names: ${{ matrix.package }}
-          image-tags: "sha-*"
-          tag-selection: tagged
-          cut-off: 2w
-          keep-n-most-recent: 5
+          owner: pagepal-agent
+          package: ${{ matrix.package }}
+          delete-tags: ^sha-.+
+          exclude-tags: ^v?[0-9]+\.[0-9]+\.[0-9]+$
+          keep-n-tagged: 5
+          use-regex: true
