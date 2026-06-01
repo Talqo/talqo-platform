@@ -182,7 +182,8 @@
 			"configureProvider": "Nastavte jej v záložce AI poskytovatel.",
 			"upgradePlan": "Upgradovat plán",
 			"saving": "Ukládání...",
-			"saveSettings": "Uložit nastavení"
+			"saveSettings": "Uložit nastavení",
+			"addFunds": "Přidat prostředky"
 		},
 		"provider": {
 			"title": "AI poskytovatel",

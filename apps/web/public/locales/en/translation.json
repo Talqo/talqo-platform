@@ -412,7 +412,8 @@
 			"configureProvider": "Configure it in the AI Provider tab.",
 			"upgradePlan": "Upgrade plan",
 			"saving": "Saving...",
-			"saveSettings": "Save Settings"
+			"saveSettings": "Save Settings",
+			"addFunds": "Add Funds"
 		},
 		"provider": {
 			"title": "AI Provider",
