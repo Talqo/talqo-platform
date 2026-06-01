@@ -124,11 +124,11 @@ export function BillingSettingsTab() {
 						</p>
 					</CardContent>
 					<CardFooter className="flex justify-between">
-						<Link to="/dashboard/add-funds">
-							<Button variant="outline">
+						<Button variant="outline" asChild>
+							<Link to="/dashboard/add-funds">
 								{t("settings.billing.addFunds")}
-							</Button>
-						</Link>
+							</Link>
+						</Button>
 						<Button type="submit" disabled={isPending}>
 							{isPending
 								? t("settings.billing.saving")
