@@ -9,7 +9,6 @@ import {
 	useSetUsageAlert,
 	useSetUsageLimit,
 } from "@/api/hooks/useClientAccount"
-import upgradeImage from "@/assets/Gemini_Generated_Image_7dq4tr7dq4tr7dq4.png"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -125,15 +124,10 @@ export function BillingSettingsTab() {
 						</p>
 					</CardContent>
 					<CardFooter className="flex justify-between">
-						<Link
-							to="/dashboard/add-funds"
-							className="relative h-16 overflow-hidden rounded-md border-2 border-primary transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-						>
-							<img
-								src={upgradeImage}
-								alt={t("settings.billing.upgradePlan")}
-								className="h-full w-auto object-contain"
-							/>
+						<Link to="/dashboard/add-funds">
+							<Button variant="outline">
+								{t("settings.billing.addFunds")}
+							</Button>
 						</Link>
 						<Button type="submit" disabled={isPending}>
 							{isPending
