@@ -180,9 +180,9 @@
 			"usageAlertsDescription": "达到限额 80% 时发送邮件通知我",
 			"ownApiKeyPrompt": "想使用自己的 API 密钥？",
 			"configureProvider": "前往 AI 提供商标签页配置。",
-			"upgradePlan": "升级方案",
 			"saving": "保存中...",
-			"saveSettings": "保存设置"
+			"saveSettings": "保存设置",
+			"addFunds": "添加资金"
 		},
 		"provider": {
 			"title": "AI 提供商",

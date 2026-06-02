@@ -180,9 +180,9 @@
 			"usageAlertsDescription": "Poslat e-mail při dosažení 80 % limitu",
 			"ownApiKeyPrompt": "Chcete místo toho použít vlastní API klíč?",
 			"configureProvider": "Nastavte jej v záložce AI poskytovatel.",
-			"upgradePlan": "Upgradovat plán",
 			"saving": "Ukládání...",
-			"saveSettings": "Uložit nastavení"
+			"saveSettings": "Uložit nastavení",
+			"addFunds": "Přidat prostředky"
 		},
 		"provider": {
 			"title": "AI poskytovatel",
