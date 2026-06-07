@@ -1,0 +1,103 @@
+#!/usr/bin/env bun
+/**
+ * Generates TypeScript types from the backend's OpenAPI spec.
+ * Starts the API automatically if not already running.
+ */
+
+import { execSync, spawn } from "node:child_process"
+import { writeFileSync } from "node:fs"
+import { resolve } from "node:path"
+
+const apiUrl = process.env.API_URL ?? "http://localhost:3000"
+const healthUrl = `${apiUrl}/health`
+const specUrl = `${apiUrl}/v1/openapi.json`
+const apiDir = resolve(import.meta.dir, "../../api")
+
+const outDir = resolve(import.meta.dir, "../src/api/generated")
+const specFile = resolve(outDir, "openapi.json")
+const typesFile = resolve(outDir, "openapi.d.ts")
+
+async function waitForApi(url: string, timeoutMs = 30000): Promise<boolean> {
+	const start = Date.now()
+	while (Date.now() - start < timeoutMs) {
+		try {
+			const res = await fetch(url, {
+				method: "HEAD",
+				signal: AbortSignal.timeout(5000),
+			})
+			if (res.ok) return true
+		} catch {}
+		await new Promise((r) => setTimeout(r, 500))
+	}
+	return false
+}
+
+function killApiProcess(proc: ReturnType<typeof spawn>): void {
+	if (!proc.pid) return
+	try {
+		if (process.platform === "win32") {
+			// On Windows, negative PIDs are not supported; kill via taskkill
+			proc.kill()
+			spawn("taskkill", ["/PID", String(proc.pid), "/T", "/F"], {
+				stdio: "ignore",
+			})
+		} else {
+			process.kill(-proc.pid)
+		}
+	} catch {
+		// Swallow errors so cleanup never throws
+	}
+}
+
+// Check if API is already running
+let apiProcess: ReturnType<typeof spawn> | null = null
+
+try {
+	const check = await fetch(healthUrl, { signal: AbortSignal.timeout(5000) })
+	if (!check.ok) throw new Error("not running")
+	console.log("API already running, using existing instance")
+} catch {
+	console.log("Starting API server...")
+	apiProcess = spawn("bun", ["run", "dev"], {
+		cwd: apiDir,
+		stdio: "ignore",
+		detached: true,
+	})
+
+	console.log("Waiting for API to be ready...")
+	const ready = await waitForApi(healthUrl)
+	if (!ready) {
+		console.error("API failed to start within timeout")
+		if (apiProcess) killApiProcess(apiProcess)
+		process.exit(1)
+	}
+	console.log("API is ready")
+}
+
+try {
+	// Fetch spec and generate types
+	console.log(`Fetching OpenAPI spec from ${specUrl}...`)
+	const response = await fetch(specUrl, { signal: AbortSignal.timeout(5000) })
+	if (!response.ok) {
+		process.exitCode = 1
+		throw new Error(
+			`Failed to fetch spec: ${response.status} ${response.statusText}`,
+		)
+	}
+
+	const spec = await response.json()
+	writeFileSync(specFile, JSON.stringify(spec, null, 2))
+	console.log(`Spec saved to ${specFile}`)
+
+	console.log("Generating TypeScript types...")
+	execSync(`bunx openapi-typescript ${specFile} -o ${typesFile}`, {
+		stdio: "inherit",
+	})
+	console.log(`Types generated at ${typesFile}`)
+} finally {
+	// Cleanup: kill the API we started
+	if (apiProcess) {
+		console.log("Stopping API server...")
+		killApiProcess(apiProcess)
+	}
+}

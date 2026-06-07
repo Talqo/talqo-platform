@@ -1,0 +1,6 @@
+# Bun configuration
+# https://bun.sh/docs/runtime/bunfig#bunfig-toml
+
+[install]
+# Prevent installation of recently published malicious packages
+minimumReleaseAge = 86400  # 1 day in seconds

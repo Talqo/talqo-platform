@@ -1,0 +1,222 @@
+import { zodResolver } from "@hookform/resolvers/zod"
+import { PlusIcon, Trash2Icon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useFieldArray, useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+import type { McpRemoteServerConfig } from "shared"
+import {
+	useCreateCustomServer,
+	useUpdateCustomServer,
+} from "@/api/hooks/useMcp"
+import { Button } from "@/components/ui/button"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { kvPairsToRecord, recordToKvPairs } from "@/lib/mcp-utils"
+import { type McpConfigFormValues, mcpConfigFormSchema } from "@/schemas/mcp"
+
+type Props = {
+	trigger: React.ReactNode
+	serverId?: string
+	initialData?: McpRemoteServerConfig
+}
+
+function toFormValues(config?: McpRemoteServerConfig): McpConfigFormValues {
+	if (!config) return { url: "", headers: [] }
+	return {
+		url: config.url,
+		headers: recordToKvPairs(config.headers),
+	}
+}
+
+function toMcpConfig(values: McpConfigFormValues): McpRemoteServerConfig {
+	return {
+		type: "http",
+		url: values.url,
+		headers: kvPairsToRecord(values.headers),
+	}
+}
+
+export function CustomMcpDialog({ trigger, serverId, initialData }: Props) {
+	const { t } = useTranslation()
+	const [open, setOpen] = useState(false)
+	const createMutation = useCreateCustomServer()
+	const updateMutation = useUpdateCustomServer()
+
+	const form = useForm<McpConfigFormValues>({
+		resolver: zodResolver(mcpConfigFormSchema),
+		defaultValues: toFormValues(initialData),
+	})
+
+	const headerFields = useFieldArray({
+		control: form.control,
+		name: "headers",
+	})
+
+	const { reset: createReset } = createMutation
+	const { reset: updateReset } = updateMutation
+	const { reset: resetForm } = form
+
+	useEffect(() => {
+		if (open) {
+			resetForm(toFormValues(initialData))
+			createReset()
+			updateReset()
+		}
+	}, [open, initialData, resetForm, createReset, updateReset])
+
+	const isPending = createMutation.isPending || updateMutation.isPending
+	const isError = createMutation.isError || updateMutation.isError
+
+	function onSubmit(values: McpConfigFormValues) {
+		const mcpConfig = toMcpConfig(values)
+		if (serverId) {
+			updateMutation.mutate(
+				{ serverId, mcpConfig },
+				{ onSuccess: () => setOpen(false) },
+			)
+		} else {
+			createMutation.mutate(
+				{ mcpConfig },
+				{
+					onSuccess: () => {
+						setOpen(false)
+						form.reset(toFormValues(undefined))
+					},
+				},
+			)
+		}
+	}
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
+			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+				<DialogHeader>
+					<DialogTitle>
+						{serverId
+							? t("mcp.customDialog.editTitle")
+							: t("mcp.customDialog.addTitle")}
+					</DialogTitle>
+					<DialogDescription className="sr-only">
+						{serverId
+							? t("mcp.customDialog.editTitle")
+							: t("mcp.customDialog.addTitle")}
+					</DialogDescription>
+				</DialogHeader>
+
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<FormField
+							control={form.control}
+							name="url"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>{t("mcp.customDialog.endpointUrl")}</FormLabel>
+									<FormControl>
+										<Input
+											type="url"
+											placeholder="https://your-mcp-server.example.com/mcp"
+											{...field}
+											value={field.value ?? ""}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						{/* Headers */}
+						<div className="space-y-2">
+							<div className="flex items-center justify-between">
+								<FormLabel>{t("mcp.customDialog.headers")}</FormLabel>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => headerFields.append({ key: "", value: "" })}
+								>
+									<PlusIcon className="size-4" />
+									{t("mcp.customDialog.addHeader")}
+								</Button>
+							</div>
+							{headerFields.fields.map((fieldItem, index) => (
+								<div key={fieldItem.id} className="flex gap-2">
+									<FormField
+										control={form.control}
+										name={`headers.${index}.key`}
+										render={({ field }) => (
+											<FormItem className="flex-1">
+												<FormControl>
+													<Input
+														placeholder={t("mcp.customDialog.headerKey")}
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name={`headers.${index}.value`}
+										render={({ field }) => (
+											<FormItem className="flex-1">
+												<FormControl>
+													<Input
+														placeholder={t("mcp.customDialog.headerValue")}
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										aria-label={t("mcp.customDialog.removeHeader")}
+										onClick={() => headerFields.remove(index)}
+									>
+										<Trash2Icon className="size-4" />
+									</Button>
+								</div>
+							))}
+						</div>
+
+						{isError && (
+							<p className="text-destructive text-sm">
+								{t("mcp.customDialog.saveFailed")}
+							</p>
+						)}
+						<DialogFooter showCloseButton>
+							<Button type="submit" disabled={isPending}>
+								{isPending
+									? t("common.saving")
+									: serverId
+										? t("mcp.customDialog.saveChanges")
+										: t("mcp.customDialog.addServer")}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	)
+}

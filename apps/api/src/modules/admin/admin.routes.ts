@@ -1,0 +1,421 @@
+import { createRoute, z } from "@hono/zod-openapi"
+import {
+	adminAccessLogResponseSchema,
+	clientSummarySchema,
+	messageResponseSchema,
+} from "db/dto"
+import {
+	clientStatusUpdateSchema,
+	conversationSummarySchema,
+	LoginSchema,
+	paginationQuerySchema,
+} from "shared"
+import { NotFoundError, UnauthorizedError } from "@/common/errors"
+import type { AppVariables } from "@/common/jwt"
+import { authRateLimit } from "@/common/middleware/auth-rate-limit"
+import { createRouter } from "@/common/router"
+import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
+import { adminService } from "./index"
+
+// ─── Admin auth (unprotected) ──────────────────────────────────────────────────
+
+export const adminAuthRoutes = createRouter<{ Variables: AppVariables }>()
+
+adminAuthRoutes.use("/login", authRateLimit)
+
+adminAuthRoutes.openapi(
+	createRoute({
+		method: "post",
+		path: "/login",
+		tags: ["Admin"],
+		summary: "Admin login",
+		request: {
+			body: {
+				content: {
+					"application/json": {
+						schema: LoginSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Login successful",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.object({
+								token: z.string(),
+								admin: z.object({ id: z.string(), email: z.string() }),
+							}),
+						),
+					},
+				},
+			},
+			401: {
+				description: "Invalid credentials",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const body = c.req.valid("json")
+		const wideEvent = c.get("wideEvent")
+		let result: Awaited<ReturnType<typeof adminService.login>>
+		try {
+			result = await adminService.login(body)
+			if (wideEvent) wideEvent.auth = { outcome: "logged_in" }
+		} catch (err) {
+			if (err instanceof UnauthorizedError) {
+				if (wideEvent) wideEvent.auth = { outcome: "invalid_credentials" }
+			}
+			throw err
+		}
+		return c.json(result, 200)
+	},
+)
+
+adminAuthRoutes.openapi(
+	createRoute({
+		method: "post",
+		path: "/logout",
+		tags: ["Admin"],
+		summary: "Admin logout",
+		responses: {
+			200: {
+				description: "Logged out",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(z.object({ message: z.string() })),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		return c.json({ message: "Logged out" }, 200)
+	},
+)
+
+// ─── Admin current user (protected) ───────────────────────────────────────────
+
+export const adminMeRoutes = createRouter<{ Variables: AppVariables }>()
+
+// GET /admin/me - Get current admin profile
+adminMeRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/",
+		tags: ["Admin"],
+		summary: "Get current admin profile",
+		security: [{ bearerAuth: [] }],
+		responses: {
+			200: {
+				description: "Admin profile",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.object({
+								id: z.string(),
+								email: z.string(),
+								role: z.literal("admin"),
+							}),
+						),
+					},
+				},
+			},
+			401: {
+				description: "Unauthorized",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+			404: {
+				description: "Admin not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const adminId = c.get("adminId")
+		const admin = await adminService.getAdminById(adminId)
+		if (!admin) {
+			throw new NotFoundError("Admin not found")
+		}
+		return c.json(
+			{ id: admin.id, email: admin.email, role: "admin" as const },
+			200,
+		)
+	},
+)
+
+// ─── Admin client management (protected) ──────────────────────────────────────
+
+export const adminClientRoutes = createRouter<{ Variables: AppVariables }>()
+
+adminClientRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/",
+		tags: ["Admin"],
+		summary: "List all clients",
+		security: [{ bearerAuth: [] }],
+		request: { query: paginationQuerySchema },
+		responses: {
+			200: {
+				description: "Clients list",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.array(
+								clientSummarySchema.extend({
+									totalTokens: z.number(),
+									aiProvider: z.string().nullable(),
+								}),
+							),
+						),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const { limit, offset } = c.req.valid("query")
+		const clients = await adminService.listClients(limit, offset)
+		return c.json(clients, 200)
+	},
+)
+
+adminClientRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/{clientId}",
+		tags: ["Admin"],
+		summary: "Get client details",
+		security: [{ bearerAuth: [] }],
+		request: {
+			params: z.object({ clientId: z.string().uuid() }),
+		},
+		responses: {
+			200: {
+				description: "Client detail",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							clientSummarySchema.extend({
+								totalTokens: z.number(),
+								totalCostUsd: z.number().nullable(),
+								totalConversations: z.number(),
+							}),
+						),
+					},
+				},
+			},
+			404: {
+				description: "Client not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const { clientId } = c.req.valid("param")
+		const client = await adminService.getClient(clientId)
+		return c.json(client, 200)
+	},
+)
+
+adminClientRoutes.openapi(
+	createRoute({
+		method: "patch",
+		path: "/{clientId}/status",
+		tags: ["Admin"],
+		summary: "Suspend or re-enable a client",
+		security: [{ bearerAuth: [] }],
+		request: {
+			params: z.object({ clientId: z.string().uuid() }),
+			body: {
+				content: {
+					"application/json": {
+						schema: clientStatusUpdateSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "Status updated",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.object({ id: z.string(), status: z.string() }),
+						),
+					},
+				},
+			},
+			404: {
+				description: "Client not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const { clientId } = c.req.valid("param")
+		const { status } = c.req.valid("json")
+		c.set("auditActionLabel", status === "suspended" ? "suspend" : "re-enable")
+		const updated = await adminService.updateClientStatus(clientId, status)
+		const wideEvent = c.get("wideEvent")
+		if (wideEvent) {
+			wideEvent.admin ??= { id: c.get("adminId") }
+			wideEvent.admin.target_client_id = clientId
+			wideEvent.admin.action = status === "suspended" ? "suspend" : "enable"
+		}
+		return c.json(updated, 200)
+	},
+)
+
+adminClientRoutes.openapi(
+	createRoute({
+		method: "post",
+		path: "/{clientId}/impersonate",
+		tags: ["Admin"],
+		summary: "Issue an impersonation token for a client",
+		security: [{ bearerAuth: [] }],
+		request: {
+			params: z.object({ clientId: z.string().uuid() }),
+		},
+		responses: {
+			200: {
+				description: "Impersonation token issued",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(z.object({ token: z.string() })),
+					},
+				},
+			},
+			404: {
+				description: "Client not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const { clientId } = c.req.valid("param")
+		c.set("auditActionLabel", "impersonate")
+		const result = await adminService.impersonate(clientId)
+		const wideEvent = c.get("wideEvent")
+		if (wideEvent) {
+			wideEvent.admin ??= { id: c.get("adminId") }
+			wideEvent.admin.target_client_id = clientId
+			wideEvent.admin.action = "impersonate"
+		}
+		return c.json(result, 200)
+	},
+)
+
+// ─── Admin activity logs (protected) ─────────────────────────────────────────
+
+export const adminActivityLogsRoutes = createRouter<{
+	Variables: AppVariables
+}>()
+
+adminActivityLogsRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/",
+		tags: ["Admin"],
+		summary: "List admin activity logs (impersonate, suspend, re-enable)",
+		security: [{ bearerAuth: [] }],
+		request: { query: paginationQuerySchema },
+		responses: {
+			200: {
+				description: "Activity logs",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							z.array(adminAccessLogResponseSchema),
+						),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const { limit, offset } = c.req.valid("query")
+		const logs = await adminService.listActivityLogs(limit, offset)
+		return c.json(logs, 200)
+	},
+)
+
+// ─── Admin conversation viewer (protected) ────────────────────────────────────
+
+export const adminConversationRoutes = createRouter<{
+	Variables: AppVariables
+}>()
+
+adminConversationRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/",
+		tags: ["Admin"],
+		summary: "List all conversations",
+		security: [{ bearerAuth: [] }],
+		request: {
+			query: paginationQuerySchema.extend({
+				clientId: z.string().uuid().optional(),
+			}),
+		},
+		responses: {
+			200: {
+				description: "Conversations list",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(z.array(conversationSummarySchema)),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const { limit, offset, clientId } = c.req.valid("query")
+		const result = await adminService.listConversations({
+			clientId,
+			limit,
+			offset,
+		})
+		return c.json(result, 200)
+	},
+)
+
+adminConversationRoutes.openapi(
+	createRoute({
+		method: "get",
+		path: "/{conversationId}",
+		tags: ["Admin"],
+		summary: "Get conversation with messages",
+		security: [{ bearerAuth: [] }],
+		request: {
+			params: z.object({ conversationId: z.string().uuid() }),
+		},
+		responses: {
+			200: {
+				description: "Conversation detail with messages",
+				content: {
+					"application/json": {
+						schema: successResponseSchema(
+							conversationSummarySchema
+								.omit({ messageCount: true })
+								.extend({ messages: z.array(messageResponseSchema) }),
+						),
+					},
+				},
+			},
+			404: {
+				description: "Conversation not found",
+				content: { "application/json": { schema: errorResponseSchema } },
+			},
+		},
+	}),
+	async (c) => {
+		const { conversationId } = c.req.valid("param")
+		const result = await adminService.getConversation(conversationId)
+		return c.json(result, 200)
+	},
+)

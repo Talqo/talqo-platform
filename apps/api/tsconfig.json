@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"lib": ["ESNext"],
+		"target": "ESNext",
+		"types": ["@types/bun"],
+		"rootDir": ".",
+		"declaration": true,
+		"outDir": "./dist",
+		"noEmit": false,
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"include": ["src/**/*", "scripts/**/*"],
+	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

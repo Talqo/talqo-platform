@@ -1,0 +1,15 @@
+meta {
+  name: List Servers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/admin/mcp/pre-made
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}

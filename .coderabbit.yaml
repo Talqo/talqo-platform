@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# Language for CodeRabbit's review comments
+language: en
+
+# Enable experimental features
+early_access: true
+
+chat:
+  # CodeRabbit will automatically respond to @coderabbitai mentions in PR comments
+  auto_reply: true
+
+reviews:
+  # Chill guy mindset
+  profile: "chill"
+
+  auto_review:
+    # Automatically trigger reviews when PRs are opened or updated
+    enabled: true
+    # Skip auto-review if PR title contains these keywords
+    ignore_title_keywords:
+      - "WIP"
+    # Don't auto-review draft PRs
+    drafts: false
+    # Only auto-review PRs targeting these branches
+    base_branches:
+      - main
+      - dev
+
+  # Include a high-level summary at the start of each review
+  high_level_summary: true
+
+  # Generate sequence diagrams for complex code flows
+  sequence_diagrams: true
+
+  # Don't include poems in reviews (fun feature, but keeping it professional)
+  poem: false
+
+  # Show review completion status
+  review_status: true
+
+  # Keep the walkthrough section expanded by default
+  collapse_walkthrough: false
+
+  # Include summary of all changed files
+  changed_files_summary: true
+
+  # Don't automatically request changes on the PR (just leave comments)
+  request_changes_workflow: false
+
+  # Pre-merge checks to enforce before merging PRs
+  pre_merge_checks:
+    description:
+      # Validate that PR has a proper description
+      mode: warning
+    docstrings:
+      # Disable docstring coverage checks (let's assume we don't need them)
+      mode: off
+
+  # Custom review instructions for specific file patterns
+  path_instructions:
+    # Apply general TypeScript best practices to all TS/TSX files
+    - path: "**/*.{ts,tsx,mts,cts}"
+      instructions: |
+        - Adhere to 2026 industry standards.
+        - Follow KISS/YAGNI/DRY and keep modules cohesive (SOLID-minded).
+        - Bun-first workflows; avoid npm/yarn assumptions.
+        - Avoid `any`; prefer explicit boundary types and `import type`.
+        - Validate external inputs early; fail fast; never swallow errors.
+        - No hardcoded secrets; flag injection/XSS/authz risks.
+        - Avoid unnecessary complexity, dead code, and duplicated logic.
+
+    # Frontend-specific guidance for React + shadcn/ui + TanStack
+    - path: "apps/web/**/*.{ts,tsx,mts,cts,css,scss}"
+      instructions: |
+        - Assume React + shadcn/ui + TanStack unless PR states otherwise.
+        - Prefer functional components/hooks; ensure effect cleanup and complete deps.
+        - Compose from shadcn/ui primitives; preserve accessibility semantics.
+        - For TanStack, use stable query keys and clear loading/error/empty states.
+        - Keep styling aligned with design tokens; avoid one-off hardcoded styles.
+        - Avoid exposing secrets or relying on client-only validation.
+
+    # Backend-specific guidance for Hono API
+    - path: "apps/api/**/*.{ts,mts,cts}"
+      instructions: |
+        - Assume Hono framework conventions unless PR states otherwise.
+        - Keep route handlers focused and middleware composable.
+        - Validate API contracts and keep error/status formats consistent.
+        - Enforce authorization and sanitize/validate inputs/outputs.
+        - Keep background jobs/async workflows idempotent and retry-safe.
+        - Flag obvious N+1 data access patterns and sensitive data leakage in logs.
+
+    # Vitest test guidance
+    - path: "**/*.{test,spec}.{ts,tsx,mts,cts}"
+      instructions: |
+        - Use Vitest patterns and prefer `describe`/`it` with explicit assertions.
+        - Prefer deterministic tests with clear assertions.
+        - Cover success, failure, and edge cases.
+        - Ensure async tests clean up correctly and avoid over-mocking.
+        - Use fake timers/mocks carefully to avoid hiding integration regressions.

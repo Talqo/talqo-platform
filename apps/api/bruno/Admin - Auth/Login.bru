@@ -1,0 +1,18 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/admin/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "admin@talqo.dev",
+    "password": "admin123"
+  }
+}

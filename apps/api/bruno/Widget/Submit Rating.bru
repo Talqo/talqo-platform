@@ -1,0 +1,21 @@
+meta {
+  name: Submit Rating
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/widget/sessions/{{sessionId}}/conversations/{{conversationId}}
+  body: json
+  auth: none
+}
+
+headers {
+  X-Widget-Token: {{widgetToken}}
+}
+
+body:json {
+  {
+    "rating": 5
+  }
+}

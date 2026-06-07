@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "talqo.fullname" . }}-api
+  labels:
+    {{- include "talqo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "talqo.api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "talqo.api.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ required "api.image.tag is required — pass --set api.image.tag=<version>" .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.port }}
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.dbSecretName" . }}
+                  key: password
+            - name: POSTGRES_HOST
+              value: {{ printf "%s-postgresql" (include "talqo.fullname" .) | quote }}
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.auth.database | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.jwtSecretName" . }}
+                  key: secret
+            - name: API_PORT
+              value: {{ .Values.api.port | quote }}
+            - name: S3_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.minioSecretName" . }}
+                  key: rootUser
+            - name: S3_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.minioSecretName" . }}
+                  key: rootPassword
+            - name: S3_ENDPOINT
+              value: "http://{{ include "talqo.fullname" . }}-minio:9000"
+            - name: S3_BUCKET
+              value: {{ (index .Values.minio.buckets 0).name | quote }}
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.resendSecretName" . }}
+                  key: apiKey
+            - name: APP_URL
+              value: {{ printf "%s://%s" (ternary "https" "http" .Values.ingress.tls) .Values.ingress.host | quote }}
+            - name: WIDGET_RATE_LIMIT_PER_HOUR
+              value: {{ .Values.api.widgetRateLimitPerHour | default 60 | quote }}
+            - name: WIDGET_CONVERSATION_MAX_MESSAGES
+              value: {{ .Values.api.widgetConversationMaxMessages | default 50 | quote }}
+            - name: TRUSTED_PROXY_IPS
+              value: {{ .Values.api.trustedProxyIps | default "" | quote }}
+            - name: DEFAULT_LLM_PROVIDER_TYPE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.defaultLlmSecretName" . }}
+                  key: providerType
+            - name: DEFAULT_LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.defaultLlmSecretName" . }}
+                  key: apiKey
+            - name: DEFAULT_LLM_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.defaultLlmSecretName" . }}
+                  key: model
+            - name: DEFAULT_LLM_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.defaultLlmSecretName" . }}
+                  key: baseUrl
+            - name: DEFAULT_EMBEDDING_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.defaultLlmSecretName" . }}
+                  key: embeddingModel
+            - name: PROVIDER_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "talqo.providerKeySecretName" . }}
+                  key: secret
+            - name: SENTRY_ENVIRONMENT
+              value: {{ .Values.api.sentry.environment | default "production" | quote }}
+            - name: SENTRY_DSN
+              value: {{ .Values.api.sentry.dsn | default "" | quote }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 60
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

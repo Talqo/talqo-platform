@@ -1,0 +1,21 @@
+meta {
+  name: Add Word
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/client/me/blacklist
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "word": "badword"
+  }
+}

@@ -1,0 +1,700 @@
+{
+	"id": "cfe775b8-04cc-439f-902e-da11d22f5cf5",
+	"prevId": "4a454fa8-3784-4439-900a-073ccbcfd111",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.admin_access_logs": {
+			"name": "admin_access_logs",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"admin_id": {
+					"name": "admin_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"action_type": {
+					"name": "action_type",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"admin_access_logs_admin_id_admin_users_id_fk": {
+					"name": "admin_access_logs_admin_id_admin_users_id_fk",
+					"tableFrom": "admin_access_logs",
+					"tableTo": "admin_users",
+					"columnsFrom": ["admin_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"admin_access_logs_client_id_clients_id_fk": {
+					"name": "admin_access_logs_client_id_clients_id_fk",
+					"tableFrom": "admin_access_logs",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.admin_users": {
+			"name": "admin_users",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"admin_users_email_unique": {
+					"name": "admin_users_email_unique",
+					"nullsNotDistinct": false,
+					"columns": ["email"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.blacklist_words": {
+			"name": "blacklist_words",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"word": {
+					"name": "word",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"blacklist_words_client_id_clients_id_fk": {
+					"name": "blacklist_words_client_id_clients_id_fk",
+					"tableFrom": "blacklist_words",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.bot_configs": {
+			"name": "bot_configs",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"system_prompt": {
+					"name": "system_prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_role": {
+					"name": "default_role",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"tone_style": {
+					"name": "tone_style",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"internet_search_enabled": {
+					"name": "internet_search_enabled",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"bot_configs_client_id_clients_id_fk": {
+					"name": "bot_configs_client_id_clients_id_fk",
+					"tableFrom": "bot_configs",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"bot_configs_client_id_unique": {
+					"name": "bot_configs_client_id_unique",
+					"nullsNotDistinct": false,
+					"columns": ["client_id"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.clients": {
+			"name": "clients",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"balance_usd": {
+					"name": "balance_usd",
+					"type": "numeric(12, 4)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'0'"
+				},
+				"monthly_usage_limit": {
+					"name": "monthly_usage_limit",
+					"type": "numeric(12, 4)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"usage_alert_threshold_usd": {
+					"name": "usage_alert_threshold_usd",
+					"type": "numeric(12, 4)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"widget_token": {
+					"name": "widget_token",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"status": {
+					"name": "status",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'active'"
+				},
+				"last_active": {
+					"name": "last_active",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"clients_email_unique": {
+					"name": "clients_email_unique",
+					"nullsNotDistinct": false,
+					"columns": ["email"]
+				},
+				"clients_widget_token_unique": {
+					"name": "clients_widget_token_unique",
+					"nullsNotDistinct": false,
+					"columns": ["widget_token"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_pre_made_mcp": {
+			"name": "client_pre_made_mcp",
+			"schema": "",
+			"columns": {
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"pre_made_mcp_id": {
+					"name": "pre_made_mcp_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_pre_made_mcp_client_id_clients_id_fk": {
+					"name": "client_pre_made_mcp_client_id_clients_id_fk",
+					"tableFrom": "client_pre_made_mcp",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk": {
+					"name": "client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk",
+					"tableFrom": "client_pre_made_mcp",
+					"tableTo": "pre_made_mcp_servers",
+					"columnsFrom": ["pre_made_mcp_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"client_pre_made_mcp_client_id_pre_made_mcp_id_pk": {
+					"name": "client_pre_made_mcp_client_id_pre_made_mcp_id_pk",
+					"columns": ["client_id", "pre_made_mcp_id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.custom_mcp_servers": {
+			"name": "custom_mcp_servers",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"mcp_config": {
+					"name": "mcp_config",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"custom_mcp_servers_client_id_clients_id_fk": {
+					"name": "custom_mcp_servers_client_id_clients_id_fk",
+					"tableFrom": "custom_mcp_servers",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.pre_made_mcp_servers": {
+			"name": "pre_made_mcp_servers",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"mcp_config": {
+					"name": "mcp_config",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.conversations": {
+			"name": "conversations",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"session_id": {
+					"name": "session_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"started_at": {
+					"name": "started_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"satisfaction_rating": {
+					"name": "satisfaction_rating",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"conversations_session_id_end_user_sessions_id_fk": {
+					"name": "conversations_session_id_end_user_sessions_id_fk",
+					"tableFrom": "conversations",
+					"tableTo": "end_user_sessions",
+					"columnsFrom": ["session_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"conversations_client_id_clients_id_fk": {
+					"name": "conversations_client_id_clients_id_fk",
+					"tableFrom": "conversations",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.end_user_sessions": {
+			"name": "end_user_sessions",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"browser_session_id": {
+					"name": "browser_session_id",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"last_active_at": {
+					"name": "last_active_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"end_user_sessions_client_id_clients_id_fk": {
+					"name": "end_user_sessions_client_id_clients_id_fk",
+					"tableFrom": "end_user_sessions",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.messages": {
+			"name": "messages",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"conversation_id": {
+					"name": "conversation_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"role": {
+					"name": "role",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"content": {
+					"name": "content",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"token_count": {
+					"name": "token_count",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"messages_conversation_id_conversations_id_fk": {
+					"name": "messages_conversation_id_conversations_id_fk",
+					"tableFrom": "messages",
+					"tableTo": "conversations",
+					"columnsFrom": ["conversation_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.usage_records": {
+			"name": "usage_records",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tokens_used": {
+					"name": "tokens_used",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"cost_usd": {
+					"name": "cost_usd",
+					"type": "numeric(12, 6)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"recorded_at": {
+					"name": "recorded_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"usage_records_client_id_clients_id_fk": {
+					"name": "usage_records_client_id_clients_id_fk",
+					"tableFrom": "usage_records",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

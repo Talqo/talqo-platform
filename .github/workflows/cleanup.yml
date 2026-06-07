@@ -1,0 +1,24 @@
+name: GHCR Cleanup
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  cleanup:
+    name: Prune old GHCR images (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [talqo-api, talqo-web]
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1.2.1
+        with:
+          package: ${{ matrix.package }}
+          delete-tags: "sha-*"
+          keep-n-tagged: 5
+          delete-untagged: "true"

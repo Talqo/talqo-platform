@@ -1,0 +1,15 @@
+meta {
+  name: List Enabled Servers
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/client/me/mcp/pre-made/enabled
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Delete Conversation
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/widget/sessions/{{sessionId}}/conversations/{{conversationId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Widget-Token: {{widgetToken}}
+}

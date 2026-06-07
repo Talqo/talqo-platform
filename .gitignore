@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Bun
+bun.lockb
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env*.local
+
+# Vite cache
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# VS Code settings
+.vscode/
+
+# Claude private configs
+.claude/settings.local.json
+
+# Turbo
+.turbo/
+
+# Private files for personal use
+/private/
+
+# Superpowers runtime artifacts
+.superpowers/**/server.pid
+.superpowers/**/server.log
+
+# Git worktrees
+.worktrees/
+.claude/worktrees/

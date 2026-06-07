@@ -1,0 +1,197 @@
+# Production defaults — deploy prod with no -f flag.
+# Dev overrides are in values.dev.yaml.
+
+api:
+  replicaCount: 2
+  image:
+    repository: "ghcr.io/talqo/talqo-api"
+    tag: ""
+    pullPolicy: "IfNotPresent"
+  port: 3000
+  # Widget rate limiting — max messages per IP per hour
+  widgetRateLimitPerHour: 60
+  # Max messages per conversation before user must start a new one
+  widgetConversationMaxMessages: 50
+  # Comma-separated trusted proxy IPs for X-Forwarded-For validation.
+  # When the direct connection is from one of these IPs, X-Forwarded-For is read
+  # to extract the real client IP for rate limiting. Private/internal IPs are auto-trusted.
+  trustedProxyIps: ""
+  # Default LLM provider used when a client has not configured their own (optional)
+  defaultLlm:
+    existingSecret: ""
+    providerType: ""
+    apiKey: ""
+    model: ""
+    embeddingModel: ""
+    baseUrl: ""
+  # Sentry error monitoring — leave blank to disable
+  sentry:
+    dsn: ""
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+web:
+  replicaCount: 2
+  image:
+    repository: "ghcr.io/talqo/talqo-web"
+    tag: ""
+    pullPolicy: "IfNotPresent"
+  port: 80
+  resources:
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "talqo.dyn.cloud.e-infra.cz"
+  tls: true
+  tlsSecretName: "talqo-tls"
+  clusterIssuer: "letsencrypt-prod"
+
+postgresql:
+  auth:
+    username: "talqo"
+    database: "talqo"
+    existingSecret: ""
+  primary:
+    persistence:
+      size: "10Gi"
+    initdb:
+      scripts:
+        # pgvector requires superuser to install; pre-create it here
+        create_extensions.sh: |
+          #!/bin/sh
+          set -e
+          # Bitnami may expose the postgres password via file or env var
+          if [ -n "${POSTGRES_POSTGRES_PASSWORD_FILE:-}" ]; then
+            export PGPASSWORD="$(cat "$POSTGRES_POSTGRES_PASSWORD_FILE")"
+          elif [ -n "${POSTGRES_POSTGRES_PASSWORD:-}" ]; then
+            export PGPASSWORD="$POSTGRES_POSTGRES_PASSWORD"
+          fi
+          psql -v ON_ERROR_STOP=1 --username postgres --dbname "${POSTGRES_DATABASE}" \
+            -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+
+minio:
+  mode: "standalone"
+  rootUser: "talqo"
+  rootPassword: ""
+  existingSecret: ""
+  buckets:
+    - name: "talqo-files"
+      policy: none
+      purge: false
+  persistence:
+    size: "10Gi"
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  # Security contexts required by the cluster's restricted PodSecurity policy.
+  securityContext:
+    enabled: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: "OnRootMismatch"
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  # Job that creates buckets/users after install — needs matching security context.
+  postJob:
+    securityContext:
+      enabled: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+  # Disable default console user — root user has full access.
+  users: []
+  # All job types need identical security contexts (cluster enforces rootless containers).
+  makeBucketJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  makeUserJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  makePolicyJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  customCommandJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+  makeServiceAccountJob:
+    securityContext:
+      enabled: true
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+
+jwt:
+  existingSecret: ""
+
+resend:
+  existingSecret: ""
+
+providerKey:
+  existingSecret: ""
+
+migration:
+  enabled: true
+  image:
+    repository: "ghcr.io/talqo/talqo-api"
+    tag: ""
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"

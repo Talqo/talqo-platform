@@ -1,0 +1,99 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.7/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"includes": [
+			"**",
+			"!!**/.turbo",
+			"!!**/dist",
+			"!!**/coverage",
+			"!!**/*.gen.ts",
+			"!!**/api/generated",
+			"!!**/components/ui"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 80,
+		"lineEnding": "lf"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"nursery": {
+				"useSortedClasses": {
+					"level": "warn",
+					"options": {
+						"functions": ["cn", "clsx", "twMerge"]
+					}
+				},
+				"useNullishCoalescing": "error"
+			},
+			"style": {
+				"useConsistentTypeDefinitions": {
+					"level": "error",
+					"options": {
+						"style": "type"
+					}
+				},
+				"noRestrictedImports": {
+					"level": "error",
+					"options": {
+						"patterns": [
+							{
+								"group": ["../**"],
+								"message": "Use @ alias imports instead of relative parent imports"
+							}
+						]
+					}
+				}
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons": "asNeeded",
+			"trailingCommas": "all"
+		},
+		"jsxRuntime": "reactClassic"
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": [
+				"*.test.ts",
+				"*.spec.ts",
+				"*.test.tsx",
+				"*.spec.tsx",
+				"*.test.js",
+				"*.spec.js"
+			],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Set Usage Limit
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/client/me/usage-limit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "limit": 50.00
+  }
+}

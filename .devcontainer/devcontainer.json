@@ -1,0 +1,55 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+{
+	"build": {
+		"dockerfile": "./Dockerfile",
+		"context": "."
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"moby": false,
+			"dockerDashComposeVersion": "none",
+			"installDockerComposeSwitch": false
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is built.
+	"postCreateCommand": ".devcontainer/post-create.sh",
+
+	// Use 'updateContentCommand' to run commands on every container start.
+	"updateContentCommand": "git fetch --all --prune",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			// Some VS Code extensions you probably want installed in the container.
+			"extensions": [
+				"docker.docker",
+				"oven.bun-vscode",
+				"anthropic.claude-code",
+				"bradlc.vscode-tailwindcss",
+				"biomejs.biome",
+				"streetsidesoftware.code-spell-checker"
+			],
+			"settings": {
+				"[typescript]": {
+					"editor.formatOnSave": true,
+					"editor.defaultFormatter": "biomejs.biome"
+				},
+				"[typescriptreact]": {
+					"editor.formatOnSave": true,
+					"editor.defaultFormatter": "biomejs.biome"
+				},
+				"biome.configurationPath": "${containerWorkspaceFolder}/biome.json"
+			}
+		}
+	}
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+}
