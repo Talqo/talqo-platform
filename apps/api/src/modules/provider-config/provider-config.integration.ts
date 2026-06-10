@@ -25,6 +25,12 @@ mock.module("@/modules/rag/index", () => ({
 	},
 }))
 
+mock.module("@/modules/files/index", () => ({
+	filesService: {
+		list: mock(async () => ({ files: [], directories: [] })),
+	},
+}))
+
 describe("Provider Config integration tests", () => {
 	let realApp: OpenAPIHono<{ Variables: AppVariables }>
 	const createdEmails = new Set<string>()
@@ -109,7 +115,8 @@ describe("Provider Config integration tests", () => {
 		})
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.apiKey).not.toBe("sk-super-secret-key")
+		expect(body.apiKeyMasked).toBeDefined()
+		expect(body.apiKeyMasked).not.toBe("sk-super-secret-key")
 	})
 
 	it("GET /client/me/provider-config returns saved config after PUT", async () => {
