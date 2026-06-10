@@ -79,7 +79,7 @@ describe("Blacklist integration tests", () => {
 			`Blacklist Test ${crypto.randomUUID()}`,
 		)
 
-		await realApp.request("/v1/client/me/blacklist", {
+		const res1 = await realApp.request("/v1/client/me/blacklist", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -87,6 +87,7 @@ describe("Blacklist integration tests", () => {
 			},
 			body: JSON.stringify({ word: "dupword" }),
 		})
+		expect(res1.status).toBe(201)
 
 		const res2 = await realApp.request("/v1/client/me/blacklist", {
 			method: "POST",
