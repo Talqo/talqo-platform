@@ -62,6 +62,15 @@ export function useResizable(position: "left" | "right") {
 		if (s.width) setPanelWidth(Number.parseFloat(s.width))
 	}, [])
 
+	const onHeaderPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLElement>) => {
+			const target = e.target as HTMLElement
+			if (target.closest("button")) return
+			onResizeStart(e as unknown as React.PointerEvent<HTMLDivElement>)
+		},
+		[onResizeStart],
+	)
+
 	const resetSize = useCallback(() => {
 		setPanelHeight(null)
 		setPanelWidth(null)
@@ -81,6 +90,14 @@ export function useResizable(position: "left" | "right") {
 		...(panelWidth !== null ? { width: panelWidth, maxWidth: panelWidth } : {}),
 	}
 
+	const headerHandleProps = {
+		onPointerDown: onHeaderPointerDown,
+		onPointerMove: onResizeMove,
+		onPointerUp: onResizeEnd,
+		onPointerCancel: onResizeEnd,
+		onLostPointerCapture: onResizeEnd,
+	}
+
 	return {
 		panelRef,
 		panelStyle: Object.keys(panelStyle).length ? panelStyle : undefined,
@@ -92,5 +109,6 @@ export function useResizable(position: "left" | "right") {
 			onPointerCancel: onResizeEnd,
 			onLostPointerCapture: onResizeEnd,
 		},
+		headerHandleProps,
 	}
 }
