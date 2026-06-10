@@ -115,8 +115,8 @@ describe("Provider Config integration tests", () => {
 		})
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as Record<string, unknown>
-		expect(body.apiKeyMasked).toBeDefined()
 		expect(body.apiKeyMasked).not.toBe("sk-super-secret-key")
+		expect(body.apiKeyMasked).toMatch(/^\*+[^*]{4}$/)
 	})
 
 	it("GET /client/me/provider-config returns saved config after PUT", async () => {
