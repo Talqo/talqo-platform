@@ -22,6 +22,7 @@ const db = drizzle(sql)
 const migrationsFolder = `${import.meta.dir}/drizzle`
 
 try {
+	await sql`CREATE EXTENSION IF NOT EXISTS vector`
 	await migrate(db, { migrationsFolder })
 	console.log("Migrations applied successfully.")
 } catch (error) {
