@@ -34,9 +34,8 @@ type EmbeddedWidgetProps = {
 function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 	const widget = useWidgetContext()
 	const botAvatarSvg = config.icons.botAvatar
-	const { panelRef, panelStyle, cornerHandleProps } = useResizable(
-		config.position,
-	)
+	const { panelRef, panelStyle, cornerHandleProps, headerHandleProps } =
+		useResizable(config.position)
 
 	return (
 		<div
@@ -66,7 +65,7 @@ function EmbeddedWidgetInner({ config }: EmbeddedWidgetProps) {
 					{...cornerHandleProps}
 				/>
 
-				<WidgetHeader className={"aiw-header"}>
+				<WidgetHeader className={"aiw-header"} {...headerHandleProps}>
 					<div className={"aiw-header-left"}>
 						<AvatarIcon size={24} iconSvg={botAvatarSvg} />
 						<span className={"aiw-header-title"}>{config.botName}</span>

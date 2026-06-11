@@ -89,27 +89,23 @@
 .aiw-resize-corner {
 	position: absolute;
 	top: 0;
-	width: 3.5rem;
-	height: 3.5rem;
-	z-index: 10;
+	width: 1.5rem;
+	height: 4.5rem;
 	touch-action: none;
 	user-select: none;
 	display: flex;
 	align-items: flex-end;
-	justify-content: flex-end;
 }
 
 .aiw-root[data-position="right"] .aiw-resize-corner {
 	left: 0;
 	cursor: nwse-resize;
-	align-items: flex-end;
 	justify-content: flex-end;
 }
 
 .aiw-root[data-position="left"] .aiw-resize-corner {
 	right: 0;
 	cursor: nesw-resize;
-	align-items: flex-end;
 	justify-content: flex-start;
 }
 
@@ -164,6 +160,8 @@
 
 /* Header - Green theme style */
 .aiw-header {
+	position: relative;
+	z-index: 20;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
