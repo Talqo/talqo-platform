@@ -126,9 +126,15 @@ worktree: ## Create a worktree for branch=X and bootstrap it (deps, db, migrate,
 		echo "ERROR: branch is required. Usage: make worktree branch=SCRUM-69"; exit 1; }
 	@wt=".worktrees/$(branch)"; \
 	if [ -e "$$wt" ]; then \
-		echo "ERROR: $$wt already exists"; exit 1; \
-	fi; \
-	if git show-ref --verify --quiet "refs/heads/$(branch)"; then \
+		abs=$$(cd "$$wt" && pwd); \
+		owned=$$(git worktree list --porcelain | awk -v wt="$$abs" -v br="refs/heads/$(branch)" '\
+			/^worktree / { cur = ($$2 == wt) } /^branch / { if (cur && $$2 == br) found=1 } \
+			END { print (found ? "yes" : "no") }'); \
+		if [ "$$owned" != "yes" ]; then \
+			echo "ERROR: $$wt exists but is not the worktree for branch $(branch)"; exit 1; \
+		fi; \
+		echo "Reusing existing worktree $$wt for branch $(branch)"; \
+	elif git show-ref --verify --quiet "refs/heads/$(branch)"; then \
 		echo "Checking out existing branch $(branch) into $$wt"; \
 		git worktree add "$$wt" "$(branch)"; \
 	else \
