@@ -21,6 +21,7 @@ export default defineConfig({
 	},
 	server: {
 		host: "0.0.0.0",
-		port: 5173,
+		// Overridden per worktree by `make dev` (VITE_PORT); 5173 otherwise.
+		port: Number(process.env.VITE_PORT) || 5173,
 	},
 })

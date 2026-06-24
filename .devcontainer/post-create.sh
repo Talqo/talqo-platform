@@ -17,4 +17,7 @@ claude plugin install code-review@claude-plugins-official
 claude plugin install commit-commands@claude-plugins-official
 claude plugin install caveman@caveman
 
+# Set up the .env file for local development
+cp .env.example .env
+
 echo "Success! Your dev container is ready to roll."

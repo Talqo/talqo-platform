@@ -31,6 +31,15 @@ else
   HELM_VALUES := -f $(HELM_CHART)/values.dev.yaml
 endif
 
+# Per-worktree port offset (branch-derived) so parallel `make dev` worktrees
+# don't clash. Override with PORT_OFFSET=N. Scoped to dev targets; e2e uses defaults.
+PORT_OFFSET ?= $(shell printf '%s' "$(BRANCH)" | cksum | awk '{print $$1 % 1000}')
+DEV_DB_PORT            := $(shell echo $$((5432 + $(PORT_OFFSET))))
+DEV_API_PORT           := $(shell echo $$((3000 + $(PORT_OFFSET))))
+DEV_WEB_PORT           := $(shell echo $$((5173 + $(PORT_OFFSET))))
+DEV_MINIO_PORT         := $(shell echo $$((9000 + $(PORT_OFFSET))))
+DEV_MINIO_CONSOLE_PORT := $(shell echo $$((9001 + $(PORT_OFFSET))))
+
 # Image tagging strategy:
 #   prod — MAJOR.MINOR.PATCH stripped from a vX.Y.Z git tag on HEAD
 #           release gesture: make release VERSION=x.y.z
@@ -57,6 +66,18 @@ setup: ## Install deps, start database, run migrations and seed
 	cd apps/api && bun run db:migrate
 	cd apps/api && bun run db:seed
 	@echo "Setup complete. Run 'make dev' to start development."
+
+# Target-specific exports reach prerequisites (db-up) and children; process env beats Bun --env-file / docker-compose .env, so these win without generated files.
+DEV_TARGETS := dev dev-api dev-web
+$(DEV_TARGETS): export POSTGRES_PORT      := $(DEV_DB_PORT)
+$(DEV_TARGETS): export API_PORT           := $(DEV_API_PORT)
+$(DEV_TARGETS): export VITE_PORT          := $(DEV_WEB_PORT)
+$(DEV_TARGETS): export VITE_API_URL       := http://localhost:$(DEV_API_PORT)/v1
+$(DEV_TARGETS): export APP_URL            := http://localhost:$(DEV_WEB_PORT)
+$(DEV_TARGETS): export ALLOWED_ORIGINS    := http://localhost:$(DEV_WEB_PORT)
+$(DEV_TARGETS): export MINIO_PORT         := $(DEV_MINIO_PORT)
+$(DEV_TARGETS): export MINIO_CONSOLE_PORT := $(DEV_MINIO_CONSOLE_PORT)
+$(DEV_TARGETS): export S3_ENDPOINT        := http://localhost:$(DEV_MINIO_PORT)
 
 .PHONY: dev
 dev: db-up ## Start local development (DB + apps)
