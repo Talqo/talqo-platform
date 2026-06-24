@@ -60,24 +60,26 @@ help: ## Show this help
 
 # ── Local Development ──────────────────────────────
 .PHONY: setup
-setup: ## Install deps, start database, run migrations and seed
+setup: ## Ensure .env, install deps, build packages, start database, migrate and seed
+	@[ -f .env ] || cp .env.example .env
 	bun install
+	bunx turbo build --filter=db --filter=shared
 	$(COMPOSE) --env-file=.env up -d db --wait
 	cd apps/api && bun run db:migrate
 	cd apps/api && bun run db:seed
 	@echo "Setup complete. Run 'make dev' to start development."
 
-# Target-specific exports reach prerequisites (db-up) and children; process env beats Bun --env-file / docker-compose .env, so these win without generated files.
-DEV_TARGETS := dev dev-api dev-web
-$(DEV_TARGETS): export POSTGRES_PORT      := $(DEV_DB_PORT)
-$(DEV_TARGETS): export API_PORT           := $(DEV_API_PORT)
-$(DEV_TARGETS): export VITE_PORT          := $(DEV_WEB_PORT)
-$(DEV_TARGETS): export VITE_API_URL       := http://localhost:$(DEV_API_PORT)/v1
-$(DEV_TARGETS): export APP_URL            := http://localhost:$(DEV_WEB_PORT)
-$(DEV_TARGETS): export ALLOWED_ORIGINS    := http://localhost:$(DEV_WEB_PORT)
-$(DEV_TARGETS): export MINIO_PORT         := $(DEV_MINIO_PORT)
-$(DEV_TARGETS): export MINIO_CONSOLE_PORT := $(DEV_MINIO_CONSOLE_PORT)
-$(DEV_TARGETS): export S3_ENDPOINT        := http://localhost:$(DEV_MINIO_PORT)
+# Process env beats Bun --env-file / compose .env, so these offset every DB/service target; e2e excluded to keep .env defaults.
+PORT_TARGETS := dev dev-api dev-web setup db-up db-reset db-migrate db-seed
+$(PORT_TARGETS): export POSTGRES_PORT      := $(DEV_DB_PORT)
+$(PORT_TARGETS): export API_PORT           := $(DEV_API_PORT)
+$(PORT_TARGETS): export VITE_PORT          := $(DEV_WEB_PORT)
+$(PORT_TARGETS): export VITE_API_URL       := http://localhost:$(DEV_API_PORT)/v1
+$(PORT_TARGETS): export APP_URL            := http://localhost:$(DEV_WEB_PORT)
+$(PORT_TARGETS): export ALLOWED_ORIGINS    := http://localhost:$(DEV_WEB_PORT)
+$(PORT_TARGETS): export MINIO_PORT         := $(DEV_MINIO_PORT)
+$(PORT_TARGETS): export MINIO_CONSOLE_PORT := $(DEV_MINIO_CONSOLE_PORT)
+$(PORT_TARGETS): export S3_ENDPOINT        := http://localhost:$(DEV_MINIO_PORT)
 
 .PHONY: dev
 dev: db-up ## Start local development (DB + apps)
@@ -117,6 +119,24 @@ db-seed: ## Seed the database
 .PHONY: db-studio
 db-studio: ## Open Drizzle Studio
 	cd apps/api && bun run db:studio
+
+.PHONY: worktree
+worktree: ## Create a worktree for branch=X and bootstrap it (deps, db, migrate, seed)
+	@[ -n "$(branch)" ] || { \
+		echo "ERROR: branch is required. Usage: make worktree branch=SCRUM-69"; exit 1; }
+	@wt=".worktrees/$(branch)"; \
+	if [ -e "$$wt" ]; then \
+		echo "ERROR: $$wt already exists"; exit 1; \
+	fi; \
+	if git show-ref --verify --quiet "refs/heads/$(branch)"; then \
+		echo "Checking out existing branch $(branch) into $$wt"; \
+		git worktree add "$$wt" "$(branch)"; \
+	else \
+		echo "Creating new branch $(branch) in $$wt"; \
+		git worktree add -b "$(branch)" "$$wt"; \
+	fi
+	@cd .worktrees/$(branch) && make setup
+	@echo "Worktree ready: cd .worktrees/$(branch) && make dev"
 
 # ── Build ──────────────────────────────────────────
 .PHONY: build-workspaces
