@@ -2,150 +2,46 @@
 paths:
   - "**/Makefile"
   - "**/makefile"
+  - "**/GNUmakefile"
   - "**/*.mk"
 ---
 
-## Context
+# Makefile Standards
 
-Makefile patterns for build automation. Correct syntax, proper variables, common patterns
+## Syntax
 
-## Best Practices
+- Recipe lines must start with a tab.
+- Declare non-file targets with `.PHONY`.
+- Use `:=` for values evaluated once.
+- Use `?=` for user-overridable defaults.
+- Escape shell variables as `$$var` inside recipes.
 
-### Syntax
+## Command Surface
 
-**Recipes MUST use TAB (not spaces):**
-
-```makefile
-target: prereq
-	command    # TAB before this line
-```
-
-#### Variable Assignment
-
-```makefile
-VAR := value    # Simple (evaluate once) - PREFER
-VAR = value     # Recursive (evaluate each use)
-VAR ?= value    # Set only if undefined
-VAR += value    # Append
-```
-
-#### Automatic Variables
-
-|Var|Meaning|
-|-----|---------|
-|`$@`|Target name|
-|`$<`|First prerequisite|
-|`$^`|All prerequisites|
-|`$?`|Newer prerequisites|
+- Top-level developer Makefiles should expose `help`, `setup`, `test`, `lint`, `build`, and `clean` when relevant.
+- Use standard target names for common actions: `setup`, `install`, `dev`, `test`, `lint`, `format`, `typecheck`, `build`, `clean`, `deploy`, and `help`.
+- Use this help-target convention for top-level developer Makefiles:
 
 ```makefile
-%.o: %.c
-	$(CC) -c $< -o $@
-```
-
-### Patterns
-
-#### .PHONY Targets
-
-Always declare non-file targets:
-
-```makefile
-.PHONY: all build clean test help
-```
-
-#### Help Target (Required)
-
-```makefile
-.PHONY: help
-help: ## Show help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
-
-.DEFAULT_GOAL := help
-```
-
-#### Error Handling
-
-```makefile
-clean:
-	rm -rf build/ || true    # Continue on error
-
-deploy:
-	@[ -n "$(ENV)" ] || { echo "Error: ENV not set" >&2; exit 1; }
-	./deploy.sh $(ENV)
-```
-
-#### Multi-line Commands
-
-```makefile
-deploy:
-	docker run \
-  -e ENV=prod \
-  -v $(PWD):/app \
-  image
-```
-
-### Security
-
-```makefile
-# NEVER hardcode secrets
-ifndef API_KEY
-$(error API_KEY not set)
-endif
-
-# Use POSIX shell by default for portability (Alpine, minimal CI)
-# Switch to /bin/bash only if recipes use bash-specific syntax (arrays, [[ ]], etc.)
-SHELL := /bin/sh
-
-# Quote variables in shell
-backup:
-	tar czf "backup-$$(date +%Y%m%d).tar.gz" "$(DIR)"
-```
-
-### Template
-
-```makefile
-SHELL := /bin/sh
-.DEFAULT_GOAL := help
-
-CONFIG ?= config.yaml
-IMAGE := $(shell yq .image $(CONFIG))
-
 .PHONY: help
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: build
-build: ## Build project
-	docker build -t $(IMAGE) .
-
-.PHONY: test
-test: ## Run tests
-	pytest tests/
-
-.PHONY: clean
-clean: ## Clean artifacts
-	rm -rf build/ || true
+.DEFAULT_GOAL := help
 ```
 
-### Anti-Patterns
+- Put dangerous or environment-specific targets behind explicit variables or confirmation checks.
+- Handle expected missing files explicitly instead of masking target failures.
 
-|Wrong|Right|
-|-------|-------|
-|Spaces for indent|TAB character|
-|`VAR = $(shell ...)`|`VAR := $(shell ...)`|
-|Missing `.PHONY`|`.PHONY: clean test`|
-|`rm file` (fails)|`rm file \|\| true`|
-|Shell var `$files`|`$$files` in recipes|
+## Shell Behavior
 
-## Boundaries
+- Set `SHELL` only when recipes require a specific shell.
+- Quote variables passed into shell commands.
+- Validate required variables before deploy, publish, migration, or destructive targets.
+- Prefer small scripts when a recipe becomes complex enough to need substantial shell logic.
 
-- ✅ **Always:** TAB for recipe indentation
-- ✅ **Always:** Declare `.PHONY` for non-file targets
-- ✅ **Always:** Include `help` target
-- ✅ **Always:** `:=` for shell commands
-- ✅ **Always:** Quote variables in shell commands
-- 🚫 **Never:** Hardcode secrets
-- 🚫 **Never:** Use spaces instead of TABs
-- 🚫 **Never:** Forget `$$` for shell variables in recipes
+## Verification
+
+- Run the affected target after changing a Makefile.
+- For reusable Makefiles, verify includes and variable overrides from at least one consumer.

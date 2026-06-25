@@ -1,127 +1,86 @@
-# General Software Engineering Principles
+# Software Engineering Standards
 
-Core philosophy: **simple, maintainable, robust** code
+## Philosophy
 
-## Context
+- Build simple, explicit, maintainable systems.
+- Optimize for correctness, readability, debuggability, and safe change.
+- Solve the root problem with the smallest proper fix.
+- Keep behavior consistent with the surrounding codebase.
+- Make decisions from evidence gathered in code, tests, docs, logs, or authoritative sources.
+- Reuse established code in the codebase and mature packages for commodity problems.
+- Apply KISS, YAGNI, and DRY strictly.
+- Prefer boring, reversible decisions over clever or speculative ones.
 
-Override language-specific rules. Foundational principles all code follows.
+## Problem Solving
 
-## Best Practices
+- Reproduce or inspect the failure before changing code.
+- Identify the root cause before implementing a fix.
+- Treat symptoms, logs, and failing tests as evidence, then verify the hypothesis.
+- Implement proper fixes that remove the cause of the problem.
+- Preserve useful failure signals so future issues are diagnosable.
+- Define success criteria before larger implementation work.
 
-### Philosophies
+## Design
 
-- **Simplicity (KISS):** Clear > clever
-  - Easy to understand, reason about, debug
-  - Break complex into small, focused units
-  - Readability > novelty
-  - Abstraction only for clarity or reuse
-- **YAGNI:** Build current requirements. No speculation
-  - Solve validated problem before adding flexibility
-  - No premature generalization, plugins, extension points without demand
-  - Add complexity incrementally
-  - Reversible decisions > irreversible early
-- **DRY:** One source of truth per rule, behavior, concept
-  - No duplicated logic — diverges, becomes inconsistent
-  - Centralize shared policies, validations, domain rules
-  - Abstract related duplication only. No forced coupling
-  - Consistency of meaning > mere deduplication
+- Start from the desired behavior, constraints, and failure modes.
+- Keep modules cohesive and loosely coupled.
+- Put domain rules, validation, and business concepts in one source of truth.
+- Use explicit contracts between boundaries: API, database, UI, queues, files, and external services.
+- Add abstractions when they reduce duplicated meaning or clarify ownership.
+- Use composition and small focused units as the default design shape.
+- Give each module, function, and component one clear responsibility.
+- Keep interfaces focused on what callers actually need.
+- Depend on stable contracts at boundaries, not volatile implementation details.
 
-### SOLID
+## Consistency
 
-- **SRP:** One responsibility per module
-- **OCP:** Extend via composition/extension, not risky modification
-- **LSP:** Subtypes work wherever base types expected
-- **ISP:** Focused interfaces. No unused method dependencies
-- **DIP:** Depend on abstractions, stable contracts. Not volatile details
+- Follow existing project patterns for structure, naming, errors, logging, tests, and configuration.
+- Extend established conventions before introducing new ones.
+- Keep related code shaped the same way across the codebase.
+- Update docs, rules, generated types, schemas, and tests when behavior or contracts change.
+- Remove dead code, stale docs, unused branches, and accidental complexity while working in an area.
 
-### Problem Framing
+## Dependencies And Reuse
 
-- Start with problem + outcome before tools or patterns
-- Define constraints + success criteria before code
-- Fix root causes, not symptoms
+- Search the codebase for existing implementations before adding new code.
+- Use established internal utilities and shared components for repeated behavior.
+- Use well-maintained packages for standard problems such as parsing, validation, dates, auth, crypto, and protocol clients.
+- Before adding or upgrading external dependencies (packages, container images, GitHub Actions, Helm charts, runtimes, CLIs), verify the current stable version from an authoritative source and validate maintenance status and ecosystem fit.
 
-### Design And Architecture
+## Failure Behavior
 
-- Cohesive modules, loose coupling. No hidden cross-module deps
-- Explicit boundaries: domain logic, infrastructure, presentation
-- Composition + clear contracts > deep inheritance
+- Fail fast on invalid input, impossible states, missing configuration, and violated invariants.
+- Use explicit errors for misconfiguration, invalid state, and data issues.
+- Keep fallback behavior deliberate, observable, and tied to a real product requirement.
+- Preserve enough context in errors for debugging while keeping user-facing messages safe.
+- Keep state transitions explicit and observable.
+- Handle partial failure deliberately with retry, compensation, degradation, or safe failure.
 
-### Code Quality
+## Correctness And Safety
 
-- Meaningful names, explicit intent, predictable behavior
-- One responsibility per function/component
-- Explicit data flow > implicit side effects
+- Validate untrusted input at boundaries.
+- Keep secrets and environment-specific credentials out of source code.
+- Make operational changes reversible, observable, and scoped.
+- Treat security, privacy, and data safety as baseline requirements.
+- Use least privilege for credentials, permissions, tokens, services, and infrastructure.
 
-### Comments
+## Comments And Documentation
 
-**Default: no comment.** Code self-explanatory via naming. Comment only for *why*
+- Use names and structure to make ordinary code self-explanatory.
+- Use comments only for why: non-obvious constraints, tradeoffs, product rules, operational reasons, and edge cases.
+- Keep comments short: one line preferred, two lines maximum.
+- Write comments for future maintainers and colleagues reading the code later.
+- Write comments as durable context, not as messages to the user or reviewer.
+- Phrase comments around stable product, operational, or technical context.
+- Keep change history in git history, commit messages, pull requests, and changelogs.
+- Keep code comments focused on information a maintainer cannot infer from the code itself.
+- Use a comment when deleting it would force the reader to inspect git history or ask a teammate.
+- Keep public docs and agent-facing project instructions aligned with the code.
 
-**Litmus test:** Delete comment → reader must check git blame or ask teammate? Keep. Else delete
+## Verification
 
-- **Why:** Business constraints, edge cases, non-obvious reasons. Not what code does
-- **Tradeoffs:** Record rationale when alternatives considered or obvious approach avoided
-- **No changelog comments.** Must make sense to reader with zero change history knowledge
-- **Short.** One line ideal. Two max
-
-**Bad** — restates code or changelog:
-
-```python
-# Sort users by last login
-users.sort(key=lambda u: u.last_login)
-if user.role == Role.ADMIN:
-MAX_BATCH_SIZE = 10  # changed from 5, old too low
-await process_batch(items)  # replaced threading with asyncio
-schema.validate(payload)  # removed old validation
-```
-
-**Good** — code cannot say this:
-
-```python
-# Cold accounts first — free up batch slots
-users.sort(key=lambda u: u.last_login)
-# Admins bypass rate limiting per enterprise contract
-if user.role == Role.ADMIN:
-# Benchmarked: 10 saturates pool, no OOM
-MAX_BATCH_SIZE = 10
-await process_batch(items)
-schema.validate(payload)
-```
-
-### Correctness And Reliability
-
-- Validate assumptions at boundaries. Fail fast on bad input
-- Handle errors deliberately: detect, report, recover or fail safe
-- Explicit state transitions. No ambiguous behavior
-- Graceful degradation on partial failures
-
-### Testing And Verification
-
-- Right level: unit, integration, e2e as needed
-- Prioritize critical flows + regression-prone paths
-- Deterministic tests, aligned with real usage
-- CI = quality gate, not afterthought
-
-### Maintainability And Evolution
-
-- Remove dead code, outdated docs, accidental complexity
-- Iterative refactoring > large rewrites unless justified
-- Sync docs + contracts with behavior
-- Shared conventions for safe module movement
-
-### Security And Operability
-
-- Security, privacy, compliance = baseline
-- No hardcoded secrets. Managed config, least privilege
-- Observable: logs, metrics, actionable errors
-- Safe, repeatable, reversible operations
-
-## Boundaries
-
-- ✅ **Always:** Solve real problem before optimizing
-- ✅ **Always:** Explicit, testable, observable behavior
-- ✅ **Always:** Document decisions affecting future changes
-- ⚠️ **Ask:** Major dependencies or architectural changes
-- ⚠️ **Ask:** Irreversible or high-impact operational changes
-- 🚫 **Never:** Trade long-term maintainability for short-term convenience
-- 🚫 **Never:** Hide errors, risks, uncertainty
-- 🚫 **Never:** Compromise security, data safety, correctness for speed
+- Run the smallest relevant verification first, then broaden based on risk.
+- Add or update tests for changed behavior, bug fixes, and regression-prone paths.
+- Keep tests deterministic and behavior-focused.
+- Treat type checks, lint, formatting, tests, and CI as quality gates.
+- Report verification commands and results when finishing implementation work.

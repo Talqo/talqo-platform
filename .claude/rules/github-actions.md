@@ -2,147 +2,42 @@
 paths:
   - "**/.github/workflows/*.yml"
   - "**/.github/workflows/*.yaml"
+  - "**/action.yml"
+  - "**/action.yaml"
 ---
 
-## Context
+# GitHub Actions Standards
 
-Guidelines for building reliable GitHub Actions workflows. Security, caching, testing, deployment.
+## Workflow Defaults
 
-## Best Practices
+- Use descriptive workflow and job names.
+- Set top-level `permissions: contents: read` by default and grant additional permissions only per job when needed.
+- Use `concurrency` for deployments and single-flight workflows.
+- Pin actions to major versions at minimum; use commit SHAs for high-risk or security-sensitive workflows.
+- Use versioned action refs or commit SHAs for all actions.
 
-### Workflow Structure
+## Secrets And Identity
 
-- Descriptive `name`, specific triggers (`on: push`, `pull_request`, `workflow_dispatch`)
-- `concurrency` to prevent race conditions
-- `permissions` with least privilege (default `contents: read`)
-- `workflow_call` for reusable workflows
+- Use GitHub Secrets or environment secrets for sensitive values.
+- Prefer OIDC federation over long-lived cloud credentials.
+- Keep secrets, tokens, and raw environment dumps out of logs.
+- For `pull_request_target`, keep fork checkout and script execution separated from privileged credentials.
 
-```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      artifact_path: ${{ steps.package.outputs.path }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: package
-        run: echo "path=dist.zip" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v7
-        with:
-          name: build-artifact
-          path: ${{ steps.package.outputs.path }}
+## Build Quality
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    steps:
-      - uses: actions/download-artifact@v7
-        with:
-          name: build-artifact
-          path: dist
-```
+- Use cache keys based on lockfiles and relevant platform inputs.
+- Pin toolchain versions.
+- Keep matrix jobs focused on meaningful compatibility coverage.
+- Upload artifacts with explicit names and retention where artifacts matter.
+- Use `actions/checkout` with `fetch-depth: 1` by default. Use full history for release, changelog, version, or `git describe` workflows.
 
-### Security
+## Deployment
 
-**Permissions:**
+- Use GitHub environments for protected deployments.
+- Make deployment jobs depend on successful build/test jobs.
+- Prefer progressive rollout and clear rollback commands for production changes.
 
-```yaml
-permissions:
-  contents: read
-  pull-requests: write  # Only if needed
-```
+## Verification
 
-**Secrets:**
-
-- Store sensitive data in GitHub Secrets (`${{ secrets.SECRET_NAME }}`)
-- Use environment-specific secrets with approval gates
-- Never print secrets to logs
-
-**OIDC:**
-
-- Prefer OIDC over long-lived credentials for cloud auth (AWS, Azure, GCP)
-
-### Optimization
-
-**Caching:**
-
-```yaml
-- uses: oven-sh/setup-bun@v2
-  with:
-    bun-version: latest
-- uses: actions/cache@v5
-  with:
-    path: ~/.bun/install/cache
-    key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
-    restore-keys: ${{ runner.os }}-bun-
-```
-
-**Matrix:**
-
-```yaml
-strategy:
-  fail-fast: false
-  matrix:
-    os: [ubuntu-latest, windows-latest]
-    bun-version: [1.x]
-```
-
-**Checkout:**
-
-- `fetch-depth: 1` for shallow clones (most builds)
-- `fetch-depth: 0` only when full history needed
-
-### Testing
-
-**Services:**
-
-```yaml
-services:
-  postgres:
-    image: postgres:18
-    env:
-      POSTGRES_PASSWORD: test
-```
-
-- Unit tests on every push/PR
-- Integration tests with `services` for databases
-- E2E tests with Playwright/Cypress against staging
-- Publish results as GitHub Checks
-
-### Deployment
-
-**Environments:**
-
-```yaml
-environment:
-  name: production
-  url: https://prod.example.com
-```
-
-**Strategies:**
-
-- **Rolling:** Gradual replacement (default)
-- **Blue/Green:** Instant traffic switch, easy rollback
-- **Canary:** 5-10% rollout first, monitor before full deploy
-
-### Troubleshooting
-
-- **Not triggering:** Check `on` triggers, `branches`/`paths` filters
-- **Permission errors:** Set `permissions` explicitly, verify secrets scope
-- **Cache issues:** Use `hashFiles()` in key, add `restore-keys`
-- **Slow workflows:** Parallelize with matrix, use caching, combine commands with `&&`
-
-## Boundaries
-
-- ✅ **Always:** Pin actions to specific major version tag or commit SHA (never `@main` or `@latest`)
-- ✅ **Always:** `permissions: contents: read` by default
-- ✅ **Always:** `${{ secrets.NAME }}` for sensitive data
-- ✅ **Always:** `fetch-depth: 1` for checkout unless full history needed (semantic-release, conventional-changelog, `git describe`)
-- ✅ **Always:** `hashFiles()` for cache keys
-- ⚠️ **Ask:** Before adding self-hosted runners
-- ⚠️ **Ask:** Before adding new workflow triggers
-- 🚫 **Never:** Hardcode secrets in workflow files
-- 🚫 **Never:** Use `@main` or `@latest` for action versions
-- 🚫 **Never:** Print secrets to logs
+- Validate changed workflows with the available local or CI syntax tooling.
+- Check permissions, triggers, secrets, and fork behavior after workflow changes.
