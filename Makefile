@@ -60,13 +60,10 @@ help: ## Show this help
 
 # ── Local Development ──────────────────────────────
 .PHONY: setup
-setup: ## Ensure .env, install deps, build packages, start database, migrate and seed
+setup: ## Ensure .env, install deps, build packages (DB/migrate/seed run via make dev)
 	@[ -f .env ] || cp .env.example .env
 	bun install
 	bunx turbo build --filter=db --filter=shared
-	$(COMPOSE) --env-file=.env up -d db --wait
-	cd apps/api && bun run db:migrate
-	cd apps/api && bun run db:seed
 	@echo "Setup complete. Run 'make dev' to start development."
 
 # Process env beats Bun --env-file / compose .env, so these offset every DB/service target; e2e excluded to keep .env defaults.
@@ -116,12 +113,8 @@ db-migrate: ## Run Drizzle migrations
 db-seed: ## Seed the database
 	cd apps/api && bun run db:seed
 
-.PHONY: db-studio
-db-studio: ## Open Drizzle Studio
-	cd apps/api && bun run db:studio
-
 .PHONY: worktree
-worktree: ## Create a worktree for branch=X and bootstrap it (deps, db, migrate, seed)
+worktree: ## Create a worktree for branch=X and prepare it (deps, build)
 	@[ -n "$(branch)" ] || { \
 		echo "ERROR: branch is required. Usage: make worktree branch=SCRUM-69"; exit 1; }
 	@wt=".worktrees/$(branch)"; \
