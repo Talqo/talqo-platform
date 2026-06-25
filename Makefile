@@ -134,7 +134,7 @@ worktree: ## Create a worktree for branch=X and prepare it (deps, build)
 		echo "Creating new branch $(branch) in $$wt"; \
 		git worktree add -b "$(branch)" "$$wt"; \
 	fi
-	@cd .worktrees/$(branch) && make setup
+	@cd .worktrees/$(branch) && $(MAKE) setup
 	@echo "Worktree ready: cd .worktrees/$(branch) && make dev"
 
 # ── Build ──────────────────────────────────────────
