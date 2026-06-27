@@ -138,6 +138,19 @@ worktree: ## Create a worktree for branch=X and prepare it (deps, build)
 	@cd .worktrees/$(branch) && $(MAKE) setup
 	@echo "Worktree ready: cd .worktrees/$(branch) && make dev"
 
+.PHONY: worktree-rm
+worktree-rm: ## Remove worktree for branch=X (runs compose down first)
+	@[ -n "$(branch)" ] || { \
+		echo "ERROR: branch is required. Usage: make worktree-rm branch=SCRUM-69"; \
+		exit 1; }
+	@wt=".worktrees/$(branch)"; \
+	[ -d "$$wt" ] || { echo "ERROR: worktree $$wt not found"; exit 1; }; \
+	echo "Stopping compose services in $$wt..."; \
+	( cd "$$wt" && $(COMPOSE) down -v --remove-orphans ); \
+	echo "Removing worktree $$wt..."; \
+	git worktree remove "$$wt" --force; \
+	echo "Worktree $(branch) removed."
+
 # ── Build ──────────────────────────────────────────
 .PHONY: build-workspaces
 build-workspaces: ## Build all Bun workspaces
