@@ -7,7 +7,6 @@ export type AiServiceInput = {
 	context: string
 	wordBlacklist: string[]
 	mcpServers: McpServerConfig[]
-	contextDirectory: string
 	provider: AiProviderConfig
 	maxSteps?: number
 }

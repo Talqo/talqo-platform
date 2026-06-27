@@ -171,7 +171,6 @@ export class WidgetService {
 			context,
 			wordBlacklist: blacklistWords.map((w) => w.word),
 			mcpServers,
-			contextDirectory: "",
 			provider,
 			maxSteps: 10,
 		})
