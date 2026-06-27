@@ -1,7 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
-import { mkdir, mkdtemp, rm } from "node:fs/promises"
-import { tmpdir } from "node:os"
-import { join } from "node:path"
+import { beforeEach, describe, expect, it, mock } from "bun:test"
 import type { AiServiceInput } from "./agent.types"
 
 const mockStepCountIs = mock((_n: number) => ({ type: "stepCount" as const }))
@@ -55,7 +52,6 @@ const mockStreamText = mock((_opts: unknown) => {
 mock.module("ai", () => ({
 	streamText: mockStreamText,
 	stepCountIs: mockStepCountIs,
-	tool: (config: unknown) => config,
 }))
 
 const mockClose = mock(async () => {})
@@ -70,22 +66,15 @@ mock.module("@ai-sdk/mcp", () => ({
 
 const { streamResponse } = await import("./agent.service")
 
-let tempDir: string
 let baseInput: AiServiceInput
 
 describe("streamResponse", () => {
-	beforeEach(async () => {
-		// Create a real temp directory for context (required by realpath in createContextTools)
-		tempDir = await mkdtemp(join(tmpdir(), "agent-service-test-"))
-		const contextDir = join(tempDir, "context")
-		await mkdir(contextDir)
-
+	beforeEach(() => {
 		baseInput = {
 			userMessage: "Hello",
 			context: "You are a helpful assistant",
 			wordBlacklist: [],
 			mcpServers: [],
-			contextDirectory: contextDir,
 			provider: {
 				providerType: "openai_compatible" as const,
 				baseUrl: "https://api.example.com",
@@ -99,10 +88,6 @@ describe("streamResponse", () => {
 		mockStreamText.mockClear()
 		mockClose.mockClear()
 		mockCreateMCPClient.mockClear()
-	})
-
-	afterEach(async () => {
-		await rm(tempDir, { recursive: true, force: true })
 	})
 
 	it("returns a ReadableStream that yields token chunks", async () => {
@@ -164,21 +149,6 @@ describe("streamResponse", () => {
 		const reader = stream.getReader()
 		await reader.cancel()
 		expect(mockClose).toHaveBeenCalledTimes(1)
-	})
-
-	it("works with empty contextDirectory (returns no tools)", async () => {
-		const { stream } = await streamResponse({
-			...baseInput,
-			contextDirectory: "",
-		})
-		const reader = stream.getReader()
-		const chunks: string[] = []
-		while (true) {
-			const { value, done } = await reader.read()
-			if (done) break
-			chunks.push(value)
-		}
-		expect(chunks).toEqual(["Hello", " from", " AI"])
 	})
 
 	describe("token usage fallback", () => {

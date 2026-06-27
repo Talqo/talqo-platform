@@ -5,7 +5,6 @@ import { BlacklistError } from "@/common/errors"
 import { checkBlacklist } from "./agent.blacklist"
 import { connectMcpServers } from "./agent.mcp"
 import { createLanguageModel } from "./agent.provider"
-import { createContextTools } from "./agent.tools"
 import type { AiServiceInput, TokenUsage } from "./agent.types"
 
 function buildPromptText(
@@ -27,7 +26,6 @@ export async function streamResponse(
 	input: AiServiceInput,
 ): Promise<{ stream: ReadableStream<string>; usage: Promise<TokenUsage> }> {
 	const model = createLanguageModel(input.provider)
-	const fileTools = await createContextTools(input.contextDirectory)
 	const mcpConnection = await connectMcpServers(input.mcpServers)
 
 	const history: ModelMessage[] = input.history ?? []
@@ -36,10 +34,7 @@ export async function streamResponse(
 		model,
 		system: input.context,
 		messages: [...history, { role: "user", content: input.userMessage }],
-		tools: {
-			...fileTools,
-			...mcpConnection.tools,
-		},
+		tools: mcpConnection.tools,
 		stopWhen: stepCountIs(input.maxSteps ?? 10),
 		onFinish: () => close(),
 		onAbort: () => close(),
