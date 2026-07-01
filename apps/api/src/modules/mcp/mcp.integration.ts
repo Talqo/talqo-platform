@@ -46,6 +46,8 @@ mock.module("@/modules/agent/agent.mcp", () => ({
 		ok: true,
 		tools: ["tool-a", "tool-b"],
 	})),
+	// connectMcpServers must be included: agent.service.ts imports it from this
+	// module at app boot time even though no MCP route under test exercises it.
 	connectMcpServers: mock(async () => ({ tools: {}, close: async () => {} })),
 }))
 
@@ -193,6 +195,12 @@ describe("MCP integration tests", () => {
 			headers: { Authorization: `Bearer ${adminToken}` },
 		})
 		expect(res.status).toBe(200)
+
+		const listRes = await realApp.request("/v1/admin/mcp/pre-made", {
+			headers: { Authorization: `Bearer ${adminToken}` },
+		})
+		const list = (await listRes.json()) as Array<{ id: string }>
+		expect(list.some((s) => s.id === created.id)).toBe(false)
 	})
 
 	// ─── Client: pre-made server operations ──────────────────────────────────
@@ -242,6 +250,14 @@ describe("MCP integration tests", () => {
 			},
 		)
 		expect(res.status).toBe(200)
+
+		const enabledRes = await realApp.request(
+			"/v1/client/me/mcp/pre-made/enabled",
+			{ headers: { Authorization: `Bearer ${clientToken}` } },
+		)
+		expect(enabledRes.status).toBe(200)
+		const enabledBody = (await enabledRes.json()) as Array<{ id: string }>
+		expect(enabledBody.some((s) => s.id === server.id)).toBe(true)
 	})
 
 	it("GET /client/me/mcp/pre-made/enabled lists only enabled servers", async () => {
@@ -314,6 +330,14 @@ describe("MCP integration tests", () => {
 			},
 		)
 		expect(res.status).toBe(200)
+
+		const enabledRes = await realApp.request(
+			"/v1/client/me/mcp/pre-made/enabled",
+			{ headers: { Authorization: `Bearer ${clientToken}` } },
+		)
+		expect(enabledRes.status).toBe(200)
+		const enabledBody = (await enabledRes.json()) as Array<{ id: string }>
+		expect(enabledBody.some((s) => s.id === server.id)).toBe(false)
 	})
 
 	// ─── Client: custom server CRUD ───────────────────────────────────────────
@@ -397,6 +421,8 @@ describe("MCP integration tests", () => {
 			},
 		)
 		expect(res.status).toBe(200)
+		const body = (await res.json()) as { mcpConfig: { url: string } }
+		expect((body.mcpConfig as { url: string }).url).toBe(updatedConfig.url)
 	})
 
 	it("DELETE /client/me/mcp/custom/:serverId removes a custom server", async () => {
@@ -424,6 +450,13 @@ describe("MCP integration tests", () => {
 			},
 		)
 		expect(res.status).toBe(200)
+
+		const listRes = await realApp.request("/v1/client/me/mcp/custom", {
+			headers: { Authorization: `Bearer ${clientToken}` },
+		})
+		expect(listRes.status).toBe(200)
+		const listBody = (await listRes.json()) as unknown[]
+		expect(listBody.length).toBe(0)
 	})
 
 	// ─── Client: verify ───────────────────────────────────────────────────────
@@ -484,5 +517,17 @@ describe("MCP integration tests", () => {
 	it("GET /admin/mcp/pre-made without token returns 401", async () => {
 		const res = await realApp.request("/v1/admin/mcp/pre-made")
 		expect(res.status).toBe(401)
+	})
+
+	it("GET /admin/mcp/pre-made with client token returns 403", async () => {
+		const email = createUniqueEmail("mcp-client-test")
+		const clientToken = await registerClient(
+			email,
+			`MCP Client Test ${crypto.randomUUID()}`,
+		)
+		const res = await realApp.request("/v1/admin/mcp/pre-made", {
+			headers: { Authorization: `Bearer ${clientToken}` },
+		})
+		expect(res.status).toBe(403)
 	})
 })

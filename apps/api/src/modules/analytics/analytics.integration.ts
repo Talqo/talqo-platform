@@ -146,6 +146,7 @@ describe("Analytics integration tests", () => {
 		}
 		expect(typeof body.registeredClients).toBe("number")
 		expect(typeof body.activeClientsLast30Days).toBe("number")
+		expect(typeof body.avgSatisfactionRating).toBe("number")
 	})
 
 	it("GET /admin/analytics/tokens returns platform token usage", async () => {
@@ -177,5 +178,17 @@ describe("Analytics integration tests", () => {
 	it("GET /admin/analytics without token returns 401", async () => {
 		const res = await realApp.request("/v1/admin/analytics")
 		expect(res.status).toBe(401)
+	})
+
+	it("GET /admin/analytics with client token returns 403", async () => {
+		const email = createUniqueEmail("analytics-test")
+		const clientToken = await registerClient(
+			email,
+			`Analytics Test ${crypto.randomUUID()}`,
+		)
+		const res = await realApp.request("/v1/admin/analytics", {
+			headers: { Authorization: `Bearer ${clientToken}` },
+		})
+		expect(res.status).toBe(403)
 	})
 })

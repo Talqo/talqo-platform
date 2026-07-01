@@ -37,6 +37,11 @@ describe("Client Conversations integration tests", () => {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email, password: "password123" }),
 		})
+		if (loginRes.status !== 200) {
+			throw new Error(
+				`login failed: ${loginRes.status} ${await loginRes.text()}`,
+			)
+		}
 		const token = ((await loginRes.json()) as { token: string }).token
 		return { client, token }
 	}
