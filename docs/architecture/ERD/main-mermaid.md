@@ -21,7 +21,17 @@ erDiagram
         text system_prompt
         string default_role
         string tone_style
-        boolean internet_search_enabled
+        datetime updated_at
+    }
+
+    WIDGET_CONFIG {
+        uuid id PK
+        uuid client_id FK
+        string bot_name
+        string position
+        JSONB light_colors
+        JSONB dark_colors
+        JSONB icons
         datetime updated_at
     }
 
@@ -41,6 +51,13 @@ erDiagram
     PRE_MADE_MCP_SERVER {
         uuid id PK
         JSONB mcp_config
+        string name
+        text description
+    }
+
+    CLIENT_PRE_MADE_MCP {
+        uuid client_id FK
+        uuid pre_made_mcp_id FK
     }
 
     END_USER_SESSION {
@@ -59,10 +76,21 @@ erDiagram
         int satisfaction_rating
     }
 
+    FILE_EMBEDDING {
+        uuid id PK
+        uuid client_id FK
+        text file_path
+        int chunk_index
+        text chunk_text
+        vector embedding
+        int embedding_dimensions
+        datetime created_at
+    }
+
     MESSAGE {
         uuid id PK
         uuid conversation_id FK
-        string role
+        enum role
         text content
         int token_count
         datetime created_at
@@ -72,6 +100,7 @@ erDiagram
         uuid id PK
         uuid client_id FK
         uuid message_id FK
+        enum type
         int tokens_used
         decimal cost_usd
         datetime recorded_at
@@ -100,11 +129,17 @@ erDiagram
         enum provider_type
         text api_key_encrypted
         string model
+        string embedding_model
         text base_url
         datetime updated_at
     }
 
-    %% TODO: WIDGET_CONFIG entity is not yet defined — columns TBD
+    WIDGET_IP_RATE_LIMIT {
+        string ip PK
+        datetime window PK
+        int count
+    }
+
     PENDING_REGISTRATION {
         uuid token PK
         string name
@@ -123,19 +158,23 @@ erDiagram
     }
 
     CLIENT ||--|| BOT_CONFIG : has
+    CLIENT ||--|| WIDGET_CONFIG : configures
     CLIENT ||--o| AI_PROVIDER_CONFIG : configures
     CLIENT ||--o{ BLACKLIST_WORD : defines
     CLIENT ||--o{ CUSTOM_MCP_SERVER : configures
-    CLIENT }o--o{ PRE_MADE_MCP_SERVER : uses
+    CLIENT ||--o{ CLIENT_PRE_MADE_MCP : ""
+    PRE_MADE_MCP_SERVER ||--o{ CLIENT_PRE_MADE_MCP : ""
     CLIENT ||--o{ END_USER_SESSION : receives
     CLIENT ||--o{ USAGE_RECORD : generates
+    CLIENT ||--o{ FILE_EMBEDDING : embeds
+    CLIENT ||--o{ CONVERSATION : ""
 
     END_USER_SESSION ||--o{ CONVERSATION : contains
     CONVERSATION ||--o{ MESSAGE : includes
     MESSAGE ||--o{ USAGE_RECORD : tracks
 
     ADMIN_USER ||--o{ ADMIN_ACCESS_LOG : performs
-    CLIENT ||--o{ ADMIN_ACCESS_LOG : target
+    CLIENT o|--o{ ADMIN_ACCESS_LOG : target
     PENDING_REGISTRATION ||--o| CLIENT : becomes
     CLIENT ||--o{ PASSWORD_RESET_TOKEN : "requests (by email)"
 
