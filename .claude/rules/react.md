@@ -1,138 +1,64 @@
 ---
 paths:
   - "**/*.tsx"
-  - "**/*.ts"
   - "**/*.jsx"
-  - "**/*.js"
+  - "**/*.ts"
 ---
 
-## Context
+# React Standards
 
-Guidelines for scalable React. Functional components, hooks, composition.
+## Architecture
 
-## Best Practices
+- Use a layered UI structure: primitives, shared composed components, route screens/layouts, and shared non-React utilities.
+- Keep reusable UI outside route files in component directories.
+- Use `src/lib/` for shared non-React utilities.
+- Use composition, context providers, or URL state for cross-component coordination.
 
-### Components
+## Data And State
 
-```tsx
-// ❌ Bad: Class component, any type, native tags, inline styles
-class UserCard extends React.Component<any, any> {
-	render() {
-		return (
-			<div style={{ padding: '20px', backgroundColor: '#f0f0f0' }}>
-				<h1>{this.props.name}</h1>
-			</div>
-		)
-	}
-}
+- Use a dedicated server-state layer for fetching, caching, deduplication, invalidation, retries, and loading/error state.
+- Put shareable UI state in URL search params: filters, search terms, pagination, sorting, selected tabs, and view modes.
+- Keep local component state for ephemeral UI only: open menus, uncontrolled draft text, transient animation state.
+- Use effects for synchronization with external systems.
+- Include complete effect dependencies or restructure the code.
+- Clean up subscriptions, timers, network requests, and observers.
+- Use `AbortController` or equivalent cleanup for raw fetch effects.
 
-// ✅ Good: Functional, typed, composable, Tailwind + shadcn
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+## Forms And Validation
 
-type UserCardProps = {
-	name: string
-	role?: string
-	onAction: () => void
-}
+- Validate user input at the form boundary.
+- Use schema-backed form validation for non-trivial forms.
+- Keep validation schemas close to the form or shared with the API contract when the project has shared validation.
+- Pair each input with accessible labels, descriptions, field-level errors, and submit state.
 
-export const UserCard = ({ name, role = "User", onAction }: UserCardProps) => {
-	return (
-		<Card className="w-full max-w-sm">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-base font-semibold">{name}</CardTitle>
-			</CardHeader>
-			<CardContent className="flex items-center justify-between gap-3">
-				<p className="text-sm text-muted-foreground">{role}</p>
-				<Button type="button" variant="secondary" size="sm" onClick={onAction}>
-					View
-				</Button>
-			</CardContent>
-		</Card>
-	)
-}
-```
+## Errors And Feedback
 
-### Data Fetching
+- Surface user-visible failures through the project's shared error notification pattern.
+- Use a global toast, alert, or notification system for unexpected action and request failures.
+- Use inline field errors for validation failures.
+- Use empty states, loading states, retry actions, and partial-failure states for data views.
 
-Prefer TanStack Query for server state. Raw `useEffect` + `fetch` ok only for non-REST sources (WebSockets, SSE, browser APIs) or when query library unavailable.
+## Styling
 
-```tsx
-// ✅ Good: TanStack Query for server state
-import { useQuery } from "@tanstack/react-query"
+- Use the project's design-system primitives and theme tokens.
+- Define colors, radii, spacing, and semantic variants in the theme layer.
+- Use semantic tokens for UI intent: background, foreground, muted, primary, destructive, and border.
+- Keep component code free of one-off colors and ad hoc visual constants.
 
-const useUser = (userId: string) => {
-	return useQuery({
-		queryKey: ["user", userId],
-		queryFn: () => fetch(`/api/users/${userId}`).then((r) => r.json()),
-	})
-}
+## Accessibility And UX
 
-// ✅ Good: useEffect + AbortController when query library not appropriate
-const useUserData = (userId: string) => {
-	const [data, setData] = useState<User | null>(null)
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState<Error | null>(null)
+- Add ARIA for behavior native HTML cannot express.
+- Keep keyboard navigation, focus management, labels, and visible focus states intact.
+- Pair color with text, iconography, or structure for meaning.
+- Preserve responsive task clarity across viewport sizes.
 
-	useEffect(() => {
-		const controller = new AbortController()
-		setLoading(true)
+## Performance
 
-		const fetchData = async () => {
-			try {
-				const result = await api.getUser(userId, { signal: controller.signal })
-				setData(result)
-			} catch (err) {
-				// Ignore abort errors — intentional cleanup, not real failures
-				if (controller.signal.aborted) return
-				setError(err instanceof Error ? err : new Error(String(err)))
-			} finally {
-				if (!controller.signal.aborted) setLoading(false)
-			}
-		}
+- Use stable keys from data identity.
+- Add memoization when there is a measured render cost or a stable API contract requires it.
+- Split heavy routes, dialogs, editors, charts, and rarely used widgets.
 
-		fetchData()
-		return () => { controller.abort() }
-	}, [userId])
+## Verification
 
-	return { data, loading, error }
-}
-```
-
-### Patterns
-
-- **Compound Components:** Related functionality (e.g. `Select` + `Select.Option`)
-- **Custom Hooks:** Reusable logic (data fetching, forms)
-- **Context Provider:** Dependency injection + state sharing
-- **Container/Presentational:** Separate logic from UI when complex
-
-### Structure
-
-- `src/components/` — Reusable UI
-- `src/features/` — Domain-specific features
-- `src/hooks/` — Shared hooks
-- `src/pages/` — Route-level components
-- `src/utils/` — Helpers
-- `src/types/` — Shared TypeScript aliases
-
-### Accessibility
-
-- Semantic HTML (`<main>`, `<nav>`, `<article>`)
-- ARIA attributes for interactive elements
-- Keyboard navigation support
-- Proper color contrast
-
-## Boundaries
-
-- ✅ **Always:** Functional components with hooks
-- ✅ **Always:** Use project design system or shared UI primitives consistently
-- ✅ **Always:** Maintainable, centralized styles (no large inline style objects)
-- ✅ **Always:** Error Boundaries
-- ✅ **Always:** All dependencies in `useEffect` arrays
-- ⚠️ **Ask:** Before new test framework or tool (use RTL + Vitest or Jest per existing setup)
-- ⚠️ **Ask:** Before new dependencies
-- ⚠️ **Ask:** Before external state-management or data-fetching libraries
-- 🚫 **Never:** Class components
-- 🚫 **Never:** Direct DOM manipulation (use `useRef`)
-- 🚫 **Never:** Hardcoded hex colors/pixels — use theme tokens
-- 🚫 **Never:** Prop drilling beyond 2-3 layers
+- Run the relevant typecheck, lint, component tests, or build after meaningful UI changes.
+- Use behavior-focused tests for forms, data states, error states, and accessibility-critical interactions.

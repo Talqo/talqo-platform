@@ -1,124 +1,44 @@
 ---
 paths:
   - "**/Dockerfile"
+  - "**/Dockerfile.*"
+  - "**/.dockerignore"
   - "**/docker-compose.yml"
-  - "**/docker-compose.prod.yml"
+  - "**/docker-compose.yaml"
+  - "**/docker-compose.*.yml"
+  - "**/docker-compose.*.yaml"
+  - "**/compose.yml"
+  - "**/compose.yaml"
+  - "**/compose.*.yml"
+  - "**/compose.*.yaml"
 ---
 
-## Context
+# Docker Standards
 
-- **Immutability:** No modify running containers. Build new images for changes
-- **Efficiency:** Minimize image size and build time. Multi-stage, caching
-- **Security:** Run as non-root, scan vulns, minimal base images
-- **Portability:** Externalize config. Images run same everywhere
+## Dockerfiles
 
-## Best Practices
-### Dockerfile
+- Pin base image versions for production images.
+- Use multi-stage builds when build dependencies are not needed at runtime.
+- Copy dependency manifests before source files to preserve build cache.
+- Run final images as a non-root user. Document any required root runtime.
+- Use exec form for `CMD` and `ENTRYPOINT`.
+- Keep `.dockerignore` current and exclude VCS data, local dependencies, build output, and secrets.
 
-#### Multi-Stage Builds
+## Runtime Configuration
 
-Separate build deps from runtime
+- Externalize configuration through environment variables, mounted config, or orchestrator settings.
+- Keep secrets out of images and committed local files.
+- Add `HEALTHCHECK` for long-running service images on platforms that consume Docker health status.
 
-```dockerfile
-# ❌ Bad: Single stage, root, vague tag
-FROM oven/bun:latest
-COPY . .
-RUN bun install
-CMD bun start
+## Compose Files
 
-# ✅ Good: Multi-stage, pinned version, non-root
-# Stage 1: Build
-FROM oven/bun:1-alpine AS builder
-WORKDIR /app
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
-COPY . .
-RUN bun run build
+- Pin service image versions for shared Compose files.
+- Use named volumes for persistent local data.
+- Treat `deploy.resources` as Swarm/platform-specific behavior; document the runtime that enforces it.
+- Keep local-only overrides separate from shared compose files.
+- Use Compose `secrets` or platform-managed secrets for sensitive values.
 
-# Stage 2: Runtime
-FROM oven/bun:1-alpine AS runner
-WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/bun.lockb ./
-RUN bun install --production --frozen-lockfile
-RUN chown -R appuser:appgroup /app
-USER appuser
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health || exit 1
-CMD ["bun", "run", "dist/index.js"]
-```
+## Verification
 
-#### Layer Caching
-
-Copy lockfile + package.json before source. Maximize cache reuse.
-
-```dockerfile
-FROM oven/bun:1-alpine
-WORKDIR /app
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
-COPY . .
-CMD ["bun", "run", "server.ts"]
-```
-
-### Compose
-
-```yaml
-# ❌ Bad: Version 2, no resource limits, hardcoded secret
-version: '2'
-services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: password123
-
-# ✅ Good: Modern format, explicit versions, secrets
-services:
-  db:
-    image: postgres:18-alpine
-    restart: always
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-      - db_password
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt
-
-volumes:
-  db_data:
-```
-
-### Structure
-
-- `Dockerfile` in service root
-- `.dockerignore` next to Dockerfile
-- `docker-compose.yml` for local dev
-- `docker-compose.prod.yml` for production
-
-## Boundaries
-
-- ✅ **Always:** Multi-stage builds. Separate build + runtime
-- ✅ **Always:** Non-root user in final stage
-- ✅ **Always:** Pin base image versions (e.g. `oven/bun:1-alpine`)
-- ✅ **Always:** Maintain `.dockerignore` (exclude `.git`, `node_modules`, secrets)
-- ✅ **Always:** Exec form for `CMD`/`ENTRYPOINT` (`CMD ["bun", "run", "start"]`)
-- ✅ **Always:** `HEALTHCHECK` instruction
-- ⚠️ **Ask:** Before Alpine vs Debian/Ubuntu base
-- ⚠️ **Ask:** Before adding/dropping Linux capabilities
-- ⚠️ **Ask:** Volume strategies for stateful services
-- 🚫 **Never:** Copy secrets into images
-- 🚫 **Never:** Use `latest` tag in production
-- 🚫 **Never:** Run as root (UID 0)
-- 🚫 **Never:** Include build tools in production image
+- Build the changed image or run the relevant compose config validation.
+- Scan or review dependency and base-image updates before shipping production images.

@@ -1,127 +1,96 @@
-# General Software Engineering Principles
+# Software Engineering Standards
 
-Core philosophy: **simple, maintainable, robust** code
+It is mandatory that you adhere to these principles throughout your work.
 
-## Context
+## Philosophy
 
-Override language-specific rules. Foundational principles all code follows.
+- Build simple, explicit, maintainable systems.
+- Optimize for correctness, readability, debuggability, and safe change.
+- Solve the root problem with the smallest proper fix.
+- Keep behavior consistent with the surrounding codebase.
+- Make decisions from evidence gathered in code, tests, docs, logs, or authoritative sources.
+- Reuse established code in the codebase and mature packages for commodity problems.
+- Choose tools, abstractions, and patterns by fit, reuse, and maintenance cost. Prefer the simplest reusable option that does the job well; add specialized pieces only when their benefit outweighs the extra surface area they create.
+- Apply KISS, YAGNI, and DRY strictly.
+- Prefer boring, reversible decisions over clever or speculative ones.
 
-## Best Practices
+## Problem Solving
 
-### Philosophies
+- Reproduce or inspect the failure before changing code.
+- Identify the root cause before implementing a fix.
+- Treat symptoms, logs, and failing tests as evidence, then verify the hypothesis.
+- Implement proper fixes that remove the cause of the problem.
+- Preserve useful failure signals so future issues are diagnosable.
+- Define success criteria before larger implementation work.
 
-- **Simplicity (KISS):** Clear > clever
-  - Easy to understand, reason about, debug
-  - Break complex into small, focused units
-  - Readability > novelty
-  - Abstraction only for clarity or reuse
-- **YAGNI:** Build current requirements. No speculation
-  - Solve validated problem before adding flexibility
-  - No premature generalization, plugins, extension points without demand
-  - Add complexity incrementally
-  - Reversible decisions > irreversible early
-- **DRY:** One source of truth per rule, behavior, concept
-  - No duplicated logic — diverges, becomes inconsistent
-  - Centralize shared policies, validations, domain rules
-  - Abstract related duplication only. No forced coupling
-  - Consistency of meaning > mere deduplication
+## Design
 
-### SOLID
+- Start from the desired behavior, constraints, and failure modes.
+- Keep modules cohesive and loosely coupled.
+- Put domain rules, validation, and business concepts in one source of truth.
+- Use explicit contracts between boundaries: API, database, UI, queues, files, and external services.
+- Add abstractions when they reduce duplicated meaning or clarify ownership.
+- Use composition and small focused units as the default design shape.
+- Give each module, function, and component one clear responsibility.
+- Keep interfaces focused on what callers actually need.
+- Depend on stable contracts at boundaries, not volatile implementation details.
 
-- **SRP:** One responsibility per module
-- **OCP:** Extend via composition/extension, not risky modification
-- **LSP:** Subtypes work wherever base types expected
-- **ISP:** Focused interfaces. No unused method dependencies
-- **DIP:** Depend on abstractions, stable contracts. Not volatile details
+## Consistency
 
-### Problem Framing
+- Follow existing project patterns for structure, naming, errors, logging, tests, and configuration.
+- Extend established conventions before introducing new ones.
+- Keep related code shaped the same way across the codebase.
+- Update docs, rules, generated types, schemas, and tests when behavior or contracts change.
+- Remove dead code, stale docs, unused branches, and accidental complexity while working in an area.
 
-- Start with problem + outcome before tools or patterns
-- Define constraints + success criteria before code
-- Fix root causes, not symptoms
+## Dependencies And Reuse
 
-### Design And Architecture
+- Search the codebase for existing implementations before adding new code.
+- Use established internal utilities and shared components for repeated behavior.
+- Use well-maintained packages for standard problems such as parsing, validation, dates, auth, crypto, and protocol clients.
+- Before adding or upgrading external dependencies (packages, container images, GitHub Actions, Helm charts, runtimes, CLIs), verify the current stable version from an authoritative source and validate maintenance status and ecosystem fit.
 
-- Cohesive modules, loose coupling. No hidden cross-module deps
-- Explicit boundaries: domain logic, infrastructure, presentation
-- Composition + clear contracts > deep inheritance
+## Failure Behavior
 
-### Code Quality
+- Fail fast on invalid input, impossible states, missing configuration, and violated invariants.
+- Use explicit errors for misconfiguration, invalid state, and data issues.
+- Keep internal error messages compact: failed operation, violated invariant, and safe diagnostic value when needed.
+- For user-facing errors, name what failed and include one recovery action when the user can act.
+- Keep fallback behavior deliberate, observable, and tied to a real product requirement.
+- Put diagnostic detail in structured fields, cause chains, or logs rather than long messages.
+- Write log messages as event names plus structured fields; log state changes only when operationally useful.
+- Keep state transitions explicit and observable.
+- Handle partial failure deliberately with retry, compensation, degradation, or safe failure.
 
-- Meaningful names, explicit intent, predictable behavior
-- One responsibility per function/component
-- Explicit data flow > implicit side effects
+## Correctness And Safety
 
-### Comments
+- Validate untrusted input at boundaries.
+- Keep secrets and environment-specific credentials out of source code.
+- Make operational changes reversible, observable, and scoped.
+- Treat security, privacy, and data safety as baseline requirements.
+- Use least privilege for credentials, permissions, tokens, services, and infrastructure.
 
-**Default: no comment.** Code self-explanatory via naming. Comment only for *why*
+## Text Economy
 
-**Litmus test:** Delete comment → reader must check git blame or ask teammate? Keep. Else delete
+- Use the fewest words that preserve correctness, intent, and useful context.
+- Let names, types, signatures, structured fields, stack traces, and nearby code carry self-evident context.
+- Prefer precise nouns and verbs over boilerplate, narration, reviewer notes, and status commentary.
 
-- **Why:** Business constraints, edge cases, non-obvious reasons. Not what code does
-- **Tradeoffs:** Record rationale when alternatives considered or obvious approach avoided
-- **No changelog comments.** Must make sense to reader with zero change history knowledge
-- **Short.** One line ideal. Two max
+## Comments And Documentation
 
-**Bad** — restates code or changelog:
+- Make ordinary code self-explanatory through names and structure; improve unclear code before explaining it with comments.
+- Write comments and docstrings only for durable context: non-obvious constraints, tradeoffs, product rules, operational reasons, invariants, failure modes, and edge cases.
+- Keep comments short: one line preferred, two lines maximum; phrase them around stable product, operational, or technical context.
+- Reserve parameter, return, field, and control-flow descriptions for non-obvious contracts.
+- Keep docs task-oriented and dense: purpose, constraints, commands, decisions, and gotchas.
+- Keep change history in git history, commit messages, pull requests, and changelogs.
+- Use a comment when deleting it would force the reader to inspect git history or ask a teammate.
+- Keep public docs and agent-facing project instructions aligned with the code.
 
-```python
-# Sort users by last login
-users.sort(key=lambda u: u.last_login)
-if user.role == Role.ADMIN:
-MAX_BATCH_SIZE = 10  # changed from 5, old too low
-await process_batch(items)  # replaced threading with asyncio
-schema.validate(payload)  # removed old validation
-```
+## Verification
 
-**Good** — code cannot say this:
-
-```python
-# Cold accounts first — free up batch slots
-users.sort(key=lambda u: u.last_login)
-# Admins bypass rate limiting per enterprise contract
-if user.role == Role.ADMIN:
-# Benchmarked: 10 saturates pool, no OOM
-MAX_BATCH_SIZE = 10
-await process_batch(items)
-schema.validate(payload)
-```
-
-### Correctness And Reliability
-
-- Validate assumptions at boundaries. Fail fast on bad input
-- Handle errors deliberately: detect, report, recover or fail safe
-- Explicit state transitions. No ambiguous behavior
-- Graceful degradation on partial failures
-
-### Testing And Verification
-
-- Right level: unit, integration, e2e as needed
-- Prioritize critical flows + regression-prone paths
-- Deterministic tests, aligned with real usage
-- CI = quality gate, not afterthought
-
-### Maintainability And Evolution
-
-- Remove dead code, outdated docs, accidental complexity
-- Iterative refactoring > large rewrites unless justified
-- Sync docs + contracts with behavior
-- Shared conventions for safe module movement
-
-### Security And Operability
-
-- Security, privacy, compliance = baseline
-- No hardcoded secrets. Managed config, least privilege
-- Observable: logs, metrics, actionable errors
-- Safe, repeatable, reversible operations
-
-## Boundaries
-
-- ✅ **Always:** Solve real problem before optimizing
-- ✅ **Always:** Explicit, testable, observable behavior
-- ✅ **Always:** Document decisions affecting future changes
-- ⚠️ **Ask:** Major dependencies or architectural changes
-- ⚠️ **Ask:** Irreversible or high-impact operational changes
-- 🚫 **Never:** Trade long-term maintainability for short-term convenience
-- 🚫 **Never:** Hide errors, risks, uncertainty
-- 🚫 **Never:** Compromise security, data safety, correctness for speed
+- Run the smallest relevant verification first, then broaden based on risk.
+- Add or update tests for changed behavior, bug fixes, and regression-prone paths.
+- Keep tests deterministic and behavior-focused.
+- Treat type checks, lint, formatting, tests, and CI as quality gates.
+- Report verification commands and results when finishing implementation work.
