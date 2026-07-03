@@ -7,14 +7,12 @@ paths:
 
 ## Philosophy
 
-- Capture engineering taste as reusable standards across projects.
-- Favor current industry standards and strong defaults over project-by-project improvisation.
-- Preserve strict consistency inside a project and useful consistency across projects.
-- Keep rules opinionated when the opinion prevents low-quality, unsafe, or inconsistent code.
-- Write preferred tools, patterns, conventions, and result shapes.
-- Assume the agent already knows the technology syntax and concepts.
-- Focus on choices that change implementation quality beyond generic syntax or framework knowledge.
-- Include exact snippets only when they define a required convention or canonical project shape.
+- Write reusable standards that change code, commands, review findings, or documentation.
+- Favor current industry standards, strong defaults, and strict project consistency.
+- State preferred tools, patterns, conventions, outputs, and exceptions.
+- Assume the agent already knows technology syntax and concepts.
+- Capture the philosophy behind the rule that the agent should follow.
+- Include snippets only for required conventions or canonical project shapes.
 
 ## Scope
 
@@ -23,6 +21,7 @@ paths:
 
 ## Style
 
-- Use concise sections and direct language.
-- Use concrete technical language instead of vague agent-speak.
-- Use contrast examples only when the contrast defines the standard.
+- Use concise sections, direct language, and concrete technical terms.
+- State the desired agent behavior.
+- For common mistakes, state the replacement behavior.
+- Merge related bullet points into one more specific rule.
