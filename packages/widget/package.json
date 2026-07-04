@@ -9,6 +9,7 @@
 		"dev:spa": "vite --mode development",
 		"dev:bundle": "concurrently \"tsgo --watch\" \"vite build --watch --emptyOutDir=false\" \"vite preview --strictPort\"",
 		"build": "tsgo && vite build --mode production",
+		"build:e2e": "tsgo && vite build --mode production && cp demo.html dist/index.html",
 		"build:watch": "vite build --watch --mode production",
 		"preview": "vite preview --strictPort",
 		"lint": "biome lint .",

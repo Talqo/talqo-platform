@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
-import { fillAndSubmitLogin, SEEDED_USERS } from "@/helpers/auth"
+import { ADMIN_AUTH_FILE } from "@/helpers/auth"
+
+test.use({ storageState: ADMIN_AUTH_FILE })
 
 test.describe("Admin suspend and re-enable client", () => {
 	test.afterEach(async ({ page }) => {
@@ -29,12 +31,7 @@ test.describe("Admin suspend and re-enable client", () => {
 	test("admin suspends and re-enables a client from the backoffice", async ({
 		page,
 	}) => {
-		await fillAndSubmitLogin(
-			page,
-			SEEDED_USERS.admin.email,
-			SEEDED_USERS.admin.password,
-		)
-		await expect(page).toHaveURL(/\/backoffice/)
+		await page.goto("/backoffice")
 
 		// Find the active client row (TechStartup) — NOT Acme Corp,
 		// because Acme Corp is used concurrently by client dashboard tests.

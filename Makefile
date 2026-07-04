@@ -10,6 +10,8 @@ API_IMAGE := ghcr.io/$(GHCR_USER)/talqo-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/talqo-web
 VITE_API_URL ?= http://localhost:3000/v1
 E2E_PORT     ?= 4173
+# Fixed by packages/widget/package.json's preview script (--port 5174 --strictPort)
+WIDGET_E2E_PORT := 5174
 # Rancher project ID — namespaces must be annotated with this to appear in the right project
 RANCHER_PROJECT_ID := c-m-qvndqhf6:p-8rjpv
 
@@ -219,21 +221,46 @@ test: ## Run all unit tests (excludes e2e tests)
 
 .PHONY: e2e
 e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
+	@for target in "3000:/health" "$(E2E_PORT):" "$(WIDGET_E2E_PORT):"; do \
+		port="$${target%%:*}"; path="$${target#*:}"; \
+		if curl -sf "http://localhost:$$port$$path" >/dev/null 2>&1; then \
+			echo "ERROR: something is already listening on port $$port — a previous make e2e run may not have been cleaned up (its API/web/widget server keeps running and silently absorbs this run instead of a fresh one starting)."; \
+			echo "  Find and stop it: lsof -ti:$$port | xargs kill"; \
+			exit 1; \
+		fi; \
+	done
 	$(COMPOSE) --env-file=.env.example down -v
 	$(COMPOSE) --env-file=.env.example up -d db --wait
 	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db
+	cd packages/widget && VITE_API_URL=$(VITE_API_URL) bun run build:e2e
 	bun --env-file=.env.example packages/db/migrate.ts
-	bun --env-file=.env.example apps/api/src/db/seed.ts
-	@PIDS=""; \
-	APP_URL=http://localhost:$(E2E_PORT) ALLOWED_ORIGINS=http://localhost:$(E2E_PORT) bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
-	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
-	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
-		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
-	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
-		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
+	cd apps/api && bun --env-file=../../.env.example src/db/seed.ts
+	@wait_for() { \
+		i=0; \
+		until curl -sf "$$1" >/dev/null 2>&1; do \
+			i=$$((i + 1)); \
+			[ $$i -ge 30 ] && return 1; \
+			sleep 2; \
+		done; \
+	}; \
+	stop_servers() { \
+		p=$$(lsof -ti :3000,:$(E2E_PORT),:$(WIDGET_E2E_PORT) 2>/dev/null); \
+		[ -n "$$p" ] && kill -9 $$p 2>/dev/null; \
+		true; \
+	}; \
+	(cd apps/api && APP_URL=http://localhost:$(E2E_PORT) ALLOWED_ORIGINS=http://localhost:$(E2E_PORT) bun --env-file=../../.env.example src/index.ts) & \
+	(cd apps/web && bun run preview -- --port $(E2E_PORT) --strictPort) & \
+	(cd packages/widget && bun run preview) & \
+	wait_for http://localhost:3000/health \
+		|| { stop_servers; echo "ERROR: API failed to start"; exit 1; }; \
+	wait_for http://localhost:$(E2E_PORT) \
+		|| { stop_servers; echo "ERROR: Web preview failed to start"; exit 1; }; \
+	wait_for http://localhost:$(WIDGET_E2E_PORT) \
+		|| { stop_servers; echo "ERROR: Widget preview failed to start"; exit 1; }; \
 	export BASE_URL=http://localhost:$(E2E_PORT); \
-	cd apps/e2e && bun run test:run; STATUS=$$?; \
-	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
+	export WIDGET_URL=http://localhost:$(WIDGET_E2E_PORT); \
+	(cd apps/e2e && bun run test:run); STATUS=$$?; \
+	stop_servers; \
 	exit $$STATUS
 
 .PHONY: lint

@@ -6,6 +6,10 @@ export const SEEDED_USERS = {
 	admin: { email: "admin@talqo.dev", password: "admin123" },
 } as const
 
+/** Saved sessions from tests/auth.setup.ts, reused via test.use({ storageState }) */
+export const CLIENT_AUTH_FILE = "tests/.auth/client.json"
+export const ADMIN_AUTH_FILE = "tests/.auth/admin.json"
+
 /**
  * Navigate directly to /login, fill in credentials, and submit.
  * Does not assert the outcome — callers decide what to expect.
