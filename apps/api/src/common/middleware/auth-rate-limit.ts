@@ -1,6 +1,7 @@
 import { isIP } from "node:net"
 import type { MiddlewareHandler } from "hono"
 import { getConnInfo } from "hono/bun"
+import { config } from "@/common/config"
 import { TooManyRequestsError } from "@/common/errors"
 import { isPrivateIp, trustedProxies } from "@/common/ip"
 
@@ -66,4 +67,7 @@ export function createAuthRateLimit(
 	}
 }
 
-export const authRateLimit = createAuthRateLimit(20, 15 * 60 * 1000)
+export const authRateLimit = createAuthRateLimit(
+	config.AUTH_RATE_LIMIT_MAX_ATTEMPTS,
+	config.AUTH_RATE_LIMIT_WINDOW_MINUTES * 60 * 1000,
+)

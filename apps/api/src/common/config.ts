@@ -42,6 +42,17 @@ const envSchema = z
 			),
 		// Widget rate limiting — max messages per IP per hour
 		WIDGET_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(60),
+		// Auth rate limiting — max login/forgot-password/resend attempts per IP per window
+		AUTH_RATE_LIMIT_MAX_ATTEMPTS: z.coerce
+			.number()
+			.int()
+			.positive()
+			.default(20),
+		AUTH_RATE_LIMIT_WINDOW_MINUTES: z.coerce
+			.number()
+			.int()
+			.positive()
+			.default(15),
 		// Max messages per conversation before the user must start a new one
 		WIDGET_CONVERSATION_MAX_MESSAGES: z.coerce
 			.number()
@@ -120,6 +131,8 @@ const testDefaults = isTest
 				"0000000000000000000000000000000000000000000000000000000000000000",
 			WIDGET_RATE_LIMIT_PER_HOUR: 60,
 			WIDGET_CONVERSATION_MAX_MESSAGES: 50,
+			AUTH_RATE_LIMIT_MAX_ATTEMPTS: 20,
+			AUTH_RATE_LIMIT_WINDOW_MINUTES: 15,
 		}
 	: {}
 
