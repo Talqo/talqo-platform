@@ -32,6 +32,10 @@ test.describe("Client billing", () => {
 			await fillAddFundsForm(page, "10001")
 
 			await expect(page).toHaveURL(/\/dashboard\/add-funds/)
+			// addFundsBodySchema's amount field has no custom message, and the
+			// built app renders zod's generic fallback text here rather than a
+			// field-specific message — this is the actual rejection state shown.
+			await expect(page.getByText("Invalid input")).toBeVisible()
 			await expect(
 				page.getByText("Funds added successfully!", { exact: false }),
 			).not.toBeVisible()
@@ -41,6 +45,7 @@ test.describe("Client billing", () => {
 			await fillAddFundsForm(page, "-5")
 
 			await expect(page).toHaveURL(/\/dashboard\/add-funds/)
+			await expect(page.getByText("Invalid input")).toBeVisible()
 			await expect(
 				page.getByText("Funds added successfully!", { exact: false }),
 			).not.toBeVisible()
