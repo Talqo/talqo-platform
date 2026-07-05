@@ -59,31 +59,29 @@ test.describe("Client billing", () => {
 			test.afterEach(async ({ page }) => {
 				// Restore the seeded baseline (limit=$50, alert threshold=$40 i.e.
 				// enabled) so this suite is idempotent across repeated runs.
-				try {
-					await page.goto("/dashboard/settings?tab=billing")
-					await expect(
-						page.getByRole("heading", { name: "Usage & Limits" }),
-					).toBeVisible()
-					await page.getByLabel("Monthly Limit (USD)").fill("50")
-					const usageAlertsSwitch = page.getByRole("switch", {
-						name: "Usage Alerts",
-					})
-					if (!(await usageAlertsSwitch.isChecked())) {
-						await usageAlertsSwitch.click({ force: true })
-					}
-					await Promise.all([
-						page.waitForResponse(
-							(res) =>
-								res.url().includes("/client/me/usage-limit") &&
-								res.request().method() === "PATCH",
-						),
-						page.getByRole("button", { name: "Save Settings" }).click({
-							force: true,
-						}),
-					])
-				} catch {
-					// best-effort cleanup
+				// Not wrapped in try/catch — a failed restore corrupts the shared
+				// Acme Corp baseline for every later run, so this must fail loudly.
+				await page.goto("/dashboard/settings?tab=billing")
+				await expect(
+					page.getByRole("heading", { name: "Usage & Limits" }),
+				).toBeVisible()
+				await page.getByLabel("Monthly Limit (USD)").fill("50")
+				const usageAlertsSwitch = page.getByRole("switch", {
+					name: "Usage Alerts",
+				})
+				if (!(await usageAlertsSwitch.isChecked())) {
+					await usageAlertsSwitch.click({ force: true })
 				}
+				await Promise.all([
+					page.waitForResponse(
+						(res) =>
+							res.url().includes("/client/me/usage-limit") &&
+							res.request().method() === "PATCH",
+					),
+					page.getByRole("button", { name: "Save Settings" }).click({
+						force: true,
+					}),
+				])
 			})
 
 			test("updates monthly usage limit and usage alert, persisted across reload", async ({
