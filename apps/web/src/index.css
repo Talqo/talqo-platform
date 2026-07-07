@@ -89,8 +89,8 @@
 	--card-foreground: #fafafa;
 	--popover: #18181b;
 	--popover-foreground: #fafafa;
-	--primary: #15803d;
-	--primary-foreground: #ffffff;
+	--primary: #22c55e;
+	--primary-foreground: #052e16;
 	--secondary: #27272a;
 	--secondary-foreground: #fafafa;
 	--muted: #27272a;
@@ -101,7 +101,7 @@
 	--destructive-foreground: #fecaca;
 	--border: #27272a;
 	--input: #27272a;
-	--ring: #15803d;
+	--ring: #22c55e;
 	--landing-use-case-shop-bg: #9f6b00;
 	--landing-use-case-shop-fg: #fff7d6;
 	--landing-use-case-saas-bg: #075985;
@@ -110,8 +110,8 @@
 	--landing-use-case-services-fg: #ffe4ec;
 	--sidebar: #18181b;
 	--sidebar-foreground: #fafafa;
-	--sidebar-primary: #15803d;
-	--sidebar-primary-foreground: #ffffff;
+	--sidebar-primary: #22c55e;
+	--sidebar-primary-foreground: #052e16;
 	--sidebar-accent: #27272a;
 	--sidebar-accent-foreground: #fafafa;
 	--sidebar-border: #27272a;
