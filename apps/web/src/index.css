@@ -66,6 +66,12 @@
 	--chart-3: #4ade80;
 	--chart-4: #86efac;
 	--chart-5: #bbf7d0;
+	--landing-use-case-shop-bg: #f7c948;
+	--landing-use-case-shop-fg: #201200;
+	--landing-use-case-saas-bg: #9ddcff;
+	--landing-use-case-saas-fg: #061923;
+	--landing-use-case-services-bg: #f6b6c8;
+	--landing-use-case-services-fg: #2a0711;
 	--sidebar: #f8fafc;
 	--sidebar-foreground: #0f172a;
 	--sidebar-primary: #16a34a;
@@ -96,6 +102,12 @@
 	--border: #27272a;
 	--input: #27272a;
 	--ring: #16a34a;
+	--landing-use-case-shop-bg: #9f6b00;
+	--landing-use-case-shop-fg: #fff7d6;
+	--landing-use-case-saas-bg: #075985;
+	--landing-use-case-saas-fg: #e0f7ff;
+	--landing-use-case-services-bg: #9f1239;
+	--landing-use-case-services-fg: #ffe4ec;
 	--sidebar: #18181b;
 	--sidebar-foreground: #fafafa;
 	--sidebar-primary: #16a34a;

@@ -69,7 +69,8 @@ export const getUseCases = (t: (key: string) => string): UseCase[] => [
 		label: t("landing.useCases.shop.label"),
 		question: t("landing.useCases.shop.question"),
 		answer: t("landing.useCases.shop.answer"),
-		accent: "bg-secondary text-secondary-foreground",
+		accent:
+			"bg-[var(--landing-use-case-shop-bg)] text-[var(--landing-use-case-shop-fg)]",
 	},
 	{
 		id: "saas",
@@ -77,7 +78,8 @@ export const getUseCases = (t: (key: string) => string): UseCase[] => [
 		label: t("landing.useCases.saas.label"),
 		question: t("landing.useCases.saas.question"),
 		answer: t("landing.useCases.saas.answer"),
-		accent: "bg-accent text-accent-foreground",
+		accent:
+			"bg-[var(--landing-use-case-saas-bg)] text-[var(--landing-use-case-saas-fg)]",
 	},
 	{
 		id: "services",
@@ -85,7 +87,8 @@ export const getUseCases = (t: (key: string) => string): UseCase[] => [
 		label: t("landing.useCases.services.label"),
 		question: t("landing.useCases.services.question"),
 		answer: t("landing.useCases.services.answer"),
-		accent: "bg-primary/10 text-foreground",
+		accent:
+			"bg-[var(--landing-use-case-services-bg)] text-[var(--landing-use-case-services-fg)]",
 	},
 ]
 
