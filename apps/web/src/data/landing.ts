@@ -36,6 +36,11 @@ export type Capability = {
 	label: string
 }
 
+export type EmbedCodeLine = {
+	content: string
+	highlight?: boolean
+}
+
 export const getLandingSteps = (t: (key: string) => string): LandingStep[] => [
 	{
 		id: "configure",
@@ -64,7 +69,7 @@ export const getUseCases = (t: (key: string) => string): UseCase[] => [
 		label: t("landing.useCases.shop.label"),
 		question: t("landing.useCases.shop.question"),
 		answer: t("landing.useCases.shop.answer"),
-		accent: "bg-[#f7c948] text-[#201200] dark:bg-[#9f6b00] dark:text-[#fff7d6]",
+		accent: "bg-secondary text-secondary-foreground",
 	},
 	{
 		id: "saas",
@@ -72,7 +77,7 @@ export const getUseCases = (t: (key: string) => string): UseCase[] => [
 		label: t("landing.useCases.saas.label"),
 		question: t("landing.useCases.saas.question"),
 		answer: t("landing.useCases.saas.answer"),
-		accent: "bg-[#9ddcff] text-[#061923] dark:bg-[#075985] dark:text-[#e0f7ff]",
+		accent: "bg-accent text-accent-foreground",
 	},
 	{
 		id: "services",
@@ -80,7 +85,7 @@ export const getUseCases = (t: (key: string) => string): UseCase[] => [
 		label: t("landing.useCases.services.label"),
 		question: t("landing.useCases.services.question"),
 		answer: t("landing.useCases.services.answer"),
-		accent: "bg-[#f6b6c8] text-[#2a0711] dark:bg-[#9f1239] dark:text-[#ffe4ec]",
+		accent: "bg-primary/10 text-foreground",
 	},
 ]
 
@@ -117,9 +122,12 @@ export const getCapabilities = (t: (key: string) => string): Capability[] => [
 	},
 ]
 
-export const getEmbedCodeLines = (scriptUrl: string): string[] => [
-	"<script>",
-	'  window.__TALQO__ = { token: "your-widget-token" };',
-	"</script>",
-	`<script async defer src="${scriptUrl}"></script>`,
+export const getEmbedCodeLines = (scriptUrl: string): EmbedCodeLine[] => [
+	{ content: "<script>" },
+	{
+		content: '  window.__TALQO__ = { token: "your-widget-token" };',
+		highlight: true,
+	},
+	{ content: "</script>" },
+	{ content: `<script async defer src="${scriptUrl}"></script>` },
 ]

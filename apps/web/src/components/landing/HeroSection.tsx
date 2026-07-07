@@ -3,18 +3,7 @@ import { Bot, CornerDownRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { getEmbedCodeLines } from "@/data/landing"
-
-const getWidgetBundleUrl = () => {
-	if (import.meta.env.VITE_WIDGET_BUNDLE_URL) {
-		return import.meta.env.VITE_WIDGET_BUNDLE_URL
-	}
-
-	if (import.meta.env.DEV) {
-		return "http://localhost:5174/widget-bundle.js"
-	}
-
-	return `${window.location.origin}/widget-bundle.js`
-}
+import { getWidgetBundleUrl } from "@/lib/widget-bundle-url"
 
 export function HeroSection() {
 	const { t } = useTranslation()
@@ -84,12 +73,14 @@ export function HeroSection() {
 
 							<pre className="overflow-x-auto rounded-2xl border border-border bg-muted p-4 text-left text-muted-foreground text-sm leading-7 shadow-inner">
 								<code>
-									{embedCodeLines.map((line, index) => (
+									{embedCodeLines.map((line) => (
 										<span
-											className={index === 1 ? "block text-primary" : "block"}
-											key={line}
+											className={
+												line.highlight ? "block text-primary" : "block"
+											}
+											key={line.content}
 										>
-											{line}
+											{line.content}
 										</span>
 									))}
 								</code>
@@ -118,7 +109,9 @@ export function HeroSection() {
 											<div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
 												<Bot className="h-4 w-4" aria-hidden="true" />
 											</div>
-											<span className="font-bold text-sm">Talqo</span>
+											<span className="font-bold text-sm">
+												{t("common.talqo")}
+											</span>
 										</div>
 										<p className="rounded-2xl bg-muted p-3 text-muted-foreground text-sm">
 											{t("landing.heroSection.widgetMessage")}
