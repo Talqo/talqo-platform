@@ -48,7 +48,7 @@
 	--card-foreground: #09090b;
 	--popover: #ffffff;
 	--popover-foreground: #09090b;
-	--primary: #16a34a;
+	--primary: #15803d;
 	--primary-foreground: #ffffff;
 	--secondary: #f0fdf4;
 	--secondary-foreground: #166534;
@@ -60,8 +60,8 @@
 	--destructive-foreground: #ffffff;
 	--border: #e4e4e7;
 	--input: #e4e4e7;
-	--ring: #16a34a;
-	--chart-1: #16a34a;
+	--ring: #15803d;
+	--chart-1: #15803d;
 	--chart-2: #22c55e;
 	--chart-3: #4ade80;
 	--chart-4: #86efac;
@@ -74,7 +74,7 @@
 	--landing-use-case-services-fg: #2a0711;
 	--sidebar: #f8fafc;
 	--sidebar-foreground: #0f172a;
-	--sidebar-primary: #16a34a;
+	--sidebar-primary: #15803d;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #f1f5f9;
 	--sidebar-accent-foreground: #0f172a;
@@ -89,7 +89,7 @@
 	--card-foreground: #fafafa;
 	--popover: #18181b;
 	--popover-foreground: #fafafa;
-	--primary: #16a34a;
+	--primary: #15803d;
 	--primary-foreground: #ffffff;
 	--secondary: #27272a;
 	--secondary-foreground: #fafafa;
@@ -101,7 +101,7 @@
 	--destructive-foreground: #fecaca;
 	--border: #27272a;
 	--input: #27272a;
-	--ring: #16a34a;
+	--ring: #15803d;
 	--landing-use-case-shop-bg: #9f6b00;
 	--landing-use-case-shop-fg: #fff7d6;
 	--landing-use-case-saas-bg: #075985;
@@ -110,7 +110,7 @@
 	--landing-use-case-services-fg: #ffe4ec;
 	--sidebar: #18181b;
 	--sidebar-foreground: #fafafa;
-	--sidebar-primary: #16a34a;
+	--sidebar-primary: #15803d;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #27272a;
 	--sidebar-accent-foreground: #fafafa;
