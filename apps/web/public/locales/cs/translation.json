@@ -81,7 +81,6 @@
 	"name": "Jméno",
 	"copy": "Kopírovat",
 	"copied": "Zkopírováno!",
-	"failed": "Chyba!",
 	"loading": "Načítání...",
 	"save": "Uložit",
 	"submit": "Odeslat",
@@ -582,11 +581,16 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "Vložte plně přizpůsobitelný, kontextově aware AI chatbot přímo na váš web. Připojte vlastní znalostní báze a umožněte zákazníkům okamžitě najít odpovědi.",
+			"description": "Přidejte na svůj web AI chat widget. Připojte znalostní báze a pomozte zákazníkům rychle najít odpovědi.",
 			"startForFree": "Začněte zdarma",
 			"viewDocumentation": "Zobrazit dokumentaci",
 			"line1": "Inteligentní chatovací widget",
-			"line2": "pro vaše podnikání."
+			"line2": "pro vaše podnikání.",
+			"tryLive": "Vyzkoušejte ho v rohu",
+			"embedFile": "index.html",
+			"previewSite": "Váš web",
+			"live": "Živě",
+			"widgetMessage": "Dobrý den — odpovím z vašich dokumentů, nástrojů a pravidel."
 		},
 		"header": {
 			"switchToLightTheme": "Přepnout na světlý motiv",
@@ -596,15 +600,48 @@
 		"footer": {
 			"copyright": "Talqo. Všechna práva vyhrazena."
 		},
-		"features": {
-			"speedTitle": "Bleskově rychlé",
-			"speedDescription": "Okamžité odpovědi poháněné pokročilými AI modely. Udržujte uživatele zapojené bez čekání.",
-			"customizableTitle": "Přizpůsobitelný kontext",
-			"customizableDescription": "Připojte MCP zdroje, definujte vlastní pravidla a omezte terminologii tak, aby odpovídala vaší značce.",
-			"embedTitle": "Vložit kamkoli",
-			"embedDescription": "Jednoduché React a JS embed kódy. Nasaďte widget během minut.",
-			"switchToLightTheme": "Přepnout na světlý motiv",
-			"switchToDarkTheme": "Přepnout na tmavý motiv"
+		"steps": {
+			"configure": "Nastavit",
+			"configureDescription": "V dashboardu nastavte název bota, barvy a zdroje znalostí.",
+			"paste": "Vložit",
+			"pasteDescription": "Vložte vygenerovaný snippet do HTML vaší stránky.",
+			"launch": "Spustit",
+			"launchDescription": "Uložte stránku. Widget se zobrazí a je připraven pro návštěvníky."
+		},
+		"useCases": {
+			"eyebrow": "Použití",
+			"title": "Odpovědi pro podporu, dokumentaci a rezervace.",
+			"shop": {
+				"label": "E-shop",
+				"question": "Kde je moje objednávka?",
+				"answer": "Stav nalezen. Doručení je zítra."
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "Jak připojím API?",
+				"answer": "Tady je postup z vaší dokumentace."
+			},
+			"services": {
+				"label": "Služby",
+				"question": "Mohu si rezervovat úterý?",
+				"answer": "V úterý jsou dva volné termíny."
+			}
+		},
+		"capabilities": {
+			"eyebrow": "Pro skutečné weby",
+			"title": "Snadná instalace. Připraveno pro každodenní podporu.",
+			"knowledgeBase": "Znalostní báze",
+			"mcpTools": "MCP nástroje",
+			"brandColors": "Barvy značky",
+			"rateLimits": "Limity provozu",
+			"analytics": "Analytika",
+			"anyWebsite": "Jakýkoli web"
+		},
+		"finalCta": {
+			"title": "Chcete přidat Talqo?",
+			"description": "Vytvořte widget, vložte snippet a nechte návštěvníky začít pokládat otázky.",
+			"startFree": "Začněte zdarma",
+			"viewDocs": "Zobrazit dokumentaci"
 		}
 	},
 	"adminStats": {
@@ -641,6 +678,7 @@
 		"clear": "Vymazat",
 		"copy": "Kopírovat",
 		"copied": "Zkopírováno!",
+		"failed": "Chyba!",
 		"submit": "Odeslat",
 		"remove": "Odstranit",
 		"regenerate": "Znovu vygenerovat",

@@ -81,7 +81,6 @@
 	"name": "姓名",
 	"copy": "复制",
 	"copied": "已复制！",
-	"failed": "失败！",
 	"loading": "加载中...",
 	"save": "保存",
 	"submit": "提交",
@@ -582,11 +581,16 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "将完全可定制、具备上下文感知能力的 AI 聊天机器人直接嵌入您的网站。连接您自己的知识库，让客户即时找到答案。",
+			"description": "将 AI 聊天小部件添加到您的网站。连接知识库，帮助客户即时找到答案。",
 			"startForFree": "免费开始",
 			"viewDocumentation": "查看文档",
 			"line1": "智能聊天小部件",
-			"line2": "为您的业务而生。"
+			"line2": "为您的业务而生。",
+			"tryLive": "在右下角试用",
+			"embedFile": "index.html",
+			"previewSite": "您的网站",
+			"live": "在线",
+			"widgetMessage": "您好——我可以根据您的文档、工具和规则回答。"
 		},
 		"header": {
 			"switchToLightTheme": "切换到浅色主题",
@@ -596,15 +600,48 @@
 		"footer": {
 			"copyright": "Talqo。保留所有权利。"
 		},
-		"features": {
-			"speedTitle": "闪电般快速",
-			"speedDescription": "由先进的 AI 模型驱动的即时响应。让您的用户无需等待即可保持参与。",
-			"customizableTitle": "可定制的上下文",
-			"customizableDescription": "连接 MCP 源，定义自定义规则，并限制术语以适合您的品牌。",
-			"embedTitle": "随处嵌入",
-			"embedDescription": "简单的 React 和 JS 嵌入代码。几分钟内即可启动并运行您的小部件。",
-			"switchToLightTheme": "切换到浅色主题",
-			"switchToDarkTheme": "切换到深色主题"
+		"steps": {
+			"configure": "配置",
+			"configureDescription": "在仪表盘设置机器人名称、颜色和知识来源。",
+			"paste": "粘贴",
+			"pasteDescription": "将生成的代码片段粘贴到您的页面 HTML 中。",
+			"launch": "上线",
+			"launchDescription": "保存页面。小部件会出现并准备好接待访客。"
+		},
+		"useCases": {
+			"eyebrow": "使用场景",
+			"title": "用于支持、文档和预约的答案。",
+			"shop": {
+				"label": "商店",
+				"question": "我的订单在哪里？",
+				"answer": "已找到订单状态。明天送达。"
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "如何连接 API？",
+				"answer": "这是来自您文档的设置路径。"
+			},
+			"services": {
+				"label": "服务",
+				"question": "我可以预约周二吗？",
+				"answer": "周二有两个空档。"
+			}
+		},
+		"capabilities": {
+			"eyebrow": "为真实网站构建",
+			"title": "易于安装。可用于日常支持。",
+			"knowledgeBase": "知识库",
+			"mcpTools": "MCP 工具",
+			"brandColors": "品牌颜色",
+			"rateLimits": "速率限制",
+			"analytics": "分析",
+			"anyWebsite": "任何网站"
+		},
+		"finalCta": {
+			"title": "准备添加 Talqo？",
+			"description": "创建小部件，粘贴代码片段，让访客开始提问。",
+			"startFree": "免费开始",
+			"viewDocs": "查看文档"
 		}
 	},
 	"adminStats": {
@@ -641,6 +678,7 @@
 		"clear": "清除",
 		"copy": "复制",
 		"copied": "已复制！",
+		"failed": "失败！",
 		"submit": "提交",
 		"remove": "移除",
 		"regenerate": "重新生成",

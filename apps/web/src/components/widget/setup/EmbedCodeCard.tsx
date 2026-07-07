@@ -18,7 +18,7 @@ export function EmbedCodeCard({ widgetToken, isLoading }: EmbedCodeCardProps) {
 		import.meta.env.VITE_WIDGET_BUNDLE_URL ??
 		(import.meta.env.DEV
 			? "http://localhost:5174/widget-bundle.js"
-			: "https://talqo.chat/widget-bundle.js")
+			: `${window.location.origin}/widget-bundle.js`)
 
 	const placeholderCode = t("widget.embedCode.placeholder")
 

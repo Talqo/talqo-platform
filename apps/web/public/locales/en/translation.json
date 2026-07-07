@@ -780,11 +780,16 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "Embed a fully customizable, context-aware AI chatbot directly into your website. Connect your own knowledge bases and let your customers find answers instantly.",
+			"description": "Add an AI chat widget to your website. Connect your knowledge bases and help customers find answers instantly.",
 			"startForFree": "Start for free",
 			"viewDocumentation": "View Documentation",
 			"line1": "The intelligent chat widget",
-			"line2": "for your business."
+			"line2": "for your business.",
+			"tryLive": "Try it live in the corner",
+			"embedFile": "index.html",
+			"previewSite": "Your site",
+			"live": "Live",
+			"widgetMessage": "Hi — I can answer from your docs, tools, and policies."
 		},
 		"header": {
 			"switchToLightTheme": "Switch to light theme",
@@ -794,15 +799,48 @@
 		"footer": {
 			"copyright": "Talqo. All rights reserved."
 		},
-		"features": {
-			"speedTitle": "Lightning Fast",
-			"speedDescription": "Instant responses powered by advanced AI models. Keep your users engaged without waiting.",
-			"customizableTitle": "Customizable Context",
-			"customizableDescription": "Connect MCP sources, define custom rules, and restrict terminology to suit your brand.",
-			"embedTitle": "Embed Anywhere",
-			"embedDescription": "Simple React and JS embed codes. Get your widget up and running in minutes.",
-			"switchToLightTheme": "Switch to light theme",
-			"switchToDarkTheme": "Switch to dark theme"
+		"steps": {
+			"configure": "Configure",
+			"configureDescription": "Set the bot name, colors, and knowledge sources in the dashboard.",
+			"paste": "Paste",
+			"pasteDescription": "Paste the generated snippet into your page HTML.",
+			"launch": "Launch",
+			"launchDescription": "Save the page. The widget appears and is ready for visitors."
+		},
+		"useCases": {
+			"eyebrow": "Use cases",
+			"title": "Answers for support, docs, and bookings.",
+			"shop": {
+				"label": "Shop",
+				"question": "Where is my order?",
+				"answer": "Order status found. Delivery is tomorrow."
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "How do I connect the API?",
+				"answer": "Here is the setup path from your docs."
+			},
+			"services": {
+				"label": "Services",
+				"question": "Can I book Tuesday?",
+				"answer": "Tuesday has two open slots."
+			}
+		},
+		"capabilities": {
+			"eyebrow": "Built for real sites",
+			"title": "Easy to install. Ready for daily support.",
+			"knowledgeBase": "Knowledge base",
+			"mcpTools": "MCP tools",
+			"brandColors": "Brand colors",
+			"rateLimits": "Rate limits",
+			"analytics": "Analytics",
+			"anyWebsite": "Any website"
+		},
+		"finalCta": {
+			"title": "Ready to add Talqo?",
+			"description": "Create a widget, paste the snippet, and let visitors start asking questions.",
+			"startFree": "Start for free",
+			"viewDocs": "View docs"
 		}
 	},
 	"adminStats": {
