@@ -1,3 +1,5 @@
+import { config } from "@/common/config"
+
 const baseStyle = `
   font-family: sans-serif;
   max-width: 600px;
@@ -24,9 +26,7 @@ const footerStyle = `
 `
 
 function getAppUrl(): string {
-	const url = process.env.APP_URL
-	if (!url) throw new Error("APP_URL environment variable is not set")
-	return url.replace(/\/$/, "")
+	return config.APP_URL.replace(/\/$/, "")
 }
 
 export function verificationEmailTemplate(token: string): {

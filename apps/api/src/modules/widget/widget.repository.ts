@@ -129,7 +129,10 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			satisfactionRating: number | null
 		}
 	>()
-	private clients = new Map<string, { balanceUsd: number }>()
+	private clients = new Map<
+		string,
+		{ balanceUsd: number; monthlyUsageLimit?: number | null }
+	>()
 	private messageList: WidgetMessage[] = []
 	private usages: {
 		clientId: string
@@ -249,6 +252,20 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		const client = this.clients.get(clientId)
 		if (!client) {
 			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
+		}
+		if (client.monthlyUsageLimit != null) {
+			const now = new Date()
+			const monthlySpend = await this.getMonthlySpend(
+				clientId,
+				now.getFullYear(),
+				now.getMonth() + 1,
+			)
+			if (monthlySpend + costUsd > client.monthlyUsageLimit) {
+				throw new BadRequestError(
+					"MONTHLY_LIMIT_REACHED",
+					"Monthly usage limit reached",
+				)
+			}
 		}
 		if (client.balanceUsd < costUsd) {
 			throw new BadRequestError("BALANCE_INSUFFICIENT", "Insufficient balance")
@@ -419,13 +436,43 @@ export class WidgetRepository implements IWidgetRepository {
 		costUsd: number,
 	) {
 		await this.db.transaction(async (tx) => {
+			// Row lock serializes concurrent recordUsage calls for this client, so the
+			// monthly-spend ceiling check below is consistent with the balance check.
 			const [client] = await tx
-				.select({ id: clients.id })
+				.select({
+					id: clients.id,
+					monthlyUsageLimit: clients.monthlyUsageLimit,
+				})
 				.from(clients)
 				.where(eq(clients.id, clientId))
+				.for("update")
 			if (!client) {
 				throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 			}
+
+			if (client.monthlyUsageLimit !== null) {
+				const now = new Date()
+				const start = new Date(now.getFullYear(), now.getMonth(), 1)
+				const end = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+				const [spend] = await tx
+					.select({ total: sum(usageRecords.costUsd) })
+					.from(usageRecords)
+					.where(
+						and(
+							eq(usageRecords.clientId, clientId),
+							gte(usageRecords.recordedAt, start),
+							lt(usageRecords.recordedAt, end),
+						),
+					)
+				const monthlySpend = Number(spend?.total ?? 0)
+				if (monthlySpend + costUsd > client.monthlyUsageLimit) {
+					throw new BadRequestError(
+						"MONTHLY_LIMIT_REACHED",
+						"Monthly usage limit reached",
+					)
+				}
+			}
+
 			await tx
 				.insert(usageRecords)
 				.values({ clientId, messageId, tokensUsed, costUsd })

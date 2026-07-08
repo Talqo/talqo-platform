@@ -79,6 +79,7 @@ export class AuthService {
 			return signToken({
 				sub: client.id,
 				role: "client",
+				tokenVersion: client.tokenVersion,
 			})
 		} catch (err) {
 			// EMAIL_TAKEN means a client with this email was already created by a concurrent request.
@@ -97,6 +98,7 @@ export class AuthService {
 							return signToken({
 								sub: client.id,
 								role: "client",
+								tokenVersion: client.tokenVersion,
 							})
 						}
 					}
@@ -134,6 +136,7 @@ export class AuthService {
 		return signToken({
 			sub: client.id,
 			role: "client",
+			tokenVersion: client.tokenVersion,
 		})
 	}
 
@@ -185,6 +188,15 @@ export class AuthService {
 			return
 		}
 
+		// Treat suspended accounts like non-existent ones: no email, no token,
+		// no distinct response — otherwise this endpoint would reveal suspension status
+		if (client.status === "suspended") {
+			logger.info("Password reset requested for suspended account", {
+				email: canonical,
+			})
+			return
+		}
+
 		// Generate token with 1-hour expiry
 		const token = crypto.randomUUID()
 		const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
@@ -201,6 +213,19 @@ export class AuthService {
 	}
 
 	async resetPassword(token: string, newPassword: string): Promise<void> {
+		// The requester already possesses a token that was emailed to the account
+		// owner, so a distinct rejection here does not aid enumeration the way it
+		// would in requestPasswordReset.
+		const record = await this.repo.findPasswordResetToken(token)
+		if (record) {
+			const client = await this.repo.findClientByEmail(record.email)
+			if (client?.status === "suspended") {
+				throw new UnauthorizedError(
+					"Your account has been suspended. Please contact support.",
+				)
+			}
+		}
+
 		const passwordHash = await Bun.password.hash(newPassword)
 		const result = await this.repo.consumeTokenAndUpdatePassword(
 			token,

@@ -75,10 +75,16 @@ export class AdminService {
 	async impersonate(clientId: string) {
 		const client = await this.repo.getClientDetail(clientId)
 		if (!client) throw new NotFoundError("Client not found")
+		const tokenVersion = await this.repo.getClientTokenVersion(clientId)
 
 		// Short-lived impersonation token (1 hour)
 		const token = await signToken(
-			{ sub: clientId, role: "client", imp: true },
+			{
+				sub: clientId,
+				role: "client",
+				imp: true,
+				tokenVersion: tokenVersion ?? 0,
+			},
 			"1h",
 		)
 		return { token }

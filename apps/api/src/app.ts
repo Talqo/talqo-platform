@@ -1,4 +1,7 @@
 import { Scalar } from "@scalar/hono-api-reference"
+import { sql } from "drizzle-orm"
+import type { Context } from "hono"
+import { bodyLimit } from "hono/body-limit"
 import { cors } from "hono/cors"
 import { config } from "./common/config"
 import type { AppVariables } from "./common/jwt"
@@ -11,6 +14,7 @@ import { createWideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
 import { createRouter } from "./common/router"
 import { SentryExporter } from "./common/sentry-exporter"
+import { db } from "./db"
 import {
 	adminActivityLogsRoutes,
 	adminAuditLogService,
@@ -38,7 +42,7 @@ import {
 	widgetMessageRoutes,
 	widgetSessionRoutes,
 } from "./modules/widget"
-import { widgetConfigClientRoutes } from "./modules/widget-config"
+import { clientWidgetConfigRoutes } from "./modules/widget-config"
 
 const filesRoutes = createFilesRouter(filesService, ragService)
 
@@ -88,8 +92,53 @@ app.onError(errorHandler)
 
 app.get("/", (c) => c.text("Talqo API"))
 
-app.get("/health", (c) => {
+const HEALTH_CHECK_TIMEOUT_MS = 2000
+
+app.get("/health", async (c) => {
+	try {
+		await Promise.race([
+			db.execute(sql`SELECT 1`),
+			new Promise((_, reject) =>
+				setTimeout(
+					() => reject(new Error("Health check DB probe timed out")),
+					HEALTH_CHECK_TIMEOUT_MS,
+				),
+			),
+		])
+	} catch (err) {
+		logger.error("Health check failed — database unreachable", {
+			error: err instanceof Error ? err.message : String(err),
+		})
+		return c.json({ message: "Service Unavailable" }, 503)
+	}
 	return c.json({ message: "OK" }, 200)
+})
+
+// ─── Request body size limits ─────────────────────────────────────────────────
+// Bun's default is 128 MB, which lets a single request allocate huge amounts of
+// heap. Cap JSON routes tightly; the file upload route gets its own, larger cap.
+const DEFAULT_BODY_LIMIT_BYTES = 1 * 1024 * 1024 // 1 MB
+const FILE_UPLOAD_BODY_LIMIT_BYTES = 20 * 1024 * 1024 // 20 MB
+
+function onBodyTooLarge(c: Context) {
+	return c.json(
+		{ error: { code: "PAYLOAD_TOO_LARGE", message: "Request body too large" } },
+		413,
+	)
+}
+
+v1.use(
+	"/client/me/files/*",
+	bodyLimit({ maxSize: FILE_UPLOAD_BODY_LIMIT_BYTES, onError: onBodyTooLarge }),
+)
+
+const defaultBodyLimit = bodyLimit({
+	maxSize: DEFAULT_BODY_LIMIT_BYTES,
+	onError: onBodyTooLarge,
+})
+v1.use("*", async (c, next) => {
+	if (c.req.path.startsWith("/v1/client/me/files")) return next()
+	return defaultBodyLimit(c, next)
 })
 
 // ─── Client auth (unprotected) ────────────────────────────────────────────────
@@ -105,7 +154,7 @@ v1.route("/client/me/analytics", clientAnalyticsRoutes)
 v1.route("/client/me/provider-config", providerConfigRoutes)
 v1.route("/client/me/files", filesRoutes)
 v1.route("/client/me/conversations", clientConversationRoutes)
-v1.route("/client/me/widget-config", widgetConfigClientRoutes)
+v1.route("/client/me/widget-config", clientWidgetConfigRoutes)
 
 // ─── Widget API (protected by widget token) ───────────────────────────────────
 v1.use("/widget/*", widgetAuth)

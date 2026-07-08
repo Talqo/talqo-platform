@@ -27,7 +27,8 @@ migrate.ts       # Standalone migration runner (bun --env-file=../../.env migrat
 ## DTO conventions
 
 - Use `createSelectSchema` / `createInsertSchema` from `drizzle-zod`, then override individual fields where Zod v4 compatibility requires explicit types (e.g. timestamps → `z.string()`, nullable numerics → `z.number().nullable()`)
-- Response schemas always omit sensitive fields (`passwordHash`, `apiKeyEncrypted`) and add masked variants when needed. `widgetToken` is intentionally included in `clientResponseSchema` — clients need it displayed in the dashboard to embed the widget on their website
+- Response schemas always omit sensitive fields (`passwordHash`, `apiKeyEncrypted`, `tokenVersion`) and add masked variants when needed
+- `widgetToken` is the exception — `clientResponseSchema` intentionally includes it (not omitted) because the dashboard displays it so clients can embed the widget on their website (`AccountSettingsTab`, `EmbedCodeCard`, widget-setup flow all read it)
 - Export both Zod schema and inferred `type` from each DTO file
 
 ## Migration workflow

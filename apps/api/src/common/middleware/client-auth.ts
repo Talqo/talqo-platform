@@ -23,13 +23,22 @@ export const clientAuth: MiddlewareHandler<{
 	}
 
 	const client = await db
-		.select({ id: clients.id, status: clients.status })
+		.select({
+			id: clients.id,
+			status: clients.status,
+			tokenVersion: clients.tokenVersion,
+		})
 		.from(clients)
 		.where(eq(clients.id, payload.sub))
 		.then((rows) => rows[0])
 
 	if (!client) {
 		throw new UnauthorizedError("Client not found")
+	}
+	if (payload.tokenVersion !== client.tokenVersion) {
+		throw new UnauthorizedError(
+			"Token has been invalidated. Please log in again.",
+		)
 	}
 	// Allow admin impersonation tokens to access suspended clients for support
 	if (client.status === "suspended") {

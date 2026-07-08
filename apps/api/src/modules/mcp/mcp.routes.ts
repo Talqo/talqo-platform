@@ -6,6 +6,7 @@ import {
 	adminMcpVerifyBodySchema,
 	clientMcpVerifyByIdBodySchema,
 	mcpConfigBodySchema,
+	paginationQuerySchema,
 } from "shared"
 import { NotFoundError } from "@/common/errors"
 import type { AppVariables } from "@/common/jwt"
@@ -32,6 +33,7 @@ clientMcpRoutes.openapi(
 		tags: ["MCP"],
 		summary: "List all available pre-made MCP servers",
 		security: [{ bearerAuth: [] }],
+		request: { query: paginationQuerySchema },
 		responses: {
 			200: {
 				description: "Pre-made servers",
@@ -44,7 +46,8 @@ clientMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const servers = await mcpService.listPreMadeServers()
+		const { limit, offset } = c.req.valid("query")
+		const servers = await mcpService.listPreMadeServers({ limit, offset })
 		return c.json(servers, 200)
 	},
 )
@@ -56,6 +59,7 @@ clientMcpRoutes.openapi(
 		tags: ["MCP"],
 		summary: "List enabled pre-made MCP servers for this client",
 		security: [{ bearerAuth: [] }],
+		request: { query: paginationQuerySchema },
 		responses: {
 			200: {
 				description: "Enabled pre-made servers",
@@ -69,7 +73,11 @@ clientMcpRoutes.openapi(
 	}),
 	async (c) => {
 		const clientId = c.get("clientId")
-		const servers = await mcpService.listEnabledPreMade(clientId)
+		const { limit, offset } = c.req.valid("query")
+		const servers = await mcpService.listEnabledPreMade(clientId, {
+			limit,
+			offset,
+		})
 		return c.json(servers, 200)
 	},
 )
@@ -143,6 +151,7 @@ clientMcpRoutes.openapi(
 		tags: ["MCP"],
 		summary: "List custom MCP servers",
 		security: [{ bearerAuth: [] }],
+		request: { query: paginationQuerySchema },
 		responses: {
 			200: {
 				description: "Custom servers",
@@ -156,7 +165,11 @@ clientMcpRoutes.openapi(
 	}),
 	async (c) => {
 		const clientId = c.get("clientId")
-		const servers = await mcpService.listCustomServers(clientId)
+		const { limit, offset } = c.req.valid("query")
+		const servers = await mcpService.listCustomServers(clientId, {
+			limit,
+			offset,
+		})
 		return c.json(servers, 200)
 	},
 )
@@ -341,6 +354,7 @@ adminMcpRoutes.openapi(
 		tags: ["Admin"],
 		summary: "List all pre-made MCP servers",
 		security: [{ bearerAuth: [] }],
+		request: { query: paginationQuerySchema },
 		responses: {
 			200: {
 				description: "Pre-made servers",
@@ -353,7 +367,8 @@ adminMcpRoutes.openapi(
 		},
 	}),
 	async (c) => {
-		const servers = await mcpService.listPreMadeServers()
+		const { limit, offset } = c.req.valid("query")
+		const servers = await mcpService.listPreMadeServers({ limit, offset })
 		return c.json(servers, 200)
 	},
 )

@@ -1,4 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi"
+import * as Sentry from "@sentry/bun"
 import {
 	conversationResponseSchema,
 	messageResponseSchema,
@@ -322,11 +323,6 @@ widgetMessageRoutes.openapi(
 					tokensUsed,
 				)
 
-				await sse.writeSSE({
-					event: "done",
-					data: JSON.stringify(assistantMessage),
-				})
-
 				if (tokensUsed) {
 					logger.info("ai_usage", {
 						request_id: requestId,
@@ -335,18 +331,36 @@ widgetMessageRoutes.openapi(
 						completion_tokens: tokensUsed.output,
 						total_tokens: tokensUsed.input + tokensUsed.output,
 					})
-					widgetService
-						.recordUsageAndAlert(clientId, assistantMessage.id, tokensUsed)
-						.catch((recordErr) =>
-							logger.error("Background usage recording failed", {
-								error:
-									recordErr instanceof Error
-										? recordErr.message
-										: String(recordErr),
-								conversationId,
-							}),
+					// Awaited (not fire-and-forget) so a failure is captured before the
+					// client is told this turn is "done" — undercounted billing was
+					// previously invisible to Sentry. The AI reply is already generated,
+					// so we still deliver it to the client even if recording fails.
+					try {
+						await widgetService.recordUsageAndAlert(
+							clientId,
+							assistantMessage.id,
+							tokensUsed,
 						)
+					} catch (recordErr) {
+						logger.error("Usage recording failed", {
+							error:
+								recordErr instanceof Error
+									? recordErr.message
+									: String(recordErr),
+							conversationId,
+						})
+						Sentry.withScope((scope) => {
+							scope.setTag("request_id", requestId)
+							scope.setTag("conversation_id", conversationId)
+							Sentry.captureException(recordErr)
+						})
+					}
 				}
+
+				await sse.writeSSE({
+					event: "done",
+					data: JSON.stringify(assistantMessage),
+				})
 			} catch (err) {
 				logger.error("Widget SSE unexpected error", {
 					error: err instanceof Error ? err.message : String(err),

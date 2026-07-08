@@ -16,6 +16,7 @@ export type Client = {
 	status: ClientStatus
 	balanceUsd: number
 	monthlyUsageLimit: number
+	tokenVersion: number
 	lastActive: Date | null
 	createdAt: Date
 }
@@ -115,6 +116,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 			status: "active",
 			balanceUsd: 0,
 			monthlyUsageLimit: 0,
+			tokenVersion: 0,
 			lastActive: null,
 			createdAt: new Date(),
 		}
@@ -201,6 +203,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 		for (const client of this.clients.values()) {
 			if (client.email === email) {
 				client.passwordHash = passwordHash
+				client.tokenVersion += 1
 				return
 			}
 		}
@@ -250,6 +253,7 @@ function mapClient(row: typeof clients.$inferSelect): Client {
 		status,
 		balanceUsd: Number(row.balanceUsd),
 		monthlyUsageLimit: Number(row.monthlyUsageLimit ?? 0),
+		tokenVersion: row.tokenVersion,
 		lastActive: row.lastActive,
 		createdAt: row.createdAt,
 	}
@@ -442,7 +446,7 @@ export class DrizzleAuthRepository implements AuthRepository {
 	): Promise<void> {
 		const rows = await this.db
 			.update(clients)
-			.set({ passwordHash })
+			.set({ passwordHash, tokenVersion: sql`${clients.tokenVersion} + 1` })
 			.where(eq(clients.email, email))
 			.returning({ id: clients.id })
 		if (rows.length === 0) {
@@ -477,7 +481,7 @@ export class DrizzleAuthRepository implements AuthRepository {
 
 			const [updated] = await tx
 				.update(clients)
-				.set({ passwordHash })
+				.set({ passwordHash, tokenVersion: sql`${clients.tokenVersion} + 1` })
 				.where(eq(clients.email, record.email))
 				.returning({ id: clients.id })
 
@@ -497,10 +501,22 @@ export class DrizzleAuthRepository implements AuthRepository {
 }
 
 function isUniqueViolation(err: unknown): boolean {
-	return (
-		typeof err === "object" &&
-		err !== null &&
-		"code" in err &&
-		(err as { code: string }).code === "23505"
-	)
+	return getPostgresErrorCode(err) === "23505"
+}
+
+// Drizzle wraps the underlying postgres.js error in a DrizzleQueryError,
+// moving the real error code from `.code` to `.cause.code`.
+function getPostgresErrorCode(err: unknown): string | undefined {
+	if (typeof err !== "object" || err === null) return undefined
+	if ("code" in err && typeof err.code === "string") return err.code
+	if (
+		"cause" in err &&
+		typeof err.cause === "object" &&
+		err.cause !== null &&
+		"code" in err.cause &&
+		typeof err.cause.code === "string"
+	) {
+		return err.cause.code
+	}
+	return undefined
 }

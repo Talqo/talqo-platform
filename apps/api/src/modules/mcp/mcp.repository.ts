@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm"
 import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
+import { NotFoundError } from "@/common/errors"
 import type { DB } from "@/db"
 import {
 	clientPreMadeMcp,
@@ -12,8 +13,10 @@ export class McpRepository {
 
 	// ─── Pre-made servers ───────────────────────────────────────────────────────
 
-	async listPreMadeServers() {
-		return this.db.select().from(preMadeMcpServers)
+	async listPreMadeServers(pagination?: { limit: number; offset: number }) {
+		const query = this.db.select().from(preMadeMcpServers)
+		if (!pagination) return query
+		return query.limit(pagination.limit).offset(pagination.offset)
 	}
 
 	async getPreMadeServer(id: string) {
@@ -60,8 +63,11 @@ export class McpRepository {
 
 	// ─── Client ↔ pre-made servers ──────────────────────────────────────────────
 
-	async listEnabledPreMade(clientId: string) {
-		return this.db
+	async listEnabledPreMade(
+		clientId: string,
+		pagination?: { limit: number; offset: number },
+	) {
+		const query = this.db
 			.select({ server: preMadeMcpServers })
 			.from(clientPreMadeMcp)
 			.innerJoin(
@@ -69,14 +75,28 @@ export class McpRepository {
 				eq(clientPreMadeMcp.preMadeMcpId, preMadeMcpServers.id),
 			)
 			.where(eq(clientPreMadeMcp.clientId, clientId))
-			.then((rows) => rows.map((r) => r.server))
+		const rows = pagination
+			? await query.limit(pagination.limit).offset(pagination.offset)
+			: await query
+		return rows.map((r) => r.server)
 	}
 
 	async enablePreMade(clientId: string, serverId: string) {
-		await this.db
-			.insert(clientPreMadeMcp)
-			.values({ clientId, preMadeMcpId: serverId })
-			.onConflictDoNothing()
+		try {
+			await this.db
+				.insert(clientPreMadeMcp)
+				.values({ clientId, preMadeMcpId: serverId })
+				.onConflictDoNothing()
+		} catch (err) {
+			// FK violation — the pre-made server was deleted between the caller's
+			// existence check and this insert. The constraint already prevents a
+			// ghost row from being created; translate it into a clean 404 instead
+			// of letting the raw Postgres error surface.
+			if (isForeignKeyViolation(err)) {
+				throw new NotFoundError("Pre-made MCP server not found")
+			}
+			throw err
+		}
 	}
 
 	async disablePreMade(clientId: string, serverId: string) {
@@ -94,11 +114,16 @@ export class McpRepository {
 
 	// ─── Custom MCP servers ─────────────────────────────────────────────────────
 
-	async listCustomServers(clientId: string) {
-		return this.db
+	async listCustomServers(
+		clientId: string,
+		pagination?: { limit: number; offset: number },
+	) {
+		const query = this.db
 			.select()
 			.from(customMcpServers)
 			.where(eq(customMcpServers.clientId, clientId))
+		if (!pagination) return query
+		return query.limit(pagination.limit).offset(pagination.offset)
 	}
 
 	async getCustomServer(id: string, clientId: string) {
@@ -188,4 +213,25 @@ export class McpRepository {
 			.returning()
 		return result.length > 0
 	}
+}
+
+function isForeignKeyViolation(err: unknown): boolean {
+	return getPostgresErrorCode(err) === "23503"
+}
+
+// Drizzle wraps the underlying postgres.js error in a DrizzleQueryError,
+// moving the real error code from `.code` to `.cause.code`.
+function getPostgresErrorCode(err: unknown): string | undefined {
+	if (typeof err !== "object" || err === null) return undefined
+	if ("code" in err && typeof err.code === "string") return err.code
+	if (
+		"cause" in err &&
+		typeof err.cause === "object" &&
+		err.cause !== null &&
+		"code" in err.cause &&
+		typeof err.cause.code === "string"
+	) {
+		return err.cause.code
+	}
+	return undefined
 }

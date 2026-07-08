@@ -201,15 +201,12 @@ authRoutes.openapi(
 	}),
 	async (c) => {
 		const { email } = c.req.valid("json")
-		try {
-			await authService.resendVerificationEmail(email)
-		} catch (err) {
-			// Log error but still return success to prevent user enumeration
-			c.get("logger").error("Failed to resend verification email", {
-				error: err instanceof Error ? err.message : String(err),
-			})
-		}
-		// Always return success to prevent user enumeration
+		// authService.resendVerificationEmail already returns silently (no throw)
+		// for the "don't reveal account state" cases (no pending registration,
+		// already registered, expired token) — anything that DOES throw here is a
+		// real failure (e.g. email delivery) and must reach errorHandler/Sentry,
+		// not be swallowed.
+		await authService.resendVerificationEmail(email)
 		return c.json(
 			{
 				message: "If a registration exists, a verification email has been sent",
@@ -251,15 +248,11 @@ authRoutes.openapi(
 	}),
 	async (c) => {
 		const { email } = c.req.valid("json")
-		try {
-			await authService.requestPasswordReset(email)
-		} catch (err) {
-			c.get("logger").error("Failed to send password reset email", {
-				email,
-				error: err instanceof Error ? err.message : String(err),
-			})
-		}
-		// Always return success to prevent user enumeration
+		// authService.requestPasswordReset already returns silently (no throw) for
+		// the "don't reveal account state" cases (no such account, suspended
+		// account) — anything that DOES throw here is a real failure (e.g. email
+		// delivery) and must reach errorHandler/Sentry, not be swallowed.
+		await authService.requestPasswordReset(email)
 		return c.json(
 			{
 				message:

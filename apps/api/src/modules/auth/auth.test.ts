@@ -510,6 +510,31 @@ describe("POST /auth/resend-verification", () => {
 
 		expect(res.status).toBe(400)
 	})
+
+	it("surfaces a 500 instead of a false 200 when email delivery fails for a pending registration", async () => {
+		await app.fetch(
+			new Request("http://localhost/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+		mockSend.mockClear()
+		mockSend.mockImplementationOnce(async () => ({
+			data: null,
+			error: { name: "application_error", message: "delivery failed" },
+		}))
+
+		const res = await app.fetch(
+			new Request("http://localhost/auth/resend-verification", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+
+		expect(res.status).toBe(500)
+	})
 })
 
 describe("POST /auth/forgot-password", () => {
@@ -587,6 +612,39 @@ describe("POST /auth/forgot-password", () => {
 			}),
 		)
 		expect(res.status).toBe(400)
+	})
+
+	it("surfaces a 500 instead of a false 200 when email delivery fails for an existing account", async () => {
+		mockSend.mockImplementationOnce(async () => ({
+			data: null,
+			error: { name: "application_error", message: "delivery failed" },
+		}))
+		const res = await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+		expect(res.status).toBe(500)
+	})
+
+	it("returns success but sends no email for a suspended account (no enumeration)", async () => {
+		const client = await repo.findClientByEmail(validRegistration.email)
+		if (!client) throw new Error("Expected client to exist")
+		client.status = "suspended"
+
+		const res = await app.fetch(
+			new Request("http://localhost/auth/forgot-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: validRegistration.email }),
+			}),
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as { message: string }
+		expect(body.message).toBeDefined()
+		expect(mockSend).not.toHaveBeenCalled()
 	})
 })
 
@@ -699,6 +757,61 @@ describe("POST /auth/reset-password", () => {
 		const loginBody = (await loginRes.json()) as { token: string }
 		expect(loginBody.token).toBeDefined()
 		expect(loginBody).not.toHaveProperty("success")
+	})
+
+	it("returns 401 and does not change the password for a suspended account", async () => {
+		const client = await repo.findClientByEmail(validRegistration.email)
+		if (!client) throw new Error("Expected client to exist")
+		client.status = "suspended"
+
+		const res = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: resetToken,
+					password: "newpassword123",
+				}),
+			}),
+		)
+		expect(res.status).toBe(401)
+
+		// Old password should still work — the reset did not go through
+		const loginRes = await app.fetch(
+			new Request("http://localhost/auth/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(validRegistration),
+			}),
+		)
+		// Suspended accounts can't log in either (existing behavior), but the
+		// important assertion is that reset-password itself was rejected above.
+		expect(loginRes.status).toBe(403)
+	})
+
+	it("increments the client's tokenVersion so previously issued JWTs are invalidated", async () => {
+		const beforeClient = await repo.findClientByEmail(validRegistration.email)
+		if (!beforeClient) throw new Error("Expected client to exist")
+		// Snapshot the primitive — InMemoryAuthRepository returns the live object,
+		// so reading beforeClient.tokenVersion again after the mutation below
+		// would reflect the post-reset value instead of the original one.
+		const tokenVersionBeforeReset = beforeClient.tokenVersion
+
+		const resetRes = await app.fetch(
+			new Request("http://localhost/auth/reset-password", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					token: resetToken,
+					password: "newpassword123",
+				}),
+			}),
+		)
+		expect(resetRes.status).toBe(200)
+
+		const afterClient = await repo.findClientByEmail(validRegistration.email)
+		if (!afterClient) throw new Error("Expected client to exist")
+		expect(afterClient.tokenVersion).toBe(tokenVersionBeforeReset + 1)
 	})
 
 	it("returns 400 when token is reused", async () => {

@@ -25,7 +25,6 @@ const { sendPasswordResetEmail, sendQuotaAlertEmail, sendVerificationEmail } =
 describe("email.service", () => {
 	beforeEach(() => {
 		process.env.RESEND_API_KEY = "test-api-key"
-		process.env.APP_URL = "http://localhost:5173"
 	})
 
 	afterEach(() => {

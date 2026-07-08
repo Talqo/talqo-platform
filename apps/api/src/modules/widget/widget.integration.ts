@@ -185,6 +185,65 @@ describe("Widget integration tests", () => {
 		expect(sseText).toContain("Hello")
 	})
 
+	it("still delivers the SSE 'done' event when usage recording fails (e.g. insufficient balance for the actual cost)", async () => {
+		const email = createUniqueEmail("widget-test")
+		const client = await registerWidgetClient(
+			email,
+			`Widget Billing Failure Test ${crypto.randomUUID()}`,
+		)
+		// Positive balance so the pre-flight check passes, but smaller than the
+		// actual cost of 1 input + 2 output tokens (0.000005 USD) — this makes
+		// recordUsage's atomic guard reject the deduction after the stream completes.
+		await addFundsToClient(client.id, 0.000001)
+
+		const sessionRes = await realApp.request("/v1/widget/sessions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-Widget-Token": client.widget_token,
+			},
+			body: JSON.stringify({ browserSessionId: crypto.randomUUID() }),
+		})
+		const session = (await sessionRes.json()) as { id: string }
+
+		const convRes = await realApp.request(
+			`/v1/widget/sessions/${session.id}/conversations`,
+			{
+				method: "POST",
+				headers: { "X-Widget-Token": client.widget_token },
+			},
+		)
+		const conversation = (await convRes.json()) as { id: string }
+
+		const msgRes = await realApp.request(
+			`/v1/widget/sessions/${session.id}/conversations/${conversation.id}/messages`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"X-Widget-Token": client.widget_token,
+				},
+				body: JSON.stringify({ content: "Hello bot" }),
+			},
+		)
+		expect(msgRes.status).toBe(200)
+
+		const reader = msgRes.body?.getReader()
+		const decoder = new TextDecoder()
+		let sseText = ""
+		if (reader) {
+			while (true) {
+				const { done, value } = await reader.read()
+				if (done) break
+				sseText += decoder.decode(value, { stream: true })
+			}
+		}
+		// The client still gets the full reply and a "done" event even though
+		// billing failed in the background.
+		expect(sseText).toContain("event: token")
+		expect(sseText).toContain("event: done")
+	})
+
 	it("GET /widget/sessions/:sessionId/conversations/:conversationId/messages lists messages", async () => {
 		const email = createUniqueEmail("widget-test")
 		const client = await registerWidgetClient(

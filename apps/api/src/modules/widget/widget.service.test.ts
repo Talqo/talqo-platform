@@ -1,8 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 
 // --- Mock config ---
+// bun's mock.module can leak across test files sharing this process (see
+// auth.test.ts's real dependency on config.APP_URL) — keep this mock's shape
+// complete so a leak doesn't break unrelated tests.
 mock.module("@/common/config", () => ({
-	config: { WIDGET_CONVERSATION_MAX_MESSAGES: 50 },
+	config: {
+		WIDGET_CONVERSATION_MAX_MESSAGES: 50,
+		JWT_SECRET: "test-secret-this-is-at-least-32-chars-long-for-hs256",
+		JWT_EXPIRES_IN: "24h",
+		APP_URL: "http://localhost:3000",
+	},
 }))
 
 // --- Post-hoc imports ---
@@ -582,6 +590,47 @@ describe("InMemoryWidgetRepository", () => {
 			).rejects.toThrow()
 			expect(repoAny.usages).toHaveLength(0)
 			expect(repoAny.clients.get("client-1")?.balanceUsd).toBe(0.005)
+		})
+
+		it("throws MONTHLY_LIMIT_REACHED at the deduction step when this usage would exceed the limit", async () => {
+			const repo = new InMemoryWidgetRepository()
+			const repoAny = repo as unknown as {
+				clients: Map<
+					string,
+					{ balanceUsd: number; monthlyUsageLimit?: number | null }
+				>
+				usages: { clientId: string; tokensUsed: number }[]
+			}
+			repoAny.clients.set("client-1", {
+				balanceUsd: 100,
+				monthlyUsageLimit: 0.01,
+			})
+			await repo.recordUsage("client-1", "msg-1", 10, 0.008)
+
+			await expect(
+				repo.recordUsage("client-1", "msg-2", 10, 0.005),
+			).rejects.toMatchObject({ code: "MONTHLY_LIMIT_REACHED" })
+
+			// The rejected usage must not be recorded, and balance must be unchanged
+			expect(repoAny.usages).toHaveLength(1)
+			expect(repoAny.clients.get("client-1")?.balanceUsd).toBe(100 - 0.008)
+		})
+
+		it("allows usage that stays within the monthly limit", async () => {
+			const repo = new InMemoryWidgetRepository()
+			const repoAny = repo as unknown as {
+				clients: Map<
+					string,
+					{ balanceUsd: number; monthlyUsageLimit?: number | null }
+				>
+			}
+			repoAny.clients.set("client-1", {
+				balanceUsd: 100,
+				monthlyUsageLimit: 1,
+			})
+			await expect(
+				repo.recordUsage("client-1", "msg-1", 10, 0.5),
+			).resolves.toBeUndefined()
 		})
 	})
 
