@@ -1,10 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router"
-import {
-	FeaturesSection,
-	HeroSection,
-	LandingFooter,
-	LandingHeader,
-} from "@/components/landing"
+import { lazy, Suspense } from "react"
+import { HeroSection } from "@/components/landing/HeroSection"
+import { LandingHeader } from "@/components/landing/LandingHeader"
+
+const FeaturesSection = lazy(() =>
+	import("@/components/landing/FeaturesSection").then((module) => ({
+		default: module.FeaturesSection,
+	})),
+)
+
+const LandingFooter = lazy(() =>
+	import("@/components/landing/LandingFooter").then((module) => ({
+		default: module.LandingFooter,
+	})),
+)
 
 export const Route = createFileRoute("/")({
 	component: LandingPage,
@@ -17,10 +26,14 @@ function LandingPage() {
 
 			<main className="flex-1">
 				<HeroSection />
-				<FeaturesSection />
+				<Suspense fallback={null}>
+					<FeaturesSection />
+				</Suspense>
 			</main>
 
-			<LandingFooter />
+			<Suspense fallback={null}>
+				<LandingFooter />
+			</Suspense>
 		</div>
 	)
 }
