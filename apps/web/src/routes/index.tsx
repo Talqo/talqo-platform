@@ -15,6 +15,14 @@ const LandingFooter = lazy(() =>
 	})),
 )
 
+function FeaturesSectionFallback() {
+	return <div className="min-h-200 animate-pulse bg-muted" />
+}
+
+function LandingFooterFallback() {
+	return <div className="h-20 animate-pulse bg-background" />
+}
+
 export const Route = createFileRoute("/")({
 	component: LandingPage,
 })
@@ -26,12 +34,12 @@ function LandingPage() {
 
 			<main className="flex-1">
 				<HeroSection />
-				<Suspense fallback={null}>
+				<Suspense fallback={<FeaturesSectionFallback />}>
 					<FeaturesSection />
 				</Suspense>
 			</main>
 
-			<Suspense fallback={null}>
+			<Suspense fallback={<LandingFooterFallback />}>
 				<LandingFooter />
 			</Suspense>
 		</div>
