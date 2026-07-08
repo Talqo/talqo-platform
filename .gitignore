@@ -6,6 +6,7 @@ bun.lockb
 
 # Build output
 dist/
+apps/web/public/widget-bundle.js
 
 # Environment variables
 .env

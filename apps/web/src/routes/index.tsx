@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { lazy, Suspense } from "react"
 import { HeroSection } from "@/components/landing/HeroSection"
 import { LandingHeader } from "@/components/landing/LandingHeader"
+import { LandingWidgetEmbed } from "@/components/landing/LandingWidgetEmbed"
 
 const FeaturesSection = lazy(() =>
 	import("@/components/landing/FeaturesSection").then((module) => ({
@@ -42,6 +43,7 @@ function LandingPage() {
 			<Suspense fallback={<LandingFooterFallback />}>
 				<LandingFooter />
 			</Suspense>
+			<LandingWidgetEmbed />
 		</div>
 	)
 }
