@@ -23,7 +23,7 @@ describe("widget init guards", () => {
 		expect(isCurrentTalqoToken("token-a")).toBe(false)
 	})
 
-	it("returns false in SSR / no-window environments", () => {
+	it("returns false when window is undefined", () => {
 		expect(isCurrentTalqoToken("token-a")).toBe(false)
 	})
 })
