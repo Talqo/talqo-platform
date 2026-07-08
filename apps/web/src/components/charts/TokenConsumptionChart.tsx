@@ -16,7 +16,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import type { ChartDataPoint } from "@/data/charts"
+import type { ChartDataPoint } from "./types"
 
 type TokenConsumptionChartProps = {
 	data: ChartDataPoint[]

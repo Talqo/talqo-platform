@@ -168,7 +168,7 @@ export function BotNameCard({
 					{hasCustomAvatar ? (
 						<div className="flex items-center gap-4 rounded-lg border bg-muted/50 p-4">
 							<div
-								className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-primary/10"
+								className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-primary/10"
 								// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG is sanitized by sanitizeSvg
 								dangerouslySetInnerHTML={{ __html: botAvatar }}
 								style={{
@@ -181,7 +181,9 @@ export function BotNameCard({
 								<p className="font-medium text-sm">
 									{t("widget.botName.customAvatarUploaded")}
 								</p>
-								<p className="text-muted-foreground text-xs">SVG</p>
+								<p className="text-muted-foreground text-xs">
+									{t("widget.botName.avatarFileType")}
+								</p>
 							</div>
 							<Button
 								type="button"

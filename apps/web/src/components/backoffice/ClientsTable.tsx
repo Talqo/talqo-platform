@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
-import type { ClientEntry } from "@/data/backoffice"
+import type { ClientEntry } from "./types"
 
 type ClientsTableProps = {
 	clients: ClientEntry[]

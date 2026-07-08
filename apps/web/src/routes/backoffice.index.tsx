@@ -21,6 +21,7 @@ import {
 } from "@/api/hooks/useAdmin"
 import { BackOfficeStatCard } from "@/components/backoffice/BackOfficeStatCard"
 import { ClientsTable } from "@/components/backoffice/ClientsTable"
+import type { ClientEntry } from "@/components/backoffice/types"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -31,7 +32,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import type { ClientEntry } from "@/data/backoffice"
 import { useBackofficeChartData } from "@/hooks/useBackofficeChartData"
 import { AUTH } from "@/lib/constants"
 

@@ -1,89 +1,452 @@
 {
-	"dashboard": {
-		"overview": {
-			"title": "Dashboard Overview",
-			"subtitle": "Welcome back. Here's what's happening with your bot.",
-			"currentBalance": "Current Balance",
-			"availableFunds": "Available Funds",
-			"addFunds": "Add Funds",
-			"totalTokens": "Total Tokens",
-			"allTime": "All Time",
-			"questionsAnswered": "Questions Answered",
-			"currentSpend": "Current Spend",
-			"totalConversations": "Total Conversations",
-			"uniqueUsers": "Unique Users",
-			"sessionsThatChatted": "Sessions that chatted",
-			"visitorEngagement": "Visitor Engagement",
-			"siteVisitorsWhoChatted": "Site visitors who chatted",
-			"avgSatisfaction": "Avg. Satisfaction",
-			"satisfactionRating": "Satisfaction Rating",
-			"noData": "No data available",
-			"last30Days": "Last 30 days"
+	"auth": {
+		"forgotPassword": {
+			"backToLogin": "Back to login",
+			"description": "Enter your email address and we'll send you a link to reset your password.",
+			"emailPlaceholder": "m@example.com",
+			"error": "Failed to send reset link. Please try again or contact support.",
+			"sending": "Sending...",
+			"sendResetLink": "Send reset link",
+			"successDescription": "If an account exists with {{email}}, we've sent a password reset link to your inbox.",
+			"successTitle": "Check your email",
+			"title": "Forgot password?"
 		},
-		"botContext": {
-			"title": "Bot Context",
-			"subtitle": "Manage the files your bot uses for context.",
-			"failedToLoadFiles": "Failed to load files",
-			"unexpectedError": "An unexpected error occurred"
+		"login": {
+			"description": "Enter your email and password to access your dashboard",
+			"emailPlaceholder": "m@example.com",
+			"forgotPassword": "Forgot password?",
+			"goToLogin": "Go to login",
+			"invalidCredentials": "Invalid email or password. Please try again.",
+			"loginFailed": "Login failed. Please try again.",
+			"noAccount": "Don't have an account?",
+			"signUp": "Sign up",
+			"submitting": "Logging in...",
+			"title": "Log in"
 		},
-		"settings": {
-			"title": "Settings",
-			"subtitle": "Manage your account, billing, and AI provider configuration.",
-			"accountTab": "Account",
-			"billingTab": "Billing",
-			"aiProviderTab": "AI Provider"
+		"passwordChange": {
+			"confirmNewPasswordRequired": "Please confirm your new password",
+			"currentPasswordRequired": "Current password is required",
+			"passwordMinLength": "Password must be at least 8 characters",
+			"passwordsDoNotMatch": "Passwords do not match"
 		},
-		"widgetSetup": {
-			"title": "Widget Setup",
-			"subtitle": "Customize your chat widget appearance and embed it on your website."
+		"register": {
+			"backToHome": "Back to home",
+			"checkEmailDescription": "We've sent a verification link to {{email}}. Click it to activate your account.",
+			"checkEmailTitle": "Check your email!",
+			"confirmPassword": "Confirm Password",
+			"confirmPasswordRequired": "Please confirm your password",
+			"createAccount": "Create account",
+			"description": "Enter your details below to create your account",
+			"emailPlaceholder": "m@example.com",
+			"hasAccount": "Already have an account?",
+			"namePlaceholder": "John Doe",
+			"passwordsDoNotMatch": "Passwords do not match",
+			"registrationFailed": "Registration failed. Please try again.",
+			"resendIn": "Resend available in {{seconds}}s",
+			"resendVerification": "Resend verification email",
+			"sending": "Sending...",
+			"submitting": "Creating account...",
+			"title": "Create an account",
+			"verificationSent": "Verification email sent. Please check your inbox."
 		},
-		"addFunds": {
-			"title": "Add Funds",
-			"subtitle": "Top up your account balance."
+		"resetPassword": {
+			"description": "Enter your new password below.",
+			"failed": "Failed to reset password. Please try again.",
+			"invalidDescription": "This password reset link is invalid or has expired.",
+			"invalidTitle": "Invalid link",
+			"linkAlreadyUsed": "This link has already been used. Please request a new one.",
+			"linkInvalidOrExpired": "This link is invalid or has expired. Please request a new one.",
+			"newPassword": "New password",
+			"passwordMinLength": "Must be at least 8 characters",
+			"placeholder": "Enter new password",
+			"requestNew": "Please request a new password reset link.",
+			"requestNewLink": "Request new link",
+			"submitting": "Resetting...",
+			"successDescription": "Your password has been reset successfully. Redirecting to login...",
+			"successTitle": "Password reset!",
+			"title": "Reset password",
+			"unableToVerify": "Unable to verify link. Please try again later.",
+			"verifyingDescription": "Please wait while we verify your reset link.",
+			"verifyingTitle": "Verifying link..."
 		},
-		"chats": {
-			"title": "Chat Previews",
-			"subtitle": "Browse conversations your visitors have had with the bot.",
-			"failedToLoadConversations": "Failed to load conversations",
-			"failedToLoadConversation": "Failed to load conversation",
-			"noMessages": "No messages",
-			"conversation": "Conversation",
-			"started": "Started"
-		},
-		"chatsTable": {
-			"started": "Started",
-			"messages": "Messages",
-			"rating": "Rating",
-			"preview": "Preview",
-			"noConversationsFound": "No conversations yet",
-			"close": "Close",
-			"view": "View",
-			"pagination": {
-				"previous": "Previous",
-				"next": "Next",
-				"page": "Page {{page}}"
-			}
-		},
-		"tools": {
-			"title": "MCP Tools",
-			"subtitle": "Manage MCP (Model Context Protocol) tools and integrations for your bot.",
-			"noCustomServers": "No custom servers yet. Add one to give your bot access to your own data sources."
+		"verifyEmail": {
+			"alreadyVerified": "This email has already been verified. You can log in now.",
+			"emailAddress": "Email address",
+			"emailPlaceholder": "Enter your email",
+			"failedDescription": "We couldn't verify your email.",
+			"failedTitle": "Verification failed",
+			"goToDashboard": "Go to dashboard",
+			"invalidToken": "The verification link is invalid. Please request a new one.",
+			"missingToken": "Verification token is missing. Please check your email link.",
+			"needNewLink": "Need a new verification link?",
+			"registerAgain": "Register again",
+			"resendFailed": "Resend failed. Please try again.",
+			"resendIn": "Resend available in {{seconds}}s",
+			"resendVerification": "Resend verification email",
+			"sending": "Sending...",
+			"successDescription": "Your email has been verified successfully. Redirecting to dashboard...",
+			"successTitle": "Email verified!",
+			"tokenExpired": "The verification link has expired. Please register again.",
+			"verificationFailed": "Verification failed. Please try again.",
+			"verificationSent": "Verification email sent. Please check your inbox.",
+			"verifyingDescription": "Please wait while we verify your email address.",
+			"verifyingTitle": "Verifying your email..."
 		}
 	},
-	"impersonation": {
-		"viewingAsClient": "Viewing as client (admin impersonation)",
-		"exitToBackoffice": "Exit to backoffice"
+	"backoffice": {
+		"activityLogs": {
+			"action": "Action",
+			"admin": "Admin",
+			"client": "Client",
+			"failedToLoad": "Failed to load activity logs.",
+			"impersonate": "Impersonate",
+			"noLogs": "No activity logs yet.",
+			"recentActions": "Recent Actions",
+			"reEnable": "Re-enable",
+			"showingRecent": "Showing the 100 most recent admin actions",
+			"subtitle": "Impersonate, suspend, and re-enable actions performed by admins",
+			"suspend": "Suspend",
+			"timestamp": "Timestamp",
+			"title": "Activity Logs"
+		},
+		"clientActions": {
+			"reEnableDescription": "This will restore the client's access to their dashboard and widget.",
+			"reEnableTitle": "Re-enable client?",
+			"suspendDescription": "This will immediately block the client from accessing their dashboard and widget.",
+			"suspendTitle": "Suspend client?"
+		},
+		"clientsTable": {
+			"actions": "Actions",
+			"active": "Active",
+			"aiProvider": "AI Provider",
+			"client": "Client",
+			"impersonate": "Impersonate",
+			"noClientsFound": "No clients found",
+			"platformDefault": "Platform Default",
+			"reEnable": "Re-enable",
+			"status": "Status",
+			"suspend": "Suspend",
+			"suspended": "Suspended",
+			"tokenUsage": "Token Usage"
+		},
+		"conversationsTable": {
+			"chatPreviews": "Chat Previews",
+			"chatPreviewsDescription": "Browse and inspect end-user conversations",
+			"client": "Client",
+			"close": "Close",
+			"failedToLoadConversation": "Failed to load conversation",
+			"messages": "Messages",
+			"noConversationsFound": "No conversations found",
+			"noMessages": "No messages",
+			"pagination": {
+				"next": "Next",
+				"page": "Page {{page}}",
+				"previous": "Previous"
+			},
+			"preview": "Preview",
+			"rating": "Rating",
+			"ratingLabel": "Rating",
+			"selectConversationPlaceholder": "Select a conversation to preview it",
+			"started": "Started",
+			"view": "View"
+		},
+		"mcp": {
+			"addArg": "Add Argument",
+			"addEnv": "Add Variable",
+			"addHeader": "Add Header",
+			"addServer": "Add Server",
+			"args": "Arguments",
+			"argValue": "Argument",
+			"command": "Command",
+			"commandPlaceholder": "npx my-mcp-server",
+			"configuredServers": "Configured Servers",
+			"createFailed": "Failed to create server. Please try again.",
+			"deleteConfirmDescription": "This will permanently remove the server configuration. Clients using it will lose access.",
+			"deleteConfirmTitle": "Delete MCP server?",
+			"deleteFailed": "Failed to delete server. Please try again.",
+			"description": "Description",
+			"descriptionPlaceholder": "Optional description",
+			"editServer": "Edit Server",
+			"env": "Environment Variables",
+			"envKey": "Key",
+			"envValue": "Value",
+			"fetchFailed": "Failed to load MCP servers. Please refresh the page.",
+			"headerKey": "Key",
+			"headers": "Headers",
+			"headerValue": "Value",
+			"name": "Name",
+			"namePlaceholder": "My MCP Server",
+			"pageDescription": "Manage pre-made MCP server configurations available to clients",
+			"pageTitle": "MCP Servers",
+			"removeArg": "Remove argument",
+			"removeEnv": "Remove variable",
+			"removeHeader": "Remove header",
+			"saveChanges": "Save Changes",
+			"saving": "Saving...",
+			"selectTransportType": "Select type",
+			"transportType": "Transport Type",
+			"updateFailed": "Failed to update server. Please try again.",
+			"url": "Endpoint URL"
+		},
+		"mcpServersTable": {
+			"actions": "Actions",
+			"delete": "Delete",
+			"description": "Description",
+			"edit": "Edit",
+			"name": "Name",
+			"noServers": "No servers found",
+			"status": "Status",
+			"type": "Type"
+		},
+		"nav": {
+			"activityLogs": "Activity Logs",
+			"admin": "Admin",
+			"adminDashboard": "Admin Dashboard",
+			"chats": "Chats",
+			"clients": "Clients",
+			"darkMode": "Dark Mode",
+			"failedToLoad": "Failed to load",
+			"lightMode": "Light Mode",
+			"mcpServers": "MCP Servers",
+			"talqoAdmin": "Talqo Admin"
+		},
+		"stats": {
+			"activeClientsLast30d": "Active Clients",
+			"activeClientsLast30dSubtitle": "With conversations in last 30 days",
+			"adminDashboard": "Admin Dashboard",
+			"adminDashboardDescription": "Manage clients, users, and system settings",
+			"allClients": "All registered clients",
+			"allTime": "All time",
+			"avgSatisfaction": "Avg Satisfaction",
+			"clients": "Clients",
+			"conversations": "Conversations",
+			"failedToLoadClients": "Failed to load clients",
+			"failedToLoadConversations": "Failed to load conversations",
+			"manageClients": "Manage all clients in the system",
+			"platformSpend": "Platform spend",
+			"platformTokens": "Platform Tokens",
+			"platformWideRating": "Platform-wide rating",
+			"totalClients": "Total Clients",
+			"totalConsumed": "Total consumed",
+			"totalCost": "Total Cost"
+		}
 	},
-	"email": "Email",
-	"name": "Name",
-	"copy": "Copy",
-	"loading": "Loading...",
-	"submit": "Submit",
+	"billing": {
+		"addFundsForm": {
+			"amountUsd": "Amount (USD)",
+			"cardNumberPlaceholder": "1234 5678 9012 3456",
+			"cvvPlaceholder": "123",
+			"description": "Enter an amount and your card details to top up your balance.",
+			"expiryPlaceholder": "MM/YY",
+			"failedToAddFunds": "Failed to add funds. Please try again.",
+			"fundsAddedSuccess": "Funds added successfully! Redirecting...",
+			"invalidCardNumber": "Invalid card number",
+			"invalidCvv": "Invalid CVV",
+			"invalidExpiry": "Invalid expiry (MM/YY)",
+			"nameOnCardPlaceholder": "Jane Smith",
+			"nameRequired": "Name is required",
+			"pay": "Pay",
+			"processing": "Processing...",
+			"title": "Add Funds"
+		}
+	},
+	"blacklist": {
+		"add": "Add",
+		"addFailed": "Failed to add word. Please try again.",
+		"adding": "Adding...",
+		"description": "The bot will not use or engage with blacklisted terms.",
+		"duplicateWord": "\"{{word}}\" is already in the blacklist.",
+		"emptyWord": "Please enter a non-empty word.",
+		"loadFailed": "Failed to load blacklist. Please refresh the page.",
+		"notLoaded": "Blacklist not loaded yet — please wait",
+		"noWords": "No blacklisted words yet.",
+		"removeAriaLabel": "Remove \"{{word}}\" from blacklist",
+		"removeFailed": "Failed to remove word. Please try again.",
+		"title": "Word Blacklist",
+		"wordPlaceholder": "Type a word and press Enter or Add..."
+	},
+	"botConfig": {
+		"configSaved": "Configuration saved.",
+		"defaultRoleDescription": "The role your bot assumes when responding to users.",
+		"defaultRoleLabel": "Default Role",
+		"defaultRolePlaceholder": "e.g. \"Customer support agent for Acme Shop\"",
+		"loadFailed": "Failed to load bot configuration. Please refresh the page.",
+		"pageSubtitle": "Configure your bot's personality, behavior, and response rules.",
+		"pageTitle": "Bot Configuration",
+		"personalityTitle": "Bot Personality & Behavior",
+		"saveConfiguration": "Save Configuration",
+		"saveFailed": "Failed to save. Please try again.",
+		"saving": "Saving...",
+		"systemPromptDescription": "Instructions that define how your AI assistant responds to users.",
+		"systemPromptLabel": "System Prompt",
+		"systemPromptPlaceholder": "Define the behavior and context for your AI assistant...",
+		"toneStyleDescription": "How the bot should sound in conversations with users.",
+		"toneStyleLabel": "Tone & Communication Style",
+		"toneStylePlaceholder": "e.g. \"Professional but friendly\""
+	},
+	"botContext": {
+		"dragOverlay": {
+			"dropFilesHere": "Drop files here"
+		},
+		"fileList": {
+			"addFile": "Add",
+			"contextFiles_one": "Context File ({{count}})",
+			"contextFiles_other": "Context Files ({{count}})",
+			"dropFilesHere": "Drop files here"
+		},
+		"fileListEmpty": {
+			"description": "Drag and drop text files here or use the + button to add them",
+			"title": "No files uploaded yet"
+		},
+		"fileListItem": {
+			"cancelRename": "Cancel rename",
+			"confirmRename": "Confirm rename",
+			"deleteFile": "Delete file",
+			"duplicateName": "A file with this name already exists",
+			"renameFailed": "Rename failed. Please try again.",
+			"renameFile": "Rename file"
+		},
+		"uploadErrorAlert": {
+			"dismissErrors": "Dismiss errors",
+			"failedToUpload_one": "Failed to upload {{count}} file",
+			"failedToUpload_other": "Failed to upload {{count}} files",
+			"fileAlreadyExists": "File with this name already exists",
+			"invalidFileType": "Invalid file type",
+			"serverError": "Server error during upload"
+		}
+	},
+	"charts": {
+		"conversations": {
+			"ariaLabel": "Line chart showing platform-wide conversations over the last 30 days",
+			"description": "Platform-wide conversations over the last 30 days",
+			"title": "Conversations"
+		},
+		"questionsAsked": {
+			"ariaLabel": "Line chart showing questions asked over the last 30 days",
+			"description": "User interactions over the last 30 days",
+			"title": "Questions Asked"
+		},
+		"tokenConsumption": {
+			"ariaLabel": "Bar chart showing token consumption over the last 30 days",
+			"description": "Daily token usage over the last 30 days",
+			"title": "Token Consumption"
+		}
+	},
+	"clientDashboard": {
+		"nav": {
+			"botConfiguration": "Bot Configuration",
+			"botContext": "Bot Context",
+			"chatPreviews": "Chat Previews",
+			"clientDashboard": "Client Dashboard",
+			"darkMode": "Dark Mode",
+			"failedToLoad": "Failed to load",
+			"lightMode": "Light Mode",
+			"overview": "Overview",
+			"toolsMcp": "Tools MCP",
+			"unknownCompany": "Unknown Company",
+			"widgetSetup": "Widget Setup"
+		}
+	},
+	"common": {
+		"add": "Add",
+		"cancel": "Cancel",
+		"cardNumber": "Card Number",
+		"copied": "Copied!",
+		"copy": "Copy",
+		"delete": "Delete",
+		"edit": "Edit",
+		"email": "Email",
+		"failed": "Failed!",
+		"logOut": "Log out",
+		"name": "Name",
+		"noData": "No data available",
+		"password": "Password",
+		"saving": "Saving...",
+		"switchToDarkMode": "Switch to dark mode",
+		"switchToDarkTheme": "Switch to dark theme",
+		"switchToLightMode": "Switch to light mode",
+		"switchToLightTheme": "Switch to light theme",
+		"talqo": "Talqo"
+	},
+	"confirmNewPassword": "Confirm New Password",
+	"currentPassword": "Current Password",
+	"cvv": "CVV",
+	"dashboard": {
+		"addFunds": {
+			"subtitle": "Top up your account balance.",
+			"title": "Add Funds"
+		},
+		"botContext": {
+			"failedToLoadFiles": "Failed to load files",
+			"subtitle": "Manage the files your bot uses for context.",
+			"title": "Bot Context",
+			"unexpectedError": "An unexpected error occurred"
+		},
+		"chats": {
+			"conversation": "Conversation",
+			"failedToLoadConversation": "Failed to load conversation",
+			"failedToLoadConversations": "Failed to load conversations",
+			"noMessages": "No messages",
+			"started": "Started",
+			"subtitle": "Browse conversations your visitors have had with the bot.",
+			"title": "Chat Previews"
+		},
+		"chatsTable": {
+			"close": "Close",
+			"messages": "Messages",
+			"noConversationsFound": "No conversations yet",
+			"pagination": {
+				"next": "Next",
+				"page": "Page {{page}}",
+				"previous": "Previous"
+			},
+			"preview": "Preview",
+			"rating": "Rating",
+			"started": "Started",
+			"view": "View"
+		},
+		"overview": {
+			"addFunds": "Add Funds",
+			"allTime": "All Time",
+			"availableFunds": "Available Funds",
+			"avgSatisfaction": "Avg. Satisfaction",
+			"currentBalance": "Current Balance",
+			"currentSpend": "Current Spend",
+			"last30Days": "Last 30 days",
+			"noData": "No data available",
+			"questionsAnswered": "Questions Answered",
+			"satisfactionRating": "Satisfaction Rating",
+			"sessionsThatChatted": "Sessions that chatted",
+			"siteVisitorsWhoChatted": "Site visitors who chatted",
+			"subtitle": "Welcome back. Here's what's happening with your bot.",
+			"title": "Dashboard Overview",
+			"totalConversations": "Total Conversations",
+			"totalTokens": "Total Tokens",
+			"uniqueUsers": "Unique Users",
+			"visitorEngagement": "Visitor Engagement"
+		},
+		"settings": {
+			"accountTab": "Account",
+			"aiProviderTab": "AI Provider",
+			"billingTab": "Billing",
+			"subtitle": "Manage your account, billing, and AI provider configuration.",
+			"title": "Settings"
+		},
+		"tools": {
+			"noCustomServers": "No custom servers yet. Add one to give your bot access to your own data sources.",
+			"subtitle": "Manage MCP (Model Context Protocol) tools and integrations for your bot.",
+			"title": "MCP Tools"
+		},
+		"widgetSetup": {
+			"subtitle": "Customize your chat widget appearance and embed it on your website.",
+			"title": "Widget Setup"
+		}
+	},
 	"error": {
 		"errorBoundary": {
-			"title": "Something Went Wrong",
 			"description": "An unexpected error occurred.",
 			"message": "Please try refreshing the page. If the problem persists, contact support.",
+			"title": "Something Went Wrong",
 			"tryAgain": "Refresh Page"
 		},
 		"suspenseBoundary": {
@@ -91,700 +454,284 @@
 			"loadingPage": "Loading page..."
 		}
 	},
-	"success": "Success",
-	"cardNumber": "Card Number",
 	"expiry": "Expiry",
-	"cvv": "CVV",
-	"nameOnCard": "Name on Card",
-	"word": "Word",
-	"currentPassword": "Current Password",
-	"newPassword": "New Password",
-	"confirmNewPassword": "Confirm New Password",
-	"systemPrompt": "System Prompt",
-	"defaultRole": "Default Role",
-	"languages": {},
-	"showPassword": "Show password",
 	"hidePassword": "Hide password",
-	"widget": {
-		"setup": {
-			"errorTitle": "Error loading client data",
-			"errorDescription": "Failed to load client information. Please try again.",
-			"title": "Widget Configuration",
-			"configErrorTitle": "Error loading widget configuration",
-			"configErrorDescription": "Failed to load widget configuration. Please try again.",
-			"reset": "Reset",
-			"save": "Save",
-			"saving": "Saving...",
-			"saved": "Widget configuration saved.",
-			"saveFailed": "Failed to save configuration. Please try again.",
-			"resetConfirmTitle": "Reset to defaults?",
-			"resetConfirmDescription": "This will discard all customizations and restore the default theme. This action cannot be undone."
-		},
-		"onboarding": {
-			"title": "Add AI Chat to Your Website",
-			"description": "Let your customers chat with AI directly on your website. No coding required!",
-			"whatYouCanDo": "What you can do:",
-			"customizeColors": "Customize colors to match your brand",
-			"choosePosition": "Choose widget position (left or right)",
-			"getEmbedCode": "Get embed code in one click",
-			"seePreview": "See live preview before deploying",
-			"setUpNow": "Set Up Now",
-			"remindLater": "Remind Me Later",
-			"dontShowAgain": "Don't Show This Again",
-			"saving": "Saving..."
-		},
-		"appearance": {
-			"title": "Appearance",
-			"widgetPosition": "Widget Position",
-			"bottomLeft": "Bottom Left",
-			"bottomRight": "Bottom Right",
-			"color": "Color",
-			"lightMode": "Light Mode",
-			"darkMode": "Dark Mode",
-			"primaryColor": "Primary Color",
-			"background": "Background",
-			"secondaryBackground": "Secondary Background",
-			"textColor": "Text Color",
-			"secondaryText": "Secondary Text",
-			"borderColor": "Border Color",
-			"headerTitle": "Header Title",
-			"userMessageText": "User Message Text",
-			"sendButtonIcon": "Send Button Icon",
-			"footerText": "Footer Text"
-		},
-		"embedCode": {
-			"title": "Embed Code",
-			"copied": "Copied!",
-			"copy": "Copy",
-			"loading": "Loading...",
-			"installInstructions": "Installation Instructions:",
-			"step1": "Copy the code above",
-			"step2": "Paste it before the closing </body> tag on your website",
-			"step3": "The widget will appear on your site automatically",
-			"placeholder": "// Loading your widget configuration...\n// Please wait while we fetch your widget token."
-		},
-		"preview": {
-			"title": "Live Preview",
-			"lightMode": "Light Mode",
-			"darkMode": "Dark Mode",
-			"botMessage": "Hi! How can I help you today?",
-			"userMessage": "Hello!",
-			"typeAMessage": "Type a message...",
-			"poweredBy": "Powered by Talqo"
-		},
-		"botName": {
-			"title": "Bot Identity",
-			"botNameLabel": "Bot Name",
-			"botNamePlaceholder": "AI Assistant",
-			"botNameHelp": "This name will be displayed in the widget header.",
-			"botAvatarLabel": "Bot Avatar",
-			"customAvatarUploaded": "Custom avatar uploaded",
-			"dropSvgHere": "Drop SVG here or click to upload",
-			"uploadSquareSvg": "Upload a square SVG for best results",
-			"onlySvgSupported": "Only SVG files are supported.",
-			"fileTooLarge": "File too large. Maximum size is {{maxSize}}KB.",
-			"invalidFileContent": "Invalid file content. Expected text format.",
-			"invalidSvgFile": "Invalid SVG file. File must start with <svg tag and contain valid SVG content.",
-			"failedToReadFile": "Failed to read file. Please try again."
-		}
-	},
-	"charts": {
-		"tokenConsumption": {
-			"title": "Token Consumption",
-			"description": "Daily token usage over the last 30 days",
-			"ariaLabel": "Bar chart showing token consumption over the last 30 days"
-		},
-		"questionsAsked": {
-			"title": "Questions Asked",
-			"description": "User interactions over the last 30 days",
-			"ariaLabel": "Line chart showing questions asked over the last 30 days"
-		},
-		"conversations": {
-			"title": "Conversations",
-			"description": "Platform-wide conversations over the last 30 days",
-			"ariaLabel": "Line chart showing platform-wide conversations over the last 30 days"
-		},
-		"dayNames": {
-			"mon": "Mon",
-			"tue": "Tue",
-			"wed": "Wed",
-			"thu": "Thu",
-			"fri": "Fri",
-			"sat": "Sat",
-			"sun": "Sun"
-		}
-	},
-	"tools": {
-		"toolCard": {
-			"added": "Added",
-			"addTool": "+ Add"
-		},
-		"usedToolItem": {
-			"configure": "Configure",
-			"configurationComingSoon": "Configuration coming soon"
-		},
-		"toolsTab": {},
-		"toolNames": {
-			"calendar": "Calendar",
-			"documentSearch": "Document Search",
-			"sqlDatabase": "SQL Database",
-			"restApi": "REST API",
-			"productDatabase": "Product Database",
-			"customKnowledgeBase": "Custom Knowledge Base"
-		},
-		"toolDescriptions": {
-			"calendar": "Schedule management",
-			"documentSearch": "File content search",
-			"sqlDatabase": "Database queries",
-			"restApi": "Custom API endpoints",
-			"readOnlyConnector": "Read-only connector",
-			"staticFallbackInfo": "Static fallback info",
-			"toolConnector": "Tool connector"
-		},
-		"preconfiguredServers": "Pre-configured Servers",
-		"noPreconfiguredServers": "No pre-configured servers available yet.",
-		"customServers": "Custom Servers",
-		"availableTools": "Available tools:",
-		"noToolsFound": "No tools found",
-		"unknownServer": "Unknown",
-		"unknownType": "unknown",
-		"failedToLoadServerDetails": "Failed to load server details"
-	},
-	"botContext": {
-		"fileList": {
-			"contextFiles": "Context Files ({{count}})",
-			"addFile": "Add",
-			"dropFilesHere": "Drop files here"
-		},
-		"fileListEmpty": {
-			"title": "No files uploaded yet",
-			"description": "Drag and drop text files here or use the + button to add them"
-		},
-		"fileListItem": {
-			"confirmRename": "Confirm rename",
-			"cancelRename": "Cancel rename",
-			"renameFile": "Rename file",
-			"deleteFile": "Delete file",
-			"duplicateName": "A file with this name already exists",
-			"renameFailed": "Rename failed. Please try again."
-		},
-		"uploadErrorAlert": {
-			"failedToUpload": "Failed to upload {{count}} file",
-			"failedToUpload_plural": "Failed to upload {{count}} files",
-			"fileAlreadyExists": "File with this name already exists",
-			"invalidFileType": "Invalid file type",
-			"serverError": "Server error during upload",
-			"dismissErrors": "Dismiss errors"
-		},
-		"dragOverlay": {
-			"dropFilesHere": "Drop files here"
-		}
-	},
-	"common": {
-		"email": "Email",
-		"name": "Name",
-		"password": "Password",
-		"cardNumber": "Card Number",
-		"saving": "Saving...",
-		"cancel": "Cancel",
-		"delete": "Delete",
-		"add": "Add",
-		"edit": "Edit",
-		"copy": "Copy",
-		"copied": "Copied!",
-		"failed": "Failed!",
-		"switchToLightTheme": "Switch to light theme",
-		"switchToDarkTheme": "Switch to dark theme",
-		"logOut": "Log out",
-		"noData": "No data available",
-		"talqo": "Talqo",
-		"switchToLightMode": "Switch to light mode",
-		"switchToDarkMode": "Switch to dark mode"
-	},
-	"settings": {
-		"account": {
-			"title": "Account Details",
-			"emailPlaceholder": "you@example.com",
-			"namePlaceholder": "Your name",
-			"widgetTokenLabel": "Widget Token",
-			"widgetTokenHelp": "This token authenticates your embedded chat widget. Regenerating it will invalidate any currently deployed widgets until updated.",
-			"regenerate": "Regenerate",
-			"saving": "Saving...",
-			"saveProfile": "Save Profile",
-			"changing": "Changing...",
-			"changePassword": "Change Password",
-			"dangerZoneTitle": "Danger Zone",
-			"dangerZoneDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
-			"deleteAccount": "Delete Account",
-			"deleteAccountTitle": "Delete account permanently?",
-			"deleteAccountDescription": "This will immediately and irreversibly delete your account, widget, all conversations, and every other associated record. There is no undo.",
-			"confirmPassword": "Confirm your password",
-			"passwordPlaceholder": "Enter your password",
-			"deleteAccountError": "Incorrect password. Please try again.",
-			"deleteMyAccount": "Delete my account",
-			"passwordChangedSuccess": "Password changed successfully",
-			"passwordChangeFailed": "Failed to change password. Please try again.",
-			"profileSaveFailed": "Failed to save profile. Please try again.",
-			"rotateFailed": "Failed to regenerate token. Please try again."
-		},
-		"billing": {
-			"title": "Usage & Limits",
-			"monthlyLimit": "Monthly Limit (USD)",
-			"usageAlerts": "Usage Alerts",
-			"usageAlertsDescription": "Email me when reaching 80% of limit",
-			"ownApiKeyPrompt": "Want to use your own API key instead?",
-			"configureProvider": "Configure it in the AI Provider tab.",
-			"saving": "Saving...",
-			"saveSettings": "Save Settings",
-			"addFunds": "Add Funds"
-		},
-		"provider": {
-			"title": "AI Provider",
-			"description": "Optionally bring your own AI provider and API key. By default your chatbot uses the platform-hosted AI — no setup required.",
-			"platformHosted": "Using platform-hosted AI",
-			"platformHostedDescription": "Your chatbot is running on the platform's managed AI. No configuration needed.",
-			"bringYourOwn": "Want to use your own API key? You can connect OpenAI, Anthropic, Google Gemini, or any OpenAI-compatible endpoint. Your provider will be used instead of the platform default.",
-			"configureCustom": "Configure custom provider",
-			"customActive": "Custom provider active",
-			"model": "Model",
-			"apiKeyMasked": "API Key",
-			"baseUrl": "Base URL",
-			"updated": "Updated",
-			"changeProvider": "Change provider",
-			"removing": "Removing…",
-			"remove": "Remove",
-			"removeFailed": "Failed to remove provider. Please try again.",
-			"removeConfirm": "Remove your custom AI provider? Your chatbot will revert to the platform default.",
-			"providerLabel": "Provider",
-			"selectProvider": "Select provider",
-			"openai": "OpenAI",
-			"openaiCompatible": "OpenAI Compatible",
-			"googleGemini": "Google Gemini",
-			"anthropic": "Anthropic",
-			"apiKeyPlaceholder": "Paste your API key",
-			"apiKeyEncrypted": "Stored encrypted. Only the last 4 characters are shown after saving.",
-			"baseUrlRequired": "Base URL",
-			"baseUrlPlaceholder": "https://my.host/v1",
-			"saveFailed": "Failed to save. Please try again.",
-			"saving": "Saving…",
-			"saveProvider": "Save provider",
-			"loading": "Loading…",
-			"loadFailed": "Failed to load provider config. Please refresh the page.",
-			"apiKeyRequired": "API key is required",
-			"modelRequired": "Model is required",
-			"baseUrlRequiredError": "Base URL is required for OpenAI Compatible",
-			"embeddingModel": "Embedding Model",
-			"embeddingModelPlaceholder": "Optional, uses provider default",
-			"embeddingModelDescription": "Model used for RAG indexing. Leave blank to use the provider default."
-		}
-	},
-	"botConfig": {
-		"pageTitle": "Bot Configuration",
-		"pageSubtitle": "Configure your bot's personality, behavior, and response rules.",
-		"personalityTitle": "Bot Personality & Behavior",
-		"systemPromptLabel": "System Prompt",
-		"systemPromptPlaceholder": "Define the behavior and context for your AI assistant...",
-		"systemPromptDescription": "Instructions that define how your AI assistant responds to users.",
-		"defaultRoleLabel": "Default Role",
-		"defaultRolePlaceholder": "e.g. \"Customer support agent for Acme Shop\"",
-		"defaultRoleDescription": "The role your bot assumes when responding to users.",
-		"toneStyleLabel": "Tone & Communication Style",
-		"toneStylePlaceholder": "e.g. \"Professional but friendly\"",
-		"toneStyleDescription": "How the bot should sound in conversations with users.",
-		"saving": "Saving...",
-		"saveConfiguration": "Save Configuration",
-		"configSaved": "Configuration saved.",
-		"saveFailed": "Failed to save. Please try again.",
-		"loadFailed": "Failed to load bot configuration. Please refresh the page."
-	},
-	"billing": {
-		"addFundsForm": {
-			"title": "Add Funds",
-			"description": "Enter an amount and your card details to top up your balance.",
-			"amountUsd": "Amount (USD)",
-			"cardNumberPlaceholder": "1234 5678 9012 3456",
-			"expiryPlaceholder": "MM/YY",
-			"cvvPlaceholder": "123",
-			"nameOnCardPlaceholder": "Jane Smith",
-			"processing": "Processing...",
-			"pay": "Pay",
-			"failedToAddFunds": "Failed to add funds. Please try again.",
-			"fundsAddedSuccess": "Funds added successfully! Redirecting...",
-			"invalidCardNumber": "Invalid card number",
-			"invalidExpiry": "Invalid expiry (MM/YY)",
-			"invalidCvv": "Invalid CVV",
-			"nameRequired": "Name is required"
-		}
-	},
-	"mcp": {
-		"status": {
-			"ready": "Ready",
-			"error": "Error"
-		},
-		"customDialog": {
-			"addTitle": "Add Custom MCP Server",
-			"editTitle": "Edit Custom MCP Server",
-			"endpointUrl": "Endpoint URL",
-			"headers": "Headers",
-			"addHeader": "Add header",
-			"headerKey": "Key",
-			"headerValue": "Value",
-			"removeHeader": "Remove header",
-			"saveChanges": "Save changes",
-			"addServer": "Add server",
-			"saveFailed": "Failed to save server. Please try again."
-		}
-	},
-	"blacklist": {
-		"title": "Word Blacklist",
-		"description": "The bot will not use or engage with blacklisted terms.",
-		"wordPlaceholder": "Type a word and press Enter or Add...",
-		"adding": "Adding...",
-		"add": "Add",
-		"notLoaded": "Blacklist not loaded yet — please wait",
-		"emptyWord": "Please enter a non-empty word.",
-		"duplicateWord": "\"{{word}}\" is already in the blacklist.",
-		"addFailed": "Failed to add word. Please try again.",
-		"removeFailed": "Failed to remove word. Please try again.",
-		"loadFailed": "Failed to load blacklist. Please refresh the page.",
-		"noWords": "No blacklisted words yet.",
-		"removeAriaLabel": "Remove \"{{word}}\" from blacklist"
-	},
-	"clientDashboard": {
-		"nav": {
-			"clientDashboard": "Client Dashboard",
-			"overview": "Overview",
-			"botContext": "Bot Context",
-			"botConfiguration": "Bot Configuration",
-			"toolsMcp": "Tools MCP",
-			"widgetSetup": "Widget Setup",
-			"chatPreviews": "Chat Previews",
-			"lightMode": "Light Mode",
-			"darkMode": "Dark Mode",
-			"unknownCompany": "Unknown Company",
-			"failedToLoad": "Failed to load"
-		}
-	},
-	"backoffice": {
-		"nav": {
-			"adminDashboard": "Admin Dashboard",
-			"clients": "Clients",
-			"chats": "Chats",
-			"activityLogs": "Activity Logs",
-			"mcpServers": "MCP Servers",
-			"lightMode": "Light Mode",
-			"darkMode": "Dark Mode",
-			"talqoAdmin": "Talqo Admin",
-			"admin": "Admin",
-			"failedToLoad": "Failed to load"
-		},
-		"activityLogs": {
-			"title": "Activity Logs",
-			"subtitle": "Impersonate, suspend, and re-enable actions performed by admins",
-			"recentActions": "Recent Actions",
-			"showingRecent": "Showing the 100 most recent admin actions",
-			"failedToLoad": "Failed to load activity logs.",
-			"noLogs": "No activity logs yet.",
-			"timestamp": "Timestamp",
-			"admin": "Admin",
-			"action": "Action",
-			"client": "Client",
-			"suspend": "Suspend",
-			"reEnable": "Re-enable",
-			"impersonate": "Impersonate"
-		},
-		"stats": {
-			"adminDashboard": "Admin Dashboard",
-			"adminDashboardDescription": "Manage clients, users, and system settings",
-			"totalClients": "Total Clients",
-			"allClients": "All registered clients",
-			"activeClientsLast30d": "Active Clients",
-			"activeClientsLast30dSubtitle": "With conversations in last 30 days",
-			"platformTokens": "Platform Tokens",
-			"totalConsumed": "Total consumed",
-			"totalCost": "Total Cost",
-			"platformSpend": "Platform spend",
-			"conversations": "Conversations",
-			"allTime": "All time",
-			"avgSatisfaction": "Avg Satisfaction",
-			"platformWideRating": "Platform-wide rating",
-			"failedToLoadClients": "Failed to load clients",
-			"failedToLoadConversations": "Failed to load conversations",
-			"clients": "Clients",
-			"manageClients": "Manage all clients in the system"
-		},
-		"clientsTable": {
-			"client": "Client",
-			"status": "Status",
-			"aiProvider": "AI Provider",
-			"tokenUsage": "Token Usage",
-			"actions": "Actions",
-			"active": "Active",
-			"suspended": "Suspended",
-			"noClientsFound": "No clients found",
-			"impersonate": "Impersonate",
-			"suspend": "Suspend",
-			"reEnable": "Re-enable",
-			"platformDefault": "Platform Default"
-		},
-		"clientActions": {
-			"suspendTitle": "Suspend client?",
-			"suspendDescription": "This will immediately block the client from accessing their dashboard and widget.",
-			"reEnableTitle": "Re-enable client?",
-			"reEnableDescription": "This will restore the client's access to their dashboard and widget."
-		},
-		"conversationsTable": {
-			"client": "Client",
-			"started": "Started",
-			"messages": "Messages",
-			"rating": "Rating",
-			"preview": "Preview",
-			"noConversationsFound": "No conversations found",
-			"close": "Close",
-			"view": "View",
-			"failedToLoadConversation": "Failed to load conversation",
-			"noMessages": "No messages",
-			"chatPreviews": "Chat Previews",
-			"chatPreviewsDescription": "Browse and inspect end-user conversations",
-			"pagination": {
-				"previous": "Previous",
-				"next": "Next",
-				"page": "Page {{page}}"
-			},
-			"ratingLabel": "Rating",
-			"selectConversationPlaceholder": "Select a conversation to preview it"
-		},
-		"mcpServersTable": {
-			"name": "Name",
-			"description": "Description",
-			"type": "Type",
-			"actions": "Actions",
-			"noServers": "No servers found",
-			"edit": "Edit",
-			"delete": "Delete"
-		},
-		"mcp": {
-			"pageTitle": "MCP Servers",
-			"pageDescription": "Manage pre-made MCP server configurations available to clients",
-			"deleteConfirmTitle": "Delete MCP server?",
-			"deleteConfirmDescription": "This will permanently remove the server configuration. Clients using it will lose access.",
-			"addServer": "Add Server",
-			"editServer": "Edit Server",
-			"name": "Name",
-			"namePlaceholder": "My MCP Server",
-			"description": "Description",
-			"descriptionPlaceholder": "Optional description",
-			"transportType": "Transport Type",
-			"selectTransportType": "Select type",
-			"url": "Endpoint URL",
-			"headers": "Headers",
-			"headerKey": "Key",
-			"headerValue": "Value",
-			"addHeader": "Add Header",
-			"removeHeader": "Remove header",
-			"command": "Command",
-			"commandPlaceholder": "npx my-mcp-server",
-			"args": "Arguments",
-			"argValue": "Argument",
-			"addArg": "Add Argument",
-			"removeArg": "Remove argument",
-			"env": "Environment Variables",
-			"envKey": "Key",
-			"envValue": "Value",
-			"addEnv": "Add Variable",
-			"removeEnv": "Remove variable",
-			"saving": "Saving...",
-			"saveChanges": "Save Changes",
-			"configuredServers": "Configured Servers",
-			"fetchFailed": "Failed to load MCP servers. Please refresh the page.",
-			"createFailed": "Failed to create server. Please try again.",
-			"updateFailed": "Failed to update server. Please try again.",
-			"deleteFailed": "Failed to delete server. Please try again."
-		}
-	},
-	"auth": {
-		"login": {
-			"title": "Log in",
-			"goToLogin": "Go to login",
-			"description": "Enter your email and password to access your dashboard",
-			"emailPlaceholder": "m@example.com",
-			"forgotPassword": "Forgot password?",
-			"submitting": "Logging in...",
-			"noAccount": "Don't have an account?",
-			"signUp": "Sign up",
-			"invalidCredentials": "Invalid email or password. Please try again.",
-			"loginFailed": "Login failed. Please try again."
-		},
-		"register": {
-			"title": "Create an account",
-			"description": "Enter your details below to create your account",
-			"namePlaceholder": "John Doe",
-			"emailPlaceholder": "m@example.com",
-			"confirmPassword": "Confirm Password",
-			"submitting": "Creating account...",
-			"createAccount": "Create account",
-			"hasAccount": "Already have an account?",
-			"registrationFailed": "Registration failed. Please try again.",
-			"checkEmailTitle": "Check your email!",
-			"checkEmailDescription": "We've sent a verification link to {{email}}. Click it to activate your account.",
-			"verificationSent": "Verification email sent. Please check your inbox.",
-			"resendIn": "Resend available in {{seconds}}s",
-			"resendVerification": "Resend verification email",
-			"sending": "Sending...",
-			"backToHome": "Back to home",
-			"confirmPasswordRequired": "Please confirm your password",
-			"passwordsDoNotMatch": "Passwords do not match"
-		},
-		"forgotPassword": {
-			"title": "Forgot password?",
-			"description": "Enter your email address and we'll send you a link to reset your password.",
-			"emailPlaceholder": "m@example.com",
-			"sendResetLink": "Send reset link",
-			"sending": "Sending...",
-			"error": "Failed to send reset link. Please try again or contact support.",
-			"backToLogin": "Back to login",
-			"successTitle": "Check your email",
-			"successDescription": "If an account exists with {{email}}, we've sent a password reset link to your inbox."
-		},
-		"passwordChange": {
-			"currentPasswordRequired": "Current password is required",
-			"passwordMinLength": "Password must be at least 8 characters",
-			"confirmNewPasswordRequired": "Please confirm your new password",
-			"passwordsDoNotMatch": "Passwords do not match"
-		},
-		"resetPassword": {
-			"title": "Reset password",
-			"description": "Enter your new password below.",
-			"newPassword": "New password",
-			"placeholder": "Enter new password",
-			"submitting": "Resetting...",
-			"successTitle": "Password reset!",
-			"successDescription": "Your password has been reset successfully. Redirecting to login...",
-			"verifyingTitle": "Verifying link...",
-			"verifyingDescription": "Please wait while we verify your reset link.",
-			"invalidTitle": "Invalid link",
-			"invalidDescription": "This password reset link is invalid or has expired.",
-			"requestNew": "Please request a new password reset link.",
-			"requestNewLink": "Request new link",
-			"failed": "Failed to reset password. Please try again.",
-			"linkInvalidOrExpired": "This link is invalid or has expired. Please request a new one.",
-			"linkAlreadyUsed": "This link has already been used. Please request a new one.",
-			"unableToVerify": "Unable to verify link. Please try again later.",
-			"passwordMinLength": "Must be at least 8 characters"
-		},
-		"verifyEmail": {
-			"verifyingTitle": "Verifying your email...",
-			"verifyingDescription": "Please wait while we verify your email address.",
-			"successTitle": "Email verified!",
-			"successDescription": "Your email has been verified successfully. Redirecting to dashboard...",
-			"goToDashboard": "Go to dashboard",
-			"failedTitle": "Verification failed",
-			"failedDescription": "We couldn't verify your email.",
-			"missingToken": "Verification token is missing. Please check your email link.",
-			"invalidToken": "The verification link is invalid. Please request a new one.",
-			"tokenExpired": "The verification link has expired. Please register again.",
-			"alreadyVerified": "This email has already been verified. You can log in now.",
-			"verificationFailed": "Verification failed. Please try again.",
-			"needNewLink": "Need a new verification link?",
-			"emailAddress": "Email address",
-			"emailPlaceholder": "Enter your email",
-			"resendIn": "Resend available in {{seconds}}s",
-			"resendVerification": "Resend verification email",
-			"sending": "Sending...",
-			"verificationSent": "Verification email sent. Please check your inbox.",
-			"resendFailed": "Resend failed. Please try again.",
-			"registerAgain": "Register again"
-		}
+	"impersonation": {
+		"exitToBackoffice": "Exit to backoffice",
+		"viewingAsClient": "Viewing as client (admin impersonation)"
 	},
 	"landing": {
-		"heroSection": {
-			"description": "Talqo gives your website a branded AI assistant that answers visitor questions using the right business context: products, policies, bookings, docs, and connected tools.",
-			"startForFree": "Start for free",
-			"viewDocumentation": "View Documentation",
-			"line1": "The AI chat widget",
-			"line2": "your website needs.",
-			"tryLive": "Try it live in the corner",
-			"embedFile": "index.html",
-			"embedTitle": "Paste the snippet and get going.",
-			"embedDescription": "This is all your site needs to show the widget.",
-			"previewSite": "Your site",
-			"live": "Live",
-			"widgetMessage": "Hi — I can help with products, policies, bookings, docs, and more."
+		"capabilities": {
+			"anyWebsite": "Any website",
+			"brandColors": "Brand colors",
+			"byok": "BYOK",
+			"customPersonality": "Custom personality",
+			"eyebrow": "Built for real sites",
+			"knowledgeBase": "Knowledge base",
+			"mcpTools": "MCP tools",
+			"title": "Connect sources. Match your site. Stay in control."
 		},
-		"header": {
-			"switchToLightTheme": "Switch to light theme",
-			"switchToDarkTheme": "Switch to dark theme",
-			"getStarted": "Get Started"
+		"finalCta": {
+			"description": "Configure your widget and let Talqo answer visitors instantly.",
+			"startFree": "Start for free",
+			"title": "Ready to add Talqo?",
+			"viewDocs": "View docs"
 		},
 		"footer": {
 			"copyright": "Talqo. All rights reserved."
 		},
+		"header": {
+			"getStarted": "Get Started",
+			"switchToDarkTheme": "Switch to dark theme",
+			"switchToLightTheme": "Switch to light theme"
+		},
+		"heroSection": {
+			"description": "Talqo gives your website a branded AI assistant that answers visitor questions using the right business context: products, policies, bookings, docs, and connected tools.",
+			"embedDescription": "This is all your site needs to show the widget.",
+			"embedFile": "index.html",
+			"embedTitle": "Paste the snippet and get going.",
+			"line1": "The AI chat widget",
+			"line2": "your website needs.",
+			"live": "Live",
+			"previewSite": "Your site",
+			"startForFree": "Start for free",
+			"tryLive": "Try it live in the corner",
+			"viewDocumentation": "View Documentation",
+			"widgetMessage": "Hi — I can help with products, policies, bookings, docs, and more."
+		},
 		"steps": {
 			"configure": "Configure",
 			"configureDescription": "Add product data, policies, docs, tools, brand colors, and support rules.",
-			"paste": "Embed",
-			"pasteDescription": "Add the generated widget snippet to your website.",
 			"launch": "Launch",
-			"launchDescription": "Save the page. The widget appears and is ready for visitors."
+			"launchDescription": "Save the page. The widget appears and is ready for visitors.",
+			"paste": "Embed",
+			"pasteDescription": "Add the generated widget snippet to your website."
 		},
 		"useCases": {
 			"eyebrow": "Use cases",
-			"title": "Helpful answers for any website.",
-			"shop": {
-				"label": "Shop",
-				"question": "Where is my order?",
-				"answer": "Order status found. Delivery is tomorrow."
-			},
 			"saas": {
+				"answer": "Here is the setup path from your docs.",
 				"label": "SaaS",
-				"question": "How do I connect the API?",
-				"answer": "Here is the setup path from your docs."
+				"question": "How do I connect the API?"
 			},
 			"services": {
+				"answer": "Tuesday has two open slots.",
 				"label": "Services",
-				"question": "Can I book Tuesday?",
-				"answer": "Tuesday has two open slots."
-			}
-		},
-		"capabilities": {
-			"eyebrow": "Built for real sites",
-			"title": "Connect sources. Match your site. Stay in control.",
-			"knowledgeBase": "Knowledge base",
-			"mcpTools": "MCP tools",
-			"brandColors": "Brand colors",
-			"customPersonality": "Custom personality",
-			"byok": "BYOK",
-			"anyWebsite": "Any website"
-		},
-		"finalCta": {
-			"title": "Ready to add Talqo?",
-			"description": "Configure your widget and let Talqo answer visitors instantly.",
-			"startFree": "Start for free",
-			"viewDocs": "View docs"
+				"question": "Can I book Tuesday?"
+			},
+			"shop": {
+				"answer": "Order status found. Delivery is tomorrow.",
+				"label": "Shop",
+				"question": "Where is my order?"
+			},
+			"title": "Helpful answers for any website."
 		}
 	},
-	"adminStats": {
-		"currentBalance": "Current Balance",
-		"availableFunds": "Available funds",
-		"totalTokens": "Total Tokens",
-		"tokensChange": "+20.1% from last month",
-		"questionsAnswered": "Questions Answered",
-		"questionsChange": "+15% from last month",
-		"activeConnectors": "Active Connectors",
-		"connectorsSubtitle": "Product DB, Internal Wiki",
-		"currentSpend": "Current Spend",
-		"spendSubtitle": "Limit: 0.00 / month"
+	"mcp": {
+		"customDialog": {
+			"addHeader": "Add header",
+			"addServer": "Add server",
+			"addTitle": "Add Custom MCP Server",
+			"editTitle": "Edit Custom MCP Server",
+			"endpointUrl": "Endpoint URL",
+			"headerKey": "Key",
+			"headers": "Headers",
+			"headerValue": "Value",
+			"removeHeader": "Remove header",
+			"saveChanges": "Save changes",
+			"saveFailed": "Failed to save server. Please try again."
+		},
+		"status": {
+			"error": "Error",
+			"ready": "Ready"
+		}
 	},
+	"nameOnCard": "Name on Card",
+	"newPassword": "New Password",
 	"notFound": {
-		"title": "Page Not Found",
 		"description": "The page you're looking for doesn't exist or has been moved.",
+		"errorCode": "Error 404",
 		"goDashboard": "Go to Dashboard",
-		"goHome": "Go to Home"
+		"goHome": "Go to Home",
+		"title": "Page Not Found"
 	},
 	"provider": {
-		"openai": "OpenAI",
-		"openaiCompatible": "OpenAI Compatible",
+		"anthropic": "Anthropic",
 		"google": "Google",
-		"anthropic": "Anthropic"
-	}
+		"openai": "OpenAI",
+		"openaiCompatible": "OpenAI Compatible"
+	},
+	"settings": {
+		"account": {
+			"changePassword": "Change Password",
+			"changing": "Changing...",
+			"confirmPassword": "Confirm your password",
+			"dangerZoneDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+			"dangerZoneTitle": "Danger Zone",
+			"deleteAccount": "Delete Account",
+			"deleteAccountDescription": "This will immediately and irreversibly delete your account, widget, all conversations, and every other associated record. There is no undo.",
+			"deleteAccountError": "Incorrect password. Please try again.",
+			"deleteAccountTitle": "Delete account permanently?",
+			"deleteMyAccount": "Delete my account",
+			"emailPlaceholder": "you@example.com",
+			"namePlaceholder": "Your name",
+			"passwordChangedSuccess": "Password changed successfully",
+			"passwordChangeFailed": "Failed to change password. Please try again.",
+			"passwordPlaceholder": "Enter your password",
+			"profileSaveFailed": "Failed to save profile. Please try again.",
+			"regenerate": "Regenerate",
+			"rotateFailed": "Failed to regenerate token. Please try again.",
+			"saveProfile": "Save Profile",
+			"saving": "Saving...",
+			"title": "Account Details",
+			"widgetTokenHelp": "This token authenticates your embedded chat widget. Regenerating it will invalidate any currently deployed widgets until updated.",
+			"widgetTokenLabel": "Widget Token"
+		},
+		"billing": {
+			"addFunds": "Add Funds",
+			"configureProvider": "Configure it in the AI Provider tab.",
+			"monthlyLimit": "Monthly Limit (USD)",
+			"ownApiKeyPrompt": "Want to use your own API key instead?",
+			"saveSettings": "Save Settings",
+			"saving": "Saving...",
+			"title": "Usage & Limits",
+			"usageAlerts": "Usage Alerts",
+			"usageAlertsDescription": "Email me when reaching 80% of limit"
+		},
+		"provider": {
+			"anthropic": "Anthropic",
+			"apiKeyEncrypted": "Stored encrypted. Only the last 4 characters are shown after saving.",
+			"apiKeyMasked": "API Key",
+			"apiKeyPlaceholder": "Paste your API key",
+			"apiKeyRequired": "API key is required",
+			"baseUrl": "Base URL",
+			"baseUrlPlaceholder": "https://my.host/v1",
+			"baseUrlRequired": "Base URL",
+			"baseUrlRequiredError": "Base URL is required for OpenAI Compatible",
+			"bringYourOwn": "Want to use your own API key? You can connect OpenAI, Anthropic, Google Gemini, or any OpenAI-compatible endpoint. Your provider will be used instead of the platform default.",
+			"changeProvider": "Change provider",
+			"configureCustom": "Configure custom provider",
+			"customActive": "Custom provider active",
+			"description": "Optionally bring your own AI provider and API key. By default your chatbot uses the platform-hosted AI — no setup required.",
+			"embeddingModel": "Embedding Model",
+			"embeddingModelDescription": "Model used for RAG indexing. Leave blank to use the provider default.",
+			"embeddingModelPlaceholder": "Optional, uses provider default",
+			"googleGemini": "Google Gemini",
+			"loadFailed": "Failed to load provider config. Please refresh the page.",
+			"loading": "Loading…",
+			"model": "Model",
+			"modelRequired": "Model is required",
+			"openai": "OpenAI",
+			"openaiCompatible": "OpenAI Compatible",
+			"platformHosted": "Using platform-hosted AI",
+			"platformHostedDescription": "Your chatbot is running on the platform's managed AI. No configuration needed.",
+			"providerLabel": "Provider",
+			"remove": "Remove",
+			"removeConfirm": "Remove your custom AI provider? Your chatbot will revert to the platform default.",
+			"removeFailed": "Failed to remove provider. Please try again.",
+			"removing": "Removing…",
+			"saveFailed": "Failed to save. Please try again.",
+			"saveProvider": "Save provider",
+			"saving": "Saving…",
+			"selectProvider": "Select provider",
+			"title": "AI Provider",
+			"updated": "Updated"
+		}
+	},
+	"showPassword": "Show password",
+	"tools": {
+		"availableTools": "Available tools:",
+		"customServers": "Custom Servers",
+		"failedToLoadServerDetails": "Failed to load server details",
+		"noPreconfiguredServers": "No pre-configured servers available yet.",
+		"noToolsFound": "No tools found",
+		"preconfiguredServers": "Pre-configured Servers",
+		"unknownServer": "Unknown",
+		"unknownType": "unknown"
+	},
+	"widget": {
+		"appearance": {
+			"background": "Background",
+			"borderColor": "Border Color",
+			"bottomLeft": "Bottom Left",
+			"bottomRight": "Bottom Right",
+			"color": "Color",
+			"darkMode": "Dark Mode",
+			"footerText": "Footer Text",
+			"headerTitle": "Header Title",
+			"lightMode": "Light Mode",
+			"primaryColor": "Primary Color",
+			"secondaryBackground": "Secondary Background",
+			"secondaryText": "Secondary Text",
+			"sendButtonIcon": "Send Button Icon",
+			"textColor": "Text Color",
+			"title": "Appearance",
+			"userMessageText": "User Message Text",
+			"widgetPosition": "Widget Position"
+		},
+		"botName": {
+			"avatarFileType": "SVG",
+			"botAvatarLabel": "Bot Avatar",
+			"botNameHelp": "This name will be displayed in the widget header.",
+			"botNameLabel": "Bot Name",
+			"botNamePlaceholder": "AI Assistant",
+			"customAvatarUploaded": "Custom avatar uploaded",
+			"dropSvgHere": "Drop SVG here or click to upload",
+			"failedToReadFile": "Failed to read file. Please try again.",
+			"fileTooLarge": "File too large. Maximum size is {{maxSize}}KB.",
+			"invalidFileContent": "Invalid file content. Expected text format.",
+			"invalidSvgFile": "Invalid SVG file. File must start with <svg tag and contain valid SVG content.",
+			"onlySvgSupported": "Only SVG files are supported.",
+			"title": "Bot Identity",
+			"uploadSquareSvg": "Upload a square SVG for best results"
+		},
+		"embedCode": {
+			"copied": "Copied!",
+			"copy": "Copy",
+			"installInstructions": "Installation Instructions:",
+			"loading": "Loading...",
+			"placeholder": "// Loading your widget configuration...\n// Please wait while we fetch your widget token.",
+			"step1": "Copy the code above",
+			"step2": "Paste it before the closing </body> tag on your website",
+			"step3": "The widget will appear on your site automatically",
+			"title": "Embed Code"
+		},
+		"onboarding": {
+			"choosePosition": "Choose widget position (left or right)",
+			"customizeColors": "Customize colors to match your brand",
+			"description": "Let your customers chat with AI directly on your website. No coding required!",
+			"dontShowAgain": "Don't Show This Again",
+			"getEmbedCode": "Get embed code in one click",
+			"remindLater": "Remind Me Later",
+			"saving": "Saving...",
+			"seePreview": "See live preview before deploying",
+			"setUpNow": "Set Up Now",
+			"title": "Add AI Chat to Your Website",
+			"whatYouCanDo": "What you can do:"
+		},
+		"preview": {
+			"botMessage": "Hi! How can I help you today?",
+			"darkMode": "Dark Mode",
+			"lightMode": "Light Mode",
+			"poweredBy": "Powered by Talqo",
+			"title": "Live Preview",
+			"typeAMessage": "Type a message...",
+			"userMessage": "Hello!"
+		},
+		"setup": {
+			"configErrorDescription": "Failed to load widget configuration. Please try again.",
+			"configErrorTitle": "Error loading widget configuration",
+			"errorDescription": "Failed to load client information. Please try again.",
+			"errorTitle": "Error loading client data",
+			"reset": "Reset",
+			"resetConfirmDescription": "This will discard all customizations and restore the default theme. This action cannot be undone.",
+			"resetConfirmTitle": "Reset to defaults?",
+			"save": "Save",
+			"saved": "Widget configuration saved.",
+			"saveFailed": "Failed to save configuration. Please try again.",
+			"saving": "Saving...",
+			"title": "Widget Configuration"
+		}
+	},
+	"word": "Word"
 }

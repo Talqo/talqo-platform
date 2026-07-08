@@ -14,9 +14,11 @@
 		"preview": "vite preview",
 		"generate-routes": "tsr generate",
 		"generate-api": "bun run scripts/generate-api.ts",
-		"check-i18n-unused": "bun run scripts/check-i18n-unused.ts",
-		"check-i18n-hardcoded": "bash scripts/check-i18n-hardcoded.sh",
-		"check-i18n": "bun run check-i18n-unused && bash scripts/check-i18n-hardcoded.sh"
+		"i18n-status": "i18next-cli status --config i18next.config.ts",
+		"i18n-lint": "i18next-cli lint --config i18next.config.ts",
+		"i18n-extract-check": "i18next-cli extract --ci --config i18next.config.ts",
+		"i18n-check": "i18next-cli status --config i18next.config.ts && i18next-cli lint --quiet --config i18next.config.ts && i18next-cli extract --ci --quiet --config i18next.config.ts",
+		"check-i18n": "bun run i18n-check"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.2.2",

@@ -1,89 +1,456 @@
 {
-	"dashboard": {
-		"overview": {
-			"title": "Přehled nástěnky",
-			"subtitle": "Vítejte zpět. Tady je přehled o vašem botovi.",
-			"currentBalance": "Aktuální zůstatek",
-			"availableFunds": "Dostupné prostředky",
-			"addFunds": "Dobít zůstatek",
-			"totalTokens": "Celkem tokenů",
-			"allTime": "Celkem",
-			"questionsAnswered": "Zodpovězené otázky",
-			"currentSpend": "Aktuální výdaje",
-			"totalConversations": "Celkem konverzací",
-			"uniqueUsers": "Unikátní uživatelé",
-			"sessionsThatChatted": "Relace, které chatovaly",
-			"visitorEngagement": "Zapojení návštěvníků",
-			"siteVisitorsWhoChatted": "Návštěvníci, kteří chatovali",
-			"avgSatisfaction": "Prům. spokojenost",
-			"satisfactionRating": "Hodnocení spokojenosti",
-			"noData": "Žádná data k dispozici",
-			"last30Days": "Posledních 30 dní"
+	"auth": {
+		"forgotPassword": {
+			"backToLogin": "Zpět na přihlášení",
+			"description": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovení hesla.",
+			"emailPlaceholder": "m@example.com",
+			"error": "Odkaz pro obnovení se nepodařilo odeslat. Zkuste to znovu nebo kontaktujte podporu.",
+			"sending": "Odesílání...",
+			"sendResetLink": "Odeslat odkaz pro obnovení",
+			"successDescription": "Pokud existuje účet s {{email}}, odeslali jsme odkaz pro obnovení hesla do vaší schránky.",
+			"successTitle": "Zkontrolujte svůj e-mail",
+			"title": "Zapomněli jste heslo?"
 		},
-		"botContext": {
-			"title": "Kontext bota",
-			"subtitle": "Spravujte soubory, které bot používá jako kontext.",
-			"failedToLoadFiles": "Nepodařilo se načíst soubory",
-			"unexpectedError": "Došlo k neočekávané chybě"
+		"login": {
+			"description": "Zadejte svůj e-mail a heslo pro přístup do nástěnky",
+			"emailPlaceholder": "m@example.com",
+			"forgotPassword": "Zapomněli jste heslo?",
+			"goToLogin": "Přejít na přihlášení",
+			"invalidCredentials": "Neplatný e-mail nebo heslo. Zkuste to znovu.",
+			"loginFailed": "Přihlášení selhalo. Zkuste to znovu.",
+			"noAccount": "Nemáte účet?",
+			"signUp": "Zaregistrovat se",
+			"submitting": "Přihlašování...",
+			"title": "Přihlásit se"
 		},
-		"settings": {
-			"title": "Nastavení",
-			"subtitle": "Spravujte svůj účet, fakturaci a konfiguraci AI poskytovatele.",
-			"accountTab": "Účet",
-			"billingTab": "Fakturace",
-			"aiProviderTab": "AI poskytovatel"
+		"passwordChange": {
+			"confirmNewPasswordRequired": "Potvrďte nové heslo",
+			"currentPasswordRequired": "Současné heslo je povinné",
+			"passwordMinLength": "Heslo musí mít alespoň 8 znaků",
+			"passwordsDoNotMatch": "Hesla se neshodují"
 		},
-		"widgetSetup": {
-			"title": "Nastavení widgetu",
-			"subtitle": "Přizpůsobte vzhled chatovacího widgetu a vložte jej na svůj web."
+		"register": {
+			"backToHome": "Zpět na domovskou stránku",
+			"checkEmailDescription": "Odeslali jsme ověřovací odkaz na {{email}}. Klikněte na něj pro aktivaci účtu.",
+			"checkEmailTitle": "Zkontrolujte svůj e-mail!",
+			"confirmPassword": "Potvrdit heslo",
+			"confirmPasswordRequired": "Potvrďte své heslo",
+			"createAccount": "Vytvořit účet",
+			"description": "Zadejte své údaje pro vytvoření účtu",
+			"emailPlaceholder": "m@example.com",
+			"hasAccount": "Již máte účet?",
+			"namePlaceholder": "Jan Novák",
+			"passwordsDoNotMatch": "Hesla se neshodují",
+			"registrationFailed": "Registrace selhala. Zkuste to znovu.",
+			"resendIn": "Opětovné odeslání za {{seconds}}s",
+			"resendVerification": "Znovu odeslat ověřovací e-mail",
+			"sending": "Odesílání...",
+			"submitting": "Vytváření účtu...",
+			"title": "Vytvořit účet",
+			"verificationSent": "Ověřovací e-mail odeslán. Zkontrolujte svou schránku."
 		},
-		"addFunds": {
-			"title": "Dobít zůstatek",
-			"subtitle": "Dobijte zůstatek na svém účtu."
+		"resetPassword": {
+			"description": "Zadejte své nové heslo níže.",
+			"failed": "Obnovení hesla selhalo. Zkuste to znovu.",
+			"invalidDescription": "Tento odkaz pro obnovení hesla je neplatný nebo vypršel.",
+			"invalidTitle": "Neplatný odkaz",
+			"linkAlreadyUsed": "Tento odkaz již byl použit. Vyžádejte si nový.",
+			"linkInvalidOrExpired": "Tento odkaz je neplatný nebo vypršel. Vyžádejte si nový.",
+			"newPassword": "Nové heslo",
+			"passwordMinLength": "Heslo musí mít alespoň 8 znaků",
+			"placeholder": "Zadejte nové heslo",
+			"requestNew": "Vyžádejte si nový odkaz pro obnovení hesla.",
+			"requestNewLink": "Vyžádat nový odkaz",
+			"submitting": "Obnovování...",
+			"successDescription": "Vaše heslo bylo úspěšně obnoveno. Přesměrováváme na přihlášení...",
+			"successTitle": "Heslo obnoveno!",
+			"title": "Obnovit heslo",
+			"unableToVerify": "Odkaz se nepodařilo ověřit. Zkuste to později znovu.",
+			"verifyingDescription": "Čekejte prosím, ověřujeme váš odkaz pro obnovení.",
+			"verifyingTitle": "Ověřování odkazu..."
 		},
-		"chats": {
-			"title": "Náhledy chatů",
-			"subtitle": "Prohlížejte konverzace, které vaši návštěvníci vedli s botem.",
-			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
-			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
-			"noMessages": "Žádné zprávy",
-			"conversation": "Konverzace",
-			"started": "Zahájeno"
-		},
-		"chatsTable": {
-			"started": "Zahájeno",
-			"messages": "Zprávy",
-			"rating": "Hodnocení",
-			"preview": "Náhled",
-			"noConversationsFound": "Zatím žádné konverzace",
-			"close": "Zavřít",
-			"view": "Zobrazit",
-			"pagination": {
-				"previous": "Předchozí",
-				"next": "Další",
-				"page": "Stránka {{page}}"
-			}
-		},
-		"tools": {
-			"title": "MCP nástroje",
-			"subtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",
-			"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat."
+		"verifyEmail": {
+			"alreadyVerified": "Tento e-mail je již ověřen. Můžete se přihlásit.",
+			"emailAddress": "E-mailová adresa",
+			"emailPlaceholder": "Zadejte svůj e-mail",
+			"failedDescription": "Váš e-mail se nepodařilo ověřit.",
+			"failedTitle": "Ověření selhalo",
+			"goToDashboard": "Přejít na nástěnku",
+			"invalidToken": "Odkaz pro ověření je neplatný. Vyžádejte si nový.",
+			"missingToken": "Chybí ověřovací token. Zkontrolujte odkaz v e-mailu.",
+			"needNewLink": "Potřebujete nový ověřovací odkaz?",
+			"registerAgain": "Zaregistrovat se znovu",
+			"resendFailed": "Znovu odeslání selhalo. Zkuste to znovu.",
+			"resendIn": "Opětovné odeslání za {{seconds}}s",
+			"resendVerification": "Znovu odeslat ověřovací e-mail",
+			"sending": "Odesílání...",
+			"successDescription": "Váš e-mail byl úspěšně ověřen. Přesměrováváme na nástěnku...",
+			"successTitle": "E-mail ověřen!",
+			"tokenExpired": "Odkaz pro ověření vypršel. Zaregistrujte se znovu.",
+			"verificationFailed": "Ověření selhalo. Zkuste to znovu.",
+			"verificationSent": "Ověřovací e-mail odeslán. Zkontrolujte svou schránku.",
+			"verifyingDescription": "Čekejte prosím, ověřujeme vaši e-mailovou adresu.",
+			"verifyingTitle": "Ověřování e-mailu..."
 		}
 	},
-	"impersonation": {
-		"viewingAsClient": "Zobrazení jako klient (admin impersonace)",
-		"exitToBackoffice": "Zpět do backoffice"
+	"backoffice": {
+		"activityLogs": {
+			"action": "Akce",
+			"admin": "Administrátor",
+			"client": "Klient",
+			"failedToLoad": "Nepodařilo se načíst protokoly aktivit.",
+			"impersonate": "Impersonovat",
+			"noLogs": "Zatím žádné protokoly aktivit.",
+			"recentActions": "Nedávné akce",
+			"reEnable": "Znovu povolit",
+			"showingRecent": "Zobrazeno 100 nejnovějších admin akcí",
+			"subtitle": "Akce impersonace, pozastavení a opětovného povolení provedené administrátory",
+			"suspend": "Pozastavit",
+			"timestamp": "Časové razítko",
+			"title": "Protokoly aktivit"
+		},
+		"clientActions": {
+			"reEnableDescription": "Klientovi bude obnoven přístup k jeho nástěnce a widgetu.",
+			"reEnableTitle": "Znovu povolit klienta?",
+			"suspendDescription": "Klient okamžitě ztratí přístup ke své nástěnce a widgetu.",
+			"suspendTitle": "Pozastavit klienta?"
+		},
+		"clientsTable": {
+			"actions": "Akce",
+			"active": "Aktivní",
+			"aiProvider": "AI poskytovatel",
+			"client": "Klient",
+			"impersonate": "Impersonovat",
+			"noClientsFound": "Nebyli nalezeni žádní klienti",
+			"platformDefault": "Výchozí platforma",
+			"reEnable": "Znovu povolit",
+			"status": "Stav",
+			"suspend": "Pozastavit",
+			"suspended": "Pozastavený",
+			"tokenUsage": "Spotřeba tokenů"
+		},
+		"conversationsTable": {
+			"chatPreviews": "Náhledy chatů",
+			"chatPreviewsDescription": "Prohlížejte a kontrolujte konverzace koncových uživatelů",
+			"client": "Klient",
+			"close": "Zavřít",
+			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
+			"messages": "Zprávy",
+			"noConversationsFound": "Nebyly nalezeny žádné konverzace",
+			"noMessages": "Žádné zprávy",
+			"pagination": {
+				"next": "Další",
+				"page": "Stránka {{page}}",
+				"previous": "Předchozí"
+			},
+			"preview": "Náhled",
+			"rating": "Hodnocení",
+			"ratingLabel": "Hodnocení",
+			"selectConversationPlaceholder": "Vyberte konverzaci pro náhled",
+			"started": "Zahájeno",
+			"view": "Zobrazit"
+		},
+		"mcp": {
+			"addArg": "Přidat argument",
+			"addEnv": "Přidat proměnnou",
+			"addHeader": "Přidat hlavičku",
+			"addServer": "Přidat server",
+			"args": "Argumenty",
+			"argValue": "Argument",
+			"command": "Příkaz",
+			"commandPlaceholder": "npx my-mcp-server",
+			"configuredServers": "Nakonfigurované servery",
+			"createFailed": "Nepodařilo se vytvořit server. Zkuste to znovu.",
+			"deleteConfirmDescription": "Tato akce trvale odstraní konfiguraci serveru. Klienti, kteří jej používají, ztratí přístup.",
+			"deleteConfirmTitle": "Smazat MCP server?",
+			"deleteFailed": "Nepodařilo se smazat server. Zkuste to znovu.",
+			"description": "Popis",
+			"descriptionPlaceholder": "Volitelný popis",
+			"editServer": "Upravit server",
+			"env": "Proměnné prostředí",
+			"envKey": "Klíč",
+			"envValue": "Hodnota",
+			"fetchFailed": "Nepodařilo se načíst MCP servery. Obnovte prosím stránku.",
+			"headerKey": "Klíč",
+			"headers": "Hlavičky",
+			"headerValue": "Hodnota",
+			"name": "Název",
+			"namePlaceholder": "Můj MCP server",
+			"pageDescription": "Správa předpřipravených konfigurací MCP serverů dostupných klientům",
+			"pageTitle": "MCP Servery",
+			"removeArg": "Odebrat argument",
+			"removeEnv": "Odebrat proměnnou",
+			"removeHeader": "Odebrat hlavičku",
+			"saveChanges": "Uložit změny",
+			"saving": "Ukládání...",
+			"selectTransportType": "Vyberte typ",
+			"transportType": "Typ přenosu",
+			"updateFailed": "Nepodařilo se aktualizovat server. Zkuste to znovu.",
+			"url": "URL koncového bodu"
+		},
+		"mcpServersTable": {
+			"actions": "Akce",
+			"delete": "Smazat",
+			"description": "Popis",
+			"edit": "Upravit",
+			"name": "Název",
+			"noServers": "Nebyly nalezeny žádné servery",
+			"status": "Stav",
+			"type": "Typ"
+		},
+		"nav": {
+			"activityLogs": "Protokoly aktivit",
+			"admin": "Administrátor",
+			"adminDashboard": "Administrátorská nástěnka",
+			"chats": "Chaty",
+			"clients": "Klienti",
+			"darkMode": "Tmavý režim",
+			"failedToLoad": "Nepodařilo se načíst",
+			"lightMode": "Světlý režim",
+			"mcpServers": "MCP Servery",
+			"talqoAdmin": "Talqo Admin"
+		},
+		"stats": {
+			"activeClientsLast30d": "Aktivní klienti",
+			"activeClientsLast30dSubtitle": "S konverzacemi za posledních 30 dní",
+			"adminDashboard": "Administrátorská nástěnka",
+			"adminDashboardDescription": "Spravujte klienty, uživatele a systémová nastavení",
+			"allClients": "Všichni registrovaní klienti",
+			"allTime": "Celkem",
+			"avgSatisfaction": "Průměrná spokojenost",
+			"clients": "Klienti",
+			"conversations": "Konverzace",
+			"failedToLoadClients": "Nepodařilo se načíst klienty",
+			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
+			"manageClients": "Spravovat všechny klienty v systému",
+			"platformSpend": "Výdaje platformy",
+			"platformTokens": "Tokeny platformy",
+			"platformWideRating": "Hodnocení celé platformy",
+			"totalClients": "Celkem klientů",
+			"totalConsumed": "Celkem spotřebováno",
+			"totalCost": "Celkové náklady"
+		}
 	},
-	"email": "E-mail",
-	"name": "Jméno",
-	"copy": "Kopírovat",
-	"loading": "Načítání...",
-	"submit": "Odeslat",
+	"billing": {
+		"addFundsForm": {
+			"amountUsd": "Částka (USD)",
+			"cardNumberPlaceholder": "1234 5678 9012 3456",
+			"cvvPlaceholder": "123",
+			"description": "Zadejte částku a údaje o kartě pro dobití zůstatku.",
+			"expiryPlaceholder": "MM/RR",
+			"failedToAddFunds": "Dobití se nezdařilo. Zkuste to znovu.",
+			"fundsAddedSuccess": "Zůstatek úspěšně dobit! Přesměrování...",
+			"invalidCardNumber": "Neplatné číslo karty",
+			"invalidCvv": "Neplatný CVV",
+			"invalidExpiry": "Neplatná platnost (MM/RR)",
+			"nameOnCardPlaceholder": "Jana Nováková",
+			"nameRequired": "Jméno je povinné",
+			"pay": "Zaplatit",
+			"processing": "Zpracovávání...",
+			"title": "Dobít zůstatek"
+		}
+	},
+	"blacklist": {
+		"add": "Přidat",
+		"addFailed": "Nepodařilo se přidat slovo. Zkuste to znovu.",
+		"adding": "Přidávání...",
+		"description": "Bot nebude používat ani reagovat na zakázané výrazy.",
+		"duplicateWord": "\"{{word}}\" je již na černé listině.",
+		"emptyWord": "Zadejte neprázdné slovo.",
+		"loadFailed": "Nepodařilo se načíst černou listinu. Obnovte stránku.",
+		"notLoaded": "Černá listina ještě není načtená — počkejte prosím",
+		"noWords": "Zatím žádná zakázaná slova.",
+		"removeAriaLabel": "Odebrat \"{{word}}\" z černé listiny",
+		"removeFailed": "Nepodařilo se odebrat slovo. Zkuste to znovu.",
+		"title": "Černá listina slov",
+		"wordPlaceholder": "Napište slovo a stiskněte Enter nebo Přidat..."
+	},
+	"botConfig": {
+		"configSaved": "Konfigurace uložena.",
+		"defaultRoleDescription": "Role, kterou bot přijímá při odpovídání uživatelům.",
+		"defaultRoleLabel": "Výchozí role",
+		"defaultRolePlaceholder": "např. \"Zákaznický agent pro Acme Shop\"",
+		"loadFailed": "Nepodařilo se načíst konfiguraci bota. Obnovte stránku.",
+		"pageSubtitle": "Nastavte osobnost, chování a pravidla odpovědí vašeho bota.",
+		"pageTitle": "Nastavení bota",
+		"personalityTitle": "Osobnost a chování bota",
+		"saveConfiguration": "Uložit konfiguraci",
+		"saveFailed": "Uložení se nezdařilo. Zkuste to znovu.",
+		"saving": "Ukládání...",
+		"systemPromptDescription": "Pokyny, které definují, jak vaše AI asistentka odpovídá uživatelům.",
+		"systemPromptLabel": "Systémový prompt",
+		"systemPromptPlaceholder": "Definujte chování a kontext své AI asistentky...",
+		"toneStyleDescription": "Jak by měl bot znít v konverzacích s uživateli.",
+		"toneStyleLabel": "Tón a komunikační styl",
+		"toneStylePlaceholder": "např. \"Profesionální, ale přátelský\""
+	},
+	"botContext": {
+		"dragOverlay": {
+			"dropFilesHere": "Přetáhněte soubory sem"
+		},
+		"fileList": {
+			"addFile": "Přidat",
+			"contextFiles_one": "Kontextový soubor ({{count}})",
+			"contextFiles_few": "Kontextové soubory ({{count}})",
+			"contextFiles_many": "Kontextového souboru ({{count}})",
+			"contextFiles_other": "Kontextových souborů ({{count}})",
+			"dropFilesHere": "Přetáhněte soubory sem"
+		},
+		"fileListEmpty": {
+			"description": "Přetáhněte textové soubory sem nebo použijte tlačítko + k přidání",
+			"title": "Zatím žádné soubory"
+		},
+		"fileListItem": {
+			"cancelRename": "Zrušit přejmenování",
+			"confirmRename": "Potvrdit přejmenování",
+			"deleteFile": "Smazat soubor",
+			"duplicateName": "Soubor s tímto názvem již existuje",
+			"renameFailed": "Přejmenování se nezdařilo. Zkuste to znovu.",
+			"renameFile": "Přejmenovat soubor"
+		},
+		"uploadErrorAlert": {
+			"dismissErrors": "Zavřít chyby",
+			"failedToUpload_one": "Nepodařilo se nahrát {{count}} soubor",
+			"failedToUpload_few": "Nepodařilo se nahrát {{count}} soubory",
+			"failedToUpload_many": "Nepodařilo se nahrát {{count}} souboru",
+			"failedToUpload_other": "Nepodařilo se nahrát {{count}} souborů",
+			"fileAlreadyExists": "Soubor s tímto názvem již existuje",
+			"invalidFileType": "Neplatný typ souboru",
+			"serverError": "Chyba serveru při nahrávání"
+		}
+	},
+	"charts": {
+		"conversations": {
+			"ariaLabel": "Čarový graf zobrazující konverzace napříč platformou za posledních 30 dní",
+			"description": "Konverzace napříč platformou za posledních 30 dní",
+			"title": "Konverzace"
+		},
+		"questionsAsked": {
+			"ariaLabel": "Čarový graf zobrazující položené otázky za posledních 30 dní",
+			"description": "Interakce uživatelů za posledních 30 dní",
+			"title": "Položené otázky"
+		},
+		"tokenConsumption": {
+			"ariaLabel": "Sloupcový graf zobrazující spotřebu tokenů za posledních 30 dní",
+			"description": "Denní spotřeba tokenů za posledních 30 dní",
+			"title": "Spotřeba tokenů"
+		}
+	},
+	"clientDashboard": {
+		"nav": {
+			"botConfiguration": "Nastavení bota",
+			"botContext": "Kontext bota",
+			"chatPreviews": "Náhledy chatů",
+			"clientDashboard": "Nástěnka klienta",
+			"darkMode": "Tmavý režim",
+			"failedToLoad": "Nepodařilo se načíst",
+			"lightMode": "Světlý režim",
+			"overview": "Přehled",
+			"toolsMcp": "Nástroje MCP",
+			"unknownCompany": "Neznámá společnost",
+			"widgetSetup": "Nastavení widgetu"
+		}
+	},
+	"common": {
+		"add": "Přidat",
+		"cancel": "Zrušit",
+		"cardNumber": "Číslo karty",
+		"copied": "Zkopírováno!",
+		"copy": "Kopírovat",
+		"delete": "Smazat",
+		"edit": "Upravit",
+		"email": "E-mail",
+		"failed": "Chyba!",
+		"logOut": "Odhlásit se",
+		"name": "Jméno",
+		"noData": "Žádná data k dispozici",
+		"password": "Heslo",
+		"saving": "Ukládání...",
+		"switchToDarkMode": "Přepnout na tmavý režim",
+		"switchToDarkTheme": "Přepnout na tmavý motiv",
+		"switchToLightMode": "Přepnout na světlý režim",
+		"switchToLightTheme": "Přepnout na světlý motiv",
+		"talqo": "Talqo"
+	},
+	"confirmNewPassword": "Potvrďte nové heslo",
+	"currentPassword": "Současné heslo",
+	"cvv": "CVV",
+	"dashboard": {
+		"addFunds": {
+			"subtitle": "Dobijte zůstatek na svém účtu.",
+			"title": "Dobít zůstatek"
+		},
+		"botContext": {
+			"failedToLoadFiles": "Nepodařilo se načíst soubory",
+			"subtitle": "Spravujte soubory, které bot používá jako kontext.",
+			"title": "Kontext bota",
+			"unexpectedError": "Došlo k neočekávané chybě"
+		},
+		"chats": {
+			"conversation": "Konverzace",
+			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
+			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
+			"noMessages": "Žádné zprávy",
+			"started": "Zahájeno",
+			"subtitle": "Prohlížejte konverzace, které vaši návštěvníci vedli s botem.",
+			"title": "Náhledy chatů"
+		},
+		"chatsTable": {
+			"close": "Zavřít",
+			"messages": "Zprávy",
+			"noConversationsFound": "Zatím žádné konverzace",
+			"pagination": {
+				"next": "Další",
+				"page": "Stránka {{page}}",
+				"previous": "Předchozí"
+			},
+			"preview": "Náhled",
+			"rating": "Hodnocení",
+			"started": "Zahájeno",
+			"view": "Zobrazit"
+		},
+		"overview": {
+			"addFunds": "Dobít zůstatek",
+			"allTime": "Celkem",
+			"availableFunds": "Dostupné prostředky",
+			"avgSatisfaction": "Prům. spokojenost",
+			"currentBalance": "Aktuální zůstatek",
+			"currentSpend": "Aktuální výdaje",
+			"last30Days": "Posledních 30 dní",
+			"noData": "Žádná data k dispozici",
+			"questionsAnswered": "Zodpovězené otázky",
+			"satisfactionRating": "Hodnocení spokojenosti",
+			"sessionsThatChatted": "Relace, které chatovaly",
+			"siteVisitorsWhoChatted": "Návštěvníci, kteří chatovali",
+			"subtitle": "Vítejte zpět. Tady je přehled o vašem botovi.",
+			"title": "Přehled nástěnky",
+			"totalConversations": "Celkem konverzací",
+			"totalTokens": "Celkem tokenů",
+			"uniqueUsers": "Unikátní uživatelé",
+			"visitorEngagement": "Zapojení návštěvníků"
+		},
+		"settings": {
+			"accountTab": "Účet",
+			"aiProviderTab": "AI poskytovatel",
+			"billingTab": "Fakturace",
+			"subtitle": "Spravujte svůj účet, fakturaci a konfiguraci AI poskytovatele.",
+			"title": "Nastavení"
+		},
+		"tools": {
+			"noCustomServers": "Zatím žádné vlastní servery. Přidejte jeden, aby měl váš bot přístup k vlastním zdrojům dat.",
+			"subtitle": "Spravujte nástroje a integrace MCP (Model Context Protocol) pro svého bota.",
+			"title": "MCP nástroje"
+		},
+		"widgetSetup": {
+			"subtitle": "Přizpůsobte vzhled chatovacího widgetu a vložte jej na svůj web.",
+			"title": "Nastavení widgetu"
+		}
+	},
 	"error": {
 		"errorBoundary": {
-			"title": "Něco se pokazilo",
 			"description": "Došlo k neočekávané chybě.",
 			"message": "Zkuste stránku obnovit. Pokud problém přetrvává, kontaktujte podporu.",
+			"title": "Něco se pokazilo",
 			"tryAgain": "Obnovit stránku"
 		},
 		"suspenseBoundary": {
@@ -91,700 +458,284 @@
 			"loadingPage": "Načítání stránky..."
 		}
 	},
-	"success": "Úspěch",
-	"cardNumber": "Číslo karty",
 	"expiry": "Platnost",
-	"cvv": "CVV",
-	"nameOnCard": "Jméno na kartě",
-	"word": "Slovo",
-	"currentPassword": "Současné heslo",
-	"newPassword": "Nové heslo",
-	"confirmNewPassword": "Potvrďte nové heslo",
-	"systemPrompt": "Systémový prompt",
-	"defaultRole": "Výchozí role",
-	"languages": {},
-	"showPassword": "Zobrazit heslo",
 	"hidePassword": "Skrýt heslo",
-	"settings": {
-		"account": {
-			"title": "Podrobnosti o účtu",
-			"emailPlaceholder": "vy@priklad.cz",
-			"namePlaceholder": "Vaše jméno",
-			"widgetTokenLabel": "Token widgetu",
-			"widgetTokenHelp": "Tento token ověřuje váš vložený chatovací widget. Obnovením tokenu zneplatníte všechny aktuálně nasazené widgety, dokud je neaktualizujete.",
-			"regenerate": "Znovu vygenerovat",
-			"saving": "Ukládání...",
-			"saveProfile": "Uložit profil",
-			"changing": "Měnění...",
-			"changePassword": "Změnit heslo",
-			"dangerZoneTitle": "Nebezpečná zóna",
-			"dangerZoneDescription": "Trvale smaže váš účet a všechna přidružená data. Tuto akci nelze vrátit zpět.",
-			"deleteAccount": "Smazat účet",
-			"deleteAccountTitle": "Trvale smazat účet?",
-			"deleteAccountDescription": "Tímto okamžitě a nevratně smažete svůj účet, widget, všechny konverzace a každý další přidružený záznam. Není možné vrátit zpět.",
-			"confirmPassword": "Potvrďte své heslo",
-			"passwordPlaceholder": "Zadejte své heslo",
-			"deleteAccountError": "Nesprávné heslo. Zkuste to prosím znovu.",
-			"deleteMyAccount": "Smazat můj účet",
-			"passwordChangedSuccess": "Heslo bylo úspěšně změněno",
-			"passwordChangeFailed": "Nepodařilo se změnit heslo. Zkuste to prosím znovu.",
-			"profileSaveFailed": "Nepodařilo se uložit profil. Zkuste to prosím znovu.",
-			"rotateFailed": "Nepodařilo se obnovit token. Zkuste to prosím znovu."
-		},
-		"billing": {
-			"title": "Využití a limity",
-			"monthlyLimit": "Měsíční limit (USD)",
-			"usageAlerts": "Upozornění na využití",
-			"usageAlertsDescription": "Poslat e-mail při dosažení 80 % limitu",
-			"ownApiKeyPrompt": "Chcete místo toho použít vlastní API klíč?",
-			"configureProvider": "Nastavte jej v záložce AI poskytovatel.",
-			"saving": "Ukládání...",
-			"saveSettings": "Uložit nastavení",
-			"addFunds": "Přidat prostředky"
-		},
-		"provider": {
-			"title": "AI poskytovatel",
-			"description": "Volitelně přineste vlastního AI poskytovatele a API klíč. Ve výchozím nastavení používá váš chatbot platformou hostovanou AI — není potřeba žádná konfigurace.",
-			"platformHosted": "Používání platformou hostované AI",
-			"platformHostedDescription": "Váš chatbot běží na spravované AI platformy. Není potřeba žádná konfigurace.",
-			"bringYourOwn": "Chcete použít vlastní API klíč? Můžete se připojit k OpenAI, Anthropic, Google Gemini nebo libovolnému kompatibilnímu koncovému bodu. Váš poskytovatel bude použit místo výchozího nastavení platformy.",
-			"configureCustom": "Nastavit vlastního poskytovatele",
-			"customActive": "Vlastní poskytovatel je aktivní",
-			"model": "Model",
-			"apiKeyMasked": "API klíč",
-			"baseUrl": "Základní URL",
-			"updated": "Aktualizováno",
-			"changeProvider": "Změnit poskytovatele",
-			"removing": "Odebírání…",
-			"remove": "Odebrat",
-			"removeFailed": "Nepodařilo se odebrat poskytovatele. Zkuste to znovu.",
-			"removeConfirm": "Odebrat vlastního AI poskytovatele? Váš chatbot se vrátí na výchozí nastavení platformy.",
-			"providerLabel": "Poskytovatel",
-			"selectProvider": "Vybrat poskytovatele",
-			"openai": "OpenAI",
-			"openaiCompatible": "Kompatibilní s OpenAI",
-			"googleGemini": "Google Gemini",
-			"anthropic": "Anthropic",
-			"apiKeyPlaceholder": "Vložte svůj API klíč",
-			"apiKeyEncrypted": "Ukládáno šifrovaně. Po uložení se zobrazí pouze poslední 4 znaky.",
-			"baseUrlRequired": "Základní URL",
-			"baseUrlPlaceholder": "https://my.host/v1",
-			"saveFailed": "Uložení se nezdařilo. Zkuste to znovu.",
-			"saving": "Ukládání…",
-			"saveProvider": "Uložit poskytovatele",
-			"loading": "Načítání…",
-			"loadFailed": "Nepodařilo se načíst konfiguraci poskytovatele. Obnovte stránku.",
-			"apiKeyRequired": "API klíč je povinný",
-			"modelRequired": "Model je povinný",
-			"baseUrlRequiredError": "Základní URL je povinná pro OpenAI Compatible",
-			"embeddingModel": "Model pro vkládání",
-			"embeddingModelPlaceholder": "Volitelné, použije se výchozí model",
-			"embeddingModelDescription": "Model používaný pro RAG indexování. Nechte prázdné pro výchozí model poskytovatele."
-		}
-	},
-	"botConfig": {
-		"pageTitle": "Nastavení bota",
-		"pageSubtitle": "Nastavte osobnost, chování a pravidla odpovědí vašeho bota.",
-		"personalityTitle": "Osobnost a chování bota",
-		"systemPromptLabel": "Systémový prompt",
-		"systemPromptPlaceholder": "Definujte chování a kontext své AI asistentky...",
-		"systemPromptDescription": "Pokyny, které definují, jak vaše AI asistentka odpovídá uživatelům.",
-		"defaultRoleLabel": "Výchozí role",
-		"defaultRolePlaceholder": "např. \"Zákaznický agent pro Acme Shop\"",
-		"defaultRoleDescription": "Role, kterou bot přijímá při odpovídání uživatelům.",
-		"toneStyleLabel": "Tón a komunikační styl",
-		"toneStylePlaceholder": "např. \"Profesionální, ale přátelský\"",
-		"toneStyleDescription": "Jak by měl bot znít v konverzacích s uživateli.",
-		"saving": "Ukládání...",
-		"saveConfiguration": "Uložit konfiguraci",
-		"configSaved": "Konfigurace uložena.",
-		"saveFailed": "Uložení se nezdařilo. Zkuste to znovu.",
-		"loadFailed": "Nepodařilo se načíst konfiguraci bota. Obnovte stránku."
-	},
-	"billing": {
-		"addFundsForm": {
-			"title": "Dobít zůstatek",
-			"description": "Zadejte částku a údaje o kartě pro dobití zůstatku.",
-			"amountUsd": "Částka (USD)",
-			"cardNumberPlaceholder": "1234 5678 9012 3456",
-			"expiryPlaceholder": "MM/RR",
-			"cvvPlaceholder": "123",
-			"nameOnCardPlaceholder": "Jana Nováková",
-			"processing": "Zpracovávání...",
-			"pay": "Zaplatit",
-			"failedToAddFunds": "Dobití se nezdařilo. Zkuste to znovu.",
-			"fundsAddedSuccess": "Zůstatek úspěšně dobit! Přesměrování...",
-			"invalidCardNumber": "Neplatné číslo karty",
-			"invalidExpiry": "Neplatná platnost (MM/RR)",
-			"invalidCvv": "Neplatný CVV",
-			"nameRequired": "Jméno je povinné"
-		}
-	},
-	"mcp": {
-		"status": {
-			"ready": "Připraveno",
-			"error": "Chyba"
-		},
-		"customDialog": {
-			"addTitle": "Přidat vlastní MCP server",
-			"editTitle": "Upravit vlastní MCP server",
-			"endpointUrl": "URL koncového bodu",
-			"headers": "Hlavičky",
-			"addHeader": "Přidat hlavičku",
-			"headerKey": "Klíč",
-			"headerValue": "Hodnota",
-			"removeHeader": "Odstranit hlavičku",
-			"saveChanges": "Uložit změny",
-			"addServer": "Přidat server",
-			"saveFailed": "Nepodařilo se uložit server. Zkuste to prosím znovu."
-		}
-	},
-	"blacklist": {
-		"title": "Černá listina slov",
-		"description": "Bot nebude používat ani reagovat na zakázané výrazy.",
-		"wordPlaceholder": "Napište slovo a stiskněte Enter nebo Přidat...",
-		"adding": "Přidávání...",
-		"add": "Přidat",
-		"notLoaded": "Černá listina ještě není načtená — počkejte prosím",
-		"emptyWord": "Zadejte neprázdné slovo.",
-		"duplicateWord": "\"{{word}}\" je již na černé listině.",
-		"addFailed": "Nepodařilo se přidat slovo. Zkuste to znovu.",
-		"removeFailed": "Nepodařilo se odebrat slovo. Zkuste to znovu.",
-		"loadFailed": "Nepodařilo se načíst černou listinu. Obnovte stránku.",
-		"noWords": "Zatím žádná zakázaná slova.",
-		"removeAriaLabel": "Odebrat \"{{word}}\" z černé listiny"
-	},
-	"widget": {
-		"setup": {
-			"errorTitle": "Chyba při načítání dat klienta",
-			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu.",
-			"title": "Konfigurace widgetu",
-			"configErrorTitle": "Chyba při načítání konfigurace widgetu",
-			"configErrorDescription": "Nepodařilo se načíst konfiguraci widgetu. Zkuste to prosím znovu.",
-			"reset": "Obnovit",
-			"save": "Uložit",
-			"saving": "Ukládání...",
-			"saved": "Konfigurace widgetu byla uložena.",
-			"saveFailed": "Uložení konfigurace selhalo. Zkuste to prosím znovu.",
-			"resetConfirmTitle": "Obnovit výchozí nastavení?",
-			"resetConfirmDescription": "Tímto se zruší všechna přizpůsobení a obnoví výchozí motiv. Tuto akci nelze vrátit zpět."
-		},
-		"onboarding": {
-			"title": "Přidejte AI chat na svůj web",
-			"description": "Umožněte zákazníkům chatovat s AI přímo na vašem webu. Není potřeba programování!",
-			"whatYouCanDo": "Co můžete udělat:",
-			"customizeColors": "Přizpůsobte barvy své značce",
-			"choosePosition": "Zvolte pozici widgetu (vlevo nebo vpravo)",
-			"getEmbedCode": "Získejte kód jediným kliknutím",
-			"seePreview": "Podívejte se na náhled před nasazením",
-			"setUpNow": "Nastavit nyní",
-			"remindLater": "Připomenout později",
-			"dontShowAgain": "Příště nezobrazovat",
-			"saving": "Ukládání..."
-		},
-		"appearance": {
-			"title": "Vzhled",
-			"widgetPosition": "Pozice widgetu",
-			"bottomLeft": "Dole vlevo",
-			"bottomRight": "Dole vpravo",
-			"color": "Barva",
-			"lightMode": "Světlý režim",
-			"darkMode": "Tmavý režim",
-			"primaryColor": "Primární barva",
-			"background": "Pozadí",
-			"secondaryBackground": "Sekundární pozadí",
-			"textColor": "Barva textu",
-			"secondaryText": "Sekundární text",
-			"borderColor": "Barva ohraničení",
-			"headerTitle": "Nadpis hlavičky",
-			"userMessageText": "Text uživatelské zprávy",
-			"sendButtonIcon": "Ikona odesílacího tlačítka",
-			"footerText": "Text patičky"
-		},
-		"embedCode": {
-			"title": "Vložený kód",
-			"copied": "Zkopírováno!",
-			"copy": "Kopírovat",
-			"loading": "Načítání...",
-			"installInstructions": "Instrukce k instalaci:",
-			"step1": "Zkopírujte výše uvedený kód",
-			"step2": "Vložte jej před uzavírací značku </body> na vašem webu",
-			"step3": "Widget se na vašem webu zobrazí automaticky",
-			"placeholder": "// Načítání konfigurace widgetu...\n// Vyčkejte prosím, načítáme váš widget token."
-		},
-		"preview": {
-			"title": "Živý náhled",
-			"lightMode": "Světlý režim",
-			"darkMode": "Tmavý režim",
-			"botMessage": "Dobrý den! Jak vám mohu pomoci?",
-			"userMessage": "Ahoj!",
-			"typeAMessage": "Napište zprávu...",
-			"poweredBy": "Používá Talqo"
-		},
-		"botName": {
-			"title": "Identita bota",
-			"botNameLabel": "Jméno bota",
-			"botNamePlaceholder": "AI asistent",
-			"botNameHelp": "Toto jméno se zobrazí v hlavičce widgetu.",
-			"botAvatarLabel": "Avatar bota",
-			"customAvatarUploaded": "Vlastní avatar nahrán",
-			"dropSvgHere": "Přetáhněte SVG sem nebo klikněte pro nahrání",
-			"uploadSquareSvg": "Pro nejlepší výsledky nahrajte čtvercové SVG",
-			"onlySvgSupported": "Jsou podporovány pouze SVG soubory.",
-			"fileTooLarge": "Soubor je příliš velký. Maximální velikost je {{maxSize}}KB.",
-			"invalidFileContent": "Neplatný obsah souboru. Očekáván textový formát.",
-			"invalidSvgFile": "Neplatný SVG soubor. Soubor musí začínat značkou <svg a obsahovat platný SVG obsah.",
-			"failedToReadFile": "Soubor se nepodařilo přečíst. Zkuste to znovu."
-		}
-	},
-	"charts": {
-		"tokenConsumption": {
-			"title": "Spotřeba tokenů",
-			"description": "Denní spotřeba tokenů za posledních 30 dní",
-			"ariaLabel": "Sloupcový graf zobrazující spotřebu tokenů za posledních 30 dní"
-		},
-		"questionsAsked": {
-			"title": "Položené otázky",
-			"description": "Interakce uživatelů za posledních 30 dní",
-			"ariaLabel": "Čarový graf zobrazující položené otázky za posledních 30 dní"
-		},
-		"conversations": {
-			"title": "Konverzace",
-			"description": "Konverzace napříč platformou za posledních 30 dní",
-			"ariaLabel": "Čarový graf zobrazující konverzace napříč platformou za posledních 30 dní"
-		},
-		"dayNames": {
-			"mon": "Po",
-			"tue": "Út",
-			"wed": "St",
-			"thu": "Čt",
-			"fri": "Pá",
-			"sat": "So",
-			"sun": "Ne"
-		}
-	},
-	"tools": {
-		"toolCard": {
-			"added": "Přidáno",
-			"addTool": "+ Přidat"
-		},
-		"usedToolItem": {
-			"configure": "Nastavit",
-			"configurationComingSoon": "Nastavení již brzy"
-		},
-		"toolsTab": {},
-		"toolNames": {
-			"calendar": "Kalendář",
-			"documentSearch": "Hledání v dokumentech",
-			"sqlDatabase": "SQL databáze",
-			"restApi": "REST API",
-			"productDatabase": "Databáze produktů",
-			"customKnowledgeBase": "Vlastní znalostní báze"
-		},
-		"toolDescriptions": {
-			"calendar": "Správa plánu",
-			"documentSearch": "Vyhledávání v obsahu souborů",
-			"sqlDatabase": "Dotazy na databázi",
-			"restApi": "Vlastní API endpointy",
-			"readOnlyConnector": "Pouze pro čtení",
-			"staticFallbackInfo": "Statické záložní informace",
-			"toolConnector": "Nástrojový konektor"
-		},
-		"preconfiguredServers": "Předkonfigurované servery",
-		"noPreconfiguredServers": "Zatím nejsou k dispozici žádné předkonfigurované servery.",
-		"customServers": "Vlastní servery",
-		"availableTools": "Dostupné nástroje:",
-		"noToolsFound": "Nenalezeny žádné nástroje",
-		"unknownServer": "Neznámý",
-		"unknownType": "neznámý",
-		"failedToLoadServerDetails": "Nepodařilo se načíst detaily serveru"
-	},
-	"botContext": {
-		"fileList": {
-			"contextFiles": "Kontextové soubory ({{count}})",
-			"addFile": "Přidat",
-			"dropFilesHere": "Přetáhněte soubory sem"
-		},
-		"fileListEmpty": {
-			"title": "Zatím žádné soubory",
-			"description": "Přetáhněte textové soubory sem nebo použijte tlačítko + k přidání"
-		},
-		"fileListItem": {
-			"confirmRename": "Potvrdit přejmenování",
-			"cancelRename": "Zrušit přejmenování",
-			"renameFile": "Přejmenovat soubor",
-			"deleteFile": "Smazat soubor",
-			"duplicateName": "Soubor s tímto názvem již existuje",
-			"renameFailed": "Přejmenování se nezdařilo. Zkuste to znovu."
-		},
-		"uploadErrorAlert": {
-			"failedToUpload": "Nepodařilo se nahrát {{count}} soubor",
-			"failedToUpload_plural": "Nepodařilo se nahrát {{count}} souborů",
-			"fileAlreadyExists": "Soubor s tímto názvem již existuje",
-			"invalidFileType": "Neplatný typ souboru",
-			"serverError": "Chyba serveru při nahrávání",
-			"dismissErrors": "Zavřít chyby"
-		},
-		"dragOverlay": {
-			"dropFilesHere": "Přetáhněte soubory sem"
-		}
-	},
-	"auth": {
-		"login": {
-			"title": "Přihlásit se",
-			"goToLogin": "Přejít na přihlášení",
-			"description": "Zadejte svůj e-mail a heslo pro přístup do nástěnky",
-			"emailPlaceholder": "m@example.com",
-			"forgotPassword": "Zapomněli jste heslo?",
-			"submitting": "Přihlašování...",
-			"noAccount": "Nemáte účet?",
-			"signUp": "Zaregistrovat se",
-			"invalidCredentials": "Neplatný e-mail nebo heslo. Zkuste to znovu.",
-			"loginFailed": "Přihlášení selhalo. Zkuste to znovu."
-		},
-		"register": {
-			"title": "Vytvořit účet",
-			"description": "Zadejte své údaje pro vytvoření účtu",
-			"namePlaceholder": "Jan Novák",
-			"emailPlaceholder": "m@example.com",
-			"confirmPassword": "Potvrdit heslo",
-			"submitting": "Vytváření účtu...",
-			"createAccount": "Vytvořit účet",
-			"hasAccount": "Již máte účet?",
-			"registrationFailed": "Registrace selhala. Zkuste to znovu.",
-			"checkEmailTitle": "Zkontrolujte svůj e-mail!",
-			"checkEmailDescription": "Odeslali jsme ověřovací odkaz na {{email}}. Klikněte na něj pro aktivaci účtu.",
-			"verificationSent": "Ověřovací e-mail odeslán. Zkontrolujte svou schránku.",
-			"resendIn": "Opětovné odeslání za {{seconds}}s",
-			"resendVerification": "Znovu odeslat ověřovací e-mail",
-			"sending": "Odesílání...",
-			"backToHome": "Zpět na domovskou stránku",
-			"confirmPasswordRequired": "Potvrďte své heslo",
-			"passwordsDoNotMatch": "Hesla se neshodují"
-		},
-		"forgotPassword": {
-			"title": "Zapomněli jste heslo?",
-			"description": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovení hesla.",
-			"emailPlaceholder": "m@example.com",
-			"sendResetLink": "Odeslat odkaz pro obnovení",
-			"sending": "Odesílání...",
-			"error": "Odkaz pro obnovení se nepodařilo odeslat. Zkuste to znovu nebo kontaktujte podporu.",
-			"backToLogin": "Zpět na přihlášení",
-			"successTitle": "Zkontrolujte svůj e-mail",
-			"successDescription": "Pokud existuje účet s {{email}}, odeslali jsme odkaz pro obnovení hesla do vaší schránky."
-		},
-		"passwordChange": {
-			"currentPasswordRequired": "Současné heslo je povinné",
-			"passwordMinLength": "Heslo musí mít alespoň 8 znaků",
-			"confirmNewPasswordRequired": "Potvrďte nové heslo",
-			"passwordsDoNotMatch": "Hesla se neshodují"
-		},
-		"resetPassword": {
-			"title": "Obnovit heslo",
-			"description": "Zadejte své nové heslo níže.",
-			"newPassword": "Nové heslo",
-			"placeholder": "Zadejte nové heslo",
-			"submitting": "Obnovování...",
-			"successTitle": "Heslo obnoveno!",
-			"successDescription": "Vaše heslo bylo úspěšně obnoveno. Přesměrováváme na přihlášení...",
-			"verifyingTitle": "Ověřování odkazu...",
-			"verifyingDescription": "Čekejte prosím, ověřujeme váš odkaz pro obnovení.",
-			"invalidTitle": "Neplatný odkaz",
-			"invalidDescription": "Tento odkaz pro obnovení hesla je neplatný nebo vypršel.",
-			"requestNew": "Vyžádejte si nový odkaz pro obnovení hesla.",
-			"requestNewLink": "Vyžádat nový odkaz",
-			"failed": "Obnovení hesla selhalo. Zkuste to znovu.",
-			"linkInvalidOrExpired": "Tento odkaz je neplatný nebo vypršel. Vyžádejte si nový.",
-			"linkAlreadyUsed": "Tento odkaz již byl použit. Vyžádejte si nový.",
-			"unableToVerify": "Odkaz se nepodařilo ověřit. Zkuste to později znovu.",
-			"passwordMinLength": "Heslo musí mít alespoň 8 znaků"
-		},
-		"verifyEmail": {
-			"verifyingTitle": "Ověřování e-mailu...",
-			"verifyingDescription": "Čekejte prosím, ověřujeme vaši e-mailovou adresu.",
-			"successTitle": "E-mail ověřen!",
-			"successDescription": "Váš e-mail byl úspěšně ověřen. Přesměrováváme na nástěnku...",
-			"goToDashboard": "Přejít na nástěnku",
-			"failedTitle": "Ověření selhalo",
-			"failedDescription": "Váš e-mail se nepodařilo ověřit.",
-			"missingToken": "Chybí ověřovací token. Zkontrolujte odkaz v e-mailu.",
-			"invalidToken": "Odkaz pro ověření je neplatný. Vyžádejte si nový.",
-			"tokenExpired": "Odkaz pro ověření vypršel. Zaregistrujte se znovu.",
-			"alreadyVerified": "Tento e-mail je již ověřen. Můžete se přihlásit.",
-			"verificationFailed": "Ověření selhalo. Zkuste to znovu.",
-			"needNewLink": "Potřebujete nový ověřovací odkaz?",
-			"emailAddress": "E-mailová adresa",
-			"emailPlaceholder": "Zadejte svůj e-mail",
-			"resendIn": "Opětovné odeslání za {{seconds}}s",
-			"resendVerification": "Znovu odeslat ověřovací e-mail",
-			"sending": "Odesílání...",
-			"verificationSent": "Ověřovací e-mail odeslán. Zkontrolujte svou schránku.",
-			"resendFailed": "Znovu odeslání selhalo. Zkuste to znovu.",
-			"registerAgain": "Zaregistrovat se znovu"
-		}
+	"impersonation": {
+		"exitToBackoffice": "Zpět do backoffice",
+		"viewingAsClient": "Zobrazení jako klient (admin impersonace)"
 	},
 	"landing": {
-		"heroSection": {
-			"description": "Talqo dá vašemu webu značkového AI asistenta, který odpovídá návštěvníkům podle správného kontextu firmy: produktů, pravidel, rezervací, dokumentace a připojených nástrojů.",
-			"startForFree": "Začněte zdarma",
-			"viewDocumentation": "Zobrazit dokumentaci",
-			"line1": "AI chat widget",
-			"line2": "který váš web potřebuje.",
-			"tryLive": "Vyzkoušejte ho v rohu",
-			"embedFile": "index.html",
-			"embedTitle": "Vložte snippet a můžete začít.",
-			"embedDescription": "Tohle je vše, co váš web potřebuje pro zobrazení widgetu.",
-			"previewSite": "Váš web",
-			"live": "Živě",
-			"widgetMessage": "Dobrý den — pomohu s produkty, pravidly, rezervacemi, dokumentací a dalším."
+		"capabilities": {
+			"anyWebsite": "Jakýkoli web",
+			"brandColors": "Barvy značky",
+			"byok": "BYOK",
+			"customPersonality": "Vlastní osobnost",
+			"eyebrow": "Pro skutečné weby",
+			"knowledgeBase": "Znalostní báze",
+			"mcpTools": "MCP nástroje",
+			"title": "Připojte zdroje. Slaďte widget s webem. Mějte kontrolu."
 		},
-		"header": {
-			"switchToLightTheme": "Přepnout na světlý motiv",
-			"switchToDarkTheme": "Přepnout na tmavý motiv",
-			"getStarted": "Začít"
+		"finalCta": {
+			"description": "Nastavte widget a nechte Talqo odpovídat návštěvníkům.",
+			"startFree": "Začněte zdarma",
+			"title": "Chcete přidat Talqo?",
+			"viewDocs": "Zobrazit dokumentaci"
 		},
 		"footer": {
 			"copyright": "Talqo. Všechna práva vyhrazena."
 		},
+		"header": {
+			"getStarted": "Začít",
+			"switchToDarkTheme": "Přepnout na tmavý motiv",
+			"switchToLightTheme": "Přepnout na světlý motiv"
+		},
+		"heroSection": {
+			"description": "Talqo dá vašemu webu značkového AI asistenta, který odpovídá návštěvníkům podle správného kontextu firmy: produktů, pravidel, rezervací, dokumentace a připojených nástrojů.",
+			"embedDescription": "Tohle je vše, co váš web potřebuje pro zobrazení widgetu.",
+			"embedFile": "index.html",
+			"embedTitle": "Vložte snippet a můžete začít.",
+			"line1": "AI chat widget",
+			"line2": "který váš web potřebuje.",
+			"live": "Živě",
+			"previewSite": "Váš web",
+			"startForFree": "Začněte zdarma",
+			"tryLive": "Vyzkoušejte ho v rohu",
+			"viewDocumentation": "Zobrazit dokumentaci",
+			"widgetMessage": "Dobrý den — pomohu s produkty, pravidly, rezervacemi, dokumentací a dalším."
+		},
 		"steps": {
 			"configure": "Nastavit",
 			"configureDescription": "Přidejte produktová data, pravidla, dokumenty, nástroje, barvy značky a pravidla podpory.",
-			"paste": "Vložit na web",
-			"pasteDescription": "Přidejte vygenerovaný snippet widgetu na svůj web.",
 			"launch": "Spustit",
-			"launchDescription": "Uložte stránku. Widget se zobrazí a je připraven pro návštěvníky."
+			"launchDescription": "Uložte stránku. Widget se zobrazí a je připraven pro návštěvníky.",
+			"paste": "Vložit na web",
+			"pasteDescription": "Přidejte vygenerovaný snippet widgetu na svůj web."
 		},
 		"useCases": {
 			"eyebrow": "Použití",
-			"title": "Užitečné odpovědi pro jakýkoli web.",
-			"shop": {
-				"label": "E-shop",
-				"question": "Kde je moje objednávka?",
-				"answer": "Stav nalezen. Doručení je zítra."
-			},
 			"saas": {
+				"answer": "Tady je postup z vaší dokumentace.",
 				"label": "SaaS",
-				"question": "Jak připojím API?",
-				"answer": "Tady je postup z vaší dokumentace."
+				"question": "Jak připojím API?"
 			},
 			"services": {
+				"answer": "V úterý jsou dva volné termíny.",
 				"label": "Služby",
-				"question": "Mohu si rezervovat úterý?",
-				"answer": "V úterý jsou dva volné termíny."
-			}
-		},
-		"capabilities": {
-			"eyebrow": "Pro skutečné weby",
-			"title": "Připojte zdroje. Slaďte widget s webem. Mějte kontrolu.",
-			"knowledgeBase": "Znalostní báze",
-			"mcpTools": "MCP nástroje",
-			"brandColors": "Barvy značky",
-			"customPersonality": "Vlastní osobnost",
-			"byok": "BYOK",
-			"anyWebsite": "Jakýkoli web"
-		},
-		"finalCta": {
-			"title": "Chcete přidat Talqo?",
-			"description": "Nastavte widget a nechte Talqo odpovídat návštěvníkům.",
-			"startFree": "Začněte zdarma",
-			"viewDocs": "Zobrazit dokumentaci"
-		}
-	},
-	"adminStats": {
-		"currentBalance": "Aktuální zůstatek",
-		"availableFunds": "Dostupné prostředky",
-		"totalTokens": "Celkem tokenů",
-		"tokensChange": "+20,1 % oproti minulému měsíci",
-		"questionsAnswered": "Zodpovězené otázky",
-		"questionsChange": "+15 % oproti minulému měsíci",
-		"activeConnectors": "Aktivní konektory",
-		"connectorsSubtitle": "Databáze produktů, Interní wiki",
-		"currentSpend": "Aktuální výdaje",
-		"spendSubtitle": "Limit: 0,00 / měsíc"
-	},
-	"common": {
-		"email": "E-mail",
-		"name": "Jméno",
-		"password": "Heslo",
-		"cardNumber": "Číslo karty",
-		"saving": "Ukládání...",
-		"cancel": "Zrušit",
-		"delete": "Smazat",
-		"add": "Přidat",
-		"edit": "Upravit",
-		"copy": "Kopírovat",
-		"copied": "Zkopírováno!",
-		"failed": "Chyba!",
-		"switchToLightTheme": "Přepnout na světlý motiv",
-		"switchToDarkTheme": "Přepnout na tmavý motiv",
-		"switchToLightMode": "Přepnout na světlý režim",
-		"switchToDarkMode": "Přepnout na tmavý režim",
-		"logOut": "Odhlásit se",
-		"noData": "Žádná data k dispozici",
-		"talqo": "Talqo"
-	},
-	"clientDashboard": {
-		"nav": {
-			"clientDashboard": "Nástěnka klienta",
-			"overview": "Přehled",
-			"botContext": "Kontext bota",
-			"botConfiguration": "Nastavení bota",
-			"toolsMcp": "Nástroje MCP",
-			"widgetSetup": "Nastavení widgetu",
-			"chatPreviews": "Náhledy chatů",
-			"lightMode": "Světlý režim",
-			"darkMode": "Tmavý režim",
-			"unknownCompany": "Neznámá společnost",
-			"failedToLoad": "Nepodařilo se načíst"
-		}
-	},
-	"backoffice": {
-		"nav": {
-			"adminDashboard": "Administrátorská nástěnka",
-			"clients": "Klienti",
-			"chats": "Chaty",
-			"activityLogs": "Protokoly aktivit",
-			"mcpServers": "MCP Servery",
-			"lightMode": "Světlý režim",
-			"darkMode": "Tmavý režim",
-			"talqoAdmin": "Talqo Admin",
-			"admin": "Administrátor",
-			"failedToLoad": "Nepodařilo se načíst"
-		},
-		"activityLogs": {
-			"title": "Protokoly aktivit",
-			"subtitle": "Akce impersonace, pozastavení a opětovného povolení provedené administrátory",
-			"recentActions": "Nedávné akce",
-			"showingRecent": "Zobrazeno 100 nejnovějších admin akcí",
-			"failedToLoad": "Nepodařilo se načíst protokoly aktivit.",
-			"noLogs": "Zatím žádné protokoly aktivit.",
-			"timestamp": "Časové razítko",
-			"admin": "Administrátor",
-			"action": "Akce",
-			"client": "Klient",
-			"suspend": "Pozastavit",
-			"reEnable": "Znovu povolit",
-			"impersonate": "Impersonovat"
-		},
-		"stats": {
-			"adminDashboard": "Administrátorská nástěnka",
-			"adminDashboardDescription": "Spravujte klienty, uživatele a systémová nastavení",
-			"totalClients": "Celkem klientů",
-			"allClients": "Všichni registrovaní klienti",
-			"activeClientsLast30d": "Aktivní klienti",
-			"activeClientsLast30dSubtitle": "S konverzacemi za posledních 30 dní",
-			"platformTokens": "Tokeny platformy",
-			"totalConsumed": "Celkem spotřebováno",
-			"totalCost": "Celkové náklady",
-			"platformSpend": "Výdaje platformy",
-			"conversations": "Konverzace",
-			"allTime": "Celkem",
-			"avgSatisfaction": "Průměrná spokojenost",
-			"platformWideRating": "Hodnocení celé platformy",
-			"failedToLoadClients": "Nepodařilo se načíst klienty",
-			"failedToLoadConversations": "Nepodařilo se načíst konverzace",
-			"clients": "Klienti",
-			"manageClients": "Spravovat všechny klienty v systému"
-		},
-		"clientsTable": {
-			"client": "Klient",
-			"status": "Stav",
-			"aiProvider": "AI poskytovatel",
-			"tokenUsage": "Spotřeba tokenů",
-			"actions": "Akce",
-			"active": "Aktivní",
-			"suspended": "Pozastavený",
-			"noClientsFound": "Nebyli nalezeni žádní klienti",
-			"impersonate": "Impersonovat",
-			"suspend": "Pozastavit",
-			"reEnable": "Znovu povolit",
-			"platformDefault": "Výchozí platforma"
-		},
-		"clientActions": {
-			"suspendTitle": "Pozastavit klienta?",
-			"suspendDescription": "Klient okamžitě ztratí přístup ke své nástěnce a widgetu.",
-			"reEnableTitle": "Znovu povolit klienta?",
-			"reEnableDescription": "Klientovi bude obnoven přístup k jeho nástěnce a widgetu."
-		},
-		"conversationsTable": {
-			"client": "Klient",
-			"started": "Zahájeno",
-			"messages": "Zprávy",
-			"rating": "Hodnocení",
-			"preview": "Náhled",
-			"noConversationsFound": "Nebyly nalezeny žádné konverzace",
-			"close": "Zavřít",
-			"view": "Zobrazit",
-			"failedToLoadConversation": "Nepodařilo se načíst konverzaci",
-			"noMessages": "Žádné zprávy",
-			"chatPreviews": "Náhledy chatů",
-			"chatPreviewsDescription": "Prohlížejte a kontrolujte konverzace koncových uživatelů",
-			"pagination": {
-				"previous": "Předchozí",
-				"next": "Další",
-				"page": "Stránka {{page}}"
+				"question": "Mohu si rezervovat úterý?"
 			},
-			"ratingLabel": "Hodnocení",
-			"selectConversationPlaceholder": "Vyberte konverzaci pro náhled"
-		},
-		"mcpServersTable": {
-			"name": "Název",
-			"description": "Popis",
-			"type": "Typ",
-			"actions": "Akce",
-			"noServers": "Nebyly nalezeny žádné servery",
-			"edit": "Upravit",
-			"delete": "Smazat"
-		},
-		"mcp": {
-			"pageTitle": "MCP Servery",
-			"pageDescription": "Správa předpřipravených konfigurací MCP serverů dostupných klientům",
-			"deleteConfirmTitle": "Smazat MCP server?",
-			"deleteConfirmDescription": "Tato akce trvale odstraní konfiguraci serveru. Klienti, kteří jej používají, ztratí přístup.",
-			"addServer": "Přidat server",
-			"editServer": "Upravit server",
-			"name": "Název",
-			"namePlaceholder": "Můj MCP server",
-			"description": "Popis",
-			"descriptionPlaceholder": "Volitelný popis",
-			"transportType": "Typ přenosu",
-			"selectTransportType": "Vyberte typ",
-			"url": "URL koncového bodu",
-			"headers": "Hlavičky",
-			"headerKey": "Klíč",
-			"headerValue": "Hodnota",
-			"addHeader": "Přidat hlavičku",
-			"removeHeader": "Odebrat hlavičku",
-			"command": "Příkaz",
-			"commandPlaceholder": "npx my-mcp-server",
-			"args": "Argumenty",
-			"argValue": "Argument",
-			"addArg": "Přidat argument",
-			"removeArg": "Odebrat argument",
-			"env": "Proměnné prostředí",
-			"envKey": "Klíč",
-			"envValue": "Hodnota",
-			"addEnv": "Přidat proměnnou",
-			"removeEnv": "Odebrat proměnnou",
-			"saving": "Ukládání...",
-			"saveChanges": "Uložit změny",
-			"configuredServers": "Nakonfigurované servery",
-			"fetchFailed": "Nepodařilo se načíst MCP servery. Obnovte prosím stránku.",
-			"createFailed": "Nepodařilo se vytvořit server. Zkuste to znovu.",
-			"updateFailed": "Nepodařilo se aktualizovat server. Zkuste to znovu.",
-			"deleteFailed": "Nepodařilo se smazat server. Zkuste to znovu."
+			"shop": {
+				"answer": "Stav nalezen. Doručení je zítra.",
+				"label": "E-shop",
+				"question": "Kde je moje objednávka?"
+			},
+			"title": "Užitečné odpovědi pro jakýkoli web."
 		}
 	},
+	"mcp": {
+		"customDialog": {
+			"addHeader": "Přidat hlavičku",
+			"addServer": "Přidat server",
+			"addTitle": "Přidat vlastní MCP server",
+			"editTitle": "Upravit vlastní MCP server",
+			"endpointUrl": "URL koncového bodu",
+			"headerKey": "Klíč",
+			"headers": "Hlavičky",
+			"headerValue": "Hodnota",
+			"removeHeader": "Odstranit hlavičku",
+			"saveChanges": "Uložit změny",
+			"saveFailed": "Nepodařilo se uložit server. Zkuste to prosím znovu."
+		},
+		"status": {
+			"error": "Chyba",
+			"ready": "Připraveno"
+		}
+	},
+	"nameOnCard": "Jméno na kartě",
+	"newPassword": "Nové heslo",
 	"notFound": {
-		"title": "Stránka nenalezena",
 		"description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
+		"errorCode": "Chyba 404",
 		"goDashboard": "Přejít na nástěnku",
-		"goHome": "Přejít na úvod"
+		"goHome": "Přejít na úvod",
+		"title": "Stránka nenalezena"
 	},
 	"provider": {
-		"openai": "OpenAI",
-		"openaiCompatible": "Kompatibilní s OpenAI",
+		"anthropic": "Anthropic",
 		"google": "Google",
-		"anthropic": "Anthropic"
-	}
+		"openai": "OpenAI",
+		"openaiCompatible": "Kompatibilní s OpenAI"
+	},
+	"settings": {
+		"account": {
+			"changePassword": "Změnit heslo",
+			"changing": "Měnění...",
+			"confirmPassword": "Potvrďte své heslo",
+			"dangerZoneDescription": "Trvale smaže váš účet a všechna přidružená data. Tuto akci nelze vrátit zpět.",
+			"dangerZoneTitle": "Nebezpečná zóna",
+			"deleteAccount": "Smazat účet",
+			"deleteAccountDescription": "Tímto okamžitě a nevratně smažete svůj účet, widget, všechny konverzace a každý další přidružený záznam. Není možné vrátit zpět.",
+			"deleteAccountError": "Nesprávné heslo. Zkuste to prosím znovu.",
+			"deleteAccountTitle": "Trvale smazat účet?",
+			"deleteMyAccount": "Smazat můj účet",
+			"emailPlaceholder": "vy@priklad.cz",
+			"namePlaceholder": "Vaše jméno",
+			"passwordChangedSuccess": "Heslo bylo úspěšně změněno",
+			"passwordChangeFailed": "Nepodařilo se změnit heslo. Zkuste to prosím znovu.",
+			"passwordPlaceholder": "Zadejte své heslo",
+			"profileSaveFailed": "Nepodařilo se uložit profil. Zkuste to prosím znovu.",
+			"regenerate": "Znovu vygenerovat",
+			"rotateFailed": "Nepodařilo se obnovit token. Zkuste to prosím znovu.",
+			"saveProfile": "Uložit profil",
+			"saving": "Ukládání...",
+			"title": "Podrobnosti o účtu",
+			"widgetTokenHelp": "Tento token ověřuje váš vložený chatovací widget. Obnovením tokenu zneplatníte všechny aktuálně nasazené widgety, dokud je neaktualizujete.",
+			"widgetTokenLabel": "Token widgetu"
+		},
+		"billing": {
+			"addFunds": "Přidat prostředky",
+			"configureProvider": "Nastavte jej v záložce AI poskytovatel.",
+			"monthlyLimit": "Měsíční limit (USD)",
+			"ownApiKeyPrompt": "Chcete místo toho použít vlastní API klíč?",
+			"saveSettings": "Uložit nastavení",
+			"saving": "Ukládání...",
+			"title": "Využití a limity",
+			"usageAlerts": "Upozornění na využití",
+			"usageAlertsDescription": "Poslat e-mail při dosažení 80 % limitu"
+		},
+		"provider": {
+			"anthropic": "Anthropic",
+			"apiKeyEncrypted": "Ukládáno šifrovaně. Po uložení se zobrazí pouze poslední 4 znaky.",
+			"apiKeyMasked": "API klíč",
+			"apiKeyPlaceholder": "Vložte svůj API klíč",
+			"apiKeyRequired": "API klíč je povinný",
+			"baseUrl": "Základní URL",
+			"baseUrlPlaceholder": "https://my.host/v1",
+			"baseUrlRequired": "Základní URL",
+			"baseUrlRequiredError": "Základní URL je povinná pro OpenAI Compatible",
+			"bringYourOwn": "Chcete použít vlastní API klíč? Můžete se připojit k OpenAI, Anthropic, Google Gemini nebo libovolnému kompatibilnímu koncovému bodu. Váš poskytovatel bude použit místo výchozího nastavení platformy.",
+			"changeProvider": "Změnit poskytovatele",
+			"configureCustom": "Nastavit vlastního poskytovatele",
+			"customActive": "Vlastní poskytovatel je aktivní",
+			"description": "Volitelně přineste vlastního AI poskytovatele a API klíč. Ve výchozím nastavení používá váš chatbot platformou hostovanou AI — není potřeba žádná konfigurace.",
+			"embeddingModel": "Model pro vkládání",
+			"embeddingModelDescription": "Model používaný pro RAG indexování. Nechte prázdné pro výchozí model poskytovatele.",
+			"embeddingModelPlaceholder": "Volitelné, použije se výchozí model",
+			"googleGemini": "Google Gemini",
+			"loadFailed": "Nepodařilo se načíst konfiguraci poskytovatele. Obnovte stránku.",
+			"loading": "Načítání…",
+			"model": "Model",
+			"modelRequired": "Model je povinný",
+			"openai": "OpenAI",
+			"openaiCompatible": "Kompatibilní s OpenAI",
+			"platformHosted": "Používání platformou hostované AI",
+			"platformHostedDescription": "Váš chatbot běží na spravované AI platformy. Není potřeba žádná konfigurace.",
+			"providerLabel": "Poskytovatel",
+			"remove": "Odebrat",
+			"removeConfirm": "Odebrat vlastního AI poskytovatele? Váš chatbot se vrátí na výchozí nastavení platformy.",
+			"removeFailed": "Nepodařilo se odebrat poskytovatele. Zkuste to znovu.",
+			"removing": "Odebírání…",
+			"saveFailed": "Uložení se nezdařilo. Zkuste to znovu.",
+			"saveProvider": "Uložit poskytovatele",
+			"saving": "Ukládání…",
+			"selectProvider": "Vybrat poskytovatele",
+			"title": "AI poskytovatel",
+			"updated": "Aktualizováno"
+		}
+	},
+	"showPassword": "Zobrazit heslo",
+	"tools": {
+		"availableTools": "Dostupné nástroje:",
+		"customServers": "Vlastní servery",
+		"failedToLoadServerDetails": "Nepodařilo se načíst detaily serveru",
+		"noPreconfiguredServers": "Zatím nejsou k dispozici žádné předkonfigurované servery.",
+		"noToolsFound": "Nenalezeny žádné nástroje",
+		"preconfiguredServers": "Předkonfigurované servery",
+		"unknownServer": "Neznámý",
+		"unknownType": "neznámý"
+	},
+	"widget": {
+		"appearance": {
+			"background": "Pozadí",
+			"borderColor": "Barva ohraničení",
+			"bottomLeft": "Dole vlevo",
+			"bottomRight": "Dole vpravo",
+			"color": "Barva",
+			"darkMode": "Tmavý režim",
+			"footerText": "Text patičky",
+			"headerTitle": "Nadpis hlavičky",
+			"lightMode": "Světlý režim",
+			"primaryColor": "Primární barva",
+			"secondaryBackground": "Sekundární pozadí",
+			"secondaryText": "Sekundární text",
+			"sendButtonIcon": "Ikona odesílacího tlačítka",
+			"textColor": "Barva textu",
+			"title": "Vzhled",
+			"userMessageText": "Text uživatelské zprávy",
+			"widgetPosition": "Pozice widgetu"
+		},
+		"botName": {
+			"avatarFileType": "SVG",
+			"botAvatarLabel": "Avatar bota",
+			"botNameHelp": "Toto jméno se zobrazí v hlavičce widgetu.",
+			"botNameLabel": "Jméno bota",
+			"botNamePlaceholder": "AI asistent",
+			"customAvatarUploaded": "Vlastní avatar nahrán",
+			"dropSvgHere": "Přetáhněte SVG sem nebo klikněte pro nahrání",
+			"failedToReadFile": "Soubor se nepodařilo přečíst. Zkuste to znovu.",
+			"fileTooLarge": "Soubor je příliš velký. Maximální velikost je {{maxSize}}KB.",
+			"invalidFileContent": "Neplatný obsah souboru. Očekáván textový formát.",
+			"invalidSvgFile": "Neplatný SVG soubor. Soubor musí začínat značkou <svg a obsahovat platný SVG obsah.",
+			"onlySvgSupported": "Jsou podporovány pouze SVG soubory.",
+			"title": "Identita bota",
+			"uploadSquareSvg": "Pro nejlepší výsledky nahrajte čtvercové SVG"
+		},
+		"embedCode": {
+			"copied": "Zkopírováno!",
+			"copy": "Kopírovat",
+			"installInstructions": "Instrukce k instalaci:",
+			"loading": "Načítání...",
+			"placeholder": "// Načítání konfigurace widgetu...\n// Vyčkejte prosím, načítáme váš widget token.",
+			"step1": "Zkopírujte výše uvedený kód",
+			"step2": "Vložte jej před uzavírací značku </body> na vašem webu",
+			"step3": "Widget se na vašem webu zobrazí automaticky",
+			"title": "Vložený kód"
+		},
+		"onboarding": {
+			"choosePosition": "Zvolte pozici widgetu (vlevo nebo vpravo)",
+			"customizeColors": "Přizpůsobte barvy své značce",
+			"description": "Umožněte zákazníkům chatovat s AI přímo na vašem webu. Není potřeba programování!",
+			"dontShowAgain": "Příště nezobrazovat",
+			"getEmbedCode": "Získejte kód jediným kliknutím",
+			"remindLater": "Připomenout později",
+			"saving": "Ukládání...",
+			"seePreview": "Podívejte se na náhled před nasazením",
+			"setUpNow": "Nastavit nyní",
+			"title": "Přidejte AI chat na svůj web",
+			"whatYouCanDo": "Co můžete udělat:"
+		},
+		"preview": {
+			"botMessage": "Dobrý den! Jak vám mohu pomoci?",
+			"darkMode": "Tmavý režim",
+			"lightMode": "Světlý režim",
+			"poweredBy": "Používá Talqo",
+			"title": "Živý náhled",
+			"typeAMessage": "Napište zprávu...",
+			"userMessage": "Ahoj!"
+		},
+		"setup": {
+			"configErrorDescription": "Nepodařilo se načíst konfiguraci widgetu. Zkuste to prosím znovu.",
+			"configErrorTitle": "Chyba při načítání konfigurace widgetu",
+			"errorDescription": "Nepodařilo se načíst informace o klientovi. Zkuste to znovu.",
+			"errorTitle": "Chyba při načítání dat klienta",
+			"reset": "Obnovit",
+			"resetConfirmDescription": "Tímto se zruší všechna přizpůsobení a obnoví výchozí motiv. Tuto akci nelze vrátit zpět.",
+			"resetConfirmTitle": "Obnovit výchozí nastavení?",
+			"save": "Uložit",
+			"saved": "Konfigurace widgetu byla uložena.",
+			"saveFailed": "Uložení konfigurace selhalo. Zkuste to prosím znovu.",
+			"saving": "Ukládání...",
+			"title": "Konfigurace widgetu"
+		}
+	},
+	"word": "Slovo"
 }
