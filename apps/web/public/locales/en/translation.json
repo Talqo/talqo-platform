@@ -351,26 +351,32 @@
 		"add": "Add",
 		"cancel": "Cancel",
 		"cardNumber": "Card Number",
+		"confirmNewPassword": "Confirm New Password",
 		"copied": "Copied!",
 		"copy": "Copy",
+		"currentPassword": "Current Password",
+		"cvv": "CVV",
 		"delete": "Delete",
 		"edit": "Edit",
 		"email": "Email",
+		"expiry": "Expiry",
 		"failed": "Failed!",
+		"hidePassword": "Hide password",
 		"logOut": "Log out",
 		"name": "Name",
+		"nameOnCard": "Name on Card",
+		"newPassword": "New Password",
 		"noData": "No data available",
 		"password": "Password",
 		"saving": "Saving...",
+		"showPassword": "Show password",
 		"switchToDarkMode": "Switch to dark mode",
 		"switchToDarkTheme": "Switch to dark theme",
 		"switchToLightMode": "Switch to light mode",
 		"switchToLightTheme": "Switch to light theme",
-		"talqo": "Talqo"
+		"talqo": "Talqo",
+		"word": "Word"
 	},
-	"confirmNewPassword": "Confirm New Password",
-	"currentPassword": "Current Password",
-	"cvv": "CVV",
 	"dashboard": {
 		"addFunds": {
 			"subtitle": "Top up your account balance.",
@@ -454,8 +460,6 @@
 			"loadingPage": "Loading page..."
 		}
 	},
-	"expiry": "Expiry",
-	"hidePassword": "Hide password",
 	"impersonation": {
 		"exitToBackoffice": "Exit to backoffice",
 		"viewingAsClient": "Viewing as client (admin impersonation)"
@@ -546,8 +550,6 @@
 			"ready": "Ready"
 		}
 	},
-	"nameOnCard": "Name on Card",
-	"newPassword": "New Password",
 	"notFound": {
 		"description": "The page you're looking for doesn't exist or has been moved.",
 		"errorCode": "Error 404",
@@ -638,7 +640,6 @@
 			"updated": "Updated"
 		}
 	},
-	"showPassword": "Show password",
 	"tools": {
 		"availableTools": "Available tools:",
 		"customServers": "Custom Servers",
@@ -732,6 +733,5 @@
 			"saving": "Saving...",
 			"title": "Widget Configuration"
 		}
-	},
-	"word": "Word"
+	}
 }

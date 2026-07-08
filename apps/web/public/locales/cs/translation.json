@@ -355,26 +355,32 @@
 		"add": "Přidat",
 		"cancel": "Zrušit",
 		"cardNumber": "Číslo karty",
+		"confirmNewPassword": "Potvrďte nové heslo",
 		"copied": "Zkopírováno!",
 		"copy": "Kopírovat",
+		"currentPassword": "Současné heslo",
+		"cvv": "CVV",
 		"delete": "Smazat",
 		"edit": "Upravit",
 		"email": "E-mail",
+		"expiry": "Platnost",
 		"failed": "Chyba!",
+		"hidePassword": "Skrýt heslo",
 		"logOut": "Odhlásit se",
 		"name": "Jméno",
+		"nameOnCard": "Jméno na kartě",
+		"newPassword": "Nové heslo",
 		"noData": "Žádná data k dispozici",
 		"password": "Heslo",
 		"saving": "Ukládání...",
+		"showPassword": "Zobrazit heslo",
 		"switchToDarkMode": "Přepnout na tmavý režim",
 		"switchToDarkTheme": "Přepnout na tmavý motiv",
 		"switchToLightMode": "Přepnout na světlý režim",
 		"switchToLightTheme": "Přepnout na světlý motiv",
-		"talqo": "Talqo"
+		"talqo": "Talqo",
+		"word": "Slovo"
 	},
-	"confirmNewPassword": "Potvrďte nové heslo",
-	"currentPassword": "Současné heslo",
-	"cvv": "CVV",
 	"dashboard": {
 		"addFunds": {
 			"subtitle": "Dobijte zůstatek na svém účtu.",
@@ -458,8 +464,6 @@
 			"loadingPage": "Načítání stránky..."
 		}
 	},
-	"expiry": "Platnost",
-	"hidePassword": "Skrýt heslo",
 	"impersonation": {
 		"exitToBackoffice": "Zpět do backoffice",
 		"viewingAsClient": "Zobrazení jako klient (admin impersonace)"
@@ -550,8 +554,6 @@
 			"ready": "Připraveno"
 		}
 	},
-	"nameOnCard": "Jméno na kartě",
-	"newPassword": "Nové heslo",
 	"notFound": {
 		"description": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
 		"errorCode": "Chyba 404",
@@ -642,7 +644,6 @@
 			"updated": "Aktualizováno"
 		}
 	},
-	"showPassword": "Zobrazit heslo",
 	"tools": {
 		"availableTools": "Dostupné nástroje:",
 		"customServers": "Vlastní servery",
@@ -736,6 +737,5 @@
 			"saving": "Ukládání...",
 			"title": "Konfigurace widgetu"
 		}
-	},
-	"word": "Slovo"
+	}
 }

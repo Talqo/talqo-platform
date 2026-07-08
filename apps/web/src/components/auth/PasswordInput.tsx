@@ -57,7 +57,9 @@ export function PasswordInput({
 					size="icon"
 					className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2"
 					onClick={() => setShowPassword(!showPassword)}
-					aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+					aria-label={
+						showPassword ? t("common.hidePassword") : t("common.showPassword")
+					}
 					aria-pressed={showPassword}
 					disabled={disabled}
 				>

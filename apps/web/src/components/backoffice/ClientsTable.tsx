@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next"
+import type { ClientEntry } from "@/components/backoffice/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
-import type { ClientEntry } from "./types"
 
 type ClientsTableProps = {
 	clients: ClientEntry[]

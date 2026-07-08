@@ -349,26 +349,32 @@
 		"add": "添加",
 		"cancel": "取消",
 		"cardNumber": "卡号",
+		"confirmNewPassword": "确认新密码",
 		"copied": "已复制！",
 		"copy": "复制",
+		"currentPassword": "当前密码",
+		"cvv": "CVV",
 		"delete": "删除",
 		"edit": "编辑",
 		"email": "邮箱",
+		"expiry": "有效期",
 		"failed": "失败！",
+		"hidePassword": "隐藏密码",
 		"logOut": "退出登录",
 		"name": "姓名",
+		"nameOnCard": "持卡人姓名",
+		"newPassword": "新密码",
 		"noData": "暂无数据",
 		"password": "密码",
 		"saving": "保存中...",
+		"showPassword": "显示密码",
 		"switchToDarkMode": "切换到深色模式",
 		"switchToDarkTheme": "切换到深色主题",
 		"switchToLightMode": "切换到浅色模式",
 		"switchToLightTheme": "切换到浅色主题",
-		"talqo": "Talqo"
+		"talqo": "Talqo",
+		"word": "词汇"
 	},
-	"confirmNewPassword": "确认新密码",
-	"currentPassword": "当前密码",
-	"cvv": "CVV",
 	"dashboard": {
 		"addFunds": {
 			"subtitle": "为您的账户余额充值。",
@@ -452,8 +458,6 @@
 			"loadingPage": "正在加载页面..."
 		}
 	},
-	"expiry": "有效期",
-	"hidePassword": "隐藏密码",
 	"impersonation": {
 		"exitToBackoffice": "返回后台管理",
 		"viewingAsClient": "以客户端身份查看（管理员模拟）"
@@ -544,8 +548,6 @@
 			"ready": "就绪"
 		}
 	},
-	"nameOnCard": "持卡人姓名",
-	"newPassword": "新密码",
 	"notFound": {
 		"description": "您访问的页面不存在或已被移动。",
 		"errorCode": "错误 404",
@@ -633,10 +635,9 @@
 			"saving": "保存中…",
 			"selectProvider": "选择提供商",
 			"title": "AI 提供商",
-			"updated": "更新时间"
+			"updated": "已更新"
 		}
 	},
-	"showPassword": "显示密码",
 	"tools": {
 		"availableTools": "可用工具：",
 		"customServers": "自定义服务器",
@@ -730,6 +731,5 @@
 			"saving": "保存中...",
 			"title": "小部件配置"
 		}
-	},
-	"word": "词汇"
+	}
 }
