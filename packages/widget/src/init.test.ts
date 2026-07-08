@@ -22,4 +22,8 @@ describe("widget init guards", () => {
 
 		expect(isCurrentTalqoToken("token-a")).toBe(false)
 	})
+
+	it("returns false in SSR / no-window environments", () => {
+		expect(isCurrentTalqoToken("token-a")).toBe(false)
+	})
 })

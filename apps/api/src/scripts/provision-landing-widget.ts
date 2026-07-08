@@ -42,10 +42,14 @@ function optionalEnv(name: string, fallback: string): string {
 }
 
 export async function provisionLandingWidget() {
-	const pgClient = postgres(
-		`postgres://${requiredEnv("POSTGRES_USER")}:${requiredEnv("POSTGRES_PASSWORD")}@${optionalEnv("POSTGRES_HOST", "localhost")}:${optionalEnv("POSTGRES_PORT", "5432")}/${requiredEnv("POSTGRES_DB")}`,
-		{ max: 1 },
-	)
+	const pgClient = postgres({
+		host: optionalEnv("POSTGRES_HOST", "localhost"),
+		port: Number(optionalEnv("POSTGRES_PORT", "5432")),
+		database: requiredEnv("POSTGRES_DB"),
+		username: requiredEnv("POSTGRES_USER"),
+		password: requiredEnv("POSTGRES_PASSWORD"),
+		max: 1,
+	})
 	const db = drizzle(pgClient, { schema })
 
 	try {
