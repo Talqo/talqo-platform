@@ -73,4 +73,14 @@ describe("Body size limits", () => {
 		})
 		expect(res.status).toBe(413)
 	})
+
+	it("applies the 1 MB default cap to a route that merely shares the /files prefix", async () => {
+		const bytes = new Uint8Array(2 * 1024 * 1024)
+		const res = await app.request("/v1/client/me/filesharing", {
+			method: "POST",
+			headers: { "Content-Length": String(bytes.length) },
+			body: bytes,
+		})
+		expect(res.status).toBe(413)
+	})
 })

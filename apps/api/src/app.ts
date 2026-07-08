@@ -127,6 +127,8 @@ function onBodyTooLarge(c: Context) {
 	)
 }
 
+const FILE_UPLOAD_ROUTE_PREFIX = "/v1/client/me/files"
+
 v1.use(
 	"/client/me/files/*",
 	bodyLimit({ maxSize: FILE_UPLOAD_BODY_LIMIT_BYTES, onError: onBodyTooLarge }),
@@ -137,7 +139,11 @@ const defaultBodyLimit = bodyLimit({
 	onError: onBodyTooLarge,
 })
 v1.use("*", async (c, next) => {
-	if (c.req.path.startsWith("/v1/client/me/files")) return next()
+	if (
+		c.req.path === FILE_UPLOAD_ROUTE_PREFIX ||
+		c.req.path.startsWith(`${FILE_UPLOAD_ROUTE_PREFIX}/`)
+	)
+		return next()
 	return defaultBodyLimit(c, next)
 })
 
