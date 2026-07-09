@@ -1,16 +1,16 @@
 import {
-	BarChart3,
 	Boxes,
 	BrainCircuit,
 	Brush,
 	CalendarClock,
 	Code2,
+	KeyRound,
 	type LucideIcon,
 	PlugZap,
 	Rocket,
 	Settings2,
-	ShieldCheck,
 	ShoppingBag,
+	SlidersHorizontal,
 	TerminalSquare,
 } from "lucide-react"
 
@@ -109,14 +109,14 @@ export const getCapabilities = (t: (key: string) => string): Capability[] => [
 		label: t("landing.capabilities.brandColors"),
 	},
 	{
-		id: "limits",
-		icon: ShieldCheck,
-		label: t("landing.capabilities.rateLimits"),
+		id: "personality",
+		icon: SlidersHorizontal,
+		label: t("landing.capabilities.customPersonality"),
 	},
 	{
-		id: "analytics",
-		icon: BarChart3,
-		label: t("landing.capabilities.analytics"),
+		id: "byok",
+		icon: KeyRound,
+		label: t("landing.capabilities.byok"),
 	},
 	{
 		id: "embed",

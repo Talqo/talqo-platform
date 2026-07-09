@@ -20,9 +20,9 @@ export function HeroSection() {
 				aria-hidden="true"
 			/>
 
-			<div className="container mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
-				<div className="max-w-3xl text-left">
-					<h1 className="max-w-4xl text-balance font-black text-5xl text-foreground tracking-[-0.06em] sm:text-7xl lg:text-8xl">
+			<div className="container mx-auto grid min-w-0 max-w-7xl items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
+				<div className="min-w-0 max-w-3xl text-left">
+					<h1 className="max-w-4xl text-balance font-black text-5xl text-foreground leading-[1.05] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
 						{t("landing.heroSection.line1")}{" "}
 						<span className="text-primary">
 							{t("landing.heroSection.line2")}
@@ -59,19 +59,55 @@ export function HeroSection() {
 					</div>
 				</div>
 
-				<div className="relative mx-auto w-full max-w-2xl lg:mr-0">
-					<div className="relative rounded-4xl border border-border bg-card p-3 shadow-2xl shadow-primary/10">
-						<div className="rounded-[1.45rem] border border-border bg-background p-4">
-							<div className="mb-4 flex items-center justify-between text-muted-foreground text-xs">
-								<div className="flex gap-1.5" aria-hidden="true">
-									<span className="h-2.5 w-2.5 rounded-full bg-destructive" />
-									<span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/50" />
-									<span className="h-2.5 w-2.5 rounded-full bg-primary" />
+				<div className="relative mx-auto w-full min-w-0 max-w-2xl lg:mr-0">
+					<div className="relative overflow-hidden rounded-4xl border border-primary/25 bg-card p-5 text-card-foreground shadow-2xl shadow-primary/10">
+						<div className="flex items-center justify-between border-border border-b pb-4 text-xs">
+							<span className="font-bold uppercase tracking-[0.22em]">
+								{t("landing.heroSection.previewSite")}
+							</span>
+							<span className="rounded-full bg-primary px-2 py-1 font-semibold text-primary-foreground">
+								{t("landing.heroSection.live")}
+							</span>
+						</div>
+
+						<div className="mt-4 grid gap-3 sm:grid-cols-[1fr_0.68fr]">
+							<div className="space-y-3">
+								<div className="h-16 rounded-2xl bg-foreground" />
+								<div className="grid grid-cols-3 gap-2">
+									<div className="h-20 rounded-xl bg-secondary" />
+									<div className="h-20 rounded-xl bg-primary/20" />
+									<div className="h-20 rounded-xl bg-accent" />
 								</div>
-								<span>{t("landing.heroSection.embedFile")}</span>
+							</div>
+							<div className="rounded-2xl border border-border bg-background p-3 shadow-primary/10 shadow-xl">
+								<div className="mb-3 flex items-center gap-2">
+									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
+										<Bot className="h-4 w-4" aria-hidden="true" />
+									</div>
+									<span className="font-bold text-sm">{t("common.talqo")}</span>
+								</div>
+								<p className="rounded-2xl bg-muted p-3 text-muted-foreground text-sm">
+									{t("landing.heroSection.widgetMessage")}
+								</p>
+							</div>
+						</div>
+
+						<div className="mt-5 border-primary/25 border-t pt-5">
+							<div className="mb-4 flex items-start justify-between gap-4">
+								<div>
+									<p className="font-black text-base text-foreground">
+										{t("landing.heroSection.embedTitle")}
+									</p>
+									<p className="mt-1 text-muted-foreground text-sm">
+										{t("landing.heroSection.embedDescription")}
+									</p>
+								</div>
+								<span className="shrink-0 rounded-full border border-border bg-background px-3 py-1.5 font-semibold text-muted-foreground text-xs">
+									{t("landing.heroSection.embedFile")}
+								</span>
 							</div>
 
-							<pre className="overflow-x-auto rounded-2xl border border-border bg-muted p-4 text-left text-muted-foreground text-sm leading-7 shadow-inner">
+							<pre className="overflow-x-auto rounded-2xl border border-border bg-background p-4 text-left text-muted-foreground text-sm leading-7 shadow-sm">
 								<code>
 									{embedCodeLines.map((line) => (
 										<span
@@ -85,40 +121,6 @@ export function HeroSection() {
 									))}
 								</code>
 							</pre>
-
-							<div className="relative mt-5 overflow-hidden rounded-3xl border border-border bg-card p-4 text-card-foreground">
-								<div className="mb-4 flex items-center justify-between border-border border-b pb-3 text-xs">
-									<span className="font-bold uppercase tracking-[0.22em]">
-										{t("landing.heroSection.previewSite")}
-									</span>
-									<span className="rounded-full bg-primary px-2 py-1 font-semibold text-primary-foreground">
-										{t("landing.heroSection.live")}
-									</span>
-								</div>
-								<div className="grid gap-3 sm:grid-cols-[1fr_0.68fr]">
-									<div className="space-y-3">
-										<div className="h-16 rounded-2xl bg-foreground" />
-										<div className="grid grid-cols-3 gap-2">
-											<div className="h-20 rounded-xl bg-secondary" />
-											<div className="h-20 rounded-xl bg-primary/20" />
-											<div className="h-20 rounded-xl bg-accent" />
-										</div>
-									</div>
-									<div className="rounded-2xl border border-border bg-background p-3 shadow-primary/10 shadow-xl">
-										<div className="mb-3 flex items-center gap-2">
-											<div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
-												<Bot className="h-4 w-4" aria-hidden="true" />
-											</div>
-											<span className="font-bold text-sm">
-												{t("common.talqo")}
-											</span>
-										</div>
-										<p className="rounded-2xl bg-muted p-3 text-muted-foreground text-sm">
-											{t("landing.heroSection.widgetMessage")}
-										</p>
-									</div>
-								</div>
-							</div>
 						</div>
 					</div>
 

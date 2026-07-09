@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Bot } from "lucide-react"
-import { useMemo } from "react"
+import { Fragment, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { getCapabilities, getLandingSteps, getUseCases } from "@/data/landing"
@@ -19,36 +19,37 @@ export function FeaturesSection() {
 				aria-hidden="true"
 			/>
 			<div className="container relative mx-auto max-w-7xl">
-				<div className="grid gap-4 rounded-4xl border border-border bg-card/80 p-3 shadow-2xl shadow-primary/5 backdrop-blur md:grid-cols-3">
+				<div className="grid gap-4 rounded-4xl border border-border bg-card/80 p-3 shadow-2xl shadow-primary/5 backdrop-blur md:grid-cols-[1fr_auto_1fr_auto_1fr] md:gap-4">
 					{steps.map((step, index) => {
 						const Icon = step.icon
 
 						return (
-							<div
-								className="relative flex min-h-36 items-start gap-4 rounded-[1.4rem] bg-background p-5 text-foreground"
-								key={step.id}
-							>
-								<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-									<Icon className="h-5 w-5" aria-hidden="true" />
-								</div>
-								<div>
-									<p className="text-primary text-xs uppercase tracking-[0.3em]">
-										0{index + 1}
-									</p>
-									<h2 className="font-black text-2xl tracking-tight">
-										{step.label}
-									</h2>
-									<p className="mt-2 max-w-xs text-muted-foreground text-sm leading-6">
-										{step.description}
-									</p>
+							<Fragment key={step.id}>
+								<div className="flex min-h-36 items-start gap-4 rounded-[1.4rem] border border-primary/10 bg-secondary/45 p-5 text-foreground shadow-lg shadow-primary/5 dark:border-border dark:bg-background">
+									<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+										<Icon className="h-5 w-5" aria-hidden="true" />
+									</div>
+									<div>
+										<p className="text-primary text-xs uppercase tracking-[0.3em]">
+											0{index + 1}
+										</p>
+										<h2 className="font-black text-2xl tracking-tight">
+											{step.label}
+										</h2>
+										<p className="mt-2 max-w-xs text-muted-foreground text-sm leading-6">
+											{step.description}
+										</p>
+									</div>
 								</div>
 								{index < steps.length - 1 ? (
-									<ArrowRight
-										className="absolute top-1/2 -right-5 z-10 hidden h-6 w-6 -translate-y-1/2 text-primary md:block"
-										aria-hidden="true"
-									/>
+									<div className="hidden w-12 items-center justify-center md:flex">
+										<ArrowRight
+											className="h-6 w-6 text-primary"
+											aria-hidden="true"
+										/>
+									</div>
 								) : null}
-							</div>
+							</Fragment>
 						)
 					})}
 				</div>
@@ -73,30 +74,30 @@ export function FeaturesSection() {
 							>
 								<div
 									className={cn(
-										"min-h-64 rounded-[1.45rem] border border-border p-4 text-foreground",
+										"min-h-64 rounded-[1.45rem] border border-border/80 p-4 text-foreground opacity-85 saturate-75",
 										useCase.accent,
 									)}
 								>
 									<div className="mb-5 flex items-center justify-between">
-										<div className="flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-2 font-bold text-sm shadow-sm backdrop-blur">
+										<div className="flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-2 font-bold text-sm shadow-sm backdrop-blur">
 											<Icon
-												className="h-4 w-4 text-primary"
+												className="h-4 w-4 text-primary/80"
 												aria-hidden="true"
 											/>
 											{useCase.label}
 										</div>
-										<div className="h-9 w-16 rounded-full bg-background/70" />
+										<div className="h-9 w-16 rounded-full bg-background/45" />
 									</div>
 									<div className="grid gap-3">
-										<div className="h-16 rounded-2xl bg-foreground" />
+										<div className="h-16 rounded-2xl bg-foreground/45" />
 										<div className="grid grid-cols-3 gap-2">
-											<div className="h-12 rounded-xl bg-background/80" />
 											<div className="h-12 rounded-xl bg-background/55" />
-											<div className="h-12 rounded-xl bg-background/80" />
+											<div className="h-12 rounded-xl bg-background/35" />
+											<div className="h-12 rounded-xl bg-background/55" />
 										</div>
 									</div>
 								</div>
-								<div className="relative -mt-16 ml-auto w-[88%] rounded-3xl border border-border bg-background p-3 shadow-2xl shadow-primary/10">
+								<div className="relative -mt-16 ml-auto w-[88%] rounded-3xl border border-primary/35 bg-background p-3 shadow-primary/10 shadow-xl">
 									<p className="ml-auto w-fit rounded-2xl bg-primary px-4 py-3 text-right text-primary-foreground text-sm">
 										{useCase.question}
 									</p>
