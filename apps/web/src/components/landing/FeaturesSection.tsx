@@ -19,7 +19,7 @@ export function FeaturesSection() {
 				aria-hidden="true"
 			/>
 			<div className="container relative mx-auto max-w-7xl">
-				<div className="grid gap-4 rounded-4xl border border-border bg-card/80 p-3 shadow-2xl shadow-primary/5 backdrop-blur md:grid-cols-[1fr_auto_1fr_auto_1fr] md:gap-4">
+				<div className="grid gap-4 rounded-4xl border border-border bg-card/80 p-3 shadow-2xl shadow-primary/5 backdrop-blur md:grid-cols-[1fr_1.5rem_1fr_1.5rem_1fr] md:gap-2">
 					{steps.map((step, index) => {
 						const Icon = step.icon
 
@@ -42,7 +42,7 @@ export function FeaturesSection() {
 									</div>
 								</div>
 								{index < steps.length - 1 ? (
-									<div className="hidden w-12 items-center justify-center md:flex">
+									<div className="hidden items-center justify-center md:flex">
 										<ArrowRight
 											className="h-6 w-6 text-primary"
 											aria-hidden="true"
