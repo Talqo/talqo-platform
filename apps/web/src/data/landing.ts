@@ -41,6 +41,12 @@ export type EmbedCodeLine = {
 	highlight?: boolean
 }
 
+export const getEmbedCode = (scriptUrl: string): string =>
+	`<script>
+  window.__TALQO__ = { token: "your-widget-token" };
+</script>
+<script async defer src="${scriptUrl}"></script>`
+
 export const getLandingSteps = (t: (key: string) => string): LandingStep[] => [
 	{
 		id: "configure",
@@ -125,12 +131,10 @@ export const getCapabilities = (t: (key: string) => string): Capability[] => [
 	},
 ]
 
-export const getEmbedCodeLines = (scriptUrl: string): EmbedCodeLine[] => [
-	{ content: "<script>" },
-	{
-		content: '  window.__TALQO__ = { token: "your-widget-token" };',
-		highlight: true,
-	},
-	{ content: "</script>" },
-	{ content: `<script async defer src="${scriptUrl}"></script>` },
-]
+export const getEmbedCodeLines = (scriptUrl: string): EmbedCodeLine[] =>
+	getEmbedCode(scriptUrl)
+		.split("\n")
+		.map((content, index) => ({
+			content,
+			highlight: index === 1,
+		}))
