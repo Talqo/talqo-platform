@@ -16,7 +16,9 @@ export function LandingHeader() {
 					<div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
 						<Bot size={20} />
 					</div>
-					<span className="font-black text-lg tracking-tight">Talqo</span>
+					<span className="font-black text-lg tracking-tight">
+						{t("common.talqo")}
+					</span>
 				</Link>
 				<nav className="flex items-center gap-2 sm:gap-4">
 					<Button

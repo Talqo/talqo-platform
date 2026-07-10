@@ -11,7 +11,7 @@ export function LandingFooter() {
 					<div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
 						<Bot size={16} />
 					</div>
-					<span className="font-black text-sm">Talqo</span>
+					<span className="font-black text-sm">{t("common.talqo")}</span>
 				</div>
 				<p className="text-muted-foreground text-sm">
 					&copy; {new Date().getFullYear()} {t("landing.footer.copyright")}
