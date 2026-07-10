@@ -13,7 +13,7 @@ const viteWidgetBundlePort = Number(process.env.VITE_WIDGET_BUNDLE_PORT)
 const bundlePort =
 	viteWidgetBundlePort >= 1 && viteWidgetBundlePort <= 65535
 		? viteWidgetBundlePort
-		: port
+		: 5175
 
 export default defineConfig(({ mode }) => {
 	const isDevelopment =
