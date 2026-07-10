@@ -29,8 +29,9 @@ Required fields: `token`. Visual config (colors, botName, position, icons) is fe
 
 ## Dev modes
 
-- `bun run dev` — SPA mode (uses `index.html`, hot reload, CSS not injected). For UI development
-- `bun run dev:bundle` — watch + IIFE build + preview on port 5174. For testing actual bundle as embedded on page
+- `bun run dev` — starts both SPA mode and bundle preview for root `make dev`
+- `bun run dev:spa` — SPA mode (uses `index.html`, hot reload, CSS not injected). For UI development
+- `bun run dev:bundle` — watch + IIFE build + preview on `VITE_WIDGET_BUNDLE_PORT` (defaults to `VITE_WIDGET_PORT` or 5174). For testing actual bundle as embedded on page
 - `bun run build` — `tsc` then Vite IIFE build for production
 
 ## Component structure

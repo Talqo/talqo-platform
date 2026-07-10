@@ -6,6 +6,14 @@ import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js"
 import svgr from "vite-plugin-svgr"
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url))
+const viteWidgetPort = Number(process.env.VITE_WIDGET_PORT)
+const port =
+	viteWidgetPort >= 1 && viteWidgetPort <= 65535 ? viteWidgetPort : 5174
+const viteWidgetBundlePort = Number(process.env.VITE_WIDGET_BUNDLE_PORT)
+const bundlePort =
+	viteWidgetBundlePort >= 1 && viteWidgetBundlePort <= 65535
+		? viteWidgetBundlePort
+		: port
 
 export default defineConfig(({ mode }) => {
 	const isDevelopment =
@@ -23,7 +31,13 @@ export default defineConfig(({ mode }) => {
 			isDevelopment ? null : cssInjectedByJsPlugin(),
 		].filter(Boolean),
 		server: {
-			port: 5174,
+			port,
+			strictPort: true,
+			cors: true,
+		},
+		preview: {
+			port: bundlePort,
+			strictPort: true,
 			cors: true,
 		},
 		define: {
