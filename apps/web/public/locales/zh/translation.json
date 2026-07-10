@@ -9,8 +9,6 @@
 			"totalTokens": "Token 总数",
 			"allTime": "累计",
 			"questionsAnswered": "已回答问题",
-			"activeConnectors": "活跃连接器",
-			"customServers": "{{count}} 自定义",
 			"currentSpend": "当前支出",
 			"totalConversations": "总会话数",
 			"uniqueUsers": "独立用户",
@@ -76,30 +74,11 @@
 		"viewingAsClient": "以客户端身份查看（管理员模拟）",
 		"exitToBackoffice": "返回后台管理"
 	},
-	"login": "登录",
 	"email": "邮箱",
 	"name": "姓名",
 	"copy": "复制",
-	"copied": "已复制！",
-	"failed": "失败！",
 	"loading": "加载中...",
-	"save": "保存",
 	"submit": "提交",
-	"cancel": "取消",
-	"delete": "删除",
-	"add": "添加",
-	"edit": "编辑",
-	"confirm": "确认",
-	"back": "返回",
-	"next": "下一步",
-	"close": "关闭",
-	"open": "打开",
-	"expand": "展开",
-	"minimize": "最小化",
-	"clear": "清除",
-	"typeAMessage": "输入消息...",
-	"poweredBy": "由 Talqo 提供支持",
-	"aiAssistant": "AI 助手",
 	"error": {
 		"errorBoundary": {
 			"title": "出现错误",
@@ -113,37 +92,17 @@
 		}
 	},
 	"success": "成功",
-	"warning": "警告",
-	"info": "信息",
-	"noData": "暂无数据",
-	"tokenConsumption": "Token 消耗",
-	"questionsAsked": "提问数量",
-	"addFunds": "充值",
 	"cardNumber": "卡号",
 	"expiry": "有效期",
 	"cvv": "CVV",
 	"nameOnCard": "持卡人姓名",
-	"wordBlacklist": "敏感词黑名单",
 	"word": "词汇",
 	"currentPassword": "当前密码",
 	"newPassword": "新密码",
 	"confirmNewPassword": "确认新密码",
 	"systemPrompt": "系统提示词",
 	"defaultRole": "默认角色",
-	"invalidLink": "链接无效",
-	"requestNewLink": "申请新链接",
-	"checkYourEmail": "请查收邮件",
-	"resetPassword": "重置密码",
-	"startForFree": "免费开始",
-	"somethingWentWrong": "出了点问题",
-	"errorLoadingClientData": "加载客户数据时出错",
-	"failedToLoadClientInfo": "无法加载客户信息，请重试。",
-	"languages": {
-		"language": "语言",
-		"english": "英语",
-		"czech": "捷克语",
-		"chinese": "中文"
-	},
+	"languages": {},
 	"showPassword": "显示密码",
 	"hidePassword": "隐藏密码",
 	"settings": {
@@ -166,7 +125,6 @@
 			"confirmPassword": "确认您的密码",
 			"passwordPlaceholder": "输入您的密码",
 			"deleteAccountError": "密码不正确。请重试。",
-			"deleting": "删除中...",
 			"deleteMyAccount": "删除我的账户",
 			"passwordChangedSuccess": "密码修改成功",
 			"passwordChangeFailed": "修改密码失败。请重试。",
@@ -270,9 +228,6 @@
 		"customDialog": {
 			"addTitle": "添加自定义 MCP 服务器",
 			"editTitle": "编辑自定义 MCP 服务器",
-			"transportType": "传输类型",
-			"selectType": "选择类型",
-			"httpLabel": "HTTP (URL)",
 			"endpointUrl": "端点 URL",
 			"headers": "请求头",
 			"addHeader": "添加请求头",
@@ -417,15 +372,6 @@
 			"configure": "配置",
 			"configurationComingSoon": "配置功能即将推出"
 		},
-		"toolsTab": {
-			"title": "MCP 工具",
-			"currentlyUsed": "正在使用",
-			"preconfigured": "预配置工具",
-			"seeMoreMcp": "查看更多 MCP 工具",
-			"browseDirectory": "浏览官方 MCP 服务器目录",
-			"saveToolConfiguration": "保存工具配置",
-			"persistenceComingSoon": "持久化功能即将推出"
-		},
 		"toolNames": {
 			"calendar": "日历",
 			"documentSearch": "文档搜索",
@@ -443,12 +389,9 @@
 			"staticFallbackInfo": "静态备用信息",
 			"toolConnector": "工具连接器"
 		},
-		"mcpToolsTitle": "MCP 工具",
-		"mcpToolsSubtitle": "管理您的机器人的 MCP（模型上下文协议）工具和集成。",
 		"preconfiguredServers": "预配置服务器",
 		"noPreconfiguredServers": "暂无预配置服务器。",
 		"customServers": "自定义服务器",
-		"noCustomServers": "暂无自定义服务器。添加一个以让您的机器人访问您自己的数据源。",
 		"availableTools": "可用工具：",
 		"noToolsFound": "未找到工具",
 		"unknownServer": "未知",
@@ -488,7 +431,6 @@
 	"auth": {
 		"login": {
 			"title": "登录",
-			"navLabel": "登录",
 			"goToLogin": "前往登录",
 			"description": "输入您的邮箱和密码以访问仪表盘",
 			"emailPlaceholder": "m@example.com",
@@ -582,11 +524,18 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "将完全可定制、具备上下文感知能力的 AI 聊天机器人直接嵌入您的网站。连接您自己的知识库，让客户即时找到答案。",
+			"description": "Talqo 为您的网站提供带品牌风格的 AI 助手，可根据合适的业务上下文回答访客问题：商品、规则、预约、文档和已连接工具。",
 			"startForFree": "免费开始",
 			"viewDocumentation": "查看文档",
-			"line1": "智能聊天小部件",
-			"line2": "为您的业务而生。"
+			"line1": "您的网站需要的",
+			"line2": "AI 聊天小部件。",
+			"tryLive": "在右下角试用",
+			"embedFile": "index.html",
+			"embedTitle": "粘贴代码片段即可开始。",
+			"embedDescription": "您的网站只需要这些代码就能显示小部件。",
+			"previewSite": "您的网站",
+			"live": "在线",
+			"widgetMessage": "您好——我可以帮助处理商品、规则、预约、文档等问题。"
 		},
 		"header": {
 			"switchToLightTheme": "切换到浅色主题",
@@ -596,15 +545,48 @@
 		"footer": {
 			"copyright": "Talqo。保留所有权利。"
 		},
-		"features": {
-			"speedTitle": "闪电般快速",
-			"speedDescription": "由先进的 AI 模型驱动的即时响应。让您的用户无需等待即可保持参与。",
-			"customizableTitle": "可定制的上下文",
-			"customizableDescription": "连接 MCP 源，定义自定义规则，并限制术语以适合您的品牌。",
-			"embedTitle": "随处嵌入",
-			"embedDescription": "简单的 React 和 JS 嵌入代码。几分钟内即可启动并运行您的小部件。",
-			"switchToLightTheme": "切换到浅色主题",
-			"switchToDarkTheme": "切换到深色主题"
+		"steps": {
+			"configure": "配置",
+			"configureDescription": "添加商品数据、规则、文档、工具、品牌颜色和支持规则。",
+			"paste": "嵌入",
+			"pasteDescription": "将生成的小部件代码添加到您的网站。",
+			"launch": "上线",
+			"launchDescription": "保存页面。小部件会出现并准备好接待访客。"
+		},
+		"useCases": {
+			"eyebrow": "使用场景",
+			"title": "为任何网站提供有用答案。",
+			"shop": {
+				"label": "商店",
+				"question": "我的订单在哪里？",
+				"answer": "已找到订单状态。明天送达。"
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "如何连接 API？",
+				"answer": "这是来自您文档的设置路径。"
+			},
+			"services": {
+				"label": "服务",
+				"question": "我可以预约周二吗？",
+				"answer": "周二有两个空档。"
+			}
+		},
+		"capabilities": {
+			"eyebrow": "为真实网站构建",
+			"title": "连接数据源。匹配您的网站。保持可控。",
+			"knowledgeBase": "知识库",
+			"mcpTools": "MCP 工具",
+			"brandColors": "品牌颜色",
+			"customPersonality": "自定义个性",
+			"byok": "BYOK",
+			"anyWebsite": "任何网站"
+		},
+		"finalCta": {
+			"title": "准备添加 Talqo？",
+			"description": "配置小部件，让 Talqo 即时回答访客问题。",
+			"startFree": "免费开始",
+			"viewDocs": "查看文档"
 		}
 	},
 	"adminStats": {
@@ -624,45 +606,21 @@
 		"name": "姓名",
 		"password": "密码",
 		"cardNumber": "卡号",
-		"loading": "加载中...",
 		"saving": "保存中...",
-		"save": "保存",
 		"cancel": "取消",
 		"delete": "删除",
 		"add": "添加",
 		"edit": "编辑",
-		"confirm": "确认",
-		"back": "返回",
-		"next": "下一步",
-		"close": "关闭",
-		"open": "打开",
-		"expand": "展开",
-		"minimize": "最小化",
-		"clear": "清除",
 		"copy": "复制",
 		"copied": "已复制！",
-		"submit": "提交",
-		"remove": "移除",
-		"regenerate": "重新生成",
-		"configure": "配置",
-		"view": "查看",
-		"refreshPage": "刷新页面",
-		"tryAgain": "再试一次",
-		"pleaseTryAgain": "请重试",
+		"failed": "失败！",
 		"switchToLightTheme": "切换到浅色主题",
 		"switchToDarkTheme": "切换到深色主题",
 		"switchToLightMode": "切换到浅色模式",
 		"switchToDarkMode": "切换到深色模式",
-		"lightMode": "浅色模式",
-		"darkMode": "深色模式",
 		"logOut": "退出登录",
-		"logIn": "登录",
 		"noData": "暂无数据",
-		"talqo": "Talqo",
-		"failedToLoad": "加载失败",
-		"processing": "处理中...",
-		"sending": "发送中...",
-		"confirmNewPassword": "确认新密码"
+		"talqo": "Talqo"
 	},
 	"clientDashboard": {
 		"nav": {
@@ -813,8 +771,7 @@
 			"fetchFailed": "加载 MCP 服务器失败，请刷新页面。",
 			"createFailed": "创建服务器失败，请重试。",
 			"updateFailed": "更新服务器失败，请重试。",
-			"deleteFailed": "删除服务器失败，请重试。",
-			"deleting": "删除中..."
+			"deleteFailed": "删除服务器失败，请重试。"
 		}
 	},
 	"notFound": {

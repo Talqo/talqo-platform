@@ -9,8 +9,6 @@
 			"totalTokens": "Total Tokens",
 			"allTime": "All Time",
 			"questionsAnswered": "Questions Answered",
-			"activeConnectors": "Active Connectors",
-			"customServers": "{{count}} custom",
 			"currentSpend": "Current Spend",
 			"totalConversations": "Total Conversations",
 			"uniqueUsers": "Unique Users",
@@ -76,29 +74,11 @@
 		"viewingAsClient": "Viewing as client (admin impersonation)",
 		"exitToBackoffice": "Exit to backoffice"
 	},
-	"login": "Login",
 	"email": "Email",
 	"name": "Name",
 	"copy": "Copy",
-	"copied": "Copied!",
 	"loading": "Loading...",
-	"save": "Save",
 	"submit": "Submit",
-	"cancel": "Cancel",
-	"delete": "Delete",
-	"add": "Add",
-	"edit": "Edit",
-	"confirm": "Confirm",
-	"back": "Back",
-	"next": "Next",
-	"close": "Close",
-	"open": "Open",
-	"expand": "Expand",
-	"minimize": "Minimize",
-	"clear": "Clear",
-	"typeAMessage": "Type a message...",
-	"poweredBy": "Powered by Talqo",
-	"aiAssistant": "AI Assistant",
 	"error": {
 		"errorBoundary": {
 			"title": "Something Went Wrong",
@@ -112,37 +92,17 @@
 		}
 	},
 	"success": "Success",
-	"warning": "Warning",
-	"info": "Info",
-	"noData": "No data available",
-	"tokenConsumption": "Token Consumption",
-	"questionsAsked": "Questions Asked",
-	"addFunds": "Add Funds",
 	"cardNumber": "Card Number",
 	"expiry": "Expiry",
 	"cvv": "CVV",
 	"nameOnCard": "Name on Card",
-	"wordBlacklist": "Word Blacklist",
 	"word": "Word",
 	"currentPassword": "Current Password",
 	"newPassword": "New Password",
 	"confirmNewPassword": "Confirm New Password",
 	"systemPrompt": "System Prompt",
 	"defaultRole": "Default Role",
-	"invalidLink": "Invalid link",
-	"requestNewLink": "Request new link",
-	"checkYourEmail": "Check your email",
-	"resetPassword": "Reset password",
-	"startForFree": "Start for free",
-	"somethingWentWrong": "Something went wrong",
-	"errorLoadingClientData": "Error loading client data",
-	"failedToLoadClientInfo": "Failed to load client information. Please try again.",
-	"languages": {
-		"language": "Language",
-		"english": "English",
-		"czech": "Czech",
-		"chinese": "Chinese"
-	},
+	"languages": {},
 	"showPassword": "Show password",
 	"hidePassword": "Hide password",
 	"widget": {
@@ -263,15 +223,7 @@
 			"configure": "Configure",
 			"configurationComingSoon": "Configuration coming soon"
 		},
-		"toolsTab": {
-			"title": "MCP Tools",
-			"currentlyUsed": "Currently Used",
-			"preconfigured": "Pre-configured Tools",
-			"seeMoreMcp": "See more MCP tools",
-			"browseDirectory": "Browse the official MCP servers directory",
-			"saveToolConfiguration": "Save Tool Configuration",
-			"persistenceComingSoon": "Persistence coming soon"
-		},
+		"toolsTab": {},
 		"toolNames": {
 			"calendar": "Calendar",
 			"documentSearch": "Document Search",
@@ -289,12 +241,9 @@
 			"staticFallbackInfo": "Static fallback info",
 			"toolConnector": "Tool connector"
 		},
-		"mcpToolsTitle": "MCP Tools",
-		"mcpToolsSubtitle": "Manage MCP (Model Context Protocol) tools and integrations for your bot.",
 		"preconfiguredServers": "Pre-configured Servers",
 		"noPreconfiguredServers": "No pre-configured servers available yet.",
 		"customServers": "Custom Servers",
-		"noCustomServers": "No custom servers yet. Add one to give your bot access to your own data sources.",
 		"availableTools": "Available tools:",
 		"noToolsFound": "No tools found",
 		"unknownServer": "Unknown",
@@ -336,46 +285,21 @@
 		"name": "Name",
 		"password": "Password",
 		"cardNumber": "Card Number",
-		"loading": "Loading...",
 		"saving": "Saving...",
-		"save": "Save",
 		"cancel": "Cancel",
 		"delete": "Delete",
 		"add": "Add",
 		"edit": "Edit",
-		"close": "Close",
-		"open": "Open",
 		"copy": "Copy",
 		"copied": "Copied!",
 		"failed": "Failed!",
-		"submit": "Submit",
-		"remove": "Remove",
-		"configure": "Configure",
-		"view": "View",
-		"tryAgain": "Try again",
 		"switchToLightTheme": "Switch to light theme",
 		"switchToDarkTheme": "Switch to dark theme",
-		"lightMode": "Light Mode",
-		"darkMode": "Dark Mode",
 		"logOut": "Log out",
 		"noData": "No data available",
 		"talqo": "Talqo",
-		"failedToLoad": "Failed to load",
-		"processing": "Processing...",
-		"sending": "Sending...",
-		"confirm": "Confirm",
-		"back": "Back",
-		"next": "Next",
-		"expand": "Expand",
-		"minimize": "Minimize",
-		"clear": "Clear",
-		"regenerate": "Regenerate",
-		"refreshPage": "Refresh page",
-		"pleaseTryAgain": "Please try again",
 		"switchToLightMode": "Switch to light mode",
-		"switchToDarkMode": "Switch to dark mode",
-		"logIn": "Log in",
-		"confirmNewPassword": "Confirm New Password"
+		"switchToDarkMode": "Switch to dark mode"
 	},
 	"settings": {
 		"account": {
@@ -397,7 +321,6 @@
 			"confirmPassword": "Confirm your password",
 			"passwordPlaceholder": "Enter your password",
 			"deleteAccountError": "Incorrect password. Please try again.",
-			"deleting": "Deleting...",
 			"deleteMyAccount": "Delete my account",
 			"passwordChangedSuccess": "Password changed successfully",
 			"passwordChangeFailed": "Failed to change password. Please try again.",
@@ -501,9 +424,6 @@
 		"customDialog": {
 			"addTitle": "Add Custom MCP Server",
 			"editTitle": "Edit Custom MCP Server",
-			"transportType": "Transport type",
-			"selectType": "Select type",
-			"httpLabel": "HTTP (URL)",
 			"endpointUrl": "Endpoint URL",
 			"headers": "Headers",
 			"addHeader": "Add header",
@@ -679,14 +599,12 @@
 			"fetchFailed": "Failed to load MCP servers. Please refresh the page.",
 			"createFailed": "Failed to create server. Please try again.",
 			"updateFailed": "Failed to update server. Please try again.",
-			"deleteFailed": "Failed to delete server. Please try again.",
-			"deleting": "Deleting..."
+			"deleteFailed": "Failed to delete server. Please try again."
 		}
 	},
 	"auth": {
 		"login": {
 			"title": "Log in",
-			"navLabel": "Login",
 			"goToLogin": "Go to login",
 			"description": "Enter your email and password to access your dashboard",
 			"emailPlaceholder": "m@example.com",
@@ -780,11 +698,18 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "Embed a fully customizable, context-aware AI chatbot directly into your website. Connect your own knowledge bases and let your customers find answers instantly.",
+			"description": "Talqo gives your website a branded AI assistant that answers visitor questions using the right business context: products, policies, bookings, docs, and connected tools.",
 			"startForFree": "Start for free",
 			"viewDocumentation": "View Documentation",
-			"line1": "The intelligent chat widget",
-			"line2": "for your business."
+			"line1": "The AI chat widget",
+			"line2": "your website needs.",
+			"tryLive": "Try it live in the corner",
+			"embedFile": "index.html",
+			"embedTitle": "Paste the snippet and get going.",
+			"embedDescription": "This is all your site needs to show the widget.",
+			"previewSite": "Your site",
+			"live": "Live",
+			"widgetMessage": "Hi — I can help with products, policies, bookings, docs, and more."
 		},
 		"header": {
 			"switchToLightTheme": "Switch to light theme",
@@ -794,15 +719,48 @@
 		"footer": {
 			"copyright": "Talqo. All rights reserved."
 		},
-		"features": {
-			"speedTitle": "Lightning Fast",
-			"speedDescription": "Instant responses powered by advanced AI models. Keep your users engaged without waiting.",
-			"customizableTitle": "Customizable Context",
-			"customizableDescription": "Connect MCP sources, define custom rules, and restrict terminology to suit your brand.",
-			"embedTitle": "Embed Anywhere",
-			"embedDescription": "Simple React and JS embed codes. Get your widget up and running in minutes.",
-			"switchToLightTheme": "Switch to light theme",
-			"switchToDarkTheme": "Switch to dark theme"
+		"steps": {
+			"configure": "Configure",
+			"configureDescription": "Add product data, policies, docs, tools, brand colors, and support rules.",
+			"paste": "Embed",
+			"pasteDescription": "Add the generated widget snippet to your website.",
+			"launch": "Launch",
+			"launchDescription": "Save the page. The widget appears and is ready for visitors."
+		},
+		"useCases": {
+			"eyebrow": "Use cases",
+			"title": "Helpful answers for any website.",
+			"shop": {
+				"label": "Shop",
+				"question": "Where is my order?",
+				"answer": "Order status found. Delivery is tomorrow."
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "How do I connect the API?",
+				"answer": "Here is the setup path from your docs."
+			},
+			"services": {
+				"label": "Services",
+				"question": "Can I book Tuesday?",
+				"answer": "Tuesday has two open slots."
+			}
+		},
+		"capabilities": {
+			"eyebrow": "Built for real sites",
+			"title": "Connect sources. Match your site. Stay in control.",
+			"knowledgeBase": "Knowledge base",
+			"mcpTools": "MCP tools",
+			"brandColors": "Brand colors",
+			"customPersonality": "Custom personality",
+			"byok": "BYOK",
+			"anyWebsite": "Any website"
+		},
+		"finalCta": {
+			"title": "Ready to add Talqo?",
+			"description": "Configure your widget and let Talqo answer visitors instantly.",
+			"startFree": "Start for free",
+			"viewDocs": "View docs"
 		}
 	},
 	"adminStats": {
