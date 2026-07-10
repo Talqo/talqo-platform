@@ -9,9 +9,6 @@ GHCR_USER := talqo
 API_IMAGE := ghcr.io/$(GHCR_USER)/talqo-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/talqo-web
 VITE_API_URL ?= http://localhost:3000/v1
-E2E_PORT     ?= 4173
-# Fixed by packages/widget/package.json's preview script (--port 5174 --strictPort)
-WIDGET_E2E_PORT := 5174
 # Rancher project ID — namespaces must be annotated with this to appear in the right project
 RANCHER_PROJECT_ID := c-m-qvndqhf6:p-8rjpv
 
@@ -43,6 +40,16 @@ DEV_WIDGET_PORT        := $(shell echo $$((5174 + $(PORT_OFFSET))))
 DEV_WIDGET_BUNDLE_PORT := $(shell echo $$((5175 + $(PORT_OFFSET))))
 DEV_MINIO_PORT         := $(shell echo $$((9000 + $(PORT_OFFSET))))
 DEV_MINIO_CONSOLE_PORT := $(shell echo $$((9001 + $(PORT_OFFSET))))
+
+# Same offset applied to e2e so parallel `make e2e` worktrees don't clash.
+# Web/widget use their own preview bases (4173/5174); Playwright reads these ports
+# from the exported BASE_URL/WIDGET_URL/VITE_API_URL (see e2e target below).
+E2E_DB_PORT            := $(shell echo $$((5432 + $(PORT_OFFSET))))
+E2E_API_PORT           := $(shell echo $$((3000 + $(PORT_OFFSET))))
+E2E_WEB_PORT           := $(shell echo $$((4173 + $(PORT_OFFSET))))
+E2E_WIDGET_PORT        := $(shell echo $$((5174 + $(PORT_OFFSET))))
+E2E_MINIO_PORT         := $(shell echo $$((9000 + $(PORT_OFFSET))))
+E2E_MINIO_CONSOLE_PORT := $(shell echo $$((9001 + $(PORT_OFFSET))))
 
 # Image tagging strategy:
 #   prod — MAJOR.MINOR.PATCH stripped from a vX.Y.Z git tag on HEAD
@@ -84,6 +91,19 @@ $(PORT_TARGETS): export ALLOWED_ORIGINS    := http://localhost:$(DEV_WEB_PORT)
 $(PORT_TARGETS): export MINIO_PORT         := $(DEV_MINIO_PORT)
 $(PORT_TARGETS): export MINIO_CONSOLE_PORT := $(DEV_MINIO_CONSOLE_PORT)
 $(PORT_TARGETS): export S3_ENDPOINT        := http://localhost:$(DEV_MINIO_PORT)
+
+# Same mechanism for e2e (scoped to the e2e target). Playwright + the API/web/widget
+# it launches inherit these and override the .env.example defaults they load.
+e2e: export POSTGRES_PORT      := $(E2E_DB_PORT)
+e2e: export API_PORT           := $(E2E_API_PORT)
+e2e: export MINIO_PORT         := $(E2E_MINIO_PORT)
+e2e: export MINIO_CONSOLE_PORT := $(E2E_MINIO_CONSOLE_PORT)
+e2e: export S3_ENDPOINT        := http://localhost:$(E2E_MINIO_PORT)
+e2e: export VITE_API_URL       := http://localhost:$(E2E_API_PORT)/v1
+e2e: export APP_URL            := http://localhost:$(E2E_WEB_PORT)
+e2e: export ALLOWED_ORIGINS    := http://localhost:$(E2E_WEB_PORT)
+e2e: export BASE_URL           := http://localhost:$(E2E_WEB_PORT)
+e2e: export WIDGET_URL         := http://localhost:$(E2E_WIDGET_PORT)
 
 .PHONY: dev
 dev: db-up ## Start local development (DB + apps)
@@ -220,48 +240,14 @@ test: ## Run all unit tests (excludes e2e tests)
 	bun run test
 
 .PHONY: e2e
-e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
-	@for target in "3000:/health" "$(E2E_PORT):" "$(WIDGET_E2E_PORT):"; do \
-		port="$${target%%:*}"; path="$${target#*:}"; \
-		if curl -sf "http://localhost:$$port$$path" >/dev/null 2>&1; then \
-			echo "ERROR: something is already listening on port $$port — a previous make e2e run may not have been cleaned up (its API/web/widget server keeps running and silently absorbs this run instead of a fresh one starting)."; \
-			echo "  Find and stop it: lsof -ti:$$port | xargs kill"; \
-			exit 1; \
-		fi; \
-	done
+e2e: ## Run e2e tests (build, migrate, seed; Playwright starts/stops the servers)
 	$(COMPOSE) --env-file=.env.example down -v
 	$(COMPOSE) --env-file=.env.example up -d db --wait
-	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db
-	cd packages/widget && VITE_API_URL=$(VITE_API_URL) bun run build:e2e
+	bunx turbo build --filter=web --filter=db
+	cd packages/widget && bun run build:e2e
 	bun --env-file=.env.example packages/db/migrate.ts
 	cd apps/api && bun --env-file=../../.env.example src/db/seed.ts
-	@wait_for() { \
-		i=0; \
-		until curl -sf "$$1" >/dev/null 2>&1; do \
-			i=$$((i + 1)); \
-			[ $$i -ge 30 ] && return 1; \
-			sleep 2; \
-		done; \
-	}; \
-	stop_servers() { \
-		p=$$(lsof -ti :3000,:$(E2E_PORT),:$(WIDGET_E2E_PORT) 2>/dev/null); \
-		[ -n "$$p" ] && kill -9 $$p 2>/dev/null; \
-		true; \
-	}; \
-	(cd apps/api && APP_URL=http://localhost:$(E2E_PORT) ALLOWED_ORIGINS=http://localhost:$(E2E_PORT) bun --env-file=../../.env.example src/index.ts) & \
-	(cd apps/web && bun run preview -- --port $(E2E_PORT) --strictPort) & \
-	(cd packages/widget && bun run preview) & \
-	wait_for http://localhost:3000/health \
-		|| { stop_servers; echo "ERROR: API failed to start"; exit 1; }; \
-	wait_for http://localhost:$(E2E_PORT) \
-		|| { stop_servers; echo "ERROR: Web preview failed to start"; exit 1; }; \
-	wait_for http://localhost:$(WIDGET_E2E_PORT) \
-		|| { stop_servers; echo "ERROR: Widget preview failed to start"; exit 1; }; \
-	export BASE_URL=http://localhost:$(E2E_PORT); \
-	export WIDGET_URL=http://localhost:$(WIDGET_E2E_PORT); \
-	(cd apps/e2e && bun run test:run); STATUS=$$?; \
-	stop_servers; \
-	exit $$STATUS
+	cd apps/e2e && bun run test:run
 
 .PHONY: lint
 lint: ## Lint all workspaces

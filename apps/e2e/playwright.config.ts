@@ -1,7 +1,45 @@
+import path from "node:path"
 import { defineConfig, devices } from "@playwright/test"
+
+// Playwright transforms this package to CommonJS (no "type": "module"), so use the
+// ambient __dirname — import.meta.url throws "exports is not defined" here (see
+// tests/helpers/global-setup.ts).
+
+// Ports are branch-derived per worktree (make e2e exports them); fall back to the
+// canonical defaults so a bare `bun run test:run` still targets a local stack.
+const baseURL = process.env.BASE_URL ?? "http://localhost:5173"
+const widgetURL = process.env.WIDGET_URL ?? "http://localhost:5174"
+const apiOrigin = new URL(
+	process.env.VITE_API_URL ?? "http://localhost:3000/v1",
+).origin
 
 export default defineConfig({
 	testDir: "./tests",
+	// The API/web/widget servers inherit make e2e's exported env (ports, APP_URL,
+	// ALLOWED_ORIGINS, DB creds), overriding the .env.example defaults they load.
+	webServer: [
+		{
+			command: "bun --env-file=../../.env.example src/index.ts",
+			cwd: path.resolve(__dirname, "../api"),
+			url: `${apiOrigin}/health`,
+			reuseExistingServer: false,
+			timeout: 60_000,
+		},
+		{
+			command: `bun run preview -- --port ${new URL(baseURL).port} --strictPort`,
+			cwd: path.resolve(__dirname, "../web"),
+			url: baseURL,
+			reuseExistingServer: false,
+			timeout: 60_000,
+		},
+		{
+			command: `bun run preview -- --port ${new URL(widgetURL).port} --strictPort`,
+			cwd: path.resolve(__dirname, "../../packages/widget"),
+			url: widgetURL,
+			reuseExistingServer: false,
+			timeout: 60_000,
+		},
+	],
 	fullyParallel: true,
 	// Fail CI fast if a test is accidentally left with `.only`
 	forbidOnly: !!process.env.CI,
@@ -17,7 +55,7 @@ export default defineConfig({
 		timeout: 10000,
 	},
 	use: {
-		baseURL: process.env.BASE_URL ?? "http://localhost:5173",
+		baseURL,
 		// Capture trace on first retry to ease debugging
 		trace: "on-first-retry",
 		// Disable "stable" position checks, which hang inside Docker/WSL
@@ -57,7 +95,7 @@ export default defineConfig({
 			testDir: "./tests/widget",
 			use: {
 				...devices["Desktop Chrome"],
-				baseURL: process.env.WIDGET_URL ?? "http://localhost:5174",
+				baseURL: widgetURL,
 				launchOptions: {
 					args: [
 						"--no-sandbox",
