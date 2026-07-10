@@ -24,6 +24,8 @@ ingress:
   enabled: true
   className: "nginx"
   host: "dev.talqo.dyn.cloud.e-infra.cz"
+  extraHosts: []
+  publicHost: ""
   tls: true
   tlsSecretName: "talqo-dev-tls"
   clusterIssuer: "letsencrypt-prod"

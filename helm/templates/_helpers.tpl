@@ -120,3 +120,25 @@ Default LLM secret name — uses existingSecret when provided, otherwise the gen
 {{- include "talqo.fullname" . }}-default-llm-secret
 {{- end }}
 {{- end }}
+
+{{/*
+Ingress http paths — shared across the primary host and any extraHosts.
+*/}}
+{{- define "talqo.ingress.paths" -}}
+http:
+  paths:
+    - path: /api/?(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: {{ include "talqo.fullname" . }}-api
+          port:
+            name: http
+    - path: /(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: {{ include "talqo.fullname" . }}-web
+          port:
+            name: http
+{{- end }}

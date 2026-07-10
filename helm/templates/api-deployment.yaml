@@ -64,7 +64,7 @@ spec:
                   name: {{ include "talqo.resendSecretName" . }}
                   key: apiKey
             - name: APP_URL
-              value: {{ printf "%s://%s" (ternary "https" "http" .Values.ingress.tls) .Values.ingress.host | quote }}
+              value: {{ printf "%s://%s" (ternary "https" "http" .Values.ingress.tls) (.Values.ingress.publicHost | default .Values.ingress.host) | quote }}
             - name: WIDGET_RATE_LIMIT_PER_HOUR
               value: {{ .Values.api.widgetRateLimitPerHour | default 60 | quote }}
             - name: WIDGET_CONVERSATION_MAX_MESSAGES

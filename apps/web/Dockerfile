@@ -14,6 +14,8 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/tsconfig.json ./
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
+ARG VITE_WIDGET_BUNDLE_URL
+ENV VITE_WIDGET_BUNDLE_URL=${VITE_WIDGET_BUNDLE_URL}
 ARG VITE_SENTRY_DSN
 ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
 # Build shared first (types consumed by widget during its build step)

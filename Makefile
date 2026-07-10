@@ -186,6 +186,7 @@ build-api: _require-tag ## Build API Docker image
 build-web: _require-tag ## Build Web Docker image
 	docker build -f apps/web/Dockerfile \
 		--build-arg VITE_API_URL="$(VITE_API_URL)" \
+		--build-arg VITE_WIDGET_BUNDLE_URL="$(VITE_WIDGET_BUNDLE_URL)" \
 		--build-arg VITE_SENTRY_DSN="$(VITE_SENTRY_DSN)" \
 		-t "$(WEB_IMAGE):$(IMAGE_TAG)" .
 

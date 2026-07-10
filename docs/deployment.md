@@ -37,6 +37,27 @@ base64 -w 0 ~/.kube/config
 
 The active environment is detected from the current git branch — no flags needed.
 
+## Custom domain
+
+Production serves both the cluster host (`talqo.dyn.cloud.e-infra.cz`) and the
+public alias (`talqo.chat`) from a single ingress. Configured in
+`helm/values.yaml`:
+
+| Value | Purpose |
+|-------|---------|
+| `ingress.host` | Primary cluster hostname (kept for direct access) |
+| `ingress.extraHosts` | Extra hostnames the ingress answers; cert-manager issues one Let's Encrypt certificate covering `host` + `extraHosts` |
+| `ingress.publicHost` | Origin used for `APP_URL` (email verify/reset links); defaults to `host` |
+
+To add a new domain:
+
+1. CNAME it to `ingress.host` (`talqo.chat` → `talqo.dyn.cloud.e-infra.cz`). DNS-only is enough — cert-manager terminates TLS, so the Cloudflare proxy is not required.
+2. Add it to `ingress.extraHosts` and set `ingress.publicHost` for the user-facing origin.
+3. Update the prod URLs in `.github/workflows/cd.yml` (`url`, `VITE_API_URL`, `VITE_WIDGET_BUNDLE_URL`) and the embed-snippet docs.
+4. `make deploy` — cert-manager provisions the certificate on the next rollout.
+
+A CNAME alone is insufficient: the nginx-ingress routes by `Host` header, so the ingress must list the hostname or requests fall through to the default backend (404).
+
 ## Local development
 
 ```bash
