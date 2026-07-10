@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router"
 import { Bot, CornerDownRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
-import { getEmbedCodeLines } from "@/data/landing"
 import { getWidgetBundleUrl } from "@/lib/widget-bundle-url"
+import { getEmbedCodeLines } from "./data"
 
 export function HeroSection() {
 	const { t } = useTranslation()

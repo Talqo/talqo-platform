@@ -3,8 +3,8 @@ import { ArrowRight, Bot } from "lucide-react"
 import { Fragment, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
-import { getCapabilities, getLandingSteps, getUseCases } from "@/data/landing"
 import { cn } from "@/lib/utils"
+import { getCapabilities, getLandingSteps, getUseCases } from "./data"
 
 export function FeaturesSection() {
 	const { t } = useTranslation()
