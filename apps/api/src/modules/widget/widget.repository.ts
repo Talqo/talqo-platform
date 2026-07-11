@@ -436,8 +436,7 @@ export class WidgetRepository implements IWidgetRepository {
 		costUsd: number,
 	) {
 		await this.db.transaction(async (tx) => {
-			// Row lock serializes concurrent recordUsage calls for this client, so the
-			// monthly-spend ceiling check below is consistent with the balance check.
+			// Row lock serializes concurrent recordUsage calls for this client
 			const [client] = await tx
 				.select({
 					id: clients.id,

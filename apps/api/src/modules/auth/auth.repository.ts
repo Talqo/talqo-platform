@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm"
 import { CLIENT_STATUS_VALUES, type ClientStatus } from "shared"
+import { getPostgresErrorCode } from "@/common/db-errors"
 import {
 	AuthConflictError,
 	BadRequestError,
@@ -502,21 +503,4 @@ export class DrizzleAuthRepository implements AuthRepository {
 
 function isUniqueViolation(err: unknown): boolean {
 	return getPostgresErrorCode(err) === "23505"
-}
-
-// Drizzle wraps the underlying postgres.js error in a DrizzleQueryError,
-// moving the real error code from `.code` to `.cause.code`.
-function getPostgresErrorCode(err: unknown): string | undefined {
-	if (typeof err !== "object" || err === null) return undefined
-	if ("code" in err && typeof err.code === "string") return err.code
-	if (
-		"cause" in err &&
-		typeof err.cause === "object" &&
-		err.cause !== null &&
-		"code" in err.cause &&
-		typeof err.cause.code === "string"
-	) {
-		return err.cause.code
-	}
-	return undefined
 }

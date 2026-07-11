@@ -35,8 +35,7 @@ describe("McpRepository.enablePreMade — deleted-server race", () => {
 		const serverId = (server as { id: string }).id
 		createdServerIds.push(serverId)
 
-		// Simulate the race: the server is deleted after the caller's existence
-		// check but before enablePreMade's insert runs.
+		// Simulate the race: delete after the caller's existence check
 		await withSql(
 			(sql) => sql`DELETE FROM pre_made_mcp_servers WHERE id = ${serverId}`,
 		)

@@ -188,8 +188,7 @@ export class AuthService {
 			return
 		}
 
-		// Treat suspended accounts like non-existent ones: no email, no token,
-		// no distinct response — otherwise this endpoint would reveal suspension status
+		// Treat like non-existent to avoid revealing suspension status
 		if (client.status === "suspended") {
 			logger.info("Password reset requested for suspended account", {
 				email: canonical,
@@ -213,9 +212,7 @@ export class AuthService {
 	}
 
 	async resetPassword(token: string, newPassword: string): Promise<void> {
-		// The requester already possesses a token that was emailed to the account
-		// owner, so a distinct rejection here does not aid enumeration the way it
-		// would in requestPasswordReset.
+		// Requester already holds a token emailed to the owner — no enumeration risk
 		const record = await this.repo.findPasswordResetToken(token)
 		if (record) {
 			const client = await this.repo.findClientByEmail(record.email)

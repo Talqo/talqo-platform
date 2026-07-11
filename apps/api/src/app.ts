@@ -115,8 +115,7 @@ app.get("/health", async (c) => {
 })
 
 // ─── Request body size limits ─────────────────────────────────────────────────
-// Bun's default is 128 MB, which lets a single request allocate huge amounts of
-// heap. Cap JSON routes tightly; the file upload route gets its own, larger cap.
+// Bun's default is 128 MB; JSON routes get a tighter cap, uploads a larger one.
 const DEFAULT_BODY_LIMIT_BYTES = 1 * 1024 * 1024 // 1 MB
 const FILE_UPLOAD_BODY_LIMIT_BYTES = 20 * 1024 * 1024 // 20 MB
 

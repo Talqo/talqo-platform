@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm"
 import type { McpRemoteServerConfig, McpServerConfigInput } from "shared"
+import { getPostgresErrorCode } from "@/common/db-errors"
 import { NotFoundError } from "@/common/errors"
 import type { DB } from "@/db"
 import {
@@ -88,10 +89,7 @@ export class McpRepository {
 				.values({ clientId, preMadeMcpId: serverId })
 				.onConflictDoNothing()
 		} catch (err) {
-			// FK violation — the pre-made server was deleted between the caller's
-			// existence check and this insert. The constraint already prevents a
-			// ghost row from being created; translate it into a clean 404 instead
-			// of letting the raw Postgres error surface.
+			// Server was deleted between the existence check and this insert
 			if (isForeignKeyViolation(err)) {
 				throw new NotFoundError("Pre-made MCP server not found")
 			}
@@ -217,21 +215,4 @@ export class McpRepository {
 
 function isForeignKeyViolation(err: unknown): boolean {
 	return getPostgresErrorCode(err) === "23503"
-}
-
-// Drizzle wraps the underlying postgres.js error in a DrizzleQueryError,
-// moving the real error code from `.code` to `.cause.code`.
-function getPostgresErrorCode(err: unknown): string | undefined {
-	if (typeof err !== "object" || err === null) return undefined
-	if ("code" in err && typeof err.code === "string") return err.code
-	if (
-		"cause" in err &&
-		typeof err.cause === "object" &&
-		err.cause !== null &&
-		"code" in err.cause &&
-		typeof err.cause.code === "string"
-	) {
-		return err.cause.code
-	}
-	return undefined
 }

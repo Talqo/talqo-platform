@@ -5,8 +5,7 @@ import { DrizzleRagRepository } from "./rag.repository"
 import { RagService } from "./rag.service"
 
 const ragRepository = new DrizzleRagRepository(db)
-// Own instance rather than importing provider-config's shared singleton —
-// keeps this module from depending on provider-config's internal wiring.
+// Own instance to avoid depending on provider-config's internal wiring
 const providerConfigRepository = new ProviderConfigRepository(db)
 export const ragService = new RagService(
 	ragRepository,

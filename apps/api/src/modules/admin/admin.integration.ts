@@ -141,9 +141,7 @@ describe("Admin integration tests", () => {
 	it("GET /admin/activity-logs surfaces actions with no explicit audit label", async () => {
 		const adminToken = await createAdminToken()
 
-		// POST /admin/mcp/pre-made has no explicit auditActionLabel, so it is
-		// logged under the "METHOD /path" fallback rather than a curated label
-		// like "suspend" — this used to be silently filtered out entirely.
+		// Falls back to "METHOD /path" — previously filtered out entirely
 		const createRes = await realApp.request("/v1/admin/mcp/pre-made", {
 			method: "POST",
 			headers: {

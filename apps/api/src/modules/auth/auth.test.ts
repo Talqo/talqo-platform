@@ -784,17 +784,14 @@ describe("POST /auth/reset-password", () => {
 				body: JSON.stringify(validRegistration),
 			}),
 		)
-		// Suspended accounts can't log in either (existing behavior), but the
-		// important assertion is that reset-password itself was rejected above.
+		// Secondary check only — the reset rejection above is the real assertion
 		expect(loginRes.status).toBe(403)
 	})
 
 	it("increments the client's tokenVersion so previously issued JWTs are invalidated", async () => {
 		const beforeClient = await repo.findClientByEmail(validRegistration.email)
 		if (!beforeClient) throw new Error("Expected client to exist")
-		// Snapshot the primitive — InMemoryAuthRepository returns the live object,
-		// so reading beforeClient.tokenVersion again after the mutation below
-		// would reflect the post-reset value instead of the original one.
+		// Snapshot now — repo returns a live object that the reset below mutates
 		const tokenVersionBeforeReset = beforeClient.tokenVersion
 
 		const resetRes = await app.fetch(

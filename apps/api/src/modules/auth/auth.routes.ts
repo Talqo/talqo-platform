@@ -201,11 +201,7 @@ authRoutes.openapi(
 	}),
 	async (c) => {
 		const { email } = c.req.valid("json")
-		// authService.resendVerificationEmail already returns silently (no throw)
-		// for the "don't reveal account state" cases (no pending registration,
-		// already registered, expired token) — anything that DOES throw here is a
-		// real failure (e.g. email delivery) and must reach errorHandler/Sentry,
-		// not be swallowed.
+		// Service swallows non-enumeration cases; a throw here is a real failure
 		await authService.resendVerificationEmail(email)
 		return c.json(
 			{
@@ -248,10 +244,7 @@ authRoutes.openapi(
 	}),
 	async (c) => {
 		const { email } = c.req.valid("json")
-		// authService.requestPasswordReset already returns silently (no throw) for
-		// the "don't reveal account state" cases (no such account, suspended
-		// account) — anything that DOES throw here is a real failure (e.g. email
-		// delivery) and must reach errorHandler/Sentry, not be swallowed.
+		// Service swallows non-enumeration cases; a throw here is a real failure
 		await authService.requestPasswordReset(email)
 		return c.json(
 			{

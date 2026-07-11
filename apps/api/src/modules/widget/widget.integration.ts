@@ -191,9 +191,7 @@ describe("Widget integration tests", () => {
 			email,
 			`Widget Billing Failure Test ${crypto.randomUUID()}`,
 		)
-		// Positive balance so the pre-flight check passes, but smaller than the
-		// actual cost of 1 input + 2 output tokens (0.000005 USD) — this makes
-		// recordUsage's atomic guard reject the deduction after the stream completes.
+		// Enough for the pre-flight check but less than the actual cost
 		await addFundsToClient(client.id, 0.000001)
 
 		const sessionRes = await realApp.request("/v1/widget/sessions", {
@@ -238,8 +236,6 @@ describe("Widget integration tests", () => {
 				sseText += decoder.decode(value, { stream: true })
 			}
 		}
-		// The client still gets the full reply and a "done" event even though
-		// billing failed in the background.
 		expect(sseText).toContain("event: token")
 		expect(sseText).toContain("event: done")
 	})

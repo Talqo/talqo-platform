@@ -11,9 +11,7 @@ function isPrivateIpv4(a: number, b: number): boolean {
 	)
 }
 
-// Expands a bracket-stripped IPv6 literal (as produced by URL.hostname) into
-// its 8 16-bit groups, handling "::" compression and trailing IPv4 groups
-// that Bun/Node collapse into hex (e.g. "::ffff:127.0.0.1" -> "::ffff:7f00:1").
+// Expands a bracket-stripped IPv6 literal into its 8 16-bit groups
 function expandIpv6Groups(address: string): number[] | null {
 	const ipv4Tail = address.match(/^(.*):(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/)
 	let head = address

@@ -1,9 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test"
 
 // --- Mock config ---
-// bun's mock.module can leak across test files sharing this process (see
-// auth.test.ts's real dependency on config.APP_URL) — keep this mock's shape
-// complete so a leak doesn't break unrelated tests.
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/common/config", () => ({
 	config: {
 		WIDGET_CONVERSATION_MAX_MESSAGES: 50,

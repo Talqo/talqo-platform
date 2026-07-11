@@ -331,10 +331,7 @@ widgetMessageRoutes.openapi(
 						completion_tokens: tokensUsed.output,
 						total_tokens: tokensUsed.input + tokensUsed.output,
 					})
-					// Awaited (not fire-and-forget) so a failure is captured before the
-					// client is told this turn is "done" — undercounted billing was
-					// previously invisible to Sentry. The AI reply is already generated,
-					// so we still deliver it to the client even if recording fails.
+					// Awaited so a failure hits Sentry before the "done" event
 					try {
 						await widgetService.recordUsageAndAlert(
 							clientId,

@@ -34,9 +34,7 @@ describe("App smoke tests", () => {
 })
 
 describe("Body size limits", () => {
-	// hono's bodyLimit short-circuits on the Content-Length header when present
-	// (the fast path real HTTP clients hit) rather than counting streamed bytes,
-	// so these tests set it explicitly to exercise that path deterministically.
+	// hono's bodyLimit checks Content-Length rather than streamed bytes
 	it("rejects a JSON body over the 1 MB default cap with 413", async () => {
 		const bigBody = JSON.stringify({ email: "a".repeat(2 * 1024 * 1024) })
 		const res = await app.request("/v1/auth/forgot-password", {
@@ -59,8 +57,7 @@ describe("Body size limits", () => {
 			headers: { "Content-Length": String(bytes.length) },
 			body: bytes,
 		})
-		// No auth token supplied — the point is this must NOT be 413 (body-limit
-		// layer), it should reach auth and fail there instead.
+		// No auth token — must not be blocked by body-limit before reaching auth
 		expect(res.status).not.toBe(413)
 	})
 
