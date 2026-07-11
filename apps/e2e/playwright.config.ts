@@ -1,12 +1,9 @@
 import path from "node:path"
 import { defineConfig, devices } from "@playwright/test"
 
-// Playwright transforms this package to CommonJS (no "type": "module"), so use the
-// ambient __dirname — import.meta.url throws "exports is not defined" here (see
-// tests/helpers/global-setup.ts).
+// CommonJS transform (no "type": "module") — use ambient __dirname; import.meta.url throws here.
 
-// Ports are branch-derived per worktree (make e2e exports them); fall back to the
-// canonical defaults so a bare `bun run test:run` still targets a local stack.
+// Ports come from make e2e's exported env; fall back to defaults for bare test:run.
 const baseURL = process.env.BASE_URL ?? "http://localhost:5173"
 const widgetURL = process.env.WIDGET_URL ?? "http://localhost:5174"
 const apiOrigin = new URL(
@@ -15,8 +12,7 @@ const apiOrigin = new URL(
 
 export default defineConfig({
 	testDir: "./tests",
-	// The API/web/widget servers inherit make e2e's exported env (ports, APP_URL,
-	// ALLOWED_ORIGINS, DB creds), overriding the .env.example defaults they load.
+	// Servers inherit make e2e's exported env, overriding their .env.example defaults.
 	webServer: [
 		{
 			command: "bun --env-file=../../.env.example src/index.ts",
@@ -49,9 +45,7 @@ export default defineConfig({
 	globalSetup: "./tests/helpers/global-setup.ts",
 	reporter: process.env.CI ? "github" : "html",
 	expect: {
-		// Login uses argon2id (Bun.password.verify) — deliberately CPU/memory
-		// heavy. Concurrent workers hitting the same seeded account's login can
-		// queue up past the 5s default, especially on a busy local machine.
+		// argon2id login is CPU-heavy; concurrent workers can queue past the 5s default.
 		timeout: 10000,
 	},
 	use: {
@@ -65,8 +59,7 @@ export default defineConfig({
 	},
 	projects: [
 		{
-			// Logs in once as client and as admin, saving each session to
-			// tests/.auth/*.json for the chromium project to reuse.
+			// Logs in as client and admin, saving sessions to tests/.auth/*.json for chromium to reuse.
 			name: "setup",
 			testDir: "./tests",
 			testMatch: "**/*.setup.ts",
@@ -89,8 +82,7 @@ export default defineConfig({
 			},
 		},
 		{
-			// Widget bundle runs on its own origin (packages/widget's preview
-			// server), separate from the apps/web preview above.
+			// Widget bundle runs on its own origin (packages/widget preview).
 			name: "widget",
 			testDir: "./tests/widget",
 			use: {

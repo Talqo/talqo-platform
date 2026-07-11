@@ -30,8 +30,7 @@ else
   HELM_VALUES := -f $(HELM_CHART)/values.dev.yaml
 endif
 
-# Per-worktree port offset (branch-derived) so parallel `make dev` worktrees
-# don't clash. Override with PORT_OFFSET=N. Scoped to dev targets; e2e uses defaults.
+# Branch-derived port offset so parallel worktrees don't clash. Override with PORT_OFFSET=N.
 PORT_OFFSET ?= $(shell printf '%s' "$(BRANCH)" | cksum | awk '{print $$1 % 1000}')
 DEV_DB_PORT            := $(shell echo $$((5432 + $(PORT_OFFSET))))
 DEV_API_PORT           := $(shell echo $$((3000 + $(PORT_OFFSET))))
@@ -41,9 +40,8 @@ DEV_WIDGET_BUNDLE_PORT := $(shell echo $$((5175 + $(PORT_OFFSET))))
 DEV_MINIO_PORT         := $(shell echo $$((9000 + $(PORT_OFFSET))))
 DEV_MINIO_CONSOLE_PORT := $(shell echo $$((9001 + $(PORT_OFFSET))))
 
-# Same offset applied to e2e so parallel `make e2e` worktrees don't clash.
-# Web/widget use their own preview bases (4173/5174); Playwright reads these ports
-# from the exported BASE_URL/WIDGET_URL/VITE_API_URL (see e2e target below).
+# Same offset for e2e. Web/widget use preview bases (4173/5174); Playwright reads
+# ports from exported BASE_URL/WIDGET_URL/VITE_API_URL (see e2e target).
 E2E_DB_PORT            := $(shell echo $$((5432 + $(PORT_OFFSET))))
 E2E_API_PORT           := $(shell echo $$((3000 + $(PORT_OFFSET))))
 E2E_WEB_PORT           := $(shell echo $$((4173 + $(PORT_OFFSET))))
@@ -77,7 +75,7 @@ setup: ## Ensure .env, install deps, build packages (DB/migrate/seed run via mak
 	bunx turbo build --filter=db --filter=shared
 	@echo "Setup complete. Run 'make dev' to start development."
 
-# Process env beats Bun --env-file / compose .env, so these offset every DB/service target; e2e excluded to keep .env defaults.
+# Process env overrides --env-file/compose .env; offsets every dev target. e2e excluded.
 PORT_TARGETS := dev dev-api dev-web setup db-up db-reset db-migrate db-seed
 $(PORT_TARGETS): export POSTGRES_PORT      := $(DEV_DB_PORT)
 $(PORT_TARGETS): export API_PORT           := $(DEV_API_PORT)
@@ -92,8 +90,7 @@ $(PORT_TARGETS): export MINIO_PORT         := $(DEV_MINIO_PORT)
 $(PORT_TARGETS): export MINIO_CONSOLE_PORT := $(DEV_MINIO_CONSOLE_PORT)
 $(PORT_TARGETS): export S3_ENDPOINT        := http://localhost:$(DEV_MINIO_PORT)
 
-# Same mechanism for e2e (scoped to the e2e target). Playwright + the API/web/widget
-# it launches inherit these and override the .env.example defaults they load.
+# Same for the e2e target; Playwright and the servers it launches inherit these.
 e2e: export POSTGRES_PORT      := $(E2E_DB_PORT)
 e2e: export API_PORT           := $(E2E_API_PORT)
 e2e: export MINIO_PORT         := $(E2E_MINIO_PORT)
