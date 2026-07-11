@@ -1,14 +1,11 @@
 import { expect, test } from "@playwright/test"
-import { fillAndSubmitLogin, SEEDED_USERS } from "@/helpers/auth"
+import { CLIENT_AUTH_FILE } from "@/helpers/auth"
+
+test.use({ storageState: CLIENT_AUTH_FILE })
 
 test.describe("Client dashboard features", () => {
 	test.beforeEach(async ({ page }) => {
-		await fillAndSubmitLogin(
-			page,
-			SEEDED_USERS.client.email,
-			SEEDED_USERS.client.password,
-		)
-		await expect(page).toHaveURL(/\/dashboard/)
+		await page.goto("/dashboard")
 	})
 
 	test("client updates bot configuration", async ({ page }) => {

@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test"
-import { fillAndSubmitLogin, SEEDED_USERS } from "@/helpers/auth"
+import { CLIENT_AUTH_FILE, SEEDED_USERS } from "@/helpers/auth"
 
 const NEW_PASSWORD = "newpass123"
+
+test.use({ storageState: CLIENT_AUTH_FILE })
 
 test.describe("Change password flow", () => {
 	test.afterEach(async ({ page }) => {
@@ -31,15 +33,10 @@ test.describe("Change password flow", () => {
 		await expect(page.getByText("Password changed successfully")).toBeVisible()
 	})
 
-	test("client logs in, navigates to settings, and changes password", async ({
+	test("client navigates to settings and changes password", async ({
 		page,
 	}) => {
-		await fillAndSubmitLogin(
-			page,
-			SEEDED_USERS.client.email,
-			SEEDED_USERS.client.password,
-		)
-		await expect(page).toHaveURL(/\/dashboard/)
+		await page.goto("/dashboard")
 
 		await page.getByTestId("nav-settings").click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/settings/)
