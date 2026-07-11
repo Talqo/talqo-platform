@@ -107,7 +107,7 @@ export function BlacklistManager() {
 							name="word"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className="sr-only">{t("word")}</FormLabel>
+									<FormLabel className="sr-only">{t("common.word")}</FormLabel>
 									<div className="flex gap-2">
 										<FormControl>
 											<Input

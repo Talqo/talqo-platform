@@ -24,6 +24,7 @@
 		"lint": "turbo lint",
 		"check": "biome check .",
 		"type-check": "turbo type-check",
+		"i18n-check": "bun run --filter web i18n-check",
 		"test": "turbo test --filter=!./apps/e2e",
 		"test:integration": "turbo build --filter=db --filter=shared && cd apps/api && bun run test:integration",
 		"format": "biome format --write .",
@@ -36,6 +37,7 @@
 		"@typescript/native-preview": "latest",
 		"concurrently": "^9.2.1",
 		"husky": "^9.1.7",
+		"i18next-cli": "^1.65.0",
 		"lint-staged": "^15.5.0",
 		"turbo": "^2.6.3"
 	},

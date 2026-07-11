@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import type { ChartDataPoint } from "@/data/charts"
+import type { ChartDataPoint } from "@/components/charts/types"
 import { formatPeriod } from "@/lib/backoffice-utils"
 
 type TokenData = { period: string; tokensUsed: number }[] | undefined

@@ -10,10 +10,10 @@ import {
 	useTokenAnalytics,
 } from "@/api/hooks"
 import { QuestionsAskedChart, TokenConsumptionChart } from "@/components/charts"
+import type { ChartDataPoint } from "@/components/charts/types"
 import { PageHeader } from "@/components/layout"
 import { StatCard } from "@/components/stats/StatCard"
 import { OnboardingPopup } from "@/components/widget"
-import type { ChartDataPoint } from "@/data/charts"
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
 	component: AdminDashboard,

@@ -144,7 +144,7 @@ export function AddFundsForm() {
 								name="expiry"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("expiry")}</FormLabel>
+										<FormLabel>{t("common.expiry")}</FormLabel>
 										<FormControl>
 											<Input
 												inputMode="numeric"
@@ -168,7 +168,7 @@ export function AddFundsForm() {
 								name="cvv"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("cvv")}</FormLabel>
+										<FormLabel>{t("common.cvv")}</FormLabel>
 										<FormControl>
 											<Input
 												inputMode="numeric"
@@ -194,7 +194,7 @@ export function AddFundsForm() {
 							name="nameOnCard"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("nameOnCard")}</FormLabel>
+									<FormLabel>{t("common.nameOnCard")}</FormLabel>
 									<FormControl>
 										<Input
 											placeholder={t(
