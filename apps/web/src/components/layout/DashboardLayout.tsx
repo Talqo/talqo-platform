@@ -126,8 +126,8 @@ export function DashboardLayout() {
 				</div>
 
 				<div className="mt-auto border-border border-t bg-card p-4">
-					<div className="mb-2 flex w-full">
-						<MotifSwitcher />
+					<div className="mb-2">
+						<MotifSwitcher className="w-full justify-start" />
 					</div>
 					<Button
 						variant="ghost"

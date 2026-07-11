@@ -11,7 +11,7 @@ import { MOTIFS } from "@/lib/motifs"
 import { useMotif } from "@/lib/useMotif"
 import { cn } from "@/lib/utils"
 
-export function MotifSwitcher() {
+export function MotifSwitcher({ className }: { className?: string }) {
 	const { t } = useTranslation()
 	const { motif: activeMotif, setMotif } = useMotif()
 	const active = MOTIFS.find((m) => m.id === activeMotif) ?? MOTIFS[0]
@@ -19,7 +19,7 @@ export function MotifSwitcher() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="sm" className="gap-2">
+				<Button variant="ghost" size="sm" className={cn("gap-2", className)}>
 					<Palette className="h-4 w-4" />
 					<span className={cn("h-2.5 w-2.5 rounded-full", active.dotClass)} />
 					<span className="hidden sm:inline">{t(active.labelKey)}</span>
