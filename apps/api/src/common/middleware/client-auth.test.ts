@@ -178,6 +178,18 @@ describe("clientAuth middleware", () => {
 		expect(res.status).toBe(401)
 	})
 
+	it("passes for a legacy token with no tokenVersion claim (pre-migration JWT)", async () => {
+		const clientId = crypto.randomUUID()
+		mockVerifyResult = { sub: clientId, role: "client" }
+		mockClientRow = { id: clientId, status: "active", tokenVersion: 0 }
+		const res = await app.fetch(
+			new Request("http://localhost/protected", {
+				headers: bearer("legacy.client.token"),
+			}),
+		)
+		expect(res.status).toBe(200)
+	})
+
 	it("passes when the token's tokenVersion matches the current value", async () => {
 		const clientId = crypto.randomUUID()
 		mockVerifyResult = { sub: clientId, role: "client", tokenVersion: 2 }

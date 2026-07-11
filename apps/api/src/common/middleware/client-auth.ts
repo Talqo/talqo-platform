@@ -35,7 +35,11 @@ export const clientAuth: MiddlewareHandler<{
 	if (!client) {
 		throw new UnauthorizedError("Client not found")
 	}
-	if (payload.tokenVersion !== client.tokenVersion) {
+	// Legacy JWTs (no claim) are compatible — let them expire naturally
+	if (
+		payload.tokenVersion !== undefined &&
+		payload.tokenVersion !== client.tokenVersion
+	) {
 		throw new UnauthorizedError(
 			"Token has been invalidated. Please log in again.",
 		)

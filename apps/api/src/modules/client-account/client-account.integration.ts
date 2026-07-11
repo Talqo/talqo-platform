@@ -107,4 +107,32 @@ describe("Client Account integration tests", () => {
 		})
 		expect(getRes.status).toBe(401)
 	})
+
+	it("POST /client/me/password invalidates previously issued JWTs", async () => {
+		const email = createUniqueEmail("account-test")
+		const currentPassword = "password123"
+		const token = await registerAndTrack(
+			email,
+			`Password Change Test ${crypto.randomUUID()}`,
+			currentPassword,
+		)
+
+		const changeRes = await realApp.request("/v1/client/me/password", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({
+				currentPassword,
+				newPassword: "newpassword123",
+			}),
+		})
+		expect(changeRes.status).toBe(200)
+
+		const getRes = await realApp.request("/v1/client/me", {
+			headers: { Authorization: `Bearer ${token}` },
+		})
+		expect(getRes.status).toBe(401)
+	})
 })
