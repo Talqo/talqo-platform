@@ -8,6 +8,9 @@ export const STORAGE_KEYS = {
 	// Theme
 	THEME: "theme",
 
+	// Motif
+	MOTIF: "motif",
+
 	// Chat messages
 	CHAT_MESSAGES: "chatbot_messages",
 	CHAT_RATING_SHOWN: "chatbot_rating_shown",
@@ -20,6 +23,7 @@ export const STORAGE_KEYS = {
 // Default values
 export const DEFAULTS = {
 	THEME: "light" as const,
+	MOTIF: "forest" as const,
 	CHAT_INITIAL_MESSAGE: "Hi! How can I help you today?",
 } as const
 
