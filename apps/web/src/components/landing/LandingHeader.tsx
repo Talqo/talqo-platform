@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { Bot, Moon, Sun } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher"
+import { MotifSwitcher } from "@/components/common/MotifSwitcher"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/lib/useTheme"
 
@@ -18,6 +19,7 @@ export function LandingHeader() {
 				<span className="font-semibold text-card-foreground">PagePal</span>
 			</div>
 			<nav className="flex items-center gap-4">
+				<MotifSwitcher />
 				<Button
 					variant="ghost"
 					size="icon"
