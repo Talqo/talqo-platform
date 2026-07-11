@@ -1,7 +1,9 @@
 import { describe, expect, it, mock } from "bun:test"
 
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/db", () => ({
-	db: { execute: () => Promise.resolve() },
+	db: {},
+	checkDbConnection: () => Promise.resolve(),
 }))
 
 const { default: server } = await import("./index")

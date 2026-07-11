@@ -1,10 +1,12 @@
 import { describe, expect, it, mock } from "bun:test"
 
 // Controlled DB probe result — set in each test
-let mockExecute: () => Promise<unknown> = () => Promise.resolve()
+let mockCheckDbConnection: () => Promise<void> = () => Promise.resolve()
 
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/db", () => ({
-	db: { execute: () => mockExecute() },
+	db: {},
+	checkDbConnection: () => mockCheckDbConnection(),
 }))
 
 // Dynamic import after the mock is registered
@@ -12,7 +14,7 @@ const { default: app } = await import("./app")
 
 describe("App smoke tests", () => {
 	it("GET /health returns OK when the database is reachable", async () => {
-		mockExecute = () => Promise.resolve()
+		mockCheckDbConnection = () => Promise.resolve()
 		const res = await app.request("/health")
 		expect(res.status).toBe(200)
 		const json = await res.json()
@@ -20,7 +22,8 @@ describe("App smoke tests", () => {
 	})
 
 	it("GET /health returns 503 when the database is unreachable", async () => {
-		mockExecute = () => Promise.reject(new Error("connection refused"))
+		mockCheckDbConnection = () =>
+			Promise.reject(new Error("connection refused"))
 		const res = await app.request("/health")
 		expect(res.status).toBe(503)
 	})

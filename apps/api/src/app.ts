@@ -1,5 +1,4 @@
 import { Scalar } from "@scalar/hono-api-reference"
-import { sql } from "drizzle-orm"
 import type { Context } from "hono"
 import { bodyLimit } from "hono/body-limit"
 import { cors } from "hono/cors"
@@ -14,7 +13,7 @@ import { createWideEventMiddleware } from "./common/middleware/wide-event"
 import { widgetAuth } from "./common/middleware/widget-auth"
 import { createRouter } from "./common/router"
 import { SentryExporter } from "./common/sentry-exporter"
-import { db } from "./db"
+import { checkDbConnection } from "./db"
 import {
 	adminActivityLogsRoutes,
 	adminAuditLogService,
@@ -96,15 +95,7 @@ const HEALTH_CHECK_TIMEOUT_MS = 2000
 
 app.get("/health", async (c) => {
 	try {
-		await Promise.race([
-			db.execute(sql`SELECT 1`),
-			new Promise((_, reject) =>
-				setTimeout(
-					() => reject(new Error("Health check DB probe timed out")),
-					HEALTH_CHECK_TIMEOUT_MS,
-				),
-			),
-		])
+		await checkDbConnection(HEALTH_CHECK_TIMEOUT_MS)
 	} catch (err) {
 		logger.error("Health check failed — database unreachable", {
 			error: err instanceof Error ? err.message : String(err),

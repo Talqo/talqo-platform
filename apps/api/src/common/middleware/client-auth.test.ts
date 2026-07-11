@@ -11,6 +11,7 @@ let mockClientRow:
 	| { id: string; status: string; tokenVersion?: number }
 	| undefined
 
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/db", () => ({
 	db: {
 		select: () => ({
@@ -19,6 +20,7 @@ mock.module("@/db", () => ({
 			}),
 		}),
 	},
+	checkDbConnection: () => Promise.resolve(),
 }))
 
 // Controlled JWT verification — set in each test
