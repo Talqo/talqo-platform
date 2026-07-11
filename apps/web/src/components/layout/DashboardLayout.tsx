@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next"
 import { useLogout } from "@/api/hooks/useAuth"
 import { useClientProfile } from "@/api/hooks/useClientAccount"
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher"
+import { MotifSwitcher } from "@/components/common/MotifSwitcher"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AUTH } from "@/lib/constants"
@@ -125,6 +126,9 @@ export function DashboardLayout() {
 				</div>
 
 				<div className="mt-auto border-border border-t bg-card p-4">
+					<div className="mb-2 flex w-full">
+						<MotifSwitcher />
+					</div>
 					<Button
 						variant="ghost"
 						size="sm"
