@@ -6,7 +6,6 @@ import {
 	createAdminUser,
 	createUniqueEmail,
 	registerClient,
-	withSql,
 } from "@/common/test-utils"
 
 const mockSend = mock(async () => ({ data: { id: "test-id" }, error: null }))
@@ -99,43 +98,6 @@ describe("Admin integration tests", () => {
 	it("GET /admin/clients without token returns 401", async () => {
 		const res = await realApp.request("/v1/admin/clients?limit=20&offset=0")
 		expect(res.status).toBe(401)
-	})
-
-	it("softDeleteAdmin deactivates an admin so activeAdminUsers-backed lookups reject them", async () => {
-		const { AdminRepository } = await import("./admin.repository")
-		const { db } = await import("@/db")
-		const repo = new AdminRepository(db)
-
-		const email = createUniqueEmail("admin-softdelete-test")
-		const { token } = await createAdminUser(realApp, email)
-		createdEmails.add(email.toLowerCase())
-
-		// Sanity check: token works before deactivation
-		const beforeRes = await realApp.request("/v1/admin/me", {
-			headers: { Authorization: `Bearer ${token}` },
-		})
-		expect(beforeRes.status).toBe(200)
-
-		const [row] = await withSql(
-			(sql) => sql`SELECT id FROM admin_users WHERE email = ${email}`,
-		)
-		const adminId = (row as { id: string }).id
-
-		const deleted = await repo.softDeleteAdmin(adminId)
-		expect(deleted).toBe(true)
-
-		// Repeated soft-delete is a no-op, not an error
-		const deletedAgain = await repo.softDeleteAdmin(adminId)
-		expect(deletedAgain).toBe(false)
-
-		expect(await repo.findAdminById(adminId)).toBeNull()
-		expect(await repo.findAdminByEmail(email)).toBeNull()
-
-		// The existing token must now be rejected by adminAuth
-		const afterRes = await realApp.request("/v1/admin/me", {
-			headers: { Authorization: `Bearer ${token}` },
-		})
-		expect(afterRes.status).toBe(401)
 	})
 
 	it("GET /admin/activity-logs surfaces actions with no explicit audit label", async () => {

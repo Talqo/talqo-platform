@@ -89,9 +89,9 @@ If the insert fails (DB unavailable, constraint violation, etc.) the client rece
 
 The `admin_users` table has `is_deleted boolean NOT NULL DEFAULT false` and `deleted_at timestamp`. All reads correctly filter `WHERE is_deleted = false`. However, no method anywhere in the codebase ever sets `is_deleted = true`. Admin accounts cannot be deactivated through the API — only via direct DB edit. The `activeAdminUsers` Postgres view defined in `packages/db/src/schema/admin.ts:23` is also never imported or queried.
 
-**Fix applied (partial):** Added `softDeleteAdmin(id): Promise<boolean>` to `AdminRepository`, and switched `findAdminByEmail` / `findAdminById` / `admin-auth` middleware to query the `activeAdminUsers` view instead of manually filtering `is_deleted`. Covered by a new integration test exercising `softDeleteAdmin` end-to-end.
+**Fix applied (partial):** Switched `findAdminByEmail` / `findAdminById` / `admin-auth` middleware to query the `activeAdminUsers` view instead of manually filtering `is_deleted`, closing the dead-view part of this finding.
 
-**Not done:** No DELETE endpoint or admin-management route was wired up to call `softDeleteAdmin` — exposing admin deactivation through the API is a product decision (who can deactivate whom, self-deactivation guard, audit-log entry, etc.) and an untracked feature per `docs/requirements.md`. Flagged to the dev; not implemented pending a decision.
+**Reverted:** An earlier pass added `softDeleteAdmin(id): Promise<boolean>` to `AdminRepository` with an integration test, but it was never wired to a route, service method, or the `InMemoryAdminRepository` contract — unreachable in production, exercised only by a test that called the repository directly. Removed rather than left half-wired. Exposing admin deactivation through the API is a product decision (who can deactivate whom, self-deactivation guard, audit-log entry, etc.) and remains an untracked feature per `docs/requirements.md` — add a requirement before implementing.
 
 ---
 

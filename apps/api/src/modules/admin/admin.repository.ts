@@ -1,4 +1,4 @@
-import { and, count, desc, eq, sql, sum } from "drizzle-orm"
+import { count, desc, eq, sql, sum } from "drizzle-orm"
 import type { DB } from "@/db"
 import {
 	activeAdminUsers,
@@ -28,16 +28,6 @@ export class AdminRepository {
 			.from(activeAdminUsers)
 			.where(eq(activeAdminUsers.id, id))
 			.then((rows) => rows.at(0) ?? null)
-	}
-
-	// Returns false if the admin does not exist or was already deactivated
-	async softDeleteAdmin(id: string): Promise<boolean> {
-		const rows = await this.db
-			.update(adminUsers)
-			.set({ isDeleted: true, deletedAt: new Date() })
-			.where(and(eq(adminUsers.id, id), eq(adminUsers.isDeleted, false)))
-			.returning({ id: adminUsers.id })
-		return rows.length > 0
 	}
 
 	async listClients(limit: number, offset: number) {
