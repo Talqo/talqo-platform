@@ -30,8 +30,7 @@ dist/
 /private/
 
 # Superpowers runtime artifacts
-.superpowers/**/server.pid
-.superpowers/**/server.log
+.superpowers/
 
 # Git worktrees
 .worktrees/
