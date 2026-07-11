@@ -87,6 +87,7 @@ describe("mcpConfigBodySchema (client)", () => {
 				"169.254.x link-local/metadata",
 				"https://169.254.169.254/latest/meta-data/",
 			],
+			["IPv6 unspecified ::", "https://[::]/mcp"],
 			["IPv6 loopback ::1", "https://[::1]/mcp"],
 			["IPv6 unique-local fc00::/7", "https://[fc00::1]/mcp"],
 			["IPv6 unique-local fd00::/8", "https://[fd12:3456::1]/mcp"],

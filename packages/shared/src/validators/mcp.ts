@@ -61,6 +61,9 @@ function isPrivateIpv6Literal(bareHost: string): boolean {
 	const groups = expandIpv6Groups(bareHost)
 	if (!groups) return false
 
+	// :: — unspecified address, routes to loopback on connect
+	if (groups.every((g) => g === 0)) return true
+
 	// ::1 — loopback
 	if (groups.slice(0, 7).every((g) => g === 0) && groups[7] === 1) return true
 
