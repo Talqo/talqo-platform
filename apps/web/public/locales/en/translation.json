@@ -76,6 +76,13 @@
 		"viewingAsClient": "Viewing as client (admin impersonation)",
 		"exitToBackoffice": "Exit to backoffice"
 	},
+	"motifs": {
+		"forest": "Forest",
+		"sunset": "Sunset",
+		"ocean": "Ocean",
+		"berry": "Berry",
+		"switch": "Switch motif"
+	},
 	"login": "Login",
 	"email": "Email",
 	"name": "Name",

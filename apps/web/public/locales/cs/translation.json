@@ -76,6 +76,13 @@
 		"viewingAsClient": "Zobrazení jako klient (admin impersonace)",
 		"exitToBackoffice": "Zpět do backoffice"
 	},
+	"motifs": {
+		"forest": "Les",
+		"sunset": "Západ slunce",
+		"ocean": "Oceán",
+		"berry": "Bobule",
+		"switch": "Přepnout motiv"
+	},
 	"login": "Přihlášení",
 	"email": "E-mail",
 	"name": "Jméno",

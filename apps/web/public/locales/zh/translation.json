@@ -76,6 +76,13 @@
 		"viewingAsClient": "以客户端身份查看（管理员模拟）",
 		"exitToBackoffice": "返回后台管理"
 	},
+	"motifs": {
+		"forest": "森林",
+		"sunset": "日落",
+		"ocean": "海洋",
+		"berry": "浆果",
+		"switch": "切换主题"
+	},
 	"login": "登录",
 	"email": "邮箱",
 	"name": "姓名",
