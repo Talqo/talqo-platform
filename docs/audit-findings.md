@@ -67,7 +67,7 @@ widgetService
 
 If the insert fails (DB unavailable, constraint violation, etc.) the client receives a successful response and sees the AI reply, but no tokens are deducted and no usage row is written. The failure is logged but never reaches Sentry's error handler and the conversation is not retried. Over time this silently under-bills clients.
 
-**Fix applied:** `recordUsageAndAlert` is now awaited before the SSE "done" event, wrapped in try/catch that reports failures to Sentry via `Sentry.captureException`. The SSE "done" event is still delivered to the client regardless of recording outcome (confirmed via a new integration test simulating insufficient-balance-at-recording-time).
+**Fix applied:** `recordUsageAndAlert` stays fire-and-forget (it does 3+ DB round trips and awaiting it would add latency to every chat turn for no behavioral gain — the "done" event ships regardless of recording outcome either way), but its `.catch()` now reports failures to Sentry via `Sentry.captureException` in addition to logging. Confirmed via a new integration test simulating insufficient-balance-at-recording-time.
 
 ---
 

@@ -331,27 +331,23 @@ widgetMessageRoutes.openapi(
 						completion_tokens: tokensUsed.output,
 						total_tokens: tokensUsed.input + tokensUsed.output,
 					})
-					// Awaited so a failure hits Sentry before the "done" event
-					try {
-						await widgetService.recordUsageAndAlert(
-							clientId,
-							assistantMessage.id,
-							tokensUsed,
-						)
-					} catch (recordErr) {
-						logger.error("Usage recording failed", {
-							error:
-								recordErr instanceof Error
-									? recordErr.message
-									: String(recordErr),
-							conversationId,
+					// Fire-and-forget — done event ships regardless of billing outcome
+					widgetService
+						.recordUsageAndAlert(clientId, assistantMessage.id, tokensUsed)
+						.catch((recordErr) => {
+							logger.error("Usage recording failed", {
+								error:
+									recordErr instanceof Error
+										? recordErr.message
+										: String(recordErr),
+								conversationId,
+							})
+							Sentry.withScope((scope) => {
+								scope.setTag("request_id", requestId)
+								scope.setTag("conversation_id", conversationId)
+								Sentry.captureException(recordErr)
+							})
 						})
-						Sentry.withScope((scope) => {
-							scope.setTag("request_id", requestId)
-							scope.setTag("conversation_id", conversationId)
-							Sentry.captureException(recordErr)
-						})
-					}
 				}
 
 				await sse.writeSSE({
