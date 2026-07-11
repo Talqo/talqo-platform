@@ -304,6 +304,9 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 	}
 }
 
+// Structural type shared by `DB` and the `tx` param of `DB["transaction"]`
+type QueryExecutor = DB | Parameters<Parameters<DB["transaction"]>[0]>[0]
+
 export class WidgetRepository implements IWidgetRepository {
 	constructor(private readonly db: DB) {}
 
@@ -451,19 +454,12 @@ export class WidgetRepository implements IWidgetRepository {
 
 			if (client.monthlyUsageLimit !== null) {
 				const now = new Date()
-				const start = new Date(now.getFullYear(), now.getMonth(), 1)
-				const end = new Date(now.getFullYear(), now.getMonth() + 1, 1)
-				const [spend] = await tx
-					.select({ total: sum(usageRecords.costUsd) })
-					.from(usageRecords)
-					.where(
-						and(
-							eq(usageRecords.clientId, clientId),
-							gte(usageRecords.recordedAt, start),
-							lt(usageRecords.recordedAt, end),
-						),
-					)
-				const monthlySpend = Number(spend?.total ?? 0)
+				const monthlySpend = await this.sumMonthlySpend(
+					tx,
+					clientId,
+					now.getFullYear(),
+					now.getMonth() + 1,
+				)
 				if (monthlySpend + costUsd > client.monthlyUsageLimit) {
 					throw new BadRequestError(
 						"MONTHLY_LIMIT_REACHED",
@@ -497,9 +493,18 @@ export class WidgetRepository implements IWidgetRepository {
 	}
 
 	async getMonthlySpend(clientId: string, year: number, month: number) {
+		return this.sumMonthlySpend(this.db, clientId, year, month)
+	}
+
+	private async sumMonthlySpend(
+		executor: QueryExecutor,
+		clientId: string,
+		year: number,
+		month: number,
+	): Promise<number> {
 		const start = new Date(year, month - 1, 1)
 		const end = new Date(year, month, 1)
-		const [row] = await this.db
+		const [row] = await executor
 			.select({ total: sum(usageRecords.costUsd) })
 			.from(usageRecords)
 			.where(
