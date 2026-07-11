@@ -5,10 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PagePal - AI Chat Widget</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script>
-      // Initialize theme before page load to prevent flash
+      // Initialize motif and theme before page load to prevent flash
       (() => {
+        const validMotifs = ["forest", "sunset", "ocean", "berry"];
+        const savedMotif = localStorage.getItem("motif") || "forest";
         const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute(
+          "data-motif",
+          validMotifs.includes(savedMotif) ? savedMotif : "forest",
+        );
         if (savedTheme === "dark") {
           document.documentElement.classList.add("dark");
         }
