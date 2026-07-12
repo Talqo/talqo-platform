@@ -69,12 +69,12 @@ test.describe("Widget chat", () => {
 	})
 
 	test("trigger opens and closes the chat panel", async ({ page }) => {
-		await page.getByRole("button", { name: "Open chat" }).click()
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
 		const panel = page.getByRole("dialog")
 		await expect(panel).toBeVisible()
 		await expect(panel.getByText("Hi! How can I help you today?")).toBeVisible()
 
-		await page.getByRole("button", { name: "Close" }).click()
+		await page.getByRole("button", { name: "Close" }).click({ force: true })
 		await expect(panel).not.toBeVisible()
 	})
 
@@ -82,10 +82,12 @@ test.describe("Widget chat", () => {
 		page,
 	}) => {
 		await mockAssistantReply(page, "**Hi!** How can I help?", 300)
-		await page.getByRole("button", { name: "Open chat" }).click()
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
 
 		await page.getByLabel("Type your message").fill("Hello there")
-		await page.getByRole("button", { name: "Send message" }).click()
+		await page
+			.getByRole("button", { name: "Send message" })
+			.click({ force: true })
 
 		await expect(page.getByText("Assistant is typing")).toBeVisible()
 		await expect(page.locator(".aiw-markdown strong")).toHaveText("Hi!")
@@ -94,13 +96,17 @@ test.describe("Widget chat", () => {
 
 	test("clear conversation resets the message list", async ({ page }) => {
 		await mockAssistantReply(page, "Sure, here is some help.")
-		await page.getByRole("button", { name: "Open chat" }).click()
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
 
 		await page.getByLabel("Type your message").fill("Hello there")
-		await page.getByRole("button", { name: "Send message" }).click()
+		await page
+			.getByRole("button", { name: "Send message" })
+			.click({ force: true })
 		await expect(page.getByText("Sure, here is some help.")).toBeVisible()
 
-		await page.getByRole("button", { name: "Clear conversation" }).click()
+		await page
+			.getByRole("button", { name: "Clear conversation" })
+			.click({ force: true })
 		await expect(page.getByText("Sure, here is some help.")).not.toBeVisible()
 		await expect(page.getByText("Hi! How can I help you today?")).toBeVisible()
 	})
@@ -109,14 +115,18 @@ test.describe("Widget chat", () => {
 		page,
 	}) => {
 		await mockAssistantReply(page, "Glad to help.")
-		await page.getByRole("button", { name: "Open chat" }).click()
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
 
 		await page.getByLabel("Type your message").fill("Hello there")
-		await page.getByRole("button", { name: "Send message" }).click()
+		await page
+			.getByRole("button", { name: "Send message" })
+			.click({ force: true })
 		await expect(page.getByText("Glad to help.")).toBeVisible()
 
 		await expect(page.getByText("Rate this conversation")).toBeVisible()
-		await page.getByRole("button", { name: "Rate 5 stars" }).click()
+		await page
+			.getByRole("button", { name: "Rate 5 stars" })
+			.click({ force: true })
 		await expect(page.getByText("Thank you for your feedback!")).toBeVisible()
 		await expect(
 			page.getByRole("button", { name: "Rate 5 stars" }),
@@ -124,10 +134,10 @@ test.describe("Widget chat", () => {
 	})
 
 	test("theme toggle persists across a page reload", async ({ page }) => {
-		await page.getByRole("button", { name: "Open chat" }).click()
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
 		const toggle = page.getByRole("button", { name: "Switch to dark mode" })
 		await expect(toggle).toBeVisible()
-		await toggle.click()
+		await toggle.click({ force: true })
 		await expect(page.locator(".aiw-root")).toHaveAttribute(
 			"data-theme",
 			"dark",
@@ -143,7 +153,7 @@ test.describe("Widget chat", () => {
 	test("resizes via the header drag handle and the corner handle", async ({
 		page,
 	}) => {
-		await page.getByRole("button", { name: "Open chat" }).click()
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
 		const panel = page.getByRole("dialog")
 		const initialBox = await panel.boundingBox()
 		if (!initialBox) throw new Error("Widget panel has no bounding box")

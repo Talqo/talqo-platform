@@ -6,6 +6,8 @@ test.use({ storageState: CLIENT_AUTH_FILE })
 test.describe("Client billing", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto("/dashboard")
+		// Wait for sidebar — hydration races silently no-op force clicks.
+		await expect(page.getByTestId("nav-settings")).toBeVisible()
 	})
 
 	test.describe("Add funds validation", () => {
@@ -57,10 +59,8 @@ test.describe("Client billing", () => {
 	test.describe
 		.serial("Billing settings", () => {
 			test.afterEach(async ({ page }) => {
-				// Restore the seeded baseline (limit=$50, alert threshold=$40 i.e.
-				// enabled) so this suite is idempotent across repeated runs.
-				// Not wrapped in try/catch — a failed restore corrupts the shared
-				// Acme Corp baseline for every later run, so this must fail loudly.
+				// Restore seeded baseline (limit=$50, alert=$40). Fail loudly —
+				// a failed restore corrupts the shared Acme Corp baseline.
 				await page.goto("/dashboard/settings?tab=billing")
 				await expect(
 					page.getByRole("heading", { name: "Usage & Limits" }),

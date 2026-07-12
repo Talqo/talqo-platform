@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test"
-import { CLIENT_AUTH_FILE, SEEDED_USERS } from "@/helpers/auth"
+import {
+	CLIENT_AUTH_FILE,
+	fillAndSubmitLogin,
+	SEEDED_USERS,
+} from "@/helpers/auth"
 
 const NEW_PASSWORD = "newpass123"
 
@@ -7,12 +11,16 @@ test.use({ storageState: CLIENT_AUTH_FILE })
 
 test.describe("Change password flow", () => {
 	test.afterEach(async ({ page }) => {
-		// Only revert if the settings form is mounted; otherwise the test
-		// failed earlier and there is nothing to clean up.
-		const onSettingsForm = await page.getByLabel("Current Password").isVisible()
-		if (!onSettingsForm) return
+		// Test body invalidated the page's JWT (tokenVersion bump) — re-login
+		// with the new password to get a fresh JWT, then revert.
+		await fillAndSubmitLogin(page, SEEDED_USERS.client.email, NEW_PASSWORD)
+		await expect(page).toHaveURL(/\/dashboard/)
 
-		// Revert password to the seeded value so the test stays idempotent
+		await page.getByTestId("nav-settings").click({ force: true })
+		await expect(
+			page.getByRole("heading", { name: "Account Details" }),
+		).toBeVisible()
+
 		await page.getByLabel("Current Password").fill(NEW_PASSWORD)
 		await page
 			.getByLabel("New Password", { exact: true })
@@ -25,11 +33,6 @@ test.describe("Change password flow", () => {
 			.getByRole("button", { name: "Change Password" })
 			.click({ force: true })
 
-		// Wait for the revert mutation to finish (button exits pending state)
-		await expect(
-			page.getByRole("button", { name: "Change Password" }),
-		).toBeEnabled()
-
 		await expect(page.getByText("Password changed successfully")).toBeVisible()
 	})
 
@@ -37,6 +40,7 @@ test.describe("Change password flow", () => {
 		page,
 	}) => {
 		await page.goto("/dashboard")
+		await expect(page.getByTestId("nav-settings")).toBeVisible()
 
 		await page.getByTestId("nav-settings").click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/settings/)

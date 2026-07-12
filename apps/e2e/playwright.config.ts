@@ -52,9 +52,7 @@ export default defineConfig({
 		baseURL,
 		// Capture trace on first retry to ease debugging
 		trace: "on-first-retry",
-		// Disable "stable" position checks, which hang inside Docker/WSL
-		// because the rAF-based stability heuristic never settles.
-		// Tests navigate and wait explicitly, so this is safe.
+		// "stable" checks hang in Docker/WSL (rAF never settles); force-clicks bypass them.
 		actionTimeout: 15000,
 	},
 	projects: [
@@ -67,8 +65,31 @@ export default defineConfig({
 		{
 			name: "chromium",
 			testDir: "./tests",
-			testIgnore: ["**/widget/**", "**/*.setup.ts"],
+			// change-password invalidates the shared client JWT; isolate it below.
+			testIgnore: [
+				"**/widget/**",
+				"**/*.setup.ts",
+				"**/change-password.spec.ts",
+			],
 			dependencies: ["setup"],
+			use: {
+				...devices["Desktop Chrome"],
+				launchOptions: {
+					args: [
+						"--no-sandbox",
+						"--disable-setuid-sandbox",
+						"--disable-gpu",
+						"--disable-dev-shm-usage",
+					],
+				},
+			},
+		},
+		{
+			// Runs after chromium so JWT invalidation can't poison parallel specs.
+			name: "chromium-password",
+			testDir: "./tests",
+			testMatch: "**/change-password.spec.ts",
+			dependencies: ["chromium"],
 			use: {
 				...devices["Desktop Chrome"],
 				launchOptions: {
