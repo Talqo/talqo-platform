@@ -11,9 +11,9 @@ export const LANDING_WIDGET_CLIENT = {
 	widgetToken: "00000000-0000-4000-8001-000000000012",
 	email: "demo@talqo.dev",
 	name: "Talqo Demo",
-	balanceUsd: 100_000,
-	monthlyUsageLimit: 10_000,
-	usageAlertThresholdUsd: 8_000,
+	balanceUsd: 1_000,
+	monthlyUsageLimit: 100,
+	usageAlertThresholdUsd: 80,
 } as const
 
 export function buildLandingWidgetClientValues(passwordHash: string) {
