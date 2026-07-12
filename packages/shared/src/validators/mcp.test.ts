@@ -40,6 +40,13 @@ describe("mcpConfigBodySchema (client)", () => {
 				expect(result.data.mcpConfig).not.toHaveProperty("command")
 			}
 		})
+
+		it("accepts a valid global IPv6 address", () => {
+			const result = mcpConfigBodySchema.safeParse({
+				mcpConfig: { type: "http", url: "https://[2001:db8::1]/mcp" },
+			})
+			expect(result.success).toBe(true)
+		})
 	})
 
 	describe("rejects stdio", () => {
@@ -80,7 +87,13 @@ describe("mcpConfigBodySchema (client)", () => {
 				"169.254.x link-local/metadata",
 				"https://169.254.169.254/latest/meta-data/",
 			],
+			["IPv6 unspecified ::", "https://[::]/mcp"],
 			["IPv6 loopback ::1", "https://[::1]/mcp"],
+			["IPv6 unique-local fc00::/7", "https://[fc00::1]/mcp"],
+			["IPv6 unique-local fd00::/8", "https://[fd12:3456::1]/mcp"],
+			["IPv6 link-local fe80::/10", "https://[fe80::1]/mcp"],
+			["IPv6-mapped IPv4 loopback", "https://[::ffff:127.0.0.1]/mcp"],
+			["IPv6-mapped IPv4 RFC-1918", "https://[::ffff:10.0.0.1]/mcp"],
 		]
 
 		for (const [label, url] of cases) {

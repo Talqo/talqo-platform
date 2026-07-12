@@ -12,8 +12,8 @@ export class McpService {
 
 	// ─── Pre-made (admin) ────────────────────────────────────────────────────────
 
-	async listPreMadeServers() {
-		return this.repo.listPreMadeServers()
+	async listPreMadeServers(pagination?: { limit: number; offset: number }) {
+		return this.repo.listPreMadeServers(pagination)
 	}
 
 	async createPreMadeServer(
@@ -47,8 +47,11 @@ export class McpService {
 
 	// ─── Client ↔ pre-made ───────────────────────────────────────────────────────
 
-	async listEnabledPreMade(clientId: string) {
-		return this.repo.listEnabledPreMade(clientId)
+	async listEnabledPreMade(
+		clientId: string,
+		pagination?: { limit: number; offset: number },
+	) {
+		return this.repo.listEnabledPreMade(clientId, pagination)
 	}
 
 	async enablePreMade(clientId: string, serverId: string) {
@@ -64,8 +67,11 @@ export class McpService {
 
 	// ─── Custom servers ──────────────────────────────────────────────────────────
 
-	async listCustomServers(clientId: string) {
-		return this.repo.listCustomServers(clientId)
+	async listCustomServers(
+		clientId: string,
+		pagination?: { limit: number; offset: number },
+	) {
+		return this.repo.listCustomServers(clientId, pagination)
 	}
 
 	async createCustomServer(clientId: string, mcpConfig: McpRemoteServerConfig) {

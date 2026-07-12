@@ -100,7 +100,7 @@
 | FR-3.2 | Platform admin can suspend or re-enable a client account | Medium | Approved | Done |
 | FR-3.3 | Platform admin can impersonate / access a client's dashboard for support purposes | High | Approved | Done |
 | FR-3.4 | Platform admin receives alerts when a downstream service (OpenAI API, MCP connector) is experiencing an outage | Low | Approved | Not started |
-| FR-3.4.1 | Platform admin can view a log of impersonate, suspend, and re-enable actions in the back-office | Medium | Approved | Done |
+| FR-3.4.1 | Platform admin can view a log of all mutating admin actions (impersonate, suspend, re-enable, and other back-office changes) in the back-office | Medium | Approved | Done |
 | FR-3.5.1 | Platform admin can view total registered client count | Low | Approved | Done |
 | FR-3.5.2 | Platform admin can view the number of active clients (with at least one conversation in the past 30 days) | Low | Approved | Done |
 | FR-3.5.3 | Platform admin can view platform-wide error rates (percentage of failed API and MCP requests) | Low | Approved | Not started |
@@ -133,13 +133,13 @@
 
 ### NFR-3: Security
 
-| ID | Requirement | Notes | Priority |
-|----|-------------|-------|----------|
-| NFR-3.1 | Client API keys must be stored encrypted at rest and never exposed to the frontend | | High |
-| NFR-3.2 | All API endpoints must require authentication; widget endpoints are scoped to a per-client public token | | High |
-| NFR-3.3 | Dashboard and back-office must use HTTPS | | High |
-| NFR-3.4 | The system must log all platform admin access actions | Related to FR-3.3 | Medium |
-| NFR-3.5 | The system should constrain custom MCP endpoints | Related to FR-2.17 | High |
+| ID | Requirement | Notes | Priority | Completion |
+|----|-------------|-------|----------|------------|
+| NFR-3.1 | Client API keys must be stored encrypted at rest and never exposed to the frontend | | High | |
+| NFR-3.2 | All API endpoints must require authentication; widget endpoints are scoped to a per-client public token | | High | |
+| NFR-3.3 | Dashboard and back-office must use HTTPS | | High | |
+| NFR-3.4 | The system must log all platform admin access actions | Related to FR-3.3. `GET /admin/activity-logs` previously hard-filtered to 3 action types, silently hiding all other logged admin actions (audit finding #6, fixed) | Medium | Done |
+| NFR-3.5 | The system should constrain custom MCP endpoints | Related to FR-2.17. HTTPS-only + private/loopback IPv4 and IPv6 (incl. ULA/link-local) blocked (audit finding #1, IPv6 bypass fixed); DNS rebinding remains an accepted residual risk requiring network-level egress filtering | High | Done |
 
 ### NFR-4: Performance
 

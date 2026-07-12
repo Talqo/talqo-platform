@@ -7,8 +7,11 @@ import { logger } from "@/common/logger"
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 // Controlled DB state — set in each test
-let mockClientRow: { id: string; status: string } | undefined
+let mockClientRow:
+	| { id: string; status: string; tokenVersion?: number }
+	| undefined
 
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/db", () => ({
 	db: {
 		select: () => ({
@@ -17,6 +20,7 @@ mock.module("@/db", () => ({
 			}),
 		}),
 	},
+	checkDbConnection: () => Promise.resolve(),
 }))
 
 // Controlled JWT verification — set in each test
@@ -162,5 +166,41 @@ describe("clientAuth middleware", () => {
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as { clientId: string }
 		expect(body.clientId).toBe(clientId)
+	})
+
+	it("returns 401 when the token's tokenVersion is stale (e.g. after a password reset)", async () => {
+		const clientId = crypto.randomUUID()
+		mockVerifyResult = { sub: clientId, role: "client", tokenVersion: 0 }
+		mockClientRow = { id: clientId, status: "active", tokenVersion: 1 }
+		const res = await app.fetch(
+			new Request("http://localhost/protected", {
+				headers: bearer("stale.client.token"),
+			}),
+		)
+		expect(res.status).toBe(401)
+	})
+
+	it("passes for a legacy token with no tokenVersion claim (pre-migration JWT)", async () => {
+		const clientId = crypto.randomUUID()
+		mockVerifyResult = { sub: clientId, role: "client" }
+		mockClientRow = { id: clientId, status: "active", tokenVersion: 0 }
+		const res = await app.fetch(
+			new Request("http://localhost/protected", {
+				headers: bearer("legacy.client.token"),
+			}),
+		)
+		expect(res.status).toBe(200)
+	})
+
+	it("passes when the token's tokenVersion matches the current value", async () => {
+		const clientId = crypto.randomUUID()
+		mockVerifyResult = { sub: clientId, role: "client", tokenVersion: 2 }
+		mockClientRow = { id: clientId, status: "active", tokenVersion: 2 }
+		const res = await app.fetch(
+			new Request("http://localhost/protected", {
+				headers: bearer("current.client.token"),
+			}),
+		)
+		expect(res.status).toBe(200)
 	})
 })

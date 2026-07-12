@@ -58,6 +58,7 @@ class InMemoryAdminRepository
 			| "findAdminById"
 			| "listClients"
 			| "getClientDetail"
+			| "getClientTokenVersion"
 			| "updateClientStatus"
 			| "listConversations"
 			| "getConversationWithMessages"
@@ -96,6 +97,10 @@ class InMemoryAdminRepository
 		}
 	}
 
+	async getClientTokenVersion(clientId: string) {
+		return this.clientsMap.get(clientId)?.tokenVersion ?? null
+	}
+
 	async updateClientStatus(clientId: string, status: string) {
 		const client = this.clientsMap.get(clientId)
 		if (!client) return null
@@ -128,6 +133,7 @@ class InMemoryAdminRepository
 			monthlyUsageLimit: null,
 			usageAlertThresholdUsd: null,
 			widgetToken: crypto.randomUUID(),
+			tokenVersion: 0,
 			status: "active",
 			lastActive: null,
 			createdAt: new Date(),

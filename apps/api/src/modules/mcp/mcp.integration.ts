@@ -530,4 +530,39 @@ describe("MCP integration tests", () => {
 		})
 		expect(res.status).toBe(403)
 	})
+
+	it("GET /client/me/mcp/pre-made caps results at the requested limit", async () => {
+		const adminToken = await createAdmin(createUniqueEmail("mcp-admin-test"))
+
+		for (let i = 0; i < 3; i++) {
+			const res = await realApp.request("/v1/admin/mcp/pre-made", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${adminToken}`,
+				},
+				body: JSON.stringify({
+					name: `Pagination Test Server ${crypto.randomUUID()}`,
+					mcpConfig: { type: "http", url: "https://mcp.example.com/mcp" },
+				}),
+			})
+			expect(res.status).toBe(201)
+			const body = (await res.json()) as { id: string }
+			createdPreMadeServerIds.add(body.id)
+		}
+
+		const email = createUniqueEmail("client-mcp-page-test")
+		const clientToken = await registerClient(
+			email,
+			"MCP Pagination Test Client",
+		)
+
+		const res = await realApp.request(
+			"/v1/client/me/mcp/pre-made?limit=1&offset=0",
+			{ headers: { Authorization: `Bearer ${clientToken}` } },
+		)
+		expect(res.status).toBe(200)
+		const body = (await res.json()) as unknown[]
+		expect(body.length).toBe(1)
+	})
 })

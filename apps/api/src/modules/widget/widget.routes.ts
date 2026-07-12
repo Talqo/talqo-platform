@@ -1,4 +1,5 @@
 import { createRoute, z } from "@hono/zod-openapi"
+import * as Sentry from "@sentry/bun"
 import {
 	conversationResponseSchema,
 	messageResponseSchema,
@@ -322,11 +323,6 @@ widgetMessageRoutes.openapi(
 					tokensUsed,
 				)
 
-				await sse.writeSSE({
-					event: "done",
-					data: JSON.stringify(assistantMessage),
-				})
-
 				if (tokensUsed) {
 					logger.info("ai_usage", {
 						request_id: requestId,
@@ -335,18 +331,29 @@ widgetMessageRoutes.openapi(
 						completion_tokens: tokensUsed.output,
 						total_tokens: tokensUsed.input + tokensUsed.output,
 					})
+					// Fire-and-forget — done event ships regardless of billing outcome
 					widgetService
 						.recordUsageAndAlert(clientId, assistantMessage.id, tokensUsed)
-						.catch((recordErr) =>
-							logger.error("Background usage recording failed", {
+						.catch((recordErr) => {
+							logger.error("Usage recording failed", {
 								error:
 									recordErr instanceof Error
 										? recordErr.message
 										: String(recordErr),
 								conversationId,
-							}),
-						)
+							})
+							Sentry.withScope((scope) => {
+								scope.setTag("request_id", requestId)
+								scope.setTag("conversation_id", conversationId)
+								Sentry.captureException(recordErr)
+							})
+						})
 				}
+
+				await sse.writeSSE({
+					event: "done",
+					data: JSON.stringify(assistantMessage),
+				})
 			} catch (err) {
 				logger.error("Widget SSE unexpected error", {
 					error: err instanceof Error ? err.message : String(err),

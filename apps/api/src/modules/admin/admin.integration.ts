@@ -99,4 +99,32 @@ describe("Admin integration tests", () => {
 		const res = await realApp.request("/v1/admin/clients?limit=20&offset=0")
 		expect(res.status).toBe(401)
 	})
+
+	it("GET /admin/activity-logs surfaces actions with no explicit audit label", async () => {
+		const adminToken = await createAdminToken()
+
+		// Falls back to "METHOD /path" — previously filtered out entirely
+		const createRes = await realApp.request("/v1/admin/mcp/pre-made", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${adminToken}`,
+			},
+			body: JSON.stringify({
+				name: `Activity Log Test Server ${crypto.randomUUID()}`,
+				mcpConfig: { type: "http", url: "https://mcp.example.com/mcp" },
+			}),
+		})
+		expect(createRes.status).toBe(201)
+
+		const logsRes = await realApp.request(
+			"/v1/admin/activity-logs?limit=50&offset=0",
+			{ headers: { Authorization: `Bearer ${adminToken}` } },
+		)
+		expect(logsRes.status).toBe(200)
+		const logs = (await logsRes.json()) as Array<{ actionType: string }>
+		expect(
+			logs.some((l) => l.actionType === "POST /v1/admin/mcp/pre-made"),
+		).toBe(true)
+	})
 })

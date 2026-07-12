@@ -7,6 +7,7 @@ import type { AppVariables } from "@/common/jwt"
 // Mock db so widgetAuth resolves token lookups in-memory
 let mockClientRow: { id: string; status: "active" | "suspended" } | undefined
 
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/db", () => ({
 	db: {
 		select: () => ({
@@ -15,6 +16,7 @@ mock.module("@/db", () => ({
 			}),
 		}),
 	},
+	checkDbConnection: () => Promise.resolve(),
 }))
 
 // Provide a WidgetConfigService backed by InMemoryWidgetConfigRepository

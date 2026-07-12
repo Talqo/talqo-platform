@@ -321,7 +321,7 @@ adminActivityLogsRoutes.openapi(
 		method: "get",
 		path: "/",
 		tags: ["Admin"],
-		summary: "List admin activity logs (impersonate, suspend, re-enable)",
+		summary: "List admin activity logs",
 		security: [{ bearerAuth: [] }],
 		request: { query: paginationQuerySchema },
 		responses: {

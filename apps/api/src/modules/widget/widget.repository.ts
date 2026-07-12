@@ -129,7 +129,10 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 			satisfactionRating: number | null
 		}
 	>()
-	private clients = new Map<string, { balanceUsd: number }>()
+	private clients = new Map<
+		string,
+		{ balanceUsd: number; monthlyUsageLimit?: number | null }
+	>()
 	private messageList: WidgetMessage[] = []
 	private usages: {
 		clientId: string
@@ -250,6 +253,20 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		if (!client) {
 			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 		}
+		if (client.monthlyUsageLimit != null) {
+			const now = new Date()
+			const monthlySpend = await this.getMonthlySpend(
+				clientId,
+				now.getFullYear(),
+				now.getMonth() + 1,
+			)
+			if (monthlySpend + costUsd > client.monthlyUsageLimit) {
+				throw new BadRequestError(
+					"MONTHLY_LIMIT_REACHED",
+					"Monthly usage limit reached",
+				)
+			}
+		}
 		if (client.balanceUsd < costUsd) {
 			throw new BadRequestError("BALANCE_INSUFFICIENT", "Insufficient balance")
 		}
@@ -286,6 +303,9 @@ export class InMemoryWidgetRepository implements IWidgetRepository {
 		return this.clients.get(clientId)?.balanceUsd ?? null
 	}
 }
+
+// Structural type shared by `DB` and the `tx` param of `DB["transaction"]`
+type QueryExecutor = DB | Parameters<Parameters<DB["transaction"]>[0]>[0]
 
 export class WidgetRepository implements IWidgetRepository {
 	constructor(private readonly db: DB) {}
@@ -419,13 +439,35 @@ export class WidgetRepository implements IWidgetRepository {
 		costUsd: number,
 	) {
 		await this.db.transaction(async (tx) => {
+			// Row lock serializes concurrent recordUsage calls for this client
 			const [client] = await tx
-				.select({ id: clients.id })
+				.select({
+					id: clients.id,
+					monthlyUsageLimit: clients.monthlyUsageLimit,
+				})
 				.from(clients)
 				.where(eq(clients.id, clientId))
+				.for("update")
 			if (!client) {
 				throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 			}
+
+			if (client.monthlyUsageLimit !== null) {
+				const now = new Date()
+				const monthlySpend = await this.sumMonthlySpend(
+					tx,
+					clientId,
+					now.getFullYear(),
+					now.getMonth() + 1,
+				)
+				if (monthlySpend + costUsd > client.monthlyUsageLimit) {
+					throw new BadRequestError(
+						"MONTHLY_LIMIT_REACHED",
+						"Monthly usage limit reached",
+					)
+				}
+			}
+
 			await tx
 				.insert(usageRecords)
 				.values({ clientId, messageId, tokensUsed, costUsd })
@@ -451,9 +493,18 @@ export class WidgetRepository implements IWidgetRepository {
 	}
 
 	async getMonthlySpend(clientId: string, year: number, month: number) {
+		return this.sumMonthlySpend(this.db, clientId, year, month)
+	}
+
+	private async sumMonthlySpend(
+		executor: QueryExecutor,
+		clientId: string,
+		year: number,
+		month: number,
+	): Promise<number> {
 		const start = new Date(year, month - 1, 1)
 		const end = new Date(year, month, 1)
-		const [row] = await this.db
+		const [row] = await executor
 			.select({ total: sum(usageRecords.costUsd) })
 			.from(usageRecords)
 			.where(

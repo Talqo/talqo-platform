@@ -134,6 +134,20 @@
 			"when": 1779803621296,
 			"tag": "0018_handy_malcolm_colcord",
 			"breakpoints": true
+		},
+		{
+			"idx": 19,
+			"version": "7",
+			"when": 1783438723353,
+			"tag": "0019_naive_toad_men",
+			"breakpoints": true
+		},
+		{
+			"idx": 20,
+			"version": "7",
+			"when": 1783808587122,
+			"tag": "0020_new_thundra",
+			"breakpoints": true
 		}
 	]
 }

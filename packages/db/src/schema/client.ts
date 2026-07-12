@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm"
 import {
 	boolean,
+	integer,
 	jsonb,
 	numeric,
 	pgEnum,
@@ -65,6 +66,8 @@ export const clients = pgTable("clients", {
 	}),
 	// Token scoping widget requests to this client (never exposed to the dashboard UI)
 	widgetToken: uuid("widget_token").notNull().unique().defaultRandom(),
+	// Incremented on password reset to invalidate all previously issued JWTs
+	tokenVersion: integer("token_version").notNull().default(0),
 	status: varchar("status", { length: 50 }).notNull().default("active"),
 	lastActive: timestamp("last_active", { withTimezone: true }),
 	createdAt: timestamp("created_at", { withTimezone: true })

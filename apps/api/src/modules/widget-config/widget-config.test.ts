@@ -109,7 +109,7 @@ mock.module("./index", () => ({
 }))
 
 // Dynamic imports after mocks so modules pick up the fakes
-const { widgetConfigClientRoutes } = await import(
+const { clientWidgetConfigRoutes } = await import(
 	"./widget-config.client.routes"
 )
 const { errorHandler } = await import("@/common/middleware/error-handler")
@@ -126,7 +126,7 @@ function buildApp() {
 		c.set("clientId", CLIENT_ID)
 		await next()
 	})
-	app.route("/client/me/widget-config", widgetConfigClientRoutes)
+	app.route("/client/me/widget-config", clientWidgetConfigRoutes)
 	return app
 }
 

@@ -65,4 +65,4 @@ router.openapi(
 	},
 )
 
-export { router as widgetConfigClientRoutes }
+export { router as clientWidgetConfigRoutes }
