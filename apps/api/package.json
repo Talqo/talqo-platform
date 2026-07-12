@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "bun run db:migrate && bun run db:seed && bun --watch --env-file=../../.env run src/index.ts",
+		"dev": "bun run db:migrate && bun run db:seed && bun --env-file=../../.env run src/scripts/provision-landing-widget.ts && bun --watch --env-file=../../.env run src/index.ts",
 		"build": "tsgo",
 		"lint": "biome lint .",
 		"check": "biome check .",

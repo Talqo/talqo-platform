@@ -13,10 +13,34 @@ declare global {
 	// biome-ignore lint/style/useConsistentTypeDefinitions: declaration merging required for global Window augmentation
 	interface Window {
 		__TALQO__?: TalqoConfig
+		__TALQO_WIDGET__?: { destroy: () => void }
 	}
 }
 
 let mountedRoot: Root | null = null
+let initGeneration = 0
+
+export function isCurrentTalqoToken(token: string): boolean {
+	if (typeof window === "undefined") return false
+
+	return window.__TALQO__?.token === token
+}
+
+function destroy(): void {
+	initGeneration += 1
+	if (typeof document === "undefined") return
+
+	const container = document.getElementById("ai-widget-root")
+	const wrapper = container as (HTMLElement & { __aiWidgetRoot?: Root }) | null
+	const root = wrapper?.__aiWidgetRoot ?? mountedRoot
+	root?.unmount()
+	if (wrapper?.__aiWidgetRoot) delete wrapper.__aiWidgetRoot
+	mountedRoot = null
+
+	if (container?.parentNode) {
+		container.parentNode.removeChild(container)
+	}
+}
 
 async function init(): Promise<void> {
 	if (mountedRoot) return
@@ -26,9 +50,13 @@ async function init(): Promise<void> {
 		console.error("[Talqo] Missing required config: window.__TALQO__.token")
 		return
 	}
+	const generation = initGeneration
 
 	try {
 		const config = await fetchWidgetConfig(token, API_URL)
+		if (generation !== initGeneration) return
+		if (!isCurrentTalqoToken(token)) return
+
 		trackPageview(token, API_URL)
 		const container = injectCSSVariables(config)
 
@@ -49,10 +77,14 @@ async function init(): Promise<void> {
 	}
 }
 
-if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", () => {
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+	window.__TALQO_WIDGET__ = { destroy }
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", () => {
+			void init()
+		})
+	} else {
 		void init()
-	})
-} else {
-	void init()
+	}
 }
