@@ -475,15 +475,15 @@
 			"byok": "BYOK",
 			"customPersonality": "Vlastní osobnost",
 			"eyebrow": "Pro skutečné weby",
-			"knowledgeBase": "Znalostní báze",
+			"knowledgeBase": "RAG znalostní báze",
 			"mcpTools": "MCP nástroje",
 			"title": "Připojte zdroje. Slaďte widget s webem. Mějte kontrolu."
 		},
 		"finalCta": {
+			"contactUs": "Kontaktujte nás",
 			"description": "Nastavte widget a nechte Talqo odpovídat návštěvníkům.",
 			"startFree": "Začněte zdarma",
-			"title": "Chcete přidat Talqo?",
-			"viewDocs": "Zobrazit dokumentaci"
+			"title": "Chcete přidat Talqo?"
 		},
 		"footer": {
 			"copyright": "Talqo. Všechna práva vyhrazena."

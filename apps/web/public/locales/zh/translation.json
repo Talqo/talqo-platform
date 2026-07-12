@@ -469,15 +469,15 @@
 			"byok": "BYOK",
 			"customPersonality": "自定义个性",
 			"eyebrow": "为真实网站构建",
-			"knowledgeBase": "知识库",
+			"knowledgeBase": "RAG 知识库",
 			"mcpTools": "MCP 工具",
 			"title": "连接数据源。匹配您的网站。保持可控。"
 		},
 		"finalCta": {
+			"contactUs": "联系我们",
 			"description": "配置小部件，让 Talqo 即时回答访客问题。",
 			"startFree": "免费开始",
-			"title": "准备添加 Talqo？",
-			"viewDocs": "查看文档"
+			"title": "准备添加 Talqo？"
 		},
 		"footer": {
 			"copyright": "Talqo。保留所有权利。"

@@ -471,15 +471,15 @@
 			"byok": "BYOK",
 			"customPersonality": "Custom personality",
 			"eyebrow": "Built for real sites",
-			"knowledgeBase": "Knowledge base",
+			"knowledgeBase": "RAG knowledge base",
 			"mcpTools": "MCP tools",
 			"title": "Connect sources. Match your site. Stay in control."
 		},
 		"finalCta": {
+			"contactUs": "Contact us",
 			"description": "Configure your widget and let Talqo answer visitors instantly.",
 			"startFree": "Start for free",
-			"title": "Ready to add Talqo?",
-			"viewDocs": "View docs"
+			"title": "Ready to add Talqo?"
 		},
 		"footer": {
 			"copyright": "Talqo. All rights reserved."

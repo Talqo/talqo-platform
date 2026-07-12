@@ -161,12 +161,8 @@ export function FeaturesSection() {
 							className="rounded-full border-primary-foreground/40 bg-transparent px-6 font-bold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
 							asChild
 						>
-							<a
-								href="https://github.com/talqo/talqo-platform/tree/main/docs"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{t("landing.finalCta.viewDocs")}
+							<a href="mailto:support@talqo.chat">
+								{t("landing.finalCta.contactUs")}
 							</a>
 						</Button>
 					</div>
