@@ -1,5 +1,12 @@
-import { describe, expect, it } from "bun:test"
-import server from "./index"
+import { describe, expect, it, mock } from "bun:test"
+
+// mock.module leaks across test files — keep this shape complete
+mock.module("@/db", () => ({
+	db: {},
+	checkDbConnection: () => Promise.resolve(),
+}))
+
+const { default: server } = await import("./index")
 
 describe("GET /health", () => {
 	it("returns OK", async () => {

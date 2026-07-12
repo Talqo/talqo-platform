@@ -54,6 +54,11 @@ ingress:
   enabled: true
   className: "nginx"
   host: "talqo.dyn.cloud.e-infra.cz"
+  # CNAME each entry to `host` — the ingress routes by Host header, DNS alone isn't enough.
+  extraHosts:
+    - "talqo.chat"
+  # Public-facing origin used for APP_URL (email links). Defaults to `host`.
+  publicHost: "talqo.chat"
   tls: true
   tlsSecretName: "talqo-tls"
   clusterIssuer: "letsencrypt-prod"

@@ -1,7 +1,12 @@
+import { randomUUID } from "node:crypto"
 import { sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import { logger } from "@/common/logger"
+import {
+	buildLandingWidgetClientValues,
+	LANDING_WIDGET_CLIENT,
+} from "@/scripts/provision-landing-widget"
 import * as schema from "./schema"
 import {
 	adminAccessLogs,
@@ -16,6 +21,7 @@ import {
 	messages,
 	preMadeMcpServers,
 	usageRecords,
+	widgetConfigs,
 } from "./schema"
 
 // Connect directly — JWT_SECRET is not needed for seeding
@@ -51,6 +57,9 @@ const ID = {
 	// Bot configs
 	botConfig1: "00000000-0000-4000-8000-000000000020",
 	botConfig2: "00000000-0000-4000-8000-000000000021",
+	botConfigLanding: "00000000-0000-4000-8000-000000000022",
+	// Widget configs
+	widgetConfigLanding: "00000000-0000-4000-8000-000000000023",
 	// MCP servers
 	preMadeMcp1: "00000000-0000-4000-8000-000000000030",
 	preMadeMcp2: "00000000-0000-4000-8000-000000000031",
@@ -140,6 +149,7 @@ async function seed() {
 				status: "active",
 				widgetSetupDismissed: true,
 			},
+			buildLandingWidgetClientValues(await Bun.password.hash(randomUUID())),
 		])
 		.onConflictDoUpdate({
 			target: clients.email,
@@ -176,9 +186,54 @@ async function seed() {
 				defaultRole: "Support Agent",
 				toneStyle: "professional",
 			},
+			{
+				id: ID.botConfigLanding,
+				clientId: LANDING_WIDGET_CLIENT.id,
+				systemPrompt:
+					"You are Talqo's landing page product guide. Help visitors understand the Talqo chat widget platform, explain dashboard and back-office capabilities, and invite them to try the demo (you) or contact the team. Keep answers concise and focused on Talqo.",
+				defaultRole: "Talqo Product Guide",
+				toneStyle: "friendly",
+			},
 		])
 		.onConflictDoNothing()
 	logger.info("  ✓ bot configs")
+
+	// ── Widget configs ─────────────────────────────────────────────────────────
+	await db
+		.insert(widgetConfigs)
+		.values({
+			id: ID.widgetConfigLanding,
+			clientId: LANDING_WIDGET_CLIENT.id,
+			botName: "Talqo Guide",
+			position: "right",
+			lightColors: {
+				primary: "#7c3aed",
+				bgPrimary: "#ffffff",
+				bgSecondary: "#f5f3ff",
+				textPrimary: "#18181b",
+				textSecondary: "#52525b",
+				border: "#ddd6fe",
+				headerTitleText: "#ffffff",
+				userMessageText: "#ffffff",
+				sendButtonIcon: "#ffffff",
+				footerText: "#ffffff",
+			},
+			darkColors: {
+				primary: "#a78bfa",
+				bgPrimary: "#18181b",
+				bgSecondary: "#27272a",
+				textPrimary: "#fafafa",
+				textSecondary: "#d4d4d8",
+				border: "#3f3f46",
+				headerTitleText: "#ffffff",
+				userMessageText: "#18181b",
+				sendButtonIcon: "#18181b",
+				footerText: "#18181b",
+			},
+			icons: { botAvatar: "sparkles" },
+		})
+		.onConflictDoNothing()
+	logger.info("  ✓ widget configs")
 
 	// ── Pre-made MCP servers ───────────────────────────────────────────────────
 	await db

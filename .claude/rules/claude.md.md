@@ -1,1 +1,1 @@
-CLAUDE.md info contradict code logic? Fix CLAUDE.md to reflect code logic. CLAUDE.md = source of truth for LLM agents. Must stay accurate and up-to-date with actual codebase.
+Keep CLAUDE.md files accurate and up to date with project-specific information. If a CLAUDE.md file contradicts the code, tooling, commands, or workflow, update the CLAUDE.md file to match the project.

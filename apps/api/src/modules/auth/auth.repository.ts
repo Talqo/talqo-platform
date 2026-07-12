@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm"
 import { CLIENT_STATUS_VALUES, type ClientStatus } from "shared"
+import { getPostgresErrorCode } from "@/common/db-errors"
 import {
 	AuthConflictError,
 	BadRequestError,
@@ -16,6 +17,7 @@ export type Client = {
 	status: ClientStatus
 	balanceUsd: number
 	monthlyUsageLimit: number
+	tokenVersion: number
 	lastActive: Date | null
 	createdAt: Date
 }
@@ -115,6 +117,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 			status: "active",
 			balanceUsd: 0,
 			monthlyUsageLimit: 0,
+			tokenVersion: 0,
 			lastActive: null,
 			createdAt: new Date(),
 		}
@@ -201,6 +204,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 		for (const client of this.clients.values()) {
 			if (client.email === email) {
 				client.passwordHash = passwordHash
+				client.tokenVersion += 1
 				return
 			}
 		}
@@ -250,6 +254,7 @@ function mapClient(row: typeof clients.$inferSelect): Client {
 		status,
 		balanceUsd: Number(row.balanceUsd),
 		monthlyUsageLimit: Number(row.monthlyUsageLimit ?? 0),
+		tokenVersion: row.tokenVersion,
 		lastActive: row.lastActive,
 		createdAt: row.createdAt,
 	}
@@ -442,7 +447,7 @@ export class DrizzleAuthRepository implements AuthRepository {
 	): Promise<void> {
 		const rows = await this.db
 			.update(clients)
-			.set({ passwordHash })
+			.set({ passwordHash, tokenVersion: sql`${clients.tokenVersion} + 1` })
 			.where(eq(clients.email, email))
 			.returning({ id: clients.id })
 		if (rows.length === 0) {
@@ -477,7 +482,7 @@ export class DrizzleAuthRepository implements AuthRepository {
 
 			const [updated] = await tx
 				.update(clients)
-				.set({ passwordHash })
+				.set({ passwordHash, tokenVersion: sql`${clients.tokenVersion} + 1` })
 				.where(eq(clients.email, record.email))
 				.returning({ id: clients.id })
 
@@ -497,10 +502,5 @@ export class DrizzleAuthRepository implements AuthRepository {
 }
 
 function isUniqueViolation(err: unknown): boolean {
-	return (
-		typeof err === "object" &&
-		err !== null &&
-		"code" in err &&
-		(err as { code: string }).code === "23505"
-	)
+	return getPostgresErrorCode(err) === "23505"
 }

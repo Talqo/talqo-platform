@@ -50,8 +50,8 @@ Run after changes:
 ```bash
 bun run fix
 bun run type-check
+bun run i18n-check # only if i18n-related changes
 bun run test
 bun run test:integration
 make e2e
 ```
-

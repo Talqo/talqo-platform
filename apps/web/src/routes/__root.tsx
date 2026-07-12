@@ -47,7 +47,7 @@ function NotFoundPage() {
 							<FileQuestion className="h-10 w-10 text-primary" />
 						</div>
 						<span className="font-mono font-semibold text-muted-foreground text-sm uppercase tracking-widest">
-							Error 404
+							{t("notFound.errorCode")}
 						</span>
 					</div>
 					<CardTitle className="text-2xl">{t("notFound.title")}</CardTitle>

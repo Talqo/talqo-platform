@@ -79,5 +79,21 @@
 		"package.json",
 		"bun.lock"
 	],
-	"globalEnv": ["NODE_ENV", "CI"]
+	"globalEnv": [
+		"NODE_ENV",
+		"CI",
+		"PORT_OFFSET",
+		"POSTGRES_PORT",
+		"API_PORT",
+		"VITE_PORT",
+		"VITE_API_URL",
+		"VITE_WIDGET_PORT",
+		"VITE_WIDGET_BUNDLE_PORT",
+		"VITE_WIDGET_BUNDLE_URL",
+		"APP_URL",
+		"ALLOWED_ORIGINS",
+		"S3_ENDPOINT",
+		"MINIO_PORT",
+		"MINIO_CONSOLE_PORT"
+	]
 }

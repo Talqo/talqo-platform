@@ -162,3 +162,42 @@ describe("ClientAccountService.deleteAccount", () => {
 		).rejects.toMatchObject({ statusCode: 404 })
 	})
 })
+
+describe("ClientAccountService.changePassword", () => {
+	let repo: InstanceType<typeof InMemoryClientAccountRepository>
+	let service: InstanceType<typeof ClientAccountService>
+
+	const clientId = crypto.randomUUID()
+	const plainPassword = "supersecret123"
+
+	beforeEach(async () => {
+		repo = new InMemoryClientAccountRepository()
+		service = new ClientAccountService(repo)
+
+		const hash = await Bun.password.hash(plainPassword, {
+			algorithm: "argon2id",
+		})
+		repo.seed({
+			id: clientId,
+			name: "Test User",
+			email: "test@example.com",
+			passwordHash: hash,
+			balanceUsd: "0.0000",
+			widgetToken: crypto.randomUUID(),
+		})
+	})
+
+	it("increments tokenVersion so previously issued JWTs are invalidated", async () => {
+		const repoAny = repo as unknown as {
+			store: Map<string, { tokenVersion?: number }>
+		}
+		expect(repoAny.store.get(clientId)?.tokenVersion ?? 0).toBe(0)
+
+		await service.changePassword(clientId, {
+			currentPassword: plainPassword,
+			newPassword: "newpassword123",
+		})
+
+		expect(repoAny.store.get(clientId)?.tokenVersion).toBe(1)
+	})
+})

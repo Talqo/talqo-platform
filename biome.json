@@ -8,6 +8,8 @@
 	"files": {
 		"includes": [
 			"**",
+			"!**/worktrees",
+			"!.worktrees",
 			"!!**/.turbo",
 			"!!**/dist",
 			"!!**/coverage",

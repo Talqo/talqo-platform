@@ -1,9 +1,9 @@
-import { and, eq } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import type { MiddlewareHandler } from "hono"
 import { ForbiddenError, UnauthorizedError } from "@/common/errors"
 import { type AppVariables, verifyToken } from "@/common/jwt"
 import { db } from "@/db"
-import { adminUsers } from "@/db/schema"
+import { activeAdminUsers } from "@/db/schema"
 
 // Validates Admin JWT from Authorization: Bearer <token>
 export const adminAuth: MiddlewareHandler<{ Variables: AppVariables }> = async (
@@ -23,9 +23,9 @@ export const adminAuth: MiddlewareHandler<{ Variables: AppVariables }> = async (
 	}
 
 	const admin = await db
-		.select({ id: adminUsers.id })
-		.from(adminUsers)
-		.where(and(eq(adminUsers.id, payload.sub), eq(adminUsers.isDeleted, false)))
+		.select({ id: activeAdminUsers.id })
+		.from(activeAdminUsers)
+		.where(eq(activeAdminUsers.id, payload.sub))
 		.then((rows) => rows[0])
 
 	if (!admin) {

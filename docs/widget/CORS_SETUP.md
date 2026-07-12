@@ -5,7 +5,7 @@
 The widget is served directly from the Talqo domain:
 
 ```html
-<script async defer src="https://talqo.dyn.cloud.e-infra.cz/widget-bundle.js"></script>
+<script async defer src="https://talqo.chat/widget-bundle.js"></script>
 ```
 
 This ensures the widget is:

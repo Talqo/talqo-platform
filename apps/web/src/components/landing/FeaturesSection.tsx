@@ -1,19 +1,171 @@
-import { useMemo } from "react"
+import { Link } from "@tanstack/react-router"
+import { ArrowRight, Bot } from "lucide-react"
+import { Fragment, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { getFeatures } from "@/data/landing"
-import { FeatureCard } from "./FeatureCard"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { getCapabilities, getLandingSteps, getUseCases } from "./data"
 
 export function FeaturesSection() {
 	const { t } = useTranslation()
-	const features = useMemo(() => getFeatures(t), [t])
+	const steps = useMemo(() => getLandingSteps(t), [t])
+	const useCases = useMemo(() => getUseCases(t), [t])
+	const capabilities = useMemo(() => getCapabilities(t), [t])
 
 	return (
-		<section className="bg-muted py-24">
-			<div className="container mx-auto px-6">
-				<div className="grid gap-12 sm:grid-cols-3">
-					{features.map((feature) => (
-						<FeatureCard key={feature.id} feature={feature} />
-					))}
+		<section className="relative overflow-hidden bg-muted px-6 py-20 text-foreground">
+			<div
+				className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,var(--secondary),transparent_24%),radial-gradient(circle_at_84%_34%,var(--accent),transparent_24%)] opacity-70"
+				aria-hidden="true"
+			/>
+			<div className="container relative mx-auto max-w-7xl">
+				<div className="grid gap-4 rounded-4xl border border-border bg-card/80 p-3 shadow-2xl shadow-primary/5 backdrop-blur md:grid-cols-[1fr_1.5rem_1fr_1.5rem_1fr] md:gap-2">
+					{steps.map((step, index) => {
+						const Icon = step.icon
+
+						return (
+							<Fragment key={step.id}>
+								<div className="flex min-h-36 items-start gap-4 rounded-[1.4rem] border border-primary/10 bg-secondary/45 p-5 text-foreground shadow-lg shadow-primary/5 dark:border-border dark:bg-background">
+									<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+										<Icon className="h-5 w-5" aria-hidden="true" />
+									</div>
+									<div>
+										<p className="text-primary text-xs uppercase tracking-[0.3em]">
+											0{index + 1}
+										</p>
+										<h2 className="font-black text-2xl tracking-tight">
+											{step.label}
+										</h2>
+										<p className="mt-2 max-w-xs text-muted-foreground text-sm leading-6">
+											{step.description}
+										</p>
+									</div>
+								</div>
+								{index < steps.length - 1 ? (
+									<div className="hidden items-center justify-center md:flex">
+										<ArrowRight
+											className="h-6 w-6 text-primary"
+											aria-hidden="true"
+										/>
+									</div>
+								) : null}
+							</Fragment>
+						)
+					})}
+				</div>
+
+				<div className="mt-24 flex max-w-3xl flex-col gap-4">
+					<p className="font-bold text-primary text-sm uppercase tracking-[0.28em]">
+						{t("landing.useCases.eyebrow")}
+					</p>
+					<h2 className="text-balance font-black text-4xl tracking-[-0.05em] sm:text-6xl">
+						{t("landing.useCases.title")}
+					</h2>
+				</div>
+
+				<div className="mt-10 grid gap-5 lg:grid-cols-3">
+					{useCases.map((useCase) => {
+						const Icon = useCase.icon
+
+						return (
+							<article
+								className="group overflow-hidden rounded-4xl border border-border bg-card p-4 text-card-foreground shadow-primary/5 shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
+								key={useCase.id}
+							>
+								<div
+									className={cn(
+										"min-h-64 rounded-[1.45rem] border border-border/80 p-4 text-foreground opacity-85 saturate-75",
+										useCase.accent,
+									)}
+								>
+									<div className="mb-5 flex items-center justify-between">
+										<div className="flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-2 font-bold text-sm shadow-sm backdrop-blur">
+											<Icon
+												className="h-4 w-4 text-primary/80"
+												aria-hidden="true"
+											/>
+											{useCase.label}
+										</div>
+										<div className="h-9 w-16 rounded-full bg-background/45" />
+									</div>
+									<div className="grid gap-3">
+										<div className="h-16 rounded-2xl bg-foreground/45" />
+										<div className="grid grid-cols-3 gap-2">
+											<div className="h-12 rounded-xl bg-background/55" />
+											<div className="h-12 rounded-xl bg-background/35" />
+											<div className="h-12 rounded-xl bg-background/55" />
+										</div>
+									</div>
+								</div>
+								<div className="relative -mt-16 ml-auto w-[88%] rounded-3xl border border-primary/35 bg-background p-3 shadow-primary/10 shadow-xl">
+									<p className="ml-auto w-fit rounded-2xl bg-primary px-4 py-3 text-right text-primary-foreground text-sm">
+										{useCase.question}
+									</p>
+									<div className="mt-3 flex items-start gap-2">
+										<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+											<Bot className="h-4 w-4" aria-hidden="true" />
+										</div>
+										<p className="rounded-2xl bg-muted px-4 py-3 text-muted-foreground text-sm">
+											{useCase.answer}
+										</p>
+									</div>
+								</div>
+							</article>
+						)
+					})}
+				</div>
+
+				<div className="mt-20 grid gap-8 rounded-4xl border border-border bg-card p-6 text-card-foreground shadow-2xl shadow-primary/5 md:grid-cols-[0.85fr_1.15fr] md:p-8">
+					<div>
+						<p className="font-bold text-primary text-sm uppercase tracking-[0.28em]">
+							{t("landing.capabilities.eyebrow")}
+						</p>
+						<h2 className="mt-4 max-w-md text-balance font-black text-4xl tracking-[-0.05em] sm:text-5xl">
+							{t("landing.capabilities.title")}
+						</h2>
+					</div>
+					<div className="flex flex-wrap content-start gap-3">
+						{capabilities.map((capability) => {
+							const Icon = capability.icon
+
+							return (
+								<div
+									className="flex items-center gap-2 rounded-full border border-border bg-background px-4 py-3 font-semibold text-sm transition hover:border-primary/40 hover:bg-secondary"
+									key={capability.id}
+								>
+									<Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+									{capability.label}
+								</div>
+							)
+						})}
+					</div>
+				</div>
+
+				<div className="mt-16 rounded-4xl border border-border bg-primary p-6 text-center text-primary-foreground shadow-2xl shadow-primary/20 sm:p-8">
+					<h2 className="font-black text-4xl tracking-[-0.05em]">
+						{t("landing.finalCta.title")}
+					</h2>
+					<p className="mx-auto mt-3 max-w-xl font-medium text-primary-foreground/85">
+						{t("landing.finalCta.description")}
+					</p>
+					<div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+						<Button
+							variant="secondary"
+							className="rounded-full px-6 font-bold"
+							asChild
+						>
+							<Link to="/register">{t("landing.finalCta.startFree")}</Link>
+						</Button>
+						<Button
+							variant="outline"
+							className="rounded-full border-primary-foreground/40 bg-transparent px-6 font-bold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+							asChild
+						>
+							<a href="mailto:support@talqo.chat">
+								{t("landing.finalCta.contactUs")}
+							</a>
+						</Button>
+					</div>
 				</div>
 			</div>
 		</section>

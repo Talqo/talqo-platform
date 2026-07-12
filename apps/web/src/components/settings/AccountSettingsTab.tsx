@@ -363,7 +363,7 @@ export function AccountSettingsTab() {
 								name="currentPassword"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("currentPassword")}</FormLabel>
+										<FormLabel>{t("common.currentPassword")}</FormLabel>
 										<FormControl>
 											<Input type="password" {...field} />
 										</FormControl>
@@ -376,7 +376,7 @@ export function AccountSettingsTab() {
 								name="newPassword"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("newPassword")}</FormLabel>
+										<FormLabel>{t("common.newPassword")}</FormLabel>
 										<FormControl>
 											<Input type="password" {...field} />
 										</FormControl>
@@ -389,7 +389,7 @@ export function AccountSettingsTab() {
 								name="confirmNewPassword"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("confirmNewPassword")}</FormLabel>
+										<FormLabel>{t("common.confirmNewPassword")}</FormLabel>
 										<FormControl>
 											<Input type="password" {...field} />
 										</FormControl>

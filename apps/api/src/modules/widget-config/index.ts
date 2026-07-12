@@ -7,4 +7,4 @@ export const widgetConfigService = new WidgetConfigService(
 	widgetConfigRepository,
 )
 
-export { widgetConfigClientRoutes } from "./widget-config.client.routes"
+export { clientWidgetConfigRoutes } from "./widget-config.client.routes"

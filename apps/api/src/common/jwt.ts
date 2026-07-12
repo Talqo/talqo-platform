@@ -20,6 +20,8 @@ export type TokenPayload = {
 	role: TokenRole
 	/** Marks an impersonation token issued by admin */
 	imp?: boolean
+	/** Client's tokenVersion at sign time — invalidated when it changes (e.g. password reset) */
+	tokenVersion?: number
 }
 
 let cachedSecret: Uint8Array | undefined
@@ -33,7 +35,11 @@ export async function signToken(
 	payload: TokenPayload,
 	expiresIn = config.JWT_EXPIRES_IN,
 ): Promise<string> {
-	return new SignJWT({ role: payload.role, imp: payload.imp })
+	return new SignJWT({
+		role: payload.role,
+		imp: payload.imp,
+		tokenVersion: payload.tokenVersion,
+	})
 		.setProtectedHeader({ alg: "HS256" })
 		.setSubject(payload.sub)
 		.setIssuedAt()
@@ -49,6 +55,7 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
 		const sub = payload.sub
 		const role = payload.role
 		const imp = payload.imp
+		const tokenVersion = payload.tokenVersion
 		if (typeof sub !== "string" || !sub) {
 			throw new UnauthorizedError("Invalid token: missing sub")
 		}
@@ -59,6 +66,7 @@ export async function verifyToken(token: string): Promise<TokenPayload> {
 			sub,
 			role: role as TokenRole,
 			imp: imp === true ? true : undefined,
+			tokenVersion: typeof tokenVersion === "number" ? tokenVersion : undefined,
 		}
 	} catch (err) {
 		if (err instanceof UnauthorizedError) throw err

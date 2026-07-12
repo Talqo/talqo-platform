@@ -1,6 +1,7 @@
-import { and, count, desc, eq, inArray, sql, sum } from "drizzle-orm"
+import { count, desc, eq, sql, sum } from "drizzle-orm"
 import type { DB } from "@/db"
 import {
+	activeAdminUsers,
 	adminAccessLogs,
 	adminUsers,
 	aiProviderConfigs,
@@ -16,16 +17,16 @@ export class AdminRepository {
 	async findAdminByEmail(email: string) {
 		return this.db
 			.select()
-			.from(adminUsers)
-			.where(and(eq(adminUsers.email, email), eq(adminUsers.isDeleted, false)))
+			.from(activeAdminUsers)
+			.where(eq(activeAdminUsers.email, email))
 			.then((rows) => rows.at(0) ?? null)
 	}
 
 	async findAdminById(id: string) {
 		return this.db
 			.select()
-			.from(adminUsers)
-			.where(and(eq(adminUsers.id, id), eq(adminUsers.isDeleted, false)))
+			.from(activeAdminUsers)
+			.where(eq(activeAdminUsers.id, id))
 			.then((rows) => rows.at(0) ?? null)
 	}
 
@@ -59,6 +60,14 @@ export class AdminRepository {
 			.limit(limit)
 			.offset(offset)
 			.orderBy(clients.createdAt)
+	}
+
+	async getClientTokenVersion(clientId: string): Promise<number | null> {
+		return this.db
+			.select({ tokenVersion: clients.tokenVersion })
+			.from(clients)
+			.where(eq(clients.id, clientId))
+			.then((rows) => rows.at(0)?.tokenVersion ?? null)
 	}
 
 	async getClientDetail(clientId: string) {
@@ -164,13 +173,6 @@ export class AdminRepository {
 			.from(adminAccessLogs)
 			.innerJoin(adminUsers, eq(adminUsers.id, adminAccessLogs.adminId))
 			.leftJoin(clients, eq(clients.id, adminAccessLogs.clientId))
-			.where(
-				inArray(adminAccessLogs.actionType, [
-					"impersonate",
-					"suspend",
-					"re-enable",
-				]),
-			)
 			.orderBy(desc(adminAccessLogs.createdAt))
 			.limit(limit)
 			.offset(offset)

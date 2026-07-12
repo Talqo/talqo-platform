@@ -65,6 +65,7 @@ function getTypeInfo(type?: string) {
 }
 
 function McpExpandableRow({ config }: { config: unknown }) {
+	const { t } = useTranslation()
 	const { data } = useVerifyMcp({
 		kind: "admin",
 		config: toMcpServerConfig(config),
@@ -77,9 +78,11 @@ function McpExpandableRow({ config }: { config: unknown }) {
 					<Spinner size="sm" />
 				) : data.ok ? (
 					<div className="space-y-2">
-						<p className="font-medium text-sm">Available tools:</p>
+						<p className="font-medium text-sm">{t("tools.availableTools")}</p>
 						{data.tools.length === 0 ? (
-							<p className="text-muted-foreground text-xs">No tools found</p>
+							<p className="text-muted-foreground text-xs">
+								{t("tools.noToolsFound")}
+							</p>
 						) : (
 							<div className="flex flex-wrap gap-2">
 								{data.tools.map((name) => (
@@ -119,7 +122,7 @@ export function McpTable({ servers, onEdit, onDelete, pendingId }: Props) {
 								{t("backoffice.mcpServersTable.type")}
 							</th>
 							<th scope="col" className="px-6 py-3">
-								Status
+								{t("backoffice.mcpServersTable.status")}
 							</th>
 							<th scope="col" className="px-6 py-3 text-right">
 								{t("backoffice.mcpServersTable.actions")}

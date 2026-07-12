@@ -9,6 +9,7 @@ import { clients } from "@/db/schema"
 let mockClientRow: { id: string; status: "active" | "suspended" } | undefined
 let capturedWhereArg: unknown
 
+// mock.module leaks across test files — keep this shape complete
 mock.module("@/db", () => ({
 	db: {
 		select: () => ({
@@ -20,6 +21,7 @@ mock.module("@/db", () => ({
 			}),
 		}),
 	},
+	checkDbConnection: () => Promise.resolve(),
 }))
 
 const { widgetAuth } = await import("./widget-auth")

@@ -14,7 +14,7 @@ export const clientResponseSchema = createSelectSchema(clients, {
 	lastActive: z.string().nullable(),
 	createdAt: z.string(),
 	widgetSetupDismissed: z.boolean(),
-}).omit({ passwordHash: true })
+}).omit({ passwordHash: true, tokenVersion: true })
 
 export const clientInsertSchema = createInsertSchema(clients).omit({
 	id: true,

@@ -7,6 +7,9 @@ import { defineConfig } from "vite"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const vitePort = Number(process.env.VITE_PORT)
+const port = vitePort >= 1 && vitePort <= 65535 ? vitePort : 5173
+
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [
@@ -21,6 +24,7 @@ export default defineConfig({
 	},
 	server: {
 		host: "0.0.0.0",
-		port: 5173,
+		// Overridden per worktree by `make dev` (VITE_PORT); 5173 otherwise.
+		port,
 	},
 })

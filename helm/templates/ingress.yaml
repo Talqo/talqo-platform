@@ -23,24 +23,16 @@ spec:
   tls:
     - hosts:
         - {{ required "ingress.host is required when ingress is enabled" .Values.ingress.host }}
+        {{- range .Values.ingress.extraHosts }}
+        - {{ . }}
+        {{- end }}
       secretName: {{ .Values.ingress.tlsSecretName }}
   {{- end }}
   rules:
     - host: {{ required "ingress.host is required when ingress is enabled" .Values.ingress.host }}
-      http:
-        paths:
-          - path: /api/?(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: {{ include "talqo.fullname" . }}-api
-                port:
-                  name: http
-          - path: /(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: {{ include "talqo.fullname" . }}-web
-                port:
-                  name: http
+      {{- include "talqo.ingress.paths" . | nindent 6 }}
+    {{- range .Values.ingress.extraHosts }}
+    - host: {{ . }}
+      {{- include "talqo.ingress.paths" $ | nindent 6 }}
+    {{- end }}
 {{- end }}

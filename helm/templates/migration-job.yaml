@@ -52,7 +52,13 @@ spec:
         - name: migrate
           image: "{{ .Values.migration.image.repository }}:{{ required "migration.image.tag is required — pass --set migration.image.tag=<version>" .Values.migration.image.tag }}"
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
-          command: ["bun", "/app/packages/db/migrate.ts"]
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              bun /app/packages/db/migrate.ts
+              bun /app/apps/api/src/scripts/provision-landing-widget.ts
           volumeMounts:
             - name: tmp
               mountPath: /tmp

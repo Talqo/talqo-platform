@@ -37,7 +37,7 @@ Add this snippet to your website's HTML, just before the closing `</body>` tag:
 </script>
 
 <!-- Load Widget from Talqo -->
-<script async defer crossorigin="anonymous" src="https://talqo.dyn.cloud.e-infra.cz/widget-bundle.js"></script>
+<script async defer crossorigin="anonymous" src="https://talqo.chat/widget-bundle.js"></script>
 ```
 
 Replace `YOUR_WIDGET_TOKEN` with your actual widget token from the dashboard.

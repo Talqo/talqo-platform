@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_type == 'tag' && 'prod' || 'dev' }}
-      url: ${{ github.ref_type == 'tag' && 'https://talqo.dyn.cloud.e-infra.cz' || 'https://dev.talqo.dyn.cloud.e-infra.cz' }}
+      url: ${{ github.ref_type == 'tag' && 'https://talqo.chat' || 'https://dev.talqo.dyn.cloud.e-infra.cz' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,7 +53,8 @@ jobs:
       - name: Build and push images
         run: make push
         env:
-          VITE_API_URL: ${{ github.ref_type == 'tag' && 'https://talqo.dyn.cloud.e-infra.cz/api/v1' || 'https://dev.talqo.dyn.cloud.e-infra.cz/api/v1' }}
+          VITE_API_URL: ${{ github.ref_type == 'tag' && 'https://talqo.chat/api/v1' || 'https://dev.talqo.dyn.cloud.e-infra.cz/api/v1' }}
+          VITE_WIDGET_BUNDLE_URL: ${{ github.ref_type == 'tag' && 'https://talqo.chat/widget-bundle.js' || 'https://dev.talqo.dyn.cloud.e-infra.cz/widget-bundle.js' }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
       - name: Deploy

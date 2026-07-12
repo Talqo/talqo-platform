@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -13,7 +13,7 @@ RUN apt-get update \
  && ln -sf /usr/local/bun/bin/bun /usr/local/bin/bun \
  && ln -sf /usr/local/bun/bin/bunx /usr/local/bin/bunx \
  && ln -sf /usr/local/bun/bin/bun /usr/local/bin/npm \
- && ln -sf /usr/local/bun/bin/bunx /usr/local/bin/npx \
+ && printf '#!/bin/sh\nexec bunx "$@"\n' > /usr/local/bin/npx && chmod +x /usr/local/bin/npx \
  # Install kubectl
  && curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt | xargs -I {} curl -fsSL -o /usr/local/bin/kubectl https://dl.k8s.io/release/{}/bin/linux/amd64/kubectl \
  && chmod +x /usr/local/bin/kubectl \

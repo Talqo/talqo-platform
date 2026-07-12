@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "bun run db:migrate && bun run db:seed && bun --watch --env-file=../../.env run src/index.ts",
+		"dev": "bun run db:migrate && bun run db:seed && bun --env-file=../../.env run src/scripts/provision-landing-widget.ts && bun --watch --env-file=../../.env run src/index.ts",
 		"build": "tsgo",
 		"lint": "biome lint .",
 		"check": "biome check .",
@@ -12,7 +12,7 @@
 		"type-check": "tsgo --noEmit",
 		"test": "bun test",
 		"test:integration": "bun --env-file=../../.env.example test --timeout 30000 ./src/modules/**/*.integration.ts",
-		"db:migrate": "cd ../../packages/db && bun --env-file=../../.env run drizzle-kit migrate",
+		"db:migrate": "cd ../../packages/db && bun --env-file=../../.env run db:migrate",
 		"db:seed": "bun --env-file=../../.env run src/db/seed.ts",
 		"db:check": "cd ../../packages/db && bun --env-file=../../.env run drizzle-kit check"
 	},

@@ -33,5 +33,11 @@ export const usageRecords = pgTable(
 			.defaultNow()
 			.notNull(),
 	},
-	(table) => [index("usage_records_client_id_idx").on(table.clientId)],
+	(table) => [
+		// Supersedes a client_id-only index — also covers monthly-spend SUMs
+		index("usage_records_client_id_recorded_at_idx").on(
+			table.clientId,
+			table.recordedAt,
+		),
+	],
 )

@@ -9,7 +9,6 @@ GHCR_USER := talqo
 API_IMAGE := ghcr.io/$(GHCR_USER)/talqo-api
 WEB_IMAGE := ghcr.io/$(GHCR_USER)/talqo-web
 VITE_API_URL ?= http://localhost:3000/v1
-E2E_PORT     ?= 4173
 # Rancher project ID — namespaces must be annotated with this to appear in the right project
 RANCHER_PROJECT_ID := c-m-qvndqhf6:p-8rjpv
 
@@ -31,6 +30,25 @@ else
   HELM_VALUES := -f $(HELM_CHART)/values.dev.yaml
 endif
 
+# Branch-derived port offset so parallel worktrees don't clash. Override with PORT_OFFSET=N.
+PORT_OFFSET ?= $(shell printf '%s' "$(BRANCH)" | cksum | awk '{print $$1 % 1000}')
+DEV_DB_PORT            := $(shell echo $$((5432 + $(PORT_OFFSET))))
+DEV_API_PORT           := $(shell echo $$((3000 + $(PORT_OFFSET))))
+DEV_WEB_PORT           := $(shell echo $$((5173 + $(PORT_OFFSET))))
+DEV_WIDGET_PORT        := $(shell echo $$((5174 + $(PORT_OFFSET))))
+DEV_WIDGET_BUNDLE_PORT := $(shell echo $$((5175 + $(PORT_OFFSET))))
+DEV_MINIO_PORT         := $(shell echo $$((9000 + $(PORT_OFFSET))))
+DEV_MINIO_CONSOLE_PORT := $(shell echo $$((9001 + $(PORT_OFFSET))))
+
+# Same offset for e2e. Web/widget use preview bases (4173/5174); Playwright reads
+# ports from exported BASE_URL/WIDGET_URL/VITE_API_URL (see e2e target).
+E2E_DB_PORT            := $(shell echo $$((5432 + $(PORT_OFFSET))))
+E2E_API_PORT           := $(shell echo $$((3000 + $(PORT_OFFSET))))
+E2E_WEB_PORT           := $(shell echo $$((4173 + $(PORT_OFFSET))))
+E2E_WIDGET_PORT        := $(shell echo $$((5174 + $(PORT_OFFSET))))
+E2E_MINIO_PORT         := $(shell echo $$((9000 + $(PORT_OFFSET))))
+E2E_MINIO_CONSOLE_PORT := $(shell echo $$((9001 + $(PORT_OFFSET))))
+
 # Image tagging strategy:
 #   prod — MAJOR.MINOR.PATCH stripped from a vX.Y.Z git tag on HEAD
 #           release gesture: make release VERSION=x.y.z
@@ -51,12 +69,38 @@ help: ## Show this help
 
 # ── Local Development ──────────────────────────────
 .PHONY: setup
-setup: ## Install deps, start database, run migrations and seed
+setup: ## Ensure .env, install deps, build packages (DB/migrate/seed run via make dev)
+	@[ -f .env ] || cp .env.example .env
 	bun install
-	$(COMPOSE) --env-file=.env up -d db --wait
-	cd apps/api && bun run db:migrate
-	cd apps/api && bun run db:seed
+	bunx turbo build --filter=db --filter=shared
 	@echo "Setup complete. Run 'make dev' to start development."
+
+# Process env overrides --env-file/compose .env; offsets every dev target. e2e excluded.
+PORT_TARGETS := dev dev-api dev-web setup db-up db-reset db-migrate db-seed
+$(PORT_TARGETS): export POSTGRES_PORT      := $(DEV_DB_PORT)
+$(PORT_TARGETS): export API_PORT           := $(DEV_API_PORT)
+$(PORT_TARGETS): export VITE_PORT          := $(DEV_WEB_PORT)
+$(PORT_TARGETS): export VITE_API_URL       := http://localhost:$(DEV_API_PORT)/v1
+$(PORT_TARGETS): export VITE_WIDGET_PORT   := $(DEV_WIDGET_PORT)
+$(PORT_TARGETS): export VITE_WIDGET_BUNDLE_PORT := $(DEV_WIDGET_BUNDLE_PORT)
+$(PORT_TARGETS): export VITE_WIDGET_BUNDLE_URL := http://localhost:$(DEV_WIDGET_BUNDLE_PORT)/widget-bundle.js
+$(PORT_TARGETS): export APP_URL            := http://localhost:$(DEV_WEB_PORT)
+$(PORT_TARGETS): export ALLOWED_ORIGINS    := http://localhost:$(DEV_WEB_PORT)
+$(PORT_TARGETS): export MINIO_PORT         := $(DEV_MINIO_PORT)
+$(PORT_TARGETS): export MINIO_CONSOLE_PORT := $(DEV_MINIO_CONSOLE_PORT)
+$(PORT_TARGETS): export S3_ENDPOINT        := http://localhost:$(DEV_MINIO_PORT)
+
+# Same for the e2e target; Playwright and the servers it launches inherit these.
+e2e: export POSTGRES_PORT      := $(E2E_DB_PORT)
+e2e: export API_PORT           := $(E2E_API_PORT)
+e2e: export MINIO_PORT         := $(E2E_MINIO_PORT)
+e2e: export MINIO_CONSOLE_PORT := $(E2E_MINIO_CONSOLE_PORT)
+e2e: export S3_ENDPOINT        := http://localhost:$(E2E_MINIO_PORT)
+e2e: export VITE_API_URL       := http://localhost:$(E2E_API_PORT)/v1
+e2e: export APP_URL            := http://localhost:$(E2E_WEB_PORT)
+e2e: export ALLOWED_ORIGINS    := http://localhost:$(E2E_WEB_PORT)
+e2e: export BASE_URL           := http://localhost:$(E2E_WEB_PORT)
+e2e: export WIDGET_URL         := http://localhost:$(E2E_WIDGET_PORT)
 
 .PHONY: dev
 dev: db-up ## Start local development (DB + apps)
@@ -93,9 +137,43 @@ db-migrate: ## Run Drizzle migrations
 db-seed: ## Seed the database
 	cd apps/api && bun run db:seed
 
-.PHONY: db-studio
-db-studio: ## Open Drizzle Studio
-	cd apps/api && bun run db:studio
+.PHONY: worktree
+worktree: ## Create a worktree for branch=X and prepare it (deps, build)
+	@[ -n "$(branch)" ] || { \
+		echo "ERROR: branch is required. Usage: make worktree branch=SCRUM-69"; exit 1; }
+	@wt=".worktrees/$(branch)"; \
+	if [ -e "$$wt" ]; then \
+		abs=$$(cd "$$wt" && pwd); \
+		owned=$$(git worktree list --porcelain | awk -v wt="$$abs" -v br="refs/heads/$(branch)" '\
+			/^worktree / { cur = ($$2 == wt) } /^branch / { if (cur && $$2 == br) found=1 } \
+			END { print (found ? "yes" : "no") }'); \
+		if [ "$$owned" != "yes" ]; then \
+			echo "ERROR: $$wt exists but is not the worktree for branch $(branch)"; exit 1; \
+		fi; \
+		echo "Reusing existing worktree $$wt for branch $(branch)"; \
+	elif git show-ref --verify --quiet "refs/heads/$(branch)"; then \
+		echo "Checking out existing branch $(branch) into $$wt"; \
+		git worktree add "$$wt" "$(branch)"; \
+	else \
+		echo "Creating new branch $(branch) in $$wt"; \
+		git worktree add -b "$(branch)" "$$wt"; \
+	fi
+	@cp .env .worktrees/$(branch)/.env 2>/dev/null || cp .env.example .worktrees/$(branch)/.env
+	@cd .worktrees/$(branch) && $(MAKE) setup
+	@echo "Worktree ready: cd .worktrees/$(branch) && make dev"
+
+.PHONY: worktree-rm
+worktree-rm: ## Remove worktree for branch=X (runs compose down first)
+	@[ -n "$(branch)" ] || { \
+		echo "ERROR: branch is required. Usage: make worktree-rm branch=SCRUM-69"; \
+		exit 1; }
+	@wt=".worktrees/$(branch)"; \
+	[ -d "$$wt" ] || { echo "ERROR: worktree $$wt not found"; exit 1; }; \
+	echo "Stopping compose services in $$wt..."; \
+	( cd "$$wt" && $(COMPOSE) down -v --remove-orphans ); \
+	echo "Removing worktree $$wt..."; \
+	git worktree remove "$$wt" --force; \
+	echo "Worktree $(branch) removed."
 
 # ── Build ──────────────────────────────────────────
 .PHONY: build-workspaces
@@ -132,6 +210,7 @@ build-api: _require-tag ## Build API Docker image
 build-web: _require-tag ## Build Web Docker image
 	docker build -f apps/web/Dockerfile \
 		--build-arg VITE_API_URL="$(VITE_API_URL)" \
+		--build-arg VITE_WIDGET_BUNDLE_URL="$(VITE_WIDGET_BUNDLE_URL)" \
 		--build-arg VITE_SENTRY_DSN="$(VITE_SENTRY_DSN)" \
 		-t "$(WEB_IMAGE):$(IMAGE_TAG)" .
 
@@ -158,23 +237,14 @@ test: ## Run all unit tests (excludes e2e tests)
 	bun run test
 
 .PHONY: e2e
-e2e: ## Run e2e tests (build, migrate, seed, start services, test, clean up)
+e2e: ## Run e2e tests (build, migrate, seed; Playwright starts/stops the servers)
 	$(COMPOSE) --env-file=.env.example down -v
 	$(COMPOSE) --env-file=.env.example up -d db --wait
-	VITE_API_URL=$(VITE_API_URL) bunx turbo build --filter=web --filter=db
+	bunx turbo build --filter=web --filter=db
+	cd packages/widget && bun run build:e2e
 	bun --env-file=.env.example packages/db/migrate.ts
-	bun --env-file=.env.example apps/api/src/db/seed.ts
-	@PIDS=""; \
-	APP_URL=http://localhost:$(E2E_PORT) ALLOWED_ORIGINS=http://localhost:$(E2E_PORT) bun --env-file=.env.example apps/api/src/index.ts & PIDS="$$!"; \
-	(cd apps/web && bun run preview) & PIDS="$$PIDS $$!"; \
-	timeout 60 sh -c 'until curl -sf http://localhost:3000/health >/dev/null 2>&1; do sleep 2; done' \
-		|| { kill $$PIDS 2>/dev/null; echo "ERROR: API failed to start"; exit 1; }; \
-	timeout 60 sh -c 'until curl -sf http://localhost:$(E2E_PORT) >/dev/null 2>&1; do sleep 2; done' \
-		|| { kill $$PIDS 2>/dev/null; echo "ERROR: Web preview failed to start"; exit 1; }; \
-	export BASE_URL=http://localhost:$(E2E_PORT); \
-	cd apps/e2e && bun run test:run; STATUS=$$?; \
-	[ -n "$$PIDS" ] && kill $$PIDS 2>/dev/null || true; \
-	exit $$STATUS
+	cd apps/api && bun --env-file=../../.env.example src/db/seed.ts
+	cd apps/e2e && bun run test:run
 
 .PHONY: lint
 lint: ## Lint all workspaces

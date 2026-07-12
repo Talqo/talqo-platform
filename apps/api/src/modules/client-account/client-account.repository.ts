@@ -85,7 +85,7 @@ export class DrizzleClientAccountRepository implements ClientAccountRepository {
 	async updatePassword(id: string, passwordHash: string) {
 		await this.db
 			.update(clients)
-			.set({ passwordHash })
+			.set({ passwordHash, tokenVersion: sql`${clients.tokenVersion} + 1` })
 			.where(eq(clients.id, id))
 	}
 
@@ -157,6 +157,7 @@ type ClientRow = {
 	passwordHash: string
 	balanceUsd: number
 	widgetToken: string
+	tokenVersion?: number
 }
 
 export class InMemoryClientAccountRepository
@@ -203,7 +204,10 @@ export class InMemoryClientAccountRepository
 
 	async updatePassword(id: string, passwordHash: string) {
 		const c = this.store.get(id)
-		if (c) c.passwordHash = passwordHash
+		if (c) {
+			c.passwordHash = passwordHash
+			c.tokenVersion = (c.tokenVersion ?? 0) + 1
+		}
 	}
 
 	async getPasswordHash(id: string): Promise<string | null> {

@@ -68,6 +68,8 @@ mock.module("@/common/config", () => ({
 	config: {
 		JWT_SECRET: "test-secret-this-is-at-least-32-chars-long-for-hs256",
 		JWT_EXPIRES_IN: "24h",
+		// mock.module leaks across test files — keep this shape complete
+		APP_URL: "http://localhost:3000",
 	},
 	getDefaultProviderConfig: () => defaultProviderConfig,
 }))

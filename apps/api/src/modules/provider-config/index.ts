@@ -8,4 +8,3 @@ export const providerConfigService = new ProviderConfigService(
 )
 
 export { default as providerConfigRoutes } from "./provider-config.routes"
-export { providerConfigRepository }
