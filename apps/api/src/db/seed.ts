@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { sql } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
@@ -148,7 +149,7 @@ async function seed() {
 				status: "active",
 				widgetSetupDismissed: true,
 			},
-			buildLandingWidgetClientValues(await Bun.password.hash("client123")),
+			buildLandingWidgetClientValues(await Bun.password.hash(randomUUID())),
 		])
 		.onConflictDoUpdate({
 			target: clients.email,
