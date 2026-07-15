@@ -83,6 +83,41 @@
 		"berry": "Bobule",
 		"switch": "Přepnout motiv"
 	},
+	"appearance": {
+		"title": "Vzhled",
+		"colors": "Barvy",
+		"fonts": "Písma",
+		"borders": "Okraje",
+		"color": {
+			"green": "Zelená",
+			"orange": "Oranžová",
+			"blue": "Modrá",
+			"purple": "Fialová",
+			"gold": "Zlatá",
+			"royalBlue": "Královská modrá",
+			"cyan": "Tyrkysová",
+			"emerald": "Smaragdová",
+			"pink": "Růžová",
+			"slate": "Břidlicová",
+			"custom": "Vlastní"
+		},
+		"customColor": "Vlastní barva",
+		"font": {
+			"inter": "Inter",
+			"sourceSans": "Source Sans 3",
+			"manrope": "Manrope",
+			"nunito": "Nunito",
+			"merriweather": "Merriweather",
+			"jetbrainsMono": "JetBrains Mono",
+			"playfair": "Playfair Display"
+		},
+		"radius": {
+			"sharp": "Ostré",
+			"slight": "Mírné",
+			"round": "Kulaté",
+			"pill": "Velmi kulaté"
+		}
+	},
 	"login": "Přihlášení",
 	"email": "E-mail",
 	"name": "Jméno",
@@ -588,11 +623,16 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "Vložte plně přizpůsobitelný, kontextově aware AI chatbot přímo na váš web. Připojte vlastní znalostní báze a umožněte zákazníkům okamžitě najít odpovědi.",
+			"description": "Přidejte na svůj web AI chat widget. Připojte znalostní báze a pomozte zákazníkům okamžitě najít odpovědi.",
 			"startForFree": "Začněte zdarma",
 			"viewDocumentation": "Zobrazit dokumentaci",
 			"line1": "Inteligentní chatovací widget",
-			"line2": "pro vaše podnikání."
+			"line2": "pro vaše podnikání.",
+			"tryLive": "Vyzkoušejte živě v rohu",
+			"embedFile": "index.html",
+			"previewSite": "Váš web",
+			"live": "Živě",
+			"widgetMessage": "Dobrý den — umím odpovídat z vaší dokumentace, nástrojů a pravidel."
 		},
 		"header": {
 			"switchToLightTheme": "Přepnout na světlý motiv",
@@ -600,17 +640,50 @@
 			"getStarted": "Začít"
 		},
 		"footer": {
-			"copyright": "PagePal. Všechna práva vyhrazena."
+			"copyright": "Talqo. Všechna práva vyhrazena."
 		},
-		"features": {
-			"speedTitle": "Bleskově rychlé",
-			"speedDescription": "Okamžité odpovědi poháněné pokročilými AI modely. Udržujte uživatele zapojené bez čekání.",
-			"customizableTitle": "Přizpůsobitelný kontext",
-			"customizableDescription": "Připojte MCP zdroje, definujte vlastní pravidla a omezte terminologii tak, aby odpovídala vaší značce.",
-			"embedTitle": "Vložit kamkoli",
-			"embedDescription": "Jednoduché React a JS embed kódy. Nasaďte widget během minut.",
-			"switchToLightTheme": "Přepnout na světlý motiv",
-			"switchToDarkTheme": "Přepnout na tmavý motiv"
+		"steps": {
+			"configure": "Nastavte",
+			"configureDescription": "V nástěnce nastavte jméno bota, barvy a zdroje znalostí.",
+			"paste": "Vložte",
+			"pasteDescription": "Vložte vygenerovaný kód do HTML stránky.",
+			"launch": "Spusťte",
+			"launchDescription": "Uložte stránku. Widget se zobrazí a je připraven pro návštěvníky."
+		},
+		"useCases": {
+			"eyebrow": "Případy použití",
+			"title": "Odpovědi pro podporu, dokumentaci a rezervace.",
+			"shop": {
+				"label": "E-shop",
+				"question": "Kde je moje objednávka?",
+				"answer": "Stav objednávky nalezen. Doručení je zítra."
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "Jak připojím API?",
+				"answer": "Zde je cesta k nastavení z vaší dokumentace."
+			},
+			"services": {
+				"label": "Služby",
+				"question": "Můžu rezervovat úterý?",
+				"answer": "V úterý jsou dvě volná místa."
+			}
+		},
+		"capabilities": {
+			"eyebrow": "Vytvořeno pro reálné weby",
+			"title": "Jednoduchá instalace. Připraveno na každodenní podporu.",
+			"knowledgeBase": "Znalostní báze",
+			"mcpTools": "MCP nástroje",
+			"brandColors": "Barvy značky",
+			"rateLimits": "Limity",
+			"analytics": "Analytika",
+			"anyWebsite": "Jakýkoli web"
+		},
+		"finalCta": {
+			"title": "Připraveni přidat Talqo?",
+			"description": "Vytvořte widget, vložte kód a nechte návštěvníky začít klást otázky.",
+			"startFree": "Začněte zdarma",
+			"viewDocs": "Zobrazit dokumentaci"
 		}
 	},
 	"adminStats": {
@@ -665,6 +738,7 @@
 		"logIn": "Přihlásit se",
 		"noData": "Žádná data k dispozici",
 		"pagePal": "PagePal",
+		"talqo": "Talqo",
 		"failedToLoad": "Nepodařilo se načíst",
 		"processing": "Zpracovávání...",
 		"sending": "Odesílání...",

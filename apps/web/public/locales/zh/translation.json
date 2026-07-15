@@ -83,6 +83,41 @@
 		"berry": "浆果",
 		"switch": "切换主题"
 	},
+	"appearance": {
+		"title": "外观",
+		"colors": "颜色",
+		"fonts": "字体",
+		"borders": "边框",
+		"color": {
+			"green": "绿色",
+			"orange": "橙色",
+			"blue": "蓝色",
+			"purple": "紫色",
+			"gold": "金色",
+			"royalBlue": "宝蓝",
+			"cyan": "青色",
+			"emerald": "翠绿",
+			"pink": "粉色",
+			"slate": "灰色",
+			"custom": "自定义"
+		},
+		"customColor": "自定义颜色",
+		"font": {
+			"inter": "Inter",
+			"sourceSans": "Source Sans 3",
+			"manrope": "Manrope",
+			"nunito": "Nunito",
+			"merriweather": "Merriweather",
+			"jetbrainsMono": "JetBrains Mono",
+			"playfair": "Playfair Display"
+		},
+		"radius": {
+			"sharp": "锐利",
+			"slight": "轻微",
+			"round": "圆润",
+			"pill": "胶囊"
+		}
+	},
 	"login": "登录",
 	"email": "邮箱",
 	"name": "姓名",
@@ -588,11 +623,16 @@
 	},
 	"landing": {
 		"heroSection": {
-			"description": "将完全可定制、具备上下文感知能力的 AI 聊天机器人直接嵌入您的网站。连接您自己的知识库，让客户即时找到答案。",
+			"description": "在您的网站上添加 AI 聊天小部件。连接知识库，帮助客户即时找到答案。",
 			"startForFree": "免费开始",
 			"viewDocumentation": "查看文档",
 			"line1": "智能聊天小部件",
-			"line2": "为您的业务而生。"
+			"line2": "为您的业务而生。",
+			"tryLive": "在角落实时体验",
+			"embedFile": "index.html",
+			"previewSite": "您的网站",
+			"live": "实时",
+			"widgetMessage": "您好 — 我可以根据您的文档、工具和策略作答。"
 		},
 		"header": {
 			"switchToLightTheme": "切换到浅色主题",
@@ -600,17 +640,50 @@
 			"getStarted": "开始使用"
 		},
 		"footer": {
-			"copyright": "PagePal。保留所有权利。"
+			"copyright": "Talqo。保留所有权利。"
 		},
-		"features": {
-			"speedTitle": "闪电般快速",
-			"speedDescription": "由先进的 AI 模型驱动的即时响应。让您的用户无需等待即可保持参与。",
-			"customizableTitle": "可定制的上下文",
-			"customizableDescription": "连接 MCP 源，定义自定义规则，并限制术语以适合您的品牌。",
-			"embedTitle": "随处嵌入",
-			"embedDescription": "简单的 React 和 JS 嵌入代码。几分钟内即可启动并运行您的小部件。",
-			"switchToLightTheme": "切换到浅色主题",
-			"switchToDarkTheme": "切换到深色主题"
+		"steps": {
+			"configure": "配置",
+			"configureDescription": "在控制台中设置机器人名称、颜色和知识来源。",
+			"paste": "粘贴",
+			"pasteDescription": "将生成的代码片段粘贴到页面 HTML 中。",
+			"launch": "上线",
+			"launchDescription": "保存页面。小部件将出现并准备好接待访客。"
+		},
+		"useCases": {
+			"eyebrow": "使用场景",
+			"title": "支持、文档和预约的问答助手。",
+			"shop": {
+				"label": "电商",
+				"question": "我的订单在哪里？",
+				"answer": "已找到订单状态。明天送达。"
+			},
+			"saas": {
+				"label": "SaaS",
+				"question": "如何连接 API？",
+				"answer": "这是来自您文档的设置路径。"
+			},
+			"services": {
+				"label": "服务",
+				"question": "可以预约周二吗？",
+				"answer": "周二有两个空闲时段。"
+			}
+		},
+		"capabilities": {
+			"eyebrow": "为真实网站打造",
+			"title": "易于安装。已为日常支持做好准备。",
+			"knowledgeBase": "知识库",
+			"mcpTools": "MCP 工具",
+			"brandColors": "品牌颜色",
+			"rateLimits": "速率限制",
+			"analytics": "数据分析",
+			"anyWebsite": "任何网站"
+		},
+		"finalCta": {
+			"title": "准备好添加 Talqo 了吗？",
+			"description": "创建小部件，粘贴代码，让访客开始提问。",
+			"startFree": "免费开始",
+			"viewDocs": "查看文档"
 		}
 	},
 	"adminStats": {
@@ -665,6 +738,7 @@
 		"logIn": "登录",
 		"noData": "暂无数据",
 		"pagePal": "PagePal",
+		"talqo": "Talqo",
 		"failedToLoad": "加载失败",
 		"processing": "处理中...",
 		"sending": "发送中...",

@@ -8,8 +8,14 @@ export const STORAGE_KEYS = {
 	// Theme
 	THEME: "theme",
 
-	// Motif
+	// Motif (legacy, kept for migration)
 	MOTIF: "motif",
+
+	// Appearance
+	COLOR: "pagepal:color",
+	FONT: "pagepal:font",
+	RADIUS: "pagepal:radius",
+	CUSTOM_COLOR: "pagepal:custom-color",
 
 	// Chat messages
 	CHAT_MESSAGES: "chatbot_messages",

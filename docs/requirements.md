@@ -89,7 +89,7 @@
 | FR-2.23 | Dashboard displays conversion metrics | Low | Approved | Out of scope |
 | FR-2.24 | Dashboard displays satisfaction rating analytics | Low | Approved | Done |
 | FR-2.25 | Dashboard displays general engagement metrics (total conversations, unique chat users, percentage of site visitors who used the chatbot) | Low | Approved | Done |
-| FR-2.26 | Landing page and dashboard support multiple visual motifs (theme presets) with light/dark variants and a switcher | Medium | Approved | Done |
+| FR-2.26 | Landing page and dashboard support independent appearance controls for color (including a custom color picker), font, and border radius, with multiple palettes and light/dark variants | Medium | Approved | Done |
 
 ### FR-3: Back-office
 

@@ -4,23 +4,92 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PagePal - AI Chat Widget</title>
+    <meta
+      name="description"
+      content="Talqo is an embeddable AI chat widget for websites. Connect your knowledge bases, paste one snippet, and help visitors get answers instantly."
+    />
+    <meta name="theme-color" content="#16a34a" />
+    <title>Talqo - AI Chat Widget</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Merriweather:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script>
-      // Initialize motif and theme before page load to prevent flash
+      // Initialize appearance and theme before page load to prevent flash
       (() => {
-        const validMotifs = ["forest", "sunset", "ocean", "berry"];
-        const savedMotif = localStorage.getItem("motif") || "forest";
-        const savedTheme = localStorage.getItem("theme") || "light";
+        const legacyMotif = localStorage.getItem("motif");
+        const legacyMap = {
+          forest: { color: "green", font: "inter", radius: "slight" },
+          sunset: { color: "orange", font: "source-sans", radius: "round" },
+          ocean: { color: "blue", font: "manrope", radius: "slight" },
+          berry: { color: "purple", font: "nunito", radius: "round" },
+        };
+
+        let color = "green";
+        let font = "inter";
+        let radius = "slight";
+
+        if (legacyMotif && legacyMap[legacyMotif]) {
+          ({ color, font, radius } = legacyMap[legacyMotif]);
+          localStorage.setItem("pagepal:color", color);
+          localStorage.setItem("pagepal:font", font);
+          localStorage.setItem("pagepal:radius", radius);
+          localStorage.removeItem("motif");
+        } else {
+          color = localStorage.getItem("pagepal:color") || "green";
+          font = localStorage.getItem("pagepal:font") || "inter";
+          radius = localStorage.getItem("pagepal:radius") || "slight";
+        }
+
+        const validColors = [
+          "green",
+          "orange",
+          "blue",
+          "purple",
+          "gold",
+          "royal-blue",
+          "cyan",
+          "emerald",
+          "pink",
+          "slate",
+          "custom",
+        ];
+        const hexColorRegex = /^#[0-9a-fA-F]{6}$/;
+        const validFonts = [
+          "inter",
+          "source-sans",
+          "manrope",
+          "nunito",
+          "merriweather",
+          "jetbrains-mono",
+          "playfair",
+        ];
+        const validRadii = ["sharp", "slight", "round", "pill"];
+
         document.documentElement.setAttribute(
-          "data-motif",
-          validMotifs.includes(savedMotif) ? savedMotif : "forest",
+          "data-color",
+          validColors.includes(color) ? color : "green",
         );
+        document.documentElement.setAttribute(
+          "data-font",
+          validFonts.includes(font) ? font : "inter",
+        );
+        document.documentElement.setAttribute(
+          "data-radius",
+          validRadii.includes(radius) ? radius : "slight",
+        );
+
+        const customColor = localStorage.getItem("pagepal:custom-color");
+        if (color === "custom" && customColor && hexColorRegex.test(customColor)) {
+          document.documentElement.style.setProperty("--primary", customColor);
+          document.documentElement.style.setProperty("--ring", customColor);
+          document.documentElement.style.setProperty("--chart-1", customColor);
+          document.documentElement.style.setProperty("--sidebar-primary", customColor);
+        }
+
+        const savedTheme = localStorage.getItem("theme") || "light";
         if (savedTheme === "dark") {
           document.documentElement.classList.add("dark");
         }
