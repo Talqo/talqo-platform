@@ -94,6 +94,66 @@ test.describe("Widget chat", () => {
 		await expect(page.getByText("How can I help?")).toBeVisible()
 	})
 
+	test("keeps an error visible after message recovery completes", async ({
+		page,
+	}) => {
+		let releaseRecovery: (() => void) | undefined
+		const recoveryGate = new Promise<void>((resolve) => {
+			releaseRecovery = resolve
+		})
+
+		await page.route(MESSAGES_ENDPOINT, async (route) => {
+			if (route.request().method() === "GET") {
+				await recoveryGate
+				await route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify([
+						{
+							id: "recovered-assistant",
+							conversationId: "conversation-1",
+							role: "assistant",
+							content: "Recovered previous reply",
+							tokenCount: 3,
+							createdAt: new Date().toISOString(),
+						},
+					]),
+				})
+				return
+			}
+
+			const conversationId =
+				route.request().url().split("/conversations/")[1]?.split("/")[0] ??
+				"conversation-1"
+			await route.fulfill({
+				status: 200,
+				contentType: "text/event-stream",
+				body:
+					`event: user_message\ndata: ${JSON.stringify({
+						id: "failed-user-message",
+						conversationId,
+						role: "user",
+						content: "Hello there",
+						tokenCount: 2,
+						createdAt: new Date().toISOString(),
+					})}\n\n` +
+					'event: error\ndata: {"code":"AI_SERVICE_UNAVAILABLE","message":"failed"}\n\n',
+			})
+		})
+
+		await page.getByRole("button", { name: "Open chat" }).click({ force: true })
+		await page.getByLabel("Type your message").fill("Hello there")
+		await page
+			.getByRole("button", { name: "Send message" })
+			.click({ force: true })
+
+		const alert = page.getByRole("alert")
+		await expect(alert).toContainText("temporarily unavailable")
+		releaseRecovery?.()
+		await expect(page.getByText("Recovered previous reply")).toBeVisible()
+		await expect(alert).toBeVisible()
+	})
+
 	test("clear conversation resets the message list", async ({ page }) => {
 		await mockAssistantReply(page, "Sure, here is some help.")
 		await page.getByRole("button", { name: "Open chat" }).click({ force: true })

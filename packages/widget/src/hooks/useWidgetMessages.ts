@@ -107,11 +107,6 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 								}
 								return preserved
 							})
-							const last = serverMsgs[serverMsgs.length - 1]
-							if (last && last.role === "assistant") {
-								setError(null)
-								setIsTyping(false)
-							}
 						})
 						.catch((err: unknown) => {
 							if (isCurrentAttempt()) setError(toUserFriendlyError(err))
