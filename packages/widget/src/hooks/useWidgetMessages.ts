@@ -33,6 +33,8 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 	const conversationRef = useRef<ConversationData | null>(null)
 	const abortRef = useRef<AbortController | null>(null)
 	const browserSessionIdRef = useRef<string | null>(null)
+	const sendAttemptRef = useRef(0)
+	const sendPendingRef = useRef(false)
 
 	useEffect(() => {
 		apiRef.current = new WidgetApi({ widgetToken, apiUrl })
@@ -52,12 +54,19 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 
 	const sendMessage = useCallback(
 		(trimmedInput: string) => {
-			if (!trimmedInput || isTyping) return
+			if (!trimmedInput || isTyping || sendPendingRef.current) return
 
 			const api = apiRef.current
 			if (!api) return
+			sendPendingRef.current = true
+			const sendAttempt = ++sendAttemptRef.current
+			const isCurrentAttempt = () => sendAttemptRef.current === sendAttempt
+			const releaseAttempt = () => {
+				if (isCurrentAttempt()) sendPendingRef.current = false
+			}
 
 			const doSend = (sessionId: string, conversationId: string) => {
+				if (!isCurrentAttempt()) return
 				setError(null)
 				setIsTyping(true)
 
@@ -76,6 +85,7 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 					api
 						.getMessages(sessionId, conversationId)
 						.then((serverMsgs) => {
+							if (!isCurrentAttempt()) return
 							if (!serverMsgs.length) return
 							setMessages((prev) => {
 								const serverIds = new Set(serverMsgs.map((m) => m.id))
@@ -104,11 +114,7 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 							}
 						})
 						.catch((err: unknown) => {
-							setError(
-								toUserFriendlyError(
-									err instanceof Error ? err.message : String(err),
-								),
-							)
+							if (isCurrentAttempt()) setError(toUserFriendlyError(err))
 						})
 				}
 
@@ -118,6 +124,7 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 						conversationId,
 						trimmedInput,
 						(event) => {
+							if (!isCurrentAttempt()) return
 							switch (event.type) {
 								case "user_message": {
 									setMessages((prev) => {
@@ -175,6 +182,7 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 										}
 										return prev
 									})
+									setError(null)
 									setIsTyping(false)
 									break
 								}
@@ -182,7 +190,7 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 									setMessages((prev) =>
 										prev.filter((m) => !m.id.startsWith("stream-")),
 									)
-									setError(event.message)
+									setError(toUserFriendlyError(event))
 									setIsTyping(false)
 									recoverMessages()
 									break
@@ -193,19 +201,17 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 					)
 					.catch((err: unknown) => {
 						if (err instanceof Error && err.name === "AbortError") return
+						if (!isCurrentAttempt()) return
 						setMessages((prev) =>
 							prev.filter((m) => !m.id.startsWith("stream-")),
 						)
-						setError(
-							toUserFriendlyError(
-								err instanceof Error ? err.message : String(err),
-							),
-						)
+						setError(toUserFriendlyError(err))
 						setIsTyping(false)
 						recoverMessages()
 					})
 					.finally(() => {
 						if (abortRef.current === controller) abortRef.current = null
+						releaseAttempt()
 					})
 			}
 
@@ -217,17 +223,13 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 					api
 						.startConversation(sessionId)
 						.then((newConversation) => {
+							if (!isCurrentAttempt()) return
 							conversationRef.current = newConversation
 							doSend(sessionId, newConversation.id)
 						})
 						.catch((err: unknown) => {
-							setError(
-								toUserFriendlyError(
-									err instanceof Error
-										? err.message
-										: "Failed to start conversation",
-								),
-							)
+							if (isCurrentAttempt()) setError(toUserFriendlyError(err))
+							releaseAttempt()
 						})
 				}
 			}
@@ -241,17 +243,13 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 						browserSessionIdRef.current ?? crypto.randomUUID(),
 					)
 					.then((newSession) => {
+						if (!isCurrentAttempt()) return
 						sessionRef.current = newSession
 						sendWithSession(newSession.id)
 					})
 					.catch((err: unknown) => {
-						setError(
-							toUserFriendlyError(
-								err instanceof Error
-									? err.message
-									: "Failed to connect to chat",
-							),
-						)
+						if (isCurrentAttempt()) setError(toUserFriendlyError(err))
+						releaseAttempt()
 					})
 			}
 		},
@@ -259,6 +257,8 @@ export function useWidgetMessages(options: UseWidgetMessagesOptions) {
 	)
 
 	const clearMessages = useCallback(() => {
+		sendAttemptRef.current += 1
+		sendPendingRef.current = false
 		if (abortRef.current) {
 			abortRef.current.abort()
 			abortRef.current = null

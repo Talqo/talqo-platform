@@ -8,14 +8,29 @@ import type {
 	SseEvent,
 } from "./types"
 
+class WidgetApiError extends Error {
+	constructor(
+		public readonly code: string,
+		message: string,
+	) {
+		super(message)
+		this.name = "WidgetApiError"
+	}
+}
+
 class WidgetApi {
 	constructor(private readonly config: WidgetApiConfig) {}
 
-	private async parseErrorBody(res: Response): Promise<string> {
+	private async parseErrorBody(res: Response): Promise<WidgetApiError> {
 		const body = (await res.json().catch(() => ({}))) as ErrorBody
-		return typeof body.error?.message === "string"
-			? body.error.message
-			: `HTTP ${res.status}`
+		return new WidgetApiError(
+			typeof body.error?.code === "string"
+				? body.error.code
+				: `HTTP_${res.status}`,
+			typeof body.error?.message === "string"
+				? body.error.message
+				: `HTTP ${res.status}`,
+		)
 	}
 
 	private async fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
@@ -29,7 +44,7 @@ class WidgetApi {
 			},
 		})
 		if (!res.ok) {
-			throw new Error(await this.parseErrorBody(res))
+			throw await this.parseErrorBody(res)
 		}
 		return res.json() as Promise<T>
 	}
@@ -75,7 +90,7 @@ class WidgetApi {
 			signal,
 		})
 		if (!res.ok) {
-			throw new Error(await this.parseErrorBody(res))
+			throw await this.parseErrorBody(res)
 		}
 
 		const reader = res.body?.getReader()
@@ -83,7 +98,6 @@ class WidgetApi {
 
 		const decoder = new TextDecoder()
 		let buffer = ""
-		let gotTerminalEvent = false
 
 		try {
 			while (true) {
@@ -95,7 +109,10 @@ class WidgetApi {
 				for (const ev of events.items) {
 					if (!ev) continue
 					onEvent(ev)
-					if (ev.type === "done" || ev.type === "error") gotTerminalEvent = true
+					if (ev.type === "done" || ev.type === "error") {
+						await reader.cancel().catch(() => {})
+						return
+					}
 				}
 			}
 			if (buffer.trim()) {
@@ -103,16 +120,14 @@ class WidgetApi {
 				for (const ev of events.items) {
 					if (!ev) continue
 					onEvent(ev)
-					if (ev.type === "done" || ev.type === "error") gotTerminalEvent = true
+					if (ev.type === "done" || ev.type === "error") return
 				}
 			}
-			if (!gotTerminalEvent) {
-				onEvent({
-					type: "error",
-					code: "STREAM_ENDED",
-					message: "Connection lost. Please try again.",
-				})
-			}
+			onEvent({
+				type: "error",
+				code: "STREAM_ENDED",
+				message: "Connection lost. Please try again.",
+			})
 		} finally {
 			reader.releaseLock()
 		}
@@ -133,11 +148,11 @@ class WidgetApi {
 			body: JSON.stringify({ rating }),
 		})
 		if (!res.ok) {
-			throw new Error(await this.parseErrorBody(res))
+			throw await this.parseErrorBody(res)
 		}
 	}
 }
 
 export { parseSseBuffer } from "./sse"
 export type { MessageData, SseEvent } from "./types"
-export { WidgetApi }
+export { WidgetApi, WidgetApiError }

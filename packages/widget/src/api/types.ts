@@ -25,7 +25,7 @@ export type MessageData = {
 }
 
 export type ErrorBody = {
-	error?: { message?: unknown }
+	error?: { code?: unknown; message?: unknown }
 }
 
 export type SseEvent =
