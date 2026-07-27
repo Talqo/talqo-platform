@@ -21,6 +21,15 @@
 			"cache": false,
 			"persistent": true
 		},
+		"generate-routes": {
+			"dependsOn": [],
+			"inputs": [
+				"src/routes/**/*.tsx",
+				"src/routes/**/*.ts",
+				"tanstack-router.config.json"
+			],
+			"outputs": ["src/routeTree.gen.ts"]
+		},
 		"lint": {
 			"dependsOn": ["^build"],
 			"inputs": ["src/**/*.ts", "src/**/*.tsx", "package.json", "biome.json"]

@@ -1,7 +1,9 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
+import { routeTree } from "./routeTree.gen";
 
 const rootElement = document.getElementById("root");
 
@@ -12,8 +14,24 @@ if (!rootElement) {
 document.documentElement.dataset.font = "inter";
 document.documentElement.dataset.radius = "pill";
 
+const queryClient = new QueryClient();
+
+const router = createRouter({
+	routeTree,
+	context: { queryClient },
+	defaultPreload: "intent",
+});
+
+declare module "@tanstack/react-router" {
+	interface Register {
+		router: typeof router;
+	}
+}
+
 createRoot(rootElement).render(
 	<StrictMode>
-		<App />
+		<QueryClientProvider client={queryClient}>
+			<RouterProvider router={router} />
+		</QueryClientProvider>
 	</StrictMode>,
 );

@@ -12,6 +12,7 @@
 		"dev:web": "turbo dev --filter=web",
 		"dev:api": "turbo dev --filter=api",
 		"dev:widget": "turbo dev --filter=@talqo/widget",
+		"generate-routes": "turbo generate-routes",
 		"build": "turbo build",
 		"build:widget": "turbo build --filter=@talqo/widget",
 		"lint": "turbo lint",
