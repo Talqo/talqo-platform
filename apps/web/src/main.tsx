@@ -9,6 +9,9 @@ if (!rootElement) {
 	throw new Error("Root element not found");
 }
 
+document.documentElement.dataset.font = "inter";
+document.documentElement.dataset.radius = "pill";
+
 createRoot(rootElement).render(
 	<StrictMode>
 		<App />
