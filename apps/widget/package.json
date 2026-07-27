@@ -1,7 +1,7 @@
 {
-	"name": "widget",
+	"name": "@talqo/widget",
 	"version": "0.0.0",
-	"private": false,
+	"private": true,
 	"type": "module",
 	"main": "dist/index.cjs",
 	"module": "dist/index.js",
@@ -13,9 +13,13 @@
 			"require": "./dist/index.cjs"
 		}
 	},
+	"files": [
+		"dist"
+	],
 	"scripts": {
-		"dev": "vite build --watch",
-		"build": "vite build && tsc --emitDeclarationOnly",
+		"dev": "vite build --watch --config vite.config.ts",
+		"dev:iife": "vite build --watch --config vite.iife.config.ts",
+		"build": "vite build && vite build --config vite.iife.config.ts && tsc --emitDeclarationOnly",
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"fix": "biome check --write .",

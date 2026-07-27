@@ -1,0 +1,22 @@
+:root {
+	--talqo-primary: #4f46e5;
+	--talqo-primary-foreground: #ffffff;
+	--talqo-background: #ffffff;
+	--talqo-foreground: #171717;
+	--talqo-border: #e5e5e5;
+	--talqo-radius: 0.75rem;
+	--talqo-shadow:
+		0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--talqo-primary: #6366f1;
+		--talqo-primary-foreground: #ffffff;
+		--talqo-background: #0a0a0a;
+		--talqo-foreground: #fafafa;
+		--talqo-border: #262626;
+		--talqo-shadow:
+			0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+	}
+}
