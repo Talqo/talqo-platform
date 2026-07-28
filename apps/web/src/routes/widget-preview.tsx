@@ -1,4 +1,4 @@
-import { EmbeddedWidget } from "@talqo/widget";
+import { EmbeddedWidget, isWidgetLanguage } from "@talqo/widget";
 import "@talqo/widget/style.css";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
@@ -12,12 +12,13 @@ export const Route = createFileRoute("/widget-preview")({
 			search.position === "bottom-left"
 				? ("bottom-left" as const)
 				: ("bottom-right" as const),
+		language: isWidgetLanguage(search.language) ? search.language : undefined,
 	}),
 	component: WidgetPreviewPage,
 });
 
 function WidgetPreviewPage() {
-	const { accent, position } = Route.useSearch();
+	const { accent, position, language } = Route.useSearch();
 
 	return (
 		<div
@@ -35,7 +36,7 @@ function WidgetPreviewPage() {
 					position === "bottom-left" ? "left-6" : "right-6"
 				}`}
 			>
-				<EmbeddedWidget title="AI Chat" />
+				<EmbeddedWidget title="AI Chat" language={language} />
 			</div>
 		</div>
 	);

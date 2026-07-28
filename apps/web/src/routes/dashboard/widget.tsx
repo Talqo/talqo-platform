@@ -1,4 +1,4 @@
-import { EmbeddedWidget } from "@talqo/widget";
+import { EmbeddedWidget, type WidgetLanguage } from "@talqo/widget";
 import "@talqo/widget/style.css";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Copy, ExternalLink } from "lucide-react";
@@ -43,11 +43,11 @@ const positions = [
 	{ value: "bottom-left", label: "Bottom left" },
 ] as const;
 
-const languages = [
+const languages: { value: WidgetLanguage; label: string }[] = [
 	{ value: "en", label: "English" },
 	{ value: "cs", label: "Czech" },
-	{ value: "de", label: "German" },
-] as const;
+	{ value: "zh", label: "Chinese" },
+];
 
 function WidgetPage() {
 	const {
@@ -63,7 +63,7 @@ function WidgetPage() {
 		"bottom-right",
 	);
 	const [showThemeSwitch, setShowThemeSwitch] = useState(true);
-	const [language, setLanguage] = useState<string>("en");
+	const [language, setLanguage] = useState<WidgetLanguage>("en");
 	const [avatarUrl, setAvatarUrl] = useState("");
 
 	useEffect(() => {
@@ -92,7 +92,7 @@ function WidgetPage() {
 					<Button asChild variant="outline">
 						<Link
 							to="/widget-preview"
-							search={{ accent: accentColor, position }}
+							search={{ accent: accentColor, position, language }}
 						>
 							<ExternalLink className="size-4" />
 							Open full-screen preview
@@ -205,7 +205,10 @@ function WidgetPage() {
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="widget-language">Language</Label>
-							<Select value={language} onValueChange={setLanguage}>
+							<Select
+								value={language}
+								onValueChange={(value) => setLanguage(value as WidgetLanguage)}
+							>
 								<SelectTrigger id="widget-language" className="w-full">
 									<SelectValue />
 								</SelectTrigger>
@@ -249,7 +252,7 @@ function WidgetPage() {
 					<CardHeader>
 						<CardTitle>Live preview</CardTitle>
 						<CardDescription>
-							Accent color and position apply to the preview; language, avatar,
+							Accent color, position, and language apply to the preview; avatar
 							and theme switch are part of the embed configuration and are not
 							yet reflected here.
 						</CardDescription>
@@ -273,7 +276,7 @@ function WidgetPage() {
 										position === "bottom-left" ? "left-4" : "right-4"
 									}`}
 								>
-									<EmbeddedWidget title="AI Chat" />
+									<EmbeddedWidget title="AI Chat" language={language} />
 								</div>
 							</div>
 						</div>
