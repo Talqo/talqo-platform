@@ -28,3 +28,13 @@ dist/
 
 # Private files for personal use
 /private/
+
+# Superpowers runtime artifacts
+.superpowers/
+
+# E2E test output
+apps/e2e/playwright-report/
+apps/e2e/test-results/
+
+# Generated API artifacts
+apps/web/src/api/generated/
