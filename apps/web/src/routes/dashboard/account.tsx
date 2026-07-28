@@ -20,12 +20,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useOperator } from "./-account-query";
+import { PageHeader } from "./-page-header";
 
 export const Route = createFileRoute("/dashboard/account")({
 	component: AccountPage,
 });
 
 function AccountPage() {
+	const { data: operator, isLoading } = useOperator();
 	const [profileSaved, setProfileSaved] = useState(false);
 	const [passwordError, setPasswordError] = useState("");
 	const [passwordChanged, setPasswordChanged] = useState(false);
@@ -57,14 +60,20 @@ function AccountPage() {
 		setDeleteConfirmed(true);
 	}
 
+	if (isLoading || !operator) {
+		return (
+			<div className="mx-auto max-w-3xl">
+				<p className="text-muted-foreground">Loading account…</p>
+			</div>
+		);
+	}
+
 	return (
 		<div className="mx-auto max-w-3xl space-y-6">
-			<div>
-				<h1 className="font-bold text-3xl text-foreground">Account</h1>
-				<p className="mt-2 text-muted-foreground">
-					Manage your account settings and preferences.
-				</p>
-			</div>
+			<PageHeader
+				title="Account"
+				description="Manage your account settings and preferences."
+			/>
 
 			<Card>
 				<CardHeader>
@@ -78,7 +87,7 @@ function AccountPage() {
 							<Input
 								id="account-name"
 								name="name"
-								defaultValue="Talqo Operator"
+								defaultValue={operator.name}
 								required
 							/>
 						</div>
@@ -88,12 +97,12 @@ function AccountPage() {
 								id="account-email"
 								name="email"
 								type="email"
-								defaultValue="operator@talqo.dev"
+								defaultValue={operator.email}
 								required
 							/>
 						</div>
 						{profileSaved && (
-							<p className="text-muted-foreground text-sm">
+							<p className="text-muted-foreground text-sm" role="status">
 								Profile changes will be persisted in a later iteration.
 							</p>
 						)}
@@ -140,14 +149,17 @@ function AccountPage() {
 								name="confirmPassword"
 								type="password"
 								autoComplete="new-password"
+								aria-describedby={passwordError ? "password-error" : undefined}
 								required
 							/>
 						</div>
 						{passwordError && (
-							<p className="text-destructive text-sm">{passwordError}</p>
+							<p id="password-error" className="text-destructive text-sm">
+								{passwordError}
+							</p>
 						)}
 						{passwordChanged && (
-							<p className="text-muted-foreground text-sm">
+							<p className="text-muted-foreground text-sm" role="status">
 								Password changes will be persisted in a later iteration.
 							</p>
 						)}
@@ -189,7 +201,7 @@ function AccountPage() {
 						</DialogContent>
 					</Dialog>
 					{deleteConfirmed && (
-						<p className="mt-2 text-muted-foreground text-sm">
+						<p className="mt-2 text-muted-foreground text-sm" role="status">
 							Account deletion will be implemented in a later iteration.
 						</p>
 					)}

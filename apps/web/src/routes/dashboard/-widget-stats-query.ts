@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/api/client";
 
 export interface WidgetStats {
 	conversations: number;
@@ -13,7 +12,28 @@ export interface WidgetStats {
 	}[];
 }
 
-function generateMockHistory(): WidgetStats["history"] {
+// Seed stable mock stats per widget so refetches do not reshuffle the chart;
+// replace with the /widgets/:id/stats endpoint when it exists.
+function seededRandom(seed: number) {
+	let state = seed;
+	return () => {
+		state = (state + 0x6d2b79f5) | 0;
+		let t = Math.imul(state ^ (state >>> 15), 1 | state);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+function hashWidgetId(widgetId: string): number {
+	let hash = 0;
+	for (let i = 0; i < widgetId.length; i++) {
+		hash = (Math.imul(hash, 31) + widgetId.charCodeAt(i)) | 0;
+	}
+	return hash;
+}
+
+function createMockStats(widgetId: string): WidgetStats {
+	const random = seededRandom(hashWidgetId(widgetId));
 	const history: WidgetStats["history"] = [];
 	const today = new Date();
 
@@ -22,17 +42,12 @@ function generateMockHistory(): WidgetStats["history"] {
 		date.setDate(date.getDate() - i);
 		history.push({
 			date: date.toISOString().split("T")[0],
-			conversations: Math.floor(Math.random() * 50) + 10,
-			messages: Math.floor(Math.random() * 200) + 50,
-			tokens: Math.floor(Math.random() * 10000) + 2000,
+			conversations: Math.floor(random() * 50) + 10,
+			messages: Math.floor(random() * 200) + 50,
+			tokens: Math.floor(random() * 10000) + 2000,
 		});
 	}
 
-	return history;
-}
-
-function createMockStats(): WidgetStats {
-	const history = generateMockHistory();
 	return {
 		conversations: history.reduce((sum, day) => sum + day.conversations, 0),
 		messages: history.reduce((sum, day) => sum + day.messages, 0),
@@ -41,18 +56,11 @@ function createMockStats(): WidgetStats {
 	};
 }
 
-async function fetchWidgetStats(widgetId: string): Promise<WidgetStats> {
-	try {
-		return await apiClient.get<WidgetStats>(`/widgets/${widgetId}/stats`);
-	} catch {
-		return createMockStats();
-	}
-}
-
 export function useWidgetStats(widgetId: string) {
 	return useQuery({
 		queryKey: ["widget-stats", widgetId],
-		queryFn: () => fetchWidgetStats(widgetId),
+		queryFn: () => Promise.resolve(createMockStats(widgetId)),
 		enabled: widgetId.length > 0,
+		staleTime: Number.POSITIVE_INFINITY,
 	});
 }

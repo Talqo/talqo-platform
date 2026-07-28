@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/api/client";
+import { useState } from "react";
 
 export interface Widget {
 	id: string;
@@ -9,6 +9,7 @@ export interface Widget {
 	wordBlacklist: string[];
 }
 
+// Mock data until the /widgets API endpoint exists.
 const MOCK_WIDGETS: Widget[] = [
 	{
 		id: "bot-1",
@@ -36,17 +37,17 @@ const MOCK_WIDGETS: Widget[] = [
 	},
 ];
 
-async function fetchWidgets(): Promise<Widget[]> {
-	try {
-		return await apiClient.get<Widget[]>("/widgets");
-	} catch {
-		return MOCK_WIDGETS;
-	}
-}
-
 export function useWidgets() {
 	return useQuery({
 		queryKey: ["widgets"],
-		queryFn: fetchWidgets,
+		queryFn: () => Promise.resolve(MOCK_WIDGETS),
+		staleTime: Number.POSITIVE_INFINITY,
 	});
+}
+
+export function useActiveWidget() {
+	const { data: widgets, isLoading } = useWidgets();
+	const [selectedId, setSelectedId] = useState("");
+	const activeId = selectedId || widgets?.[0]?.id || "";
+	return { widgets, isLoading, activeId, setSelectedId };
 }

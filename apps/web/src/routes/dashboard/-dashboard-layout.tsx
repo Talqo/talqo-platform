@@ -19,28 +19,38 @@ const navItems = [
 	{ to: "/dashboard/account", label: "Account", icon: User },
 ];
 
+function NavLink({
+	to,
+	label,
+	icon: Icon,
+	currentPath,
+	onNavigate,
+}: (typeof navItems)[number] & {
+	currentPath: string;
+	onNavigate: () => void;
+}) {
+	const active = currentPath === to || currentPath.startsWith(`${to}/`);
+	return (
+		<Link
+			to={to}
+			className={`flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-colors ${
+				active
+					? "bg-sidebar-primary text-sidebar-primary-foreground"
+					: "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+			}`}
+			onClick={onNavigate}
+		>
+			<Icon className="size-5" />
+			{label}
+		</Link>
+	);
+}
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const { location } = useRouterState();
 	const currentPath = location.pathname;
-
-	const NavLink = ({ to, label, icon: Icon }: (typeof navItems)[number]) => {
-		const active = currentPath === to || currentPath.startsWith(`${to}/`);
-		return (
-			<Link
-				to={to}
-				className={`flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-colors ${
-					active
-						? "bg-sidebar-primary text-sidebar-primary-foreground"
-						: "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-				}`}
-				onClick={() => setMobileOpen(false)}
-			>
-				<Icon className="size-5" />
-				{label}
-			</Link>
-		);
-	};
+	const closeMobile = () => setMobileOpen(false);
 
 	return (
 		<div className="flex min-h-screen bg-background text-foreground">
@@ -51,14 +61,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 				</div>
 				<nav className="flex flex-1 flex-col gap-1">
 					{navItems.map((item) => (
-						<NavLink key={item.to} {...item} />
+						<NavLink
+							key={item.to}
+							{...item}
+							currentPath={currentPath}
+							onNavigate={closeMobile}
+						/>
 					))}
 				</nav>
 			</aside>
 
-			{/* Mobile header */}
-			<div className="flex flex-1 flex-col md:hidden">
-				<header className="flex items-center justify-between border-border border-b bg-sidebar p-4">
+			<div className="flex min-h-screen flex-1 flex-col">
+				{/* Mobile header */}
+				<header className="flex items-center justify-between border-border border-b bg-sidebar p-4 md:hidden">
 					<div className="font-bold text-sidebar-foreground text-xl">Talqo</div>
 					<Button
 						variant="ghost"
@@ -74,17 +89,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 					</Button>
 				</header>
 				{mobileOpen && (
-					<nav className="flex flex-col gap-1 border-border border-b bg-sidebar p-4">
+					<nav className="flex flex-col gap-1 border-border border-b bg-sidebar p-4 md:hidden">
 						{navItems.map((item) => (
-							<NavLink key={item.to} {...item} />
+							<NavLink
+								key={item.to}
+								{...item}
+								currentPath={currentPath}
+								onNavigate={closeMobile}
+							/>
 						))}
 					</nav>
 				)}
+
 				<main className="flex-1 p-6">{children}</main>
 			</div>
-
-			{/* Desktop main */}
-			<main className="hidden flex-1 p-6 md:block">{children}</main>
 		</div>
 	);
 }

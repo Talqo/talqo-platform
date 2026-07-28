@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import {
 	Area,
 	AreaChart,
@@ -24,8 +23,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader } from "./-page-header";
 import { useWidgetStats, type WidgetStats } from "./-widget-stats-query";
-import { useWidgets } from "./-widgets-query";
+import { useActiveWidget } from "./-widgets-query";
 
 export const Route = createFileRoute("/dashboard/analytics")({
 	component: AnalyticsPage,
@@ -39,12 +39,11 @@ const metrics = [
 	{ key: "tokens", label: "Tokens", color: "var(--chart-3)" },
 ] as const;
 
-type MetricKey = (typeof metrics)[number]["key"];
-
 function formatHistoryDate(date: string) {
-	return new Date(`${date}T00:00:00`).toLocaleDateString("en", {
+	return new Date(`${date}T00:00:00Z`).toLocaleDateString("en", {
 		month: "short",
 		day: "numeric",
+		timeZone: "UTC",
 	});
 }
 
@@ -100,39 +99,41 @@ function MetricChart({
 }
 
 function AnalyticsPage() {
-	const { data: widgets, isLoading: widgetsLoading } = useWidgets();
-	const [selectedId, setSelectedId] = useState("");
-	const activeId = selectedId || widgets?.[0]?.id || "";
+	const { widgets, isLoading, activeId, setSelectedId } = useActiveWidget();
 	const { data: stats, isLoading: statsLoading } = useWidgetStats(activeId);
 
 	return (
 		<div className="mx-auto max-w-5xl space-y-6">
-			<div className="flex flex-wrap items-start justify-between gap-4">
-				<div>
-					<h1 className="font-bold text-3xl text-foreground">Analytics</h1>
-					<p className="mt-2 text-muted-foreground">
-						Conversation and usage statistics per widget.
-					</p>
-				</div>
-				<Select
-					value={activeId}
-					onValueChange={setSelectedId}
-					disabled={widgetsLoading || !widgets?.length}
-				>
-					<SelectTrigger className="w-48">
-						<SelectValue placeholder="Select a widget" />
-					</SelectTrigger>
-					<SelectContent>
-						{(widgets ?? []).map((widget) => (
-							<SelectItem key={widget.id} value={widget.id}>
-								{widget.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+			<PageHeader
+				title="Analytics"
+				description="Conversation and usage statistics per widget."
+				actions={
+					<Select
+						value={activeId}
+						onValueChange={setSelectedId}
+						disabled={isLoading || !widgets?.length}
+					>
+						<SelectTrigger className="w-48" aria-label="Select a widget">
+							<SelectValue placeholder="Select a widget" />
+						</SelectTrigger>
+						<SelectContent>
+							{(widgets ?? []).map((widget) => (
+								<SelectItem key={widget.id} value={widget.id}>
+									{widget.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				}
+			/>
 
-			{statsLoading || !stats ? (
+			{isLoading ? (
+				<p className="text-muted-foreground">Loading widgets…</p>
+			) : !widgets?.length ? (
+				<p className="text-muted-foreground">
+					No widgets yet. Create a bot on the Bots page to see statistics.
+				</p>
+			) : statsLoading || !stats ? (
 				<p className="text-muted-foreground">Loading statistics…</p>
 			) : (
 				<>
@@ -142,7 +143,7 @@ function AnalyticsPage() {
 								<CardHeader>
 									<CardDescription>{metric.label} (30 days)</CardDescription>
 									<CardTitle className="text-2xl">
-										{compactNumber.format(stats[metric.key as MetricKey])}
+										{compactNumber.format(stats[metric.key])}
 									</CardTitle>
 								</CardHeader>
 							</Card>
