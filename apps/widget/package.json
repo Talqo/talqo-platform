@@ -11,7 +11,8 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
 			"require": "./dist/index.cjs"
-		}
+		},
+		"./style.css": "./dist/index.css"
 	},
 	"files": [
 		"dist"
@@ -31,13 +32,21 @@
 		"react-dom": "^18 || ^19"
 	},
 	"devDependencies": {
+		"@tailwindcss/vite": "^4.3.3",
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.1",
+		"tailwindcss": "^4.3.3",
 		"typescript": "~5.9.3",
 		"vite": "^8.0.0-beta.13"
 	},
 	"overrides": {
 		"vite": "^8.0.0-beta.13"
+	},
+	"dependencies": {
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"radix-ui": "^1.6.7",
+		"tailwind-merge": "^3.6.0"
 	}
 }
