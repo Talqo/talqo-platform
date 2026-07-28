@@ -1,12 +1,17 @@
 import { type FormEvent, useState } from "react";
 import { Bubble, BubbleContent, BubbleGroup } from "@/components/ui/bubble";
 import { cn } from "@/lib/utils";
+import {
+	DEFAULT_LANGUAGE,
+	translations,
+	type WidgetLanguage,
+} from "./translations";
 import "./index.css";
 import "./theme/tokens.css";
 
 export type EmbeddedWidgetProps = {
 	title?: string;
-	placeholder?: string;
+	language?: WidgetLanguage;
 	greeting?: string;
 };
 
@@ -18,12 +23,13 @@ type Message = {
 
 export const EmbeddedWidget = ({
 	title = "AI Chat",
-	placeholder = "Type a message...",
-	greeting = "Hi there! How can I help you today?",
+	language = DEFAULT_LANGUAGE,
+	greeting,
 }: EmbeddedWidgetProps) => {
+	const t = translations[language];
 	const [open, setOpen] = useState(false);
 	const [messages, setMessages] = useState<Message[]>([
-		{ id: 1, from: "assistant", text: greeting },
+		{ id: 1, from: "assistant", text: greeting ?? t.greeting },
 	]);
 	const [draft, setDraft] = useState("");
 
@@ -50,7 +56,7 @@ export const EmbeddedWidget = ({
 						<button
 							type="button"
 							onClick={() => setOpen(false)}
-							aria-label="Close chat"
+							aria-label={t.closeChat}
 							className="text-muted-foreground transition-colors hover:text-foreground"
 						>
 							<svg
@@ -65,7 +71,7 @@ export const EmbeddedWidget = ({
 								strokeLinejoin="round"
 								role="img"
 							>
-								<title>Close</title>
+								<title>{t.close}</title>
 								<path d="M18 6 6 18" />
 								<path d="m6 6 12 12" />
 							</svg>
@@ -98,15 +104,15 @@ export const EmbeddedWidget = ({
 							type="text"
 							value={draft}
 							onChange={(event) => setDraft(event.target.value)}
-							placeholder={placeholder}
-							aria-label="Message"
+							placeholder={t.placeholder}
+							aria-label={t.messageLabel}
 							className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
 						/>
 						<button
 							type="submit"
 							className="shrink-0 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
 						>
-							Send
+							{t.send}
 						</button>
 					</form>
 				</div>
@@ -114,7 +120,7 @@ export const EmbeddedWidget = ({
 			<button
 				type="button"
 				onClick={() => setOpen((prev) => !prev)}
-				aria-label={open ? "Close chat" : "Open chat"}
+				aria-label={open ? t.closeChat : t.openChat}
 				aria-expanded={open}
 				className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
 			>
