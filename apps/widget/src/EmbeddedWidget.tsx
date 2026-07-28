@@ -1,18 +1,18 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
+import { I18nextProvider, useTranslation } from "react-i18next";
 import { Bubble, BubbleContent, BubbleGroup } from "@/components/ui/bubble";
-import { cn } from "@/lib/utils";
 import {
-	DEFAULT_LANGUAGE,
-	translations,
+	createWidgetI18n,
+	isWidgetLanguage,
 	type WidgetLanguage,
-} from "./translations";
+} from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import "./index.css";
 import "./theme/tokens.css";
 
 export type EmbeddedWidgetProps = {
 	title?: string;
 	language?: WidgetLanguage;
-	greeting?: string;
 };
 
 type Message = {
@@ -21,15 +21,11 @@ type Message = {
 	text: string;
 };
 
-export const EmbeddedWidget = ({
-	title = "AI Chat",
-	language = DEFAULT_LANGUAGE,
-	greeting,
-}: EmbeddedWidgetProps) => {
-	const t = translations[language];
+function WidgetChat({ title = "AI Chat" }: { title?: string }) {
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [messages, setMessages] = useState<Message[]>([
-		{ id: 1, from: "assistant", text: greeting ?? t.greeting },
+		{ id: 1, from: "assistant", text: t("greeting") },
 	]);
 	const [draft, setDraft] = useState("");
 
@@ -56,7 +52,7 @@ export const EmbeddedWidget = ({
 						<button
 							type="button"
 							onClick={() => setOpen(false)}
-							aria-label={t.closeChat}
+							aria-label={t("closeChat")}
 							className="text-muted-foreground transition-colors hover:text-foreground"
 						>
 							<svg
@@ -71,7 +67,7 @@ export const EmbeddedWidget = ({
 								strokeLinejoin="round"
 								role="img"
 							>
-								<title>{t.close}</title>
+								<title>{t("close")}</title>
 								<path d="M18 6 6 18" />
 								<path d="m6 6 12 12" />
 							</svg>
@@ -104,15 +100,15 @@ export const EmbeddedWidget = ({
 							type="text"
 							value={draft}
 							onChange={(event) => setDraft(event.target.value)}
-							placeholder={t.placeholder}
-							aria-label={t.messageLabel}
+							placeholder={t("placeholder")}
+							aria-label={t("messageLabel")}
 							className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
 						/>
 						<button
 							type="submit"
 							className="shrink-0 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
 						>
-							{t.send}
+							{t("send")}
 						</button>
 					</form>
 				</div>
@@ -120,7 +116,7 @@ export const EmbeddedWidget = ({
 			<button
 				type="button"
 				onClick={() => setOpen((prev) => !prev)}
-				aria-label={open ? t.closeChat : t.openChat}
+				aria-label={open ? t("closeChat") : t("openChat")}
 				aria-expanded={open}
 				className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
 			>
@@ -141,5 +137,26 @@ export const EmbeddedWidget = ({
 				</svg>
 			</button>
 		</div>
+	);
+}
+
+export const EmbeddedWidget = ({
+	title = "AI Chat",
+	language = "en",
+}: EmbeddedWidgetProps) => {
+	const [i18n] = useState(() =>
+		createWidgetI18n(isWidgetLanguage(language) ? language : "en"),
+	);
+
+	useEffect(() => {
+		if (isWidgetLanguage(language)) {
+			i18n.changeLanguage(language);
+		}
+	}, [i18n, language]);
+
+	return (
+		<I18nextProvider i18n={i18n}>
+			<WidgetChat title={title} />
+		</I18nextProvider>
 	);
 };
