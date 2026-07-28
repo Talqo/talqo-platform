@@ -1,4 +1,5 @@
 import { EmbeddedWidget } from "@talqo/widget";
+import "@talqo/widget/style.css";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import type { CSSProperties } from "react";

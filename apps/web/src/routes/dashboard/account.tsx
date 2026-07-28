@@ -102,9 +102,9 @@ function AccountPage() {
 							/>
 						</div>
 						{profileSaved && (
-							<p className="text-muted-foreground text-sm" role="status">
+							<output className="block text-muted-foreground text-sm">
 								Profile changes will be persisted in a later iteration.
-							</p>
+							</output>
 						)}
 					</CardContent>
 					<CardFooter>
@@ -159,9 +159,9 @@ function AccountPage() {
 							</p>
 						)}
 						{passwordChanged && (
-							<p className="text-muted-foreground text-sm" role="status">
+							<output className="block text-muted-foreground text-sm">
 								Password changes will be persisted in a later iteration.
-							</p>
+							</output>
 						)}
 					</CardContent>
 					<CardFooter>
@@ -201,9 +201,9 @@ function AccountPage() {
 						</DialogContent>
 					</Dialog>
 					{deleteConfirmed && (
-						<p className="mt-2 text-muted-foreground text-sm" role="status">
+						<output className="mt-2 block text-muted-foreground text-sm">
 							Account deletion will be implemented in a later iteration.
-						</p>
+						</output>
 					)}
 				</CardContent>
 			</Card>
