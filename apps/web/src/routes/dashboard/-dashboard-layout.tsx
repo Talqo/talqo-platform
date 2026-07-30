@@ -5,11 +5,14 @@ import {
 	LayoutDashboard,
 	Menu,
 	MessageSquare,
+	Moon,
+	Sun,
 	User,
 	X,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/lib/use-theme";
 
 const navItems = [
 	{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -52,6 +55,26 @@ function NavLink({
 	);
 }
 
+function ThemeToggle() {
+	const { theme, toggleTheme } = useTheme();
+	return (
+		<Button
+			variant="ghost"
+			size="icon"
+			onClick={toggleTheme}
+			aria-label={
+				theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+			}
+		>
+			{theme === "dark" ? (
+				<Sun className="size-5" />
+			) : (
+				<Moon className="size-5" />
+			)}
+		</Button>
+	);
+}
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const { location } = useRouterState();
@@ -61,9 +84,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="flex min-h-screen bg-background text-foreground">
 			{/* Desktop sidebar */}
-			<aside className="hidden w-64 flex-col border-sidebar-border border-r bg-sidebar p-4 md:flex">
-				<div className="mb-6 px-3 font-bold text-sidebar-foreground text-xl">
-					Talqo
+			<aside className="sticky top-0 hidden h-dvh w-64 flex-col overflow-y-auto border-sidebar-border border-r bg-sidebar p-4 md:flex">
+				<div className="mb-6 truncate px-3 font-semibold text-muted-foreground text-sm">
+					Account name
 				</div>
 				<nav className="flex flex-1 flex-col gap-1">
 					{navItems.map((item) => (
@@ -75,12 +98,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 						/>
 					))}
 				</nav>
+				<div className="mt-4 flex items-center justify-between border-sidebar-border border-t pt-3">
+					<span className="px-3 text-muted-foreground text-xs">Theme</span>
+					<ThemeToggle />
+				</div>
 			</aside>
 
 			<div className="flex min-h-screen flex-1 flex-col">
 				{/* Mobile header */}
-				<header className="flex items-center justify-between border-border border-b bg-sidebar p-4 md:hidden">
-					<div className="font-bold text-sidebar-foreground text-xl">Talqo</div>
+				<header className="sticky top-0 z-20 flex items-center justify-between border-border border-b bg-sidebar p-4 md:hidden">
+					<div className="truncate font-semibold text-muted-foreground text-sm">
+						Account name
+					</div>
 					<Button
 						variant="ghost"
 						size="icon"
@@ -104,6 +133,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 								onNavigate={closeMobile}
 							/>
 						))}
+						<div className="mt-2 flex items-center justify-between border-sidebar-border border-t pt-3">
+							<span className="px-3 text-muted-foreground text-xs">Theme</span>
+							<ThemeToggle />
+						</div>
 					</nav>
 				)}
 

@@ -3,6 +3,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import { applyTheme, getInitialTheme } from "./lib/use-theme";
 import { routeTree } from "./routeTree.gen";
 
 const rootElement = document.getElementById("root");
@@ -10,6 +11,9 @@ const rootElement = document.getElementById("root");
 if (!rootElement) {
 	throw new Error("Root element not found");
 }
+
+// Apply the persisted/system theme before first paint to avoid a theme flash.
+applyTheme(getInitialTheme());
 
 document.documentElement.dataset.font = "inter";
 document.documentElement.dataset.radius = "pill";
