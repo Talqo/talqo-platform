@@ -20,7 +20,21 @@ export default defineConfig({
 			fileName: "index",
 		},
 		rollupOptions: {
-			external: ["react", "react-dom", "react/jsx-runtime"],
+			// Runtime deps stay external so consumers' bundlers resolve them via
+			// their ESM entry points. Bundling the CJS dists (e.g. react-i18next's
+			// use-sync-external-store) emits runtime `require("react")` calls that
+			// crash in browser ESM.
+			external: [
+				"react",
+				"react-dom",
+				"react/jsx-runtime",
+				"class-variance-authority",
+				"clsx",
+				"i18next",
+				"radix-ui",
+				"react-i18next",
+				"tailwind-merge",
+			],
 		},
 	},
 });
