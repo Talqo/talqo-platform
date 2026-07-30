@@ -1,4 +1,5 @@
 /* Embeddable widget: skip Tailwind preflight so host pages keep their styles. */
+@import "./theme/tokens.css";
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 

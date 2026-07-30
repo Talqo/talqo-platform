@@ -5,5 +5,6 @@
 	"openChat": "Otevřít chat",
 	"closeChat": "Zavřít chat",
 	"close": "Zavřít",
-	"messageLabel": "Zpráva"
+	"messageLabel": "Zpráva",
+	"chatIcon": "Ikona chatu"
 }

@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
 	return (
@@ -82,44 +82,4 @@ function BubbleContent({
 	);
 }
 
-const bubbleReactionsVariants = cva(
-	"absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm ring-3 ring-card has-[button]:p-0",
-	{
-		variants: {
-			side: {
-				top: "top-0 -translate-y-3/4",
-				bottom: "bottom-0 translate-y-3/4",
-			},
-			align: {
-				start: "left-3",
-				end: "right-3",
-			},
-		},
-		defaultVariants: {
-			side: "bottom",
-			align: "end",
-		},
-	},
-);
-
-function BubbleReactions({
-	side = "bottom",
-	align = "end",
-	className,
-	...props
-}: React.ComponentProps<"div"> & {
-	align?: "start" | "end";
-	side?: "top" | "bottom";
-}) {
-	return (
-		<div
-			data-slot="bubble-reactions"
-			data-align={align}
-			data-side={side}
-			className={cn(bubbleReactionsVariants({ side, align }), className)}
-			{...props}
-		/>
-	);
-}
-
-export { BubbleGroup, Bubble, BubbleContent, BubbleReactions };
+export { BubbleGroup, Bubble, BubbleContent };

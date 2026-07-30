@@ -1,33 +1,43 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
-import { Bubble, BubbleContent, BubbleGroup } from "@/components/ui/bubble";
+import { Bubble, BubbleContent, BubbleGroup } from "./components/ui/bubble";
 import {
 	createWidgetI18n,
 	isWidgetLanguage,
 	type WidgetLanguage,
-} from "@/lib/i18n";
-import { cn } from "@/lib/utils";
+} from "./lib/i18n";
+import { cn } from "./lib/utils";
 import "./index.css";
-import "./theme/tokens.css";
 
 export type EmbeddedWidgetProps = {
 	title?: string;
 	language?: WidgetLanguage;
+	botId?: string;
 };
 
 type Message = {
 	id: number;
 	from: "assistant" | "user";
-	text: string;
+	// Seed messages carry an i18n key so they re-translate on language switch;
+	// user messages are plain text.
+	text?: string;
+	i18nKey?: string;
 };
 
-function WidgetChat({ title = "AI Chat" }: { title?: string }) {
+function WidgetChat({
+	title = "AI Chat",
+	botId,
+}: {
+	title?: string;
+	botId?: string;
+}) {
 	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [messages, setMessages] = useState<Message[]>([
-		{ id: 1, from: "assistant", text: t("greeting") },
+		{ id: 1, from: "assistant", i18nKey: "greeting" },
 	]);
 	const [draft, setDraft] = useState("");
+	const nextId = useRef(2);
 
 	function handleSend(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -35,12 +45,18 @@ function WidgetChat({ title = "AI Chat" }: { title?: string }) {
 		if (!text) {
 			return;
 		}
-		setMessages((prev) => [...prev, { id: Date.now(), from: "user", text }]);
+		setMessages((prev) => [
+			...prev,
+			{ id: nextId.current++, from: "user", text },
+		]);
 		setDraft("");
 	}
 
 	return (
-		<div className="talqo-widget flex flex-col items-end gap-3 font-sans text-foreground">
+		<div
+			className="talqo-widget flex flex-col items-end gap-3 font-sans text-foreground"
+			data-bot={botId}
+		>
 			{open && (
 				<div
 					role="dialog"
@@ -73,7 +89,7 @@ function WidgetChat({ title = "AI Chat" }: { title?: string }) {
 							</svg>
 						</button>
 					</header>
-					<div className="flex-1 overflow-y-auto p-3">
+					<div className="flex-1 overflow-y-auto p-3" aria-live="polite">
 						<BubbleGroup>
 							{messages.map((message) => (
 								<Bubble
@@ -86,7 +102,7 @@ function WidgetChat({ title = "AI Chat" }: { title?: string }) {
 											message.from === "assistant" && "text-foreground",
 										)}
 									>
-										{message.text}
+										{message.i18nKey ? t(message.i18nKey) : message.text}
 									</BubbleContent>
 								</Bubble>
 							))}
@@ -132,7 +148,7 @@ function WidgetChat({ title = "AI Chat" }: { title?: string }) {
 					strokeLinejoin="round"
 					role="img"
 				>
-					<title>Chat icon</title>
+					<title>{t("chatIcon")}</title>
 					<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
 				</svg>
 			</button>
@@ -143,6 +159,7 @@ function WidgetChat({ title = "AI Chat" }: { title?: string }) {
 export const EmbeddedWidget = ({
 	title = "AI Chat",
 	language = "en",
+	botId,
 }: EmbeddedWidgetProps) => {
 	const [i18n] = useState(() =>
 		createWidgetI18n(isWidgetLanguage(language) ? language : "en"),
@@ -156,7 +173,7 @@ export const EmbeddedWidget = ({
 
 	return (
 		<I18nextProvider i18n={i18n}>
-			<WidgetChat title={title} />
+			<WidgetChat title={title} botId={botId} />
 		</I18nextProvider>
 	);
 };

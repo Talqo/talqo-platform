@@ -5,5 +5,6 @@
 	"openChat": "打开聊天",
 	"closeChat": "关闭聊天",
 	"close": "关闭",
-	"messageLabel": "消息"
+	"messageLabel": "消息",
+	"chatIcon": "聊天图标"
 }

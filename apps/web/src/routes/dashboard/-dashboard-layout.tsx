@@ -29,10 +29,16 @@ function NavLink({
 	currentPath: string;
 	onNavigate: () => void;
 }) {
-	const active = currentPath === to || currentPath.startsWith(`${to}/`);
+	// The index "/dashboard" entry must only be active on the exact path,
+	// otherwise every sub-page would highlight "Dashboard" as well.
+	const active =
+		to === "/dashboard"
+			? currentPath === to
+			: currentPath === to || currentPath.startsWith(`${to}/`);
 	return (
 		<Link
 			to={to}
+			aria-current={active ? "page" : undefined}
 			className={`flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-colors ${
 				active
 					? "bg-sidebar-primary text-sidebar-primary-foreground"

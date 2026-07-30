@@ -1,9 +1,25 @@
 import { createRoot, type Root } from "react-dom/client";
-import { EmbeddedWidget } from "./EmbeddedWidget";
+import { EmbeddedWidget, type EmbeddedWidgetProps } from "./EmbeddedWidget";
+import { isWidgetLanguage } from "./lib/i18n";
 
 let root: Root | null = null;
 
 export type MountTarget = string | HTMLElement;
+
+// Reads the embed snippet's configuration, e.g.
+// <script src=".../v1.js" data-talqo-bot="..." data-talqo-language="cs" defer>.
+function currentScriptProps(): EmbeddedWidgetProps {
+	const dataset = document.currentScript?.dataset;
+	if (!dataset) {
+		return {};
+	}
+	const { talqoBot, talqoLanguage, talqoTitle } = dataset;
+	return {
+		botId: talqoBot,
+		language: isWidgetLanguage(talqoLanguage) ? talqoLanguage : undefined,
+		title: talqoTitle,
+	};
+}
 
 export function mount(target: MountTarget = "#talqo-widget") {
 	unmount();
@@ -18,7 +34,7 @@ export function mount(target: MountTarget = "#talqo-widget") {
 	}
 
 	root = createRoot(element);
-	root.render(<EmbeddedWidget />);
+	root.render(<EmbeddedWidget {...currentScriptProps()} />);
 }
 
 export function unmount() {

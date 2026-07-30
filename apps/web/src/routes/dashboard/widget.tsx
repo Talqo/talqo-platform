@@ -1,8 +1,8 @@
-import { EmbeddedWidget, type WidgetLanguage } from "@talqo/widget";
+import { type WidgetLanguage, widgetLanguages } from "@talqo/widget";
 import "@talqo/widget/style.css";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Copy, ExternalLink } from "lucide-react";
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -21,6 +21,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { WidgetPreview } from "@/components/widget-preview";
 import { PageHeader } from "./-page-header";
 import { useActiveWidget } from "./-widgets-query";
 
@@ -43,11 +44,10 @@ const positions = [
 	{ value: "bottom-left", label: "Bottom left" },
 ] as const;
 
-const languages: { value: WidgetLanguage; label: string }[] = [
-	{ value: "en", label: "English" },
-	{ value: "cs", label: "Czech" },
-	{ value: "zh", label: "Chinese" },
-];
+const languages = Object.entries(widgetLanguages).map(([value, label]) => ({
+	value: value as WidgetLanguage,
+	label,
+}));
 
 function WidgetPage() {
 	const {
@@ -267,17 +267,12 @@ function WidgetPage() {
 									your-site.com
 								</span>
 							</div>
-							<div
-								className="relative h-80 bg-background"
-								style={{ "--talqo-primary": accentColor } as CSSProperties}
-							>
-								<div
-									className={`absolute bottom-4 ${
-										position === "bottom-left" ? "left-4" : "right-4"
-									}`}
-								>
-									<EmbeddedWidget title="AI Chat" language={language} />
-								</div>
+							<div className="relative h-80 bg-background">
+								<WidgetPreview
+									accent={accentColor}
+									position={position}
+									language={language}
+								/>
 							</div>
 						</div>
 					</CardContent>

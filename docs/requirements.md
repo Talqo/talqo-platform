@@ -37,7 +37,7 @@
 | FR-2.3 | Bot list with name, prompt, blacklist, active/paused status | Done (UI) | Mock data via `useWidgets` |
 | FR-2.4 | Create-bot form: name, system prompt, comma-separated word blacklist | Done (UI) | Local state only |
 | FR-2.5 | Embed code snippet per bot with copy button | Done | |
-| FR-2.6 | Widget visual config: accent color, position, language, avatar URL, theme switch | Done (UI) | Accent + position live in preview |
+| FR-2.6 | Widget visual config: accent color, position, language, avatar URL, theme switch | Done (UI) | Accent, position + language live in preview; avatar URL and theme switch are control-only for now |
 | FR-2.7 | Live + full-screen widget preview | Done | `/dashboard/widget`, `/widget-preview` |
 | FR-2.8 | Per-widget analytics: conversations, messages, tokens over time | Done (UI) | Mock stats via `useWidgetStats` |
 | FR-2.9 | Account page: profile form, change password with confirmation, delete account behind dialog | Done (UI) | Not persisted |
