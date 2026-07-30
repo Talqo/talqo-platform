@@ -1,0 +1,38 @@
+{
+	"nav": {
+		"dashboard": "Dashboard",
+		"bots": "Bots",
+		"widget": "Widget",
+		"analytics": "Analytics",
+		"account": "Account"
+	},
+	"header": {
+		"toggleNavigation": "Toggle navigation",
+		"toLightTheme": "Switch to light theme",
+		"toDarkTheme": "Switch to dark theme",
+		"language": "Language"
+	},
+	"dashboard": {
+		"heading": "Welcome to Talqo",
+		"subheading": "Manage your chat bots, widget, and analytics from one place.",
+		"openCard": "Open {{title}} →",
+		"cards": {
+			"bots": {
+				"title": "Bots",
+				"description": "Manage your chat bots and their behavior."
+			},
+			"widget": {
+				"title": "Widget",
+				"description": "Configure and preview your embedded widget."
+			},
+			"analytics": {
+				"title": "Analytics",
+				"description": "View conversation and usage statistics."
+			},
+			"account": {
+				"title": "Account",
+				"description": "Update your profile and preferences."
+			}
+		}
+	}
+}

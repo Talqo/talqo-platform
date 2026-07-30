@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { WidgetPreview } from "@/components/widget-preview";
+import { useLanguage } from "@/lib/use-language";
 import { PageHeader } from "./-page-header";
 import { useActiveWidget } from "./-widgets-query";
 
@@ -63,7 +64,8 @@ function WidgetPage() {
 		"bottom-right",
 	);
 	const [showThemeSwitch, setShowThemeSwitch] = useState(true);
-	const [language, setLanguage] = useState<WidgetLanguage>("en");
+	// Shared with the dashboard header language switch (see lib/use-language).
+	const { language, setLanguage } = useLanguage();
 	const [avatarUrl, setAvatarUrl] = useState("");
 
 	useEffect(() => {

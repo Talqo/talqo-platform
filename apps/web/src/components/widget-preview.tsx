@@ -1,5 +1,6 @@
 import { EmbeddedWidget, type WidgetLanguage } from "@talqo/widget";
 import type { CSSProperties } from "react";
+import { useLanguage } from "@/lib/use-language";
 import { cn } from "@/lib/utils";
 
 export type WidgetPosition = "bottom-right" | "bottom-left";
@@ -30,12 +31,15 @@ export function WidgetPreview({
 	title = "AI Chat",
 	inset = "card",
 }: WidgetPreviewProps) {
+	// An explicit prop (e.g. the widget setup page's own selector) wins;
+	// otherwise previews follow the dashboard header language switch.
+	const { language: preferredLanguage } = useLanguage();
 	return (
 		<div
 			className={cn("absolute", insetClasses[inset][position])}
 			style={accent ? ({ "--talqo-primary": accent } as CSSProperties) : {}}
 		>
-			<EmbeddedWidget title={title} language={language} />
+			<EmbeddedWidget title={title} language={language ?? preferredLanguage} />
 		</div>
 	);
 }

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export type Theme = "light" | "dark";
 
@@ -6,7 +6,7 @@ const STORAGE_KEY = "talqo-theme";
 
 // Read the theme to use on first paint: stored preference wins, otherwise the
 // OS preference. Called both by main.tsx before render (avoids a flash of the
-// wrong theme) and by useTheme's initializer, so it must be SSR-safe.
+// wrong theme) and as the store seed below, so it must be SSR-safe.
 export function getInitialTheme(): Theme {
 	if (typeof window === "undefined") {
 		return "light";
@@ -25,15 +25,27 @@ export function applyTheme(theme: Theme) {
 	window.localStorage.setItem(STORAGE_KEY, theme);
 }
 
+// Module-level store (same pattern as lib/use-language.ts) so that every
+// toggle instance stays in sync; localStorage only seeds the initial value.
+let current: Theme = getInitialTheme();
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+	listeners.add(listener);
+	return () => {
+		listeners.delete(listener);
+	};
+}
+
 export function useTheme() {
-	const [theme, setTheme] = useState<Theme>(getInitialTheme);
+	const theme = useSyncExternalStore(subscribe, () => current);
 
 	const toggleTheme = useCallback(() => {
-		setTheme((prev) => {
-			const next = prev === "dark" ? "light" : "dark";
-			applyTheme(next);
-			return next;
-		});
+		current = current === "dark" ? "light" : "dark";
+		applyTheme(current);
+		for (const listener of listeners) {
+			listener();
+		}
 	}, []);
 
 	return { theme, toggleTheme };

@@ -1,0 +1,38 @@
+{
+	"nav": {
+		"dashboard": "Přehled",
+		"bots": "Boti",
+		"widget": "Widget",
+		"analytics": "Analytika",
+		"account": "Účet"
+	},
+	"header": {
+		"toggleNavigation": "Přepnout navigaci",
+		"toLightTheme": "Přepnout na světlý motiv",
+		"toDarkTheme": "Přepnout na tmavý motiv",
+		"language": "Jazyk"
+	},
+	"dashboard": {
+		"heading": "Vítejte v Talqo",
+		"subheading": "Spravujte své chatboty, widget a analytiku na jednom místě.",
+		"openCard": "Otevřít {{title}} →",
+		"cards": {
+			"bots": {
+				"title": "Boti",
+				"description": "Spravujte chatboty a jejich chování."
+			},
+			"widget": {
+				"title": "Widget",
+				"description": "Nakonfigurujte a zobrazte náhled vloženého widgetu."
+			},
+			"analytics": {
+				"title": "Analytika",
+				"description": "Zobrazte statistiky konverzací a využití."
+			},
+			"account": {
+				"title": "Účet",
+				"description": "Upravte svůj profil a předvolby."
+			}
+		}
+	}
+}
