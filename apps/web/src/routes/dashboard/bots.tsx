@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Plus, Settings2 } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "./-page-header";
-import { useWidgets, type Widget } from "./-widgets-query";
+import {
+	useCreateWidget,
+	useUpdateWidget,
+	useWidgets,
+	type Widget,
+} from "./-widgets-query";
 
 export const Route = createFileRoute("/dashboard/bots")({
 	component: BotsPage,
@@ -39,23 +44,15 @@ function parseBlacklist(value: string): string[] {
 }
 
 function BotsPage() {
-	const { data: widgets, isLoading } = useWidgets();
-	const [createdBots, setCreatedBots] = useState<Widget[]>([]);
-	const [statusOverrides, setStatusOverrides] = useState<
-		Record<string, Widget["status"]>
-	>({});
+	const { data: bots, isLoading } = useWidgets();
 	const [dialogOpen, setDialogOpen] = useState(false);
-
-	const bots = [...(widgets ?? []), ...createdBots].map((bot) => ({
-		...bot,
-		status: statusOverrides[bot.id] ?? bot.status,
-	}));
+	const createWidget = useCreateWidget();
+	const updateWidget = useUpdateWidget();
 
 	function toggleStatus(bot: Widget) {
-		setStatusOverrides((prev) => ({
-			...prev,
-			[bot.id]: bot.status === "active" ? "paused" : "active",
-		}));
+		updateWidget(bot.id, {
+			status: bot.status === "active" ? "paused" : "active",
+		});
 	}
 
 	function handleCreate(event: FormEvent<HTMLFormElement>) {
@@ -66,16 +63,12 @@ function BotsPage() {
 		if (!name || !systemPrompt) {
 			return;
 		}
-		setCreatedBots((prev) => [
-			...prev,
-			{
-				id: `local-${Date.now()}`,
-				name,
-				systemPrompt,
-				status: "active",
-				wordBlacklist: parseBlacklist(String(form.get("wordBlacklist") ?? "")),
-			},
-		]);
+		createWidget({
+			name,
+			systemPrompt,
+			status: "active",
+			wordBlacklist: parseBlacklist(String(form.get("wordBlacklist") ?? "")),
+		});
 		setDialogOpen(false);
 	}
 
@@ -141,7 +134,7 @@ function BotsPage() {
 
 			{isLoading ? (
 				<p className="text-muted-foreground">Loading bots…</p>
-			) : bots.length === 0 ? (
+			) : !bots?.length ? (
 				<p className="text-muted-foreground">
 					No bots yet. Create your first bot to get started.
 				</p>
@@ -172,15 +165,23 @@ function BotsPage() {
 										))}
 									</div>
 								)}
-								<div className="flex items-center gap-2">
-									<Switch
-										id={`status-${bot.id}`}
-										checked={bot.status === "active"}
-										onCheckedChange={() => toggleStatus(bot)}
-									/>
-									<Label htmlFor={`status-${bot.id}`}>
-										{bot.status === "active" ? "Active" : "Paused"}
-									</Label>
+								<div className="flex items-center justify-between gap-2">
+									<div className="flex items-center gap-2">
+										<Switch
+											id={`status-${bot.id}`}
+											checked={bot.status === "active"}
+											onCheckedChange={() => toggleStatus(bot)}
+										/>
+										<Label htmlFor={`status-${bot.id}`}>
+											{bot.status === "active" ? "Active" : "Paused"}
+										</Label>
+									</div>
+									<Button asChild variant="outline" size="sm">
+										<Link to="/dashboard/bot/$botId" params={{ botId: bot.id }}>
+											<Settings2 className="size-4" />
+											Configure
+										</Link>
+									</Button>
 								</div>
 							</CardContent>
 						</Card>

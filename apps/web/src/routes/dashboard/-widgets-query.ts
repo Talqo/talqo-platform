@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export interface Widget {
@@ -9,8 +9,12 @@ export interface Widget {
 	wordBlacklist: string[];
 }
 
+const widgetsQueryKey = ["widgets"] as const;
+
 // Mock data until the /widgets API endpoint exists.
-const MOCK_WIDGETS: Widget[] = [
+// Kept in a mutable module-level store so edits made on the bot config page
+// stay visible on the other dashboard pages.
+let widgets: Widget[] = [
 	{
 		id: "bot-1",
 		name: "Support Bot",
@@ -39,15 +43,47 @@ const MOCK_WIDGETS: Widget[] = [
 
 export function useWidgets() {
 	return useQuery({
-		queryKey: ["widgets"],
-		queryFn: () => Promise.resolve(MOCK_WIDGETS),
+		queryKey: widgetsQueryKey,
+		queryFn: () => Promise.resolve(widgets),
 		staleTime: Number.POSITIVE_INFINITY,
 	});
 }
 
 export function useActiveWidget() {
-	const { data: widgets, isLoading } = useWidgets();
+	const { data: widgetList, isLoading } = useWidgets();
 	const [selectedId, setSelectedId] = useState("");
-	const activeId = selectedId || widgets?.[0]?.id || "";
-	return { widgets, isLoading, activeId, setSelectedId };
+	const activeId = selectedId || widgetList?.[0]?.id || "";
+	return { widgets: widgetList, isLoading, activeId, setSelectedId };
+}
+
+export function useWidget(id: string) {
+	return useQuery({
+		queryKey: [...widgetsQueryKey, id],
+		queryFn: () => Promise.resolve(widgets.find((widget) => widget.id === id)),
+	});
+}
+
+function useInvalidateWidgets() {
+	const queryClient = useQueryClient();
+	return () => queryClient.invalidateQueries({ queryKey: widgetsQueryKey });
+}
+
+export function useUpdateWidget() {
+	const invalidate = useInvalidateWidgets();
+	return (id: string, patch: Partial<Omit<Widget, "id">>) => {
+		widgets = widgets.map((widget) =>
+			widget.id === id ? { ...widget, ...patch } : widget,
+		);
+		invalidate();
+	};
+}
+
+export function useCreateWidget() {
+	const invalidate = useInvalidateWidgets();
+	return (input: Omit<Widget, "id">) => {
+		const widget: Widget = { id: `local-${Date.now()}`, ...input };
+		widgets = [...widgets, widget];
+		invalidate();
+		return widget;
+	};
 }
