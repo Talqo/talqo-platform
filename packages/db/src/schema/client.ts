@@ -12,6 +12,8 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core"
 
+export const INITIAL_CLIENT_BALANCE_USD = 10
+
 export const providerTypeEnum = pgEnum("provider_type", [
 	"openai",
 	"openai_compatible",
@@ -53,7 +55,7 @@ export const clients = pgTable("clients", {
 		mode: "number",
 	})
 		.notNull()
-		.default(0),
+		.default(INITIAL_CLIENT_BALANCE_USD),
 	monthlyUsageLimit: numeric("monthly_usage_limit", {
 		precision: 16,
 		scale: 8,

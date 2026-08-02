@@ -233,21 +233,14 @@
 	},
 	"billing": {
 		"addFundsForm": {
+			"addFreeCredit": "Add ${{amount}} free credit",
 			"amountUsd": "Amount (USD)",
-			"cardNumberPlaceholder": "1234 5678 9012 3456",
-			"cvvPlaceholder": "123",
-			"description": "Enter an amount and your card details to top up your balance.",
-			"expiryPlaceholder": "MM/YY",
-			"failedToAddFunds": "Failed to add funds. Please try again.",
-			"fundsAddedSuccess": "Funds added successfully! Redirecting...",
-			"invalidCardNumber": "Invalid card number",
-			"invalidCvv": "Invalid CVV",
-			"invalidExpiry": "Invalid expiry (MM/YY)",
-			"nameOnCardPlaceholder": "Jane Smith",
-			"nameRequired": "Name is required",
-			"pay": "Pay",
-			"processing": "Processing...",
-			"title": "Add Funds"
+			"description": "Choose how much free beta credit to add to your balance. No payment details required.",
+			"failedToAddFunds": "Failed to add free credit. Please try again.",
+			"freeDuringEarlyAccess": "Free during early access",
+			"fundsAddedSuccess": "Free credit added! Redirecting...",
+			"processing": "Adding credit...",
+			"title": "Add Free Credit"
 		}
 	},
 	"blacklist": {
@@ -350,21 +343,17 @@
 	"common": {
 		"add": "Add",
 		"cancel": "Cancel",
-		"cardNumber": "Card Number",
 		"confirmNewPassword": "Confirm New Password",
 		"copied": "Copied!",
 		"copy": "Copy",
 		"currentPassword": "Current Password",
-		"cvv": "CVV",
 		"delete": "Delete",
 		"edit": "Edit",
 		"email": "Email",
-		"expiry": "Expiry",
 		"failed": "Failed!",
 		"hidePassword": "Hide password",
 		"logOut": "Log out",
 		"name": "Name",
-		"nameOnCard": "Name on Card",
 		"newPassword": "New Password",
 		"noData": "No data available",
 		"password": "Password",
@@ -379,8 +368,8 @@
 	},
 	"dashboard": {
 		"addFunds": {
-			"subtitle": "Top up your account balance.",
-			"title": "Add Funds"
+			"subtitle": "Top up your account with free early-access credit.",
+			"title": "Add Free Credit"
 		},
 		"botContext": {
 			"failedToLoadFiles": "Failed to load files",
@@ -412,7 +401,7 @@
 			"view": "View"
 		},
 		"overview": {
-			"addFunds": "Add Funds",
+			"addFunds": "Add Free Credit",
 			"allTime": "All Time",
 			"availableFunds": "Available Funds",
 			"avgSatisfaction": "Avg. Satisfaction",
@@ -491,6 +480,7 @@
 		},
 		"heroSection": {
 			"description": "Talqo gives your website a branded AI assistant that answers visitor questions using the right business context: products, policies, bookings, docs, and connected tools.",
+			"earlyAccess": "Early access: completely free to use",
 			"embedDescription": "This is all your site needs to show the widget.",
 			"embedFile": "index.html",
 			"embedTitle": "Paste the snippet and get going.",
@@ -590,7 +580,7 @@
 			"widgetTokenLabel": "Widget Token"
 		},
 		"billing": {
-			"addFunds": "Add Funds",
+			"addFunds": "Add Free Credit",
 			"configureProvider": "Configure it in the AI Provider tab.",
 			"monthlyLimit": "Monthly Limit (USD)",
 			"ownApiKeyPrompt": "Want to use your own API key instead?",

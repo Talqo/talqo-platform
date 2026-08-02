@@ -233,21 +233,14 @@
 	},
 	"billing": {
 		"addFundsForm": {
+			"addFreeCredit": "Přidat bezplatný kredit ${{amount}}",
 			"amountUsd": "Částka (USD)",
-			"cardNumberPlaceholder": "1234 5678 9012 3456",
-			"cvvPlaceholder": "123",
-			"description": "Zadejte částku a údaje o kartě pro dobití zůstatku.",
-			"expiryPlaceholder": "MM/RR",
-			"failedToAddFunds": "Dobití se nezdařilo. Zkuste to znovu.",
-			"fundsAddedSuccess": "Zůstatek úspěšně dobit! Přesměrování...",
-			"invalidCardNumber": "Neplatné číslo karty",
-			"invalidCvv": "Neplatný CVV",
-			"invalidExpiry": "Neplatná platnost (MM/RR)",
-			"nameOnCardPlaceholder": "Jana Nováková",
-			"nameRequired": "Jméno je povinné",
-			"pay": "Zaplatit",
-			"processing": "Zpracovávání...",
-			"title": "Dobít zůstatek"
+			"description": "Zvolte si částku bezplatného beta kreditu. Platební údaje nejsou potřeba.",
+			"failedToAddFunds": "Přidání bezplatného kreditu se nezdařilo. Zkuste to znovu.",
+			"freeDuringEarlyAccess": "Během předběžného přístupu zdarma",
+			"fundsAddedSuccess": "Bezplatný kredit přidán! Přesměrování...",
+			"processing": "Přidávání kreditu...",
+			"title": "Přidat bezplatný kredit"
 		}
 	},
 	"blacklist": {
@@ -354,21 +347,17 @@
 	"common": {
 		"add": "Přidat",
 		"cancel": "Zrušit",
-		"cardNumber": "Číslo karty",
 		"confirmNewPassword": "Potvrďte nové heslo",
 		"copied": "Zkopírováno!",
 		"copy": "Kopírovat",
 		"currentPassword": "Současné heslo",
-		"cvv": "CVV",
 		"delete": "Smazat",
 		"edit": "Upravit",
 		"email": "E-mail",
-		"expiry": "Platnost",
 		"failed": "Chyba!",
 		"hidePassword": "Skrýt heslo",
 		"logOut": "Odhlásit se",
 		"name": "Jméno",
-		"nameOnCard": "Jméno na kartě",
 		"newPassword": "Nové heslo",
 		"noData": "Žádná data k dispozici",
 		"password": "Heslo",
@@ -383,8 +372,8 @@
 	},
 	"dashboard": {
 		"addFunds": {
-			"subtitle": "Dobijte zůstatek na svém účtu.",
-			"title": "Dobít zůstatek"
+			"subtitle": "Doplňte si bezplatný kredit pro předběžný přístup.",
+			"title": "Přidat bezplatný kredit"
 		},
 		"botContext": {
 			"failedToLoadFiles": "Nepodařilo se načíst soubory",
@@ -416,7 +405,7 @@
 			"view": "Zobrazit"
 		},
 		"overview": {
-			"addFunds": "Dobít zůstatek",
+			"addFunds": "Přidat bezplatný kredit",
 			"allTime": "Celkem",
 			"availableFunds": "Dostupné prostředky",
 			"avgSatisfaction": "Prům. spokojenost",
@@ -495,6 +484,7 @@
 		},
 		"heroSection": {
 			"description": "Talqo dá vašemu webu značkového AI asistenta, který odpovídá návštěvníkům podle správného kontextu firmy: produktů, pravidel, rezervací, dokumentace a připojených nástrojů.",
+			"earlyAccess": "Předběžný přístup: používání zcela zdarma",
 			"embedDescription": "Tohle je vše, co váš web potřebuje pro zobrazení widgetu.",
 			"embedFile": "index.html",
 			"embedTitle": "Vložte snippet a můžete začít.",
@@ -594,7 +584,7 @@
 			"widgetTokenLabel": "Token widgetu"
 		},
 		"billing": {
-			"addFunds": "Přidat prostředky",
+			"addFunds": "Přidat bezplatný kredit",
 			"configureProvider": "Nastavte jej v záložce AI poskytovatel.",
 			"monthlyLimit": "Měsíční limit (USD)",
 			"ownApiKeyPrompt": "Chcete místo toho použít vlastní API klíč?",

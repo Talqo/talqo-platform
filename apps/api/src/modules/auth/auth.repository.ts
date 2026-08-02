@@ -7,7 +7,12 @@ import {
 	NotFoundError,
 } from "@/common/errors"
 import type { DB } from "@/db"
-import { clients, passwordResetTokens, pendingRegistrations } from "@/db/schema"
+import {
+	clients,
+	INITIAL_CLIENT_BALANCE_USD,
+	passwordResetTokens,
+	pendingRegistrations,
+} from "@/db/schema"
 
 export type Client = {
 	id: string
@@ -115,7 +120,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 			...data,
 			id: crypto.randomUUID(),
 			status: "active",
-			balanceUsd: 0,
+			balanceUsd: INITIAL_CLIENT_BALANCE_USD,
 			monthlyUsageLimit: 0,
 			tokenVersion: 0,
 			lastActive: null,

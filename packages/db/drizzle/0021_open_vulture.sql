@@ -1,0 +1,1 @@
+ALTER TABLE "clients" ALTER COLUMN "balance_usd" SET DEFAULT 10;
