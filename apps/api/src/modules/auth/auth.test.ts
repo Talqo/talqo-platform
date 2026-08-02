@@ -214,6 +214,9 @@ describe("POST /auth/verify-email", () => {
 		expect(body.token).toBeDefined()
 		expect(body.message).toBe("Email verified successfully")
 		expect(body).not.toHaveProperty("success")
+
+		const client = await repo.findClientByEmail(validRegistration.email)
+		expect(client?.balanceUsd).toBe(10)
 	})
 
 	it("returns 400 for an unknown token", async () => {

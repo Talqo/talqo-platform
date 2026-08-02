@@ -53,7 +53,7 @@ export const clients = pgTable("clients", {
 		mode: "number",
 	})
 		.notNull()
-		.default(0),
+		.default(10),
 	monthlyUsageLimit: numeric("monthly_usage_limit", {
 		precision: 16,
 		scale: 8,

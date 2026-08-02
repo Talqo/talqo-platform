@@ -53,7 +53,7 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.8 | Client can add funds to their account | Medium | Approved | Done |
+| FR-2.8 | Client receives $10 in initial beta credit and can add free credit to their account without payment details | Medium | Approved | Done |
 | FR-2.9 | Client can set a monthly limit (in USD) for API usage | Low | Approved | Done |
 | FR-2.10 | Client can configure email notifications when a usage threshold is reached | Low | Approved | Done |
 

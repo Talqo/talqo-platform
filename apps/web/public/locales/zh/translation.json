@@ -233,21 +233,14 @@
 	},
 	"billing": {
 		"addFundsForm": {
+			"addFreeCredit": "添加 ${{amount}} 免费额度",
 			"amountUsd": "金额 (USD)",
-			"cardNumberPlaceholder": "1234 5678 9012 3456",
-			"cvvPlaceholder": "123",
-			"description": "输入金额和银行卡信息以充值余额。",
-			"expiryPlaceholder": "MM/YY",
-			"failedToAddFunds": "充值失败，请重试。",
-			"fundsAddedSuccess": "充值成功！正在跳转...",
-			"invalidCardNumber": "无效卡号",
-			"invalidCvv": "无效 CVV",
-			"invalidExpiry": "无效有效期 (MM/YY)",
-			"nameOnCardPlaceholder": "张三",
-			"nameRequired": "姓名必填",
-			"pay": "支付",
-			"processing": "处理中...",
-			"title": "充值"
+			"description": "选择要添加到余额的免费测试额度，无需提供付款信息。",
+			"failedToAddFunds": "添加免费额度失败，请重试。",
+			"freeDuringEarlyAccess": "抢先体验期间完全免费",
+			"fundsAddedSuccess": "免费额度已添加！正在跳转...",
+			"processing": "正在添加额度...",
+			"title": "添加免费额度"
 		}
 	},
 	"blacklist": {
@@ -348,21 +341,17 @@
 	"common": {
 		"add": "添加",
 		"cancel": "取消",
-		"cardNumber": "卡号",
 		"confirmNewPassword": "确认新密码",
 		"copied": "已复制！",
 		"copy": "复制",
 		"currentPassword": "当前密码",
-		"cvv": "CVV",
 		"delete": "删除",
 		"edit": "编辑",
 		"email": "邮箱",
-		"expiry": "有效期",
 		"failed": "失败！",
 		"hidePassword": "隐藏密码",
 		"logOut": "退出登录",
 		"name": "姓名",
-		"nameOnCard": "持卡人姓名",
 		"newPassword": "新密码",
 		"noData": "暂无数据",
 		"password": "密码",
@@ -377,8 +366,8 @@
 	},
 	"dashboard": {
 		"addFunds": {
-			"subtitle": "为您的账户余额充值。",
-			"title": "充值"
+			"subtitle": "为账户添加免费的抢先体验额度。",
+			"title": "添加免费额度"
 		},
 		"botContext": {
 			"failedToLoadFiles": "加载文件失败",
@@ -410,7 +399,7 @@
 			"view": "查看"
 		},
 		"overview": {
-			"addFunds": "充值",
+			"addFunds": "添加免费额度",
 			"allTime": "累计",
 			"availableFunds": "可用资金",
 			"avgSatisfaction": "平均满意度",
@@ -489,6 +478,7 @@
 		},
 		"heroSection": {
 			"description": "Talqo 为您的网站提供带品牌风格的 AI 助手，可根据合适的业务上下文回答访客问题：商品、规则、预约、文档和已连接工具。",
+			"earlyAccess": "抢先体验：完全免费使用",
 			"embedDescription": "您的网站只需要这些代码就能显示小部件。",
 			"embedFile": "index.html",
 			"embedTitle": "粘贴代码片段即可开始。",
@@ -588,7 +578,7 @@
 			"widgetTokenLabel": "Widget 令牌"
 		},
 		"billing": {
-			"addFunds": "添加资金",
+			"addFunds": "添加免费额度",
 			"configureProvider": "前往 AI 提供商标签页配置。",
 			"monthlyLimit": "每月限额 (USD)",
 			"ownApiKeyPrompt": "想使用自己的 API 密钥？",

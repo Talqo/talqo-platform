@@ -28,21 +28,25 @@ test.describe("Client dashboard features", () => {
 		).toBeVisible()
 	})
 
-	test("client adds funds", async ({ page }) => {
-		await page.getByRole("link", { name: "Add Funds" }).click({ force: true })
+	test("client adds free beta credit without payment details", async ({
+		page,
+	}) => {
+		await page
+			.getByRole("link", { name: "Add Free Credit" })
+			.click({ force: true })
 		await expect(page).toHaveURL(/\/dashboard\/add-funds/)
+		await expect(
+			page.getByText("Free during early access", { exact: true }),
+		).toBeVisible()
+		await expect(page.getByLabel("Card Number")).toHaveCount(0)
 
 		await page.getByPlaceholder("0.00").fill("50")
-		await page.getByLabel("Card Number").fill("4242 4242 4242 4242")
-		await page.getByLabel("Expiry").fill("12/30")
-		await page.getByLabel("CVV").fill("123")
-		await page.getByLabel("Name on Card").fill("Test User")
 
 		await page
-			.getByRole("button", { name: "Pay $50.00" })
+			.getByRole("button", { name: "Add $50.00 free credit" })
 			.click({ force: true })
 		await expect(
-			page.getByText("Funds added successfully! Redirecting...", {
+			page.getByText("Free credit added! Redirecting...", {
 				exact: true,
 			}),
 		).toBeVisible()

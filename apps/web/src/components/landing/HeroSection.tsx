@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Bot, CornerDownRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { getWidgetBundleUrl } from "@/lib/widget-bundle-url"
 import { getEmbedCodeLines } from "./data"
@@ -22,6 +23,9 @@ export function HeroSection() {
 
 			<div className="container mx-auto grid min-w-0 max-w-7xl items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
 				<div className="min-w-0 max-w-3xl text-left">
+					<Badge className="mb-5 rounded-full px-4 py-1.5 font-bold text-sm">
+						{t("landing.heroSection.earlyAccess")}
+					</Badge>
 					<h1 className="max-w-4xl text-balance font-black text-5xl text-foreground leading-[1.05] tracking-[-0.05em] sm:text-6xl lg:text-7xl">
 						{t("landing.heroSection.line1")}{" "}
 						<span className="text-primary">

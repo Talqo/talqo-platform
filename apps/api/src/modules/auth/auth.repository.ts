@@ -115,7 +115,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 			...data,
 			id: crypto.randomUUID(),
 			status: "active",
-			balanceUsd: 0,
+			balanceUsd: 10,
 			monthlyUsageLimit: 0,
 			tokenVersion: 0,
 			lastActive: null,
