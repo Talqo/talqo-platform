@@ -2,13 +2,38 @@ import {
 	customType,
 	index,
 	integer,
+	pgEnum,
 	pgTable,
+	primaryKey,
 	text,
 	timestamp,
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core"
 import { clients } from "./client"
+
+export const ragFileStatusEnum = pgEnum("rag_file_status", [
+	"indexed",
+	"failed",
+])
+
+export const ragFileErrorCodeEnum = pgEnum("rag_file_error_code", [
+	"insufficient_balance",
+	"provider_error",
+])
+
+export const ragFileStatuses = pgTable(
+	"rag_file_statuses",
+	{
+		clientId: uuid("client_id")
+			.notNull()
+			.references(() => clients.id, { onDelete: "cascade" }),
+		filePath: text("file_path").notNull(),
+		status: ragFileStatusEnum("status").notNull(),
+		errorCode: ragFileErrorCodeEnum("error_code"),
+	},
+	(table) => [primaryKey({ columns: [table.clientId, table.filePath] })],
+)
 
 const vector = customType<{
 	data: number[]

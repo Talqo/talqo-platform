@@ -11,6 +11,8 @@ export type FileEntry = {
 	type: "file" | "directory"
 	size?: number
 	lastModified?: string
+	embeddingStatus?: "indexed" | "failed"
+	embeddingError?: "insufficient_balance" | "provider_error" | null
 }
 
 export function useFiles() {
@@ -71,6 +73,20 @@ export function useRenameFile() {
 		mutationFn: async ({ from, to }: { from: string; to: string }) => {
 			const { data, error } = await client.POST("/client/me/files/move", {
 				body: { from, to },
+			})
+			if (error) throw error
+			return data
+		},
+		onSuccess: () => qc.invalidateQueries({ queryKey: FILES_KEY }),
+	})
+}
+
+export function useReindexFile() {
+	const qc = useQueryClient()
+	return useMutation({
+		mutationFn: async (path: string) => {
+			const { data, error } = await client.POST("/client/me/files/reindex", {
+				body: { path },
 			})
 			if (error) throw error
 			return data

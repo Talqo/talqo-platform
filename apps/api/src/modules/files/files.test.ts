@@ -88,11 +88,38 @@ class FakeFilesService {
 	has(key: string): boolean {
 		return this.store.has(key)
 	}
+
+	async exists(key: string): Promise<boolean> {
+		return this.store.has(key)
+	}
+}
+
+class FakeFileIndexer {
+	statuses = new Map<
+		string,
+		{
+			filePath: string
+			status: "indexed" | "failed"
+			errorCode: "insufficient_balance" | "provider_error" | null
+		}
+	>()
+	indexCalls: string[] = []
+
+	async indexFile(_clientId: string, filePath: string): Promise<void> {
+		this.indexCalls.push(filePath)
+	}
+
+	async removeFile(): Promise<void> {}
+	async renameFile(): Promise<void> {}
+
+	async listFileStatuses() {
+		return [...this.statuses.values()]
+	}
 }
 
 // ─── Test app factory ─────────────────────────────────────────────────────────
 
-function buildApp(service: FakeFilesService) {
+function buildApp(service: FakeFilesService, rag = new FakeFileIndexer()) {
 	const app = new OpenAPIHono<{ Variables: AppVariables }>()
 	app.use("/*", async (c, next) => {
 		c.set("logger", logger.withContext({ requestId: crypto.randomUUID() }))
@@ -102,7 +129,7 @@ function buildApp(service: FakeFilesService) {
 	app.onError(errorHandler)
 	return app.route(
 		"/client/me/files",
-		createFilesRouter(service as unknown as FilesService),
+		createFilesRouter(service as unknown as FilesService, rag),
 	)
 }
 
@@ -237,6 +264,32 @@ describe("GET /client/me/files", () => {
 		expect(names).toContain("docs/report.pdf")
 	})
 
+	it("includes durable embedding status for each file", async () => {
+		const rag = new FakeFileIndexer()
+		rag.statuses.set("readme.txt", {
+			filePath: "readme.txt",
+			status: "failed",
+			errorCode: "provider_error",
+		})
+		app = buildApp(service, rag)
+
+		const res = await app.fetch(new Request("http://localhost/client/me/files"))
+		const body = (await res.json()) as {
+			entries: Array<{
+				name: string
+				embeddingStatus?: string
+				embeddingError?: string | null
+			}>
+		}
+
+		expect(
+			body.entries.find((entry) => entry.name === "readme.txt"),
+		).toMatchObject({
+			embeddingStatus: "failed",
+			embeddingError: "provider_error",
+		})
+	})
+
 	it("returns 400 for path traversal", async () => {
 		const res = await app.fetch(
 			new Request("http://localhost/client/me/files?path=/../etc"),
@@ -274,6 +327,57 @@ describe("POST /client/me/files", () => {
 		expect(body.path).toBe("/test.txt")
 		expect(body).not.toHaveProperty("success")
 		expect(service.has(`${TEST_CLIENT_ID}/test.txt`)).toBe(true)
+	})
+
+	it("stores an uploaded file without waiting for embedding", async () => {
+		const rag = new FakeFileIndexer()
+		app = buildApp(service, rag)
+		const formData = new FormData()
+		formData.append("file", new File(["hello"], "status.txt"))
+
+		const res = await app.fetch(
+			new Request("http://localhost/client/me/files", {
+				method: "POST",
+				body: formData,
+			}),
+		)
+		expect(res.status).toBe(201)
+		expect(rag.indexCalls).toHaveLength(0)
+	})
+
+	it("retries embedding for a stored file", async () => {
+		const rag = new FakeFileIndexer()
+		app = buildApp(service, rag)
+		await service.upload(
+			`${TEST_CLIENT_ID}/retry.txt`,
+			new TextEncoder().encode("retry"),
+		)
+
+		const res = await app.fetch(
+			new Request("http://localhost/client/me/files/reindex", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ path: "/retry.txt" }),
+			}),
+		)
+		expect(res.status).toBe(200)
+		expect(rag.indexCalls).toEqual(["retry.txt"])
+	})
+
+	it("returns 404 instead of indexing a missing file", async () => {
+		const rag = new FakeFileIndexer()
+		app = buildApp(service, rag)
+
+		const res = await app.fetch(
+			new Request("http://localhost/client/me/files/reindex", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ path: "/missing.txt" }),
+			}),
+		)
+
+		expect(res.status).toBe(404)
+		expect(rag.indexCalls).toHaveLength(0)
 	})
 
 	it("uploads into a subdirectory when path query param is given", async () => {

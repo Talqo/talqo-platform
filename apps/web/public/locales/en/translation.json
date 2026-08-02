@@ -296,16 +296,24 @@
 			"confirmRename": "Confirm rename",
 			"deleteFile": "Delete file",
 			"duplicateName": "A file with this name already exists",
+			"embedded": "Embedded",
+			"embedding": "Embedding file...",
+			"embeddingFailed": "Embedding failed because the provider is unavailable. Retry when the provider is stable.",
+			"insufficientBalance": "Embedding was not attempted because your balance is insufficient.",
+			"notEmbedded": "This file is not embedded yet. Retry embedding to index it.",
 			"renameFailed": "Rename failed. Please try again.",
-			"renameFile": "Rename file"
+			"renameFile": "Rename file",
+			"retryEmbedding": "Retry embedding",
+			"retryUpload": "Retry upload",
+			"uploadFailed": "Upload failed",
+			"uploading": "Uploading file..."
 		},
 		"uploadErrorAlert": {
 			"dismissErrors": "Dismiss errors",
 			"failedToUpload_one": "Failed to upload {{count}} file",
 			"failedToUpload_other": "Failed to upload {{count}} files",
 			"fileAlreadyExists": "File with this name already exists",
-			"invalidFileType": "Invalid file type",
-			"serverError": "Server error during upload"
+			"invalidFileType": "Invalid file type"
 		}
 	},
 	"charts": {

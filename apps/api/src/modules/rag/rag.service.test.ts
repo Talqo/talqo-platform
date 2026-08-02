@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import type { AiProviderConfig } from "shared"
-import { computeEmbeddingCostUsd } from "@/common/billing"
+import { computeEmbeddingCostUsd, estimateTokens } from "@/common/billing"
 import { InMemoryRagRepository } from "./rag.repository"
 
 // ─── Mock ai package BEFORE importing rag.service ─────────────────────────────
@@ -226,7 +226,9 @@ describe("RagService", () => {
 
 			expect(repo.usageRecords.length).toBe(1)
 			expect(repo.usageRecords[0]?.clientId).toBe(CLIENT_ID)
-			expect(repo.usageRecords[0]?.tokensUsed).toBe(100)
+			expect(repo.usageRecords[0]?.tokensUsed).toBe(
+				estimateTokens("Hello world, this is some content."),
+			)
 		})
 
 		it("records platform billing usage when provider type is anthropic", async () => {
@@ -249,7 +251,9 @@ describe("RagService", () => {
 			await service.indexFile(CLIENT_ID, FILE_PATH)
 
 			expect(repo.usageRecords.length).toBe(1)
-			expect(repo.usageRecords[0]?.tokensUsed).toBe(50)
+			expect(repo.usageRecords[0]?.tokensUsed).toBe(
+				estimateTokens("Hello world, this is some content."),
+			)
 		})
 
 		it("does not record billing usage when provider has its own embeddingModel", async () => {
@@ -292,15 +296,101 @@ describe("RagService", () => {
 			expect(repo.balanceDeductions.length).toBe(1)
 			expect(repo.balanceDeductions[0]?.clientId).toBe(CLIENT_ID)
 			expect(repo.balanceDeductions[0]?.amount).toBe(
-				computeEmbeddingCostUsd(100),
+				computeEmbeddingCostUsd(
+					estimateTokens("Hello world, this is some content."),
+				),
 			)
+		})
+
+		it("does not call the provider when platform balance is insufficient", async () => {
+			repo.balances.set(CLIENT_ID, 0)
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			await expect(
+				service.indexFile(CLIENT_ID, FILE_PATH),
+			).rejects.toMatchObject({
+				code: "BALANCE_INSUFFICIENT",
+			})
+
+			expect(mockEmbedMany).toHaveBeenCalledTimes(0)
+			expect(
+				(await repo.listFileStatuses(CLIENT_ID)).find(
+					(status) => status.filePath === FILE_PATH,
+				),
+			).toMatchObject({
+				status: "failed",
+				errorCode: "insufficient_balance",
+			})
+		})
+
+		it("persists provider failures and refunds reserved platform usage", async () => {
+			const initialBalance = repo.balances.get(CLIENT_ID)
+			mockEmbedMany.mockImplementationOnce(async () => {
+				throw new Error("provider unavailable")
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			await expect(service.indexFile(CLIENT_ID, FILE_PATH)).rejects.toThrow(
+				"provider unavailable",
+			)
+
+			expect(
+				(await repo.listFileStatuses(CLIENT_ID)).find(
+					(status) => status.filePath === FILE_PATH,
+				),
+			).toMatchObject({
+				status: "failed",
+				errorCode: "provider_error",
+			})
+			expect(repo.balances.get(CLIENT_ID)).toBe(initialBalance)
+			expect(repo.usageRecords).toHaveLength(0)
+		})
+
+		it("serializes file embedding requests", async () => {
+			let calls = 0
+			let releaseFirst: () => void = () => {}
+			const firstCallBlocked = new Promise<void>((resolve) => {
+				releaseFirst = resolve
+			})
+			mockEmbedMany.mockImplementation(async () => {
+				calls++
+				if (calls === 1) await firstCallBlocked
+				return {
+					embeddings: [[0.1, 0.2, 0.3]],
+					usage: { tokens: 5 },
+				}
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			const first = service.indexFile(CLIENT_ID, "first.txt")
+			await Bun.sleep(0)
+			const second = service.indexFile(CLIENT_ID, "second.txt")
+			await Bun.sleep(0)
+			const callsBeforeRelease = calls
+			releaseFirst()
+			await Promise.all([first, second])
+
+			expect(callsBeforeRelease).toBe(1)
+			expect(calls).toBe(2)
 		})
 	})
 
 	describe("removeFile", () => {
-		it("delegates to repo.deleteByFilePath", async () => {
+		it("removes the file chunks", async () => {
 			// Seed a chunk so we can verify deletion
-			await repo.upsertChunks([
+			await repo.seedChunks([
 				{
 					clientId: CLIENT_ID,
 					filePath: FILE_PATH,
@@ -328,7 +418,7 @@ describe("RagService", () => {
 			const oldPath = "docs/old.txt"
 			const newPath = "docs/new.txt"
 
-			await repo.upsertChunks([
+			await repo.seedChunks([
 				{
 					clientId: CLIENT_ID,
 					filePath: oldPath,
@@ -355,7 +445,7 @@ describe("RagService", () => {
 
 	describe("removeAllFiles", () => {
 		it("delegates to repo.deleteByClientId", async () => {
-			await repo.upsertChunks([
+			await repo.seedChunks([
 				{
 					clientId: CLIENT_ID,
 					filePath: "a.txt",
@@ -388,7 +478,7 @@ describe("RagService", () => {
 
 	describe("retrieve", () => {
 		it("calls embed and repo.search, returns matching chunk texts", async () => {
-			await repo.upsertChunks([
+			await repo.seedChunks([
 				{
 					clientId: CLIENT_ID,
 					filePath: FILE_PATH,
@@ -416,7 +506,7 @@ describe("RagService", () => {
 		})
 
 		it("uses topK parameter when provided", async () => {
-			await repo.upsertChunks([
+			await repo.seedChunks([
 				{
 					clientId: CLIENT_ID,
 					filePath: "f1.txt",

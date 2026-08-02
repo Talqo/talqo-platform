@@ -5,8 +5,12 @@ import type { FileEntry } from "@/api/hooks/useFiles"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileListEmpty } from "./FileListEmpty"
-import { FileListItem } from "./FileListItem"
-import { type UploadError, UploadErrorAlert } from "./UploadErrorAlert"
+import { type DisplayedFile, FileListItem } from "./FileListItem"
+import {
+	type UploadError,
+	UploadErrorAlert,
+	type UploadValidationError,
+} from "./UploadErrorAlert"
 import { useDragAndDrop } from "./useDragAndDrop"
 import { useFileValidation } from "./useFileValidation"
 
@@ -17,7 +21,11 @@ type FileListProps = {
 		newName: string,
 	) => Promise<{ success: boolean; error?: "duplicate" | "server" }>
 	onDelete: (name: string) => void
-	onFilesUploaded: (files: File[]) => Promise<UploadError[]>
+	onFilesUploaded: (
+		files: File[],
+		onUploaded: (fileName: string) => void,
+	) => Promise<UploadError[]>
+	onReindex: (name: string) => Promise<void>
 }
 
 type EditingState = {
@@ -25,25 +33,72 @@ type EditingState = {
 	editValue: string
 }
 
+type TransientUpload = {
+	file: File
+	status: "uploading" | "embedding" | "failed"
+}
+
 export function FileList({
 	files,
 	onRename,
 	onDelete,
 	onFilesUploaded,
+	onReindex,
 }: FileListProps) {
 	const { t } = useTranslation()
 	const [editing, setEditing] = useState<EditingState | null>(null)
 	const [renameError, setRenameError] = useState<string | null>(null)
-	const [uploadErrors, setUploadErrors] = useState<UploadError[]>([])
+	const [uploadErrors, setUploadErrors] = useState<UploadValidationError[]>([])
+	const [transientUploads, setTransientUploads] = useState<
+		Map<string, TransientUpload>
+	>(new Map())
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const { isTextFile } = useFileValidation()
+
+	const uploadFiles = useCallback(
+		async (filesToUpload: File[]) => {
+			setTransientUploads((current) => {
+				const next = new Map(current)
+				for (const file of filesToUpload) {
+					next.set(file.name, { file, status: "uploading" })
+				}
+				return next
+			})
+
+			const errors = await onFilesUploaded(filesToUpload, (fileName) => {
+				setTransientUploads((current) => {
+					const upload = current.get(fileName)
+					if (!upload) return current
+					const next = new Map(current)
+					next.set(fileName, { ...upload, status: "embedding" })
+					return next
+				})
+			})
+			const failedNames = new Set(errors.map((error) => error.fileName))
+			setTransientUploads((current) => {
+				const next = new Map(current)
+				for (const file of filesToUpload) {
+					if (failedNames.has(file.name)) {
+						next.set(file.name, { file, status: "failed" })
+					} else {
+						next.delete(file.name)
+					}
+				}
+				return next
+			})
+		},
+		[onFilesUploaded],
+	)
 
 	const validateAndUpload = useCallback(
 		async (fileList: File[]) => {
 			if (!fileList.length) return
 
-			const existingNames = new Set(files.map((f) => f.name.toLowerCase()))
-			const errors: UploadError[] = []
+			const existingNames = new Set([
+				...files.map((f) => f.name.toLowerCase()),
+				...[...transientUploads.keys()].map((name) => name.toLowerCase()),
+			])
+			const errors: UploadValidationError[] = []
 
 			const validFiles = fileList.filter((file) => {
 				if (!isTextFile(file)) {
@@ -62,13 +117,17 @@ export function FileList({
 			}
 
 			if (validFiles.length > 0) {
-				const serverErrors = await onFilesUploaded(validFiles)
-				if (serverErrors.length > 0) {
-					setUploadErrors((prev) => [...prev, ...serverErrors])
-				}
+				await uploadFiles(validFiles)
 			}
 		},
-		[files, isTextFile, onFilesUploaded],
+		[files, isTextFile, transientUploads, uploadFiles],
+	)
+
+	const handleRetryUpload = useCallback(
+		(file: File) => {
+			void uploadFiles([file])
+		},
+		[uploadFiles],
 	)
 
 	const { isDragging, bindDragEvents } = useDragAndDrop({
@@ -138,6 +197,19 @@ export function FileList({
 		[handleConfirmEditing, handleCancelEditing],
 	)
 
+	const displayedFiles = [
+		...files.filter((file) => !transientUploads.has(file.name)),
+		...[...transientUploads.values()].map(
+			({ file, status }): DisplayedFile => ({
+				name: file.name,
+				type: "file",
+				size: file.size,
+				uploadStatus: status,
+				sourceFile: file,
+			}),
+		),
+	]
+
 	return (
 		<Card
 			className={isDragging ? "border-primary bg-primary/5" : undefined}
@@ -155,7 +227,9 @@ export function FileList({
 				<CardTitle className="flex items-center justify-between text-base">
 					<span className="flex items-center gap-2">
 						<FileText size={18} />
-						{t("botContext.fileList.contextFiles", { count: files.length })}
+						{t("botContext.fileList.contextFiles", {
+							count: displayedFiles.length,
+						})}
 					</span>
 					<Button
 						variant="outline"
@@ -181,11 +255,11 @@ export function FileList({
 			<CardContent>
 				<UploadErrorAlert errors={uploadErrors} onDismiss={dismissErrors} />
 
-				{files.length === 0 ? (
+				{displayedFiles.length === 0 ? (
 					<FileListEmpty />
 				) : (
 					<div className="divide-y divide-border rounded-lg border border-border">
-						{files.map((file) => (
+						{displayedFiles.map((file) => (
 							<FileListItem
 								key={file.name}
 								file={file}
@@ -198,6 +272,8 @@ export function FileList({
 								onDelete={onDelete}
 								onEditChange={handleEditChange}
 								onEditKeyDown={handleEditKeyDown}
+								onRetryUpload={handleRetryUpload}
+								onReindex={onReindex}
 							/>
 						))}
 					</div>

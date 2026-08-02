@@ -7,8 +7,12 @@ export type UploadError = {
 	reason: "duplicate" | "invalid" | "server"
 }
 
+export type UploadValidationError = Omit<UploadError, "reason"> & {
+	reason: "duplicate" | "invalid"
+}
+
 type UploadErrorAlertProps = {
-	errors: UploadError[]
+	errors: UploadValidationError[]
 	onDismiss: () => void
 }
 
@@ -35,9 +39,7 @@ export function UploadErrorAlert({ errors, onDismiss }: UploadErrorAlertProps) {
 								{error.fileName}:{" "}
 								{error.reason === "duplicate"
 									? t("botContext.uploadErrorAlert.fileAlreadyExists")
-									: error.reason === "invalid"
-										? t("botContext.uploadErrorAlert.invalidFileType")
-										: t("botContext.uploadErrorAlert.serverError")}
+									: t("botContext.uploadErrorAlert.invalidFileType")}
 							</li>
 						))}
 					</ul>

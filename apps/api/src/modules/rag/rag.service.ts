@@ -19,73 +19,96 @@ type ResolvedEmbedding = {
 }
 
 export class RagService {
+	private indexQueue = Promise.resolve()
+
 	constructor(
 		private readonly repo: RagRepository,
 		private readonly filesService: FilesService,
 		private readonly providerConfigRepo: ProviderConfigRepository,
 	) {}
 
-	async indexFile(clientId: string, filePath: string): Promise<void> {
-		const key = `${clientId}/${filePath}`
-		const text = await this.filesService.read(key).text()
+	indexFile(clientId: string, filePath: string): Promise<void> {
+		const run = this.indexQueue.then(() =>
+			this.performIndexFile(clientId, filePath),
+		)
+		this.indexQueue = run.catch(() => {})
+		return run
+	}
 
-		const chunks = chunkText(text)
+	private async performIndexFile(
+		clientId: string,
+		filePath: string,
+	): Promise<void> {
+		let reservationId: string | null = null
+		try {
+			const key = `${clientId}/${filePath}`
+			const text = await this.filesService.read(key).text()
+			const chunks = chunkText(text)
 
-		if (chunks.length === 0) {
-			await this.repo.deleteByFilePath(clientId, filePath)
-			return
-		}
-
-		const providerConfig = await this.resolveProviderConfig(clientId)
-		const resolved = this.resolveEmbeddingConfig(providerConfig)
-
-		const { embeddings, usage } = await embedMany({
-			model: resolved.model,
-			values: chunks.map((c) => c.text),
-		})
-
-		if (embeddings.length !== chunks.length) {
-			throw new Error(
-				`Embedding count mismatch: expected ${chunks.length}, got ${embeddings.length} (model=${resolved.modelId}, clientId=${clientId}, filePath=${filePath})`,
-			)
-		}
-
-		const upsertData = chunks.map((chunk, i) => {
-			const embedding = embeddings[i]
-			if (!embedding) {
-				throw new Error(`Embedding missing at index ${i} for ${filePath}`)
+			if (chunks.length === 0) {
+				await this.repo.replaceFileChunks(clientId, filePath, [])
+				return
 			}
-			return {
-				clientId,
-				filePath,
-				chunkIndex: chunk.index,
-				chunkText: chunk.text,
-				embedding,
-				embeddingDimensions: embedding.length,
-			}
-		})
 
-		await this.repo.upsertChunks(upsertData)
-
-		if (resolved.usePlatformBilling) {
-			// Fall back to estimating tokens from the raw chunk text when the
-			// provider doesn't report usage.
-			const tokens =
-				usage?.tokens && usage.tokens > 0
-					? usage.tokens
-					: chunks.reduce((acc, c) => acc + estimateTokens(c.text), 0)
-			if (tokens > 0) {
-				await this.repo.recordEmbeddingUsage({
+			const providerConfig = await this.resolveProviderConfig(clientId)
+			const resolved = this.resolveEmbeddingConfig(providerConfig)
+			if (resolved.usePlatformBilling) {
+				const tokens = chunks.reduce(
+					(total, chunk) => total + estimateTokens(chunk.text),
+					0,
+				)
+				reservationId = await this.repo.reserveEmbeddingUsage({
 					clientId,
 					tokensUsed: tokens,
 					costUsd: computeEmbeddingCostUsd(tokens),
 				})
 			}
+
+			const { embeddings } = await embedMany({
+				model: resolved.model,
+				values: chunks.map((chunk) => chunk.text),
+			})
+
+			if (embeddings.length !== chunks.length) {
+				throw new Error(
+					`Embedding count mismatch: expected ${chunks.length}, got ${embeddings.length} (model=${resolved.modelId}, clientId=${clientId}, filePath=${filePath})`,
+				)
+			}
+
+			const upsertData = chunks.map((chunk, index) => {
+				const embedding = embeddings[index]
+				if (!embedding) {
+					throw new Error(`Embedding missing at index ${index} for ${filePath}`)
+				}
+				return {
+					chunkIndex: chunk.index,
+					chunkText: chunk.text,
+					embedding,
+					embeddingDimensions: embedding.length,
+				}
+			})
+
+			await this.repo.replaceFileChunks(clientId, filePath, upsertData)
+		} catch (error) {
+			if (reservationId) {
+				await this.repo.refundEmbeddingUsage(clientId, reservationId)
+			}
+			const errorCode =
+				error instanceof BadRequestError &&
+				error.code === "BALANCE_INSUFFICIENT"
+					? "insufficient_balance"
+					: "provider_error"
+			await this.repo.markFileFailed(clientId, filePath, errorCode)
+			throw error
 		}
 	}
 
 	async removeFile(clientId: string, filePath: string): Promise<void> {
-		await this.repo.deleteByFilePath(clientId, filePath)
+		await this.repo.deleteFileData(clientId, filePath)
+	}
+
+	listFileStatuses(clientId: string) {
+		return this.repo.listFileStatuses(clientId)
 	}
 
 	async renameFile(
