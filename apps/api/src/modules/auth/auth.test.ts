@@ -92,6 +92,8 @@ describe("POST /auth/register", () => {
 		expect((mockSend.mock.calls[0] as unknown as [{ to: string }])[0].to).toBe(
 			validRegistration.email,
 		)
+		const pending = await repo.findPendingByEmail(validRegistration.email)
+		expect(pending?.name).toBe(validRegistration.name)
 	})
 
 	it("returns 409 when a verified account already exists for the email", async () => {

@@ -24,7 +24,7 @@ export class AuthService {
 				"This email is already registered",
 			)
 
-		const canonicalName = name.trim().toLowerCase()
+		const canonicalName = name.trim()
 		const existingName = await this.repo.findClientByName(canonicalName)
 		if (existingName)
 			throw new AuthConflictError("NAME_TAKEN", "This name is already taken")
