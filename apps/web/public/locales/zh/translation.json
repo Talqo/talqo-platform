@@ -298,6 +298,7 @@
 			"embedded": "已嵌入",
 			"embedding": "正在嵌入文件...",
 			"embeddingFailed": "嵌入提供商不可用，嵌入失败。请在服务稳定后重试。",
+			"indexingFailed": "由于文件或平台存储不可用，索引失败。请稍后重试。",
 			"insufficientBalance": "余额不足，未尝试嵌入。",
 			"notEmbedded": "此文件尚未嵌入。请重试嵌入以建立索引。",
 			"renameFailed": "重命名失败，请重试。",

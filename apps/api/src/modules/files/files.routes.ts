@@ -1,12 +1,15 @@
 import { createRoute, z } from "@hono/zod-openapi"
+import type { RagFileErrorCode, RagFileStatus } from "shared"
 import {
 	fileMoveBodySchema,
 	filePathBodySchema,
 	filePathQuerySchema,
 	filePresignBodySchema,
 	fileUploadQuerySchema,
+	ragFileErrorCodeSchema,
+	ragFileStatusSchema,
 } from "shared"
-import { NotFoundError, ValidationError } from "@/common/errors"
+import { ConflictError, NotFoundError, ValidationError } from "@/common/errors"
 import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
@@ -14,14 +17,15 @@ import type { FilesService } from "./files.service"
 
 // Minimal interface — avoids importing from rag/index and creating a circular dep
 type FileIndexer = {
+	runFileOperation<T>(clientId: string, operation: () => Promise<T>): Promise<T>
 	indexFile(clientId: string, filePath: string): Promise<void>
 	removeFile(clientId: string, filePath: string): Promise<void>
 	renameFile(clientId: string, oldPath: string, newPath: string): Promise<void>
 	listFileStatuses(clientId: string): Promise<
 		Array<{
 			filePath: string
-			status: "indexed" | "failed"
-			errorCode: "insufficient_balance" | "provider_error" | null
+			status: RagFileStatus
+			errorCode: RagFileErrorCode | null
 		}>
 	>
 }
@@ -33,11 +37,8 @@ const fileEntrySchema = z.object({
 	type: z.enum(["file", "directory"]),
 	size: z.number().optional(),
 	lastModified: z.string().optional(),
-	embeddingStatus: z.enum(["indexed", "failed"]).optional(),
-	embeddingError: z
-		.enum(["insufficient_balance", "provider_error"])
-		.nullable()
-		.optional(),
+	embeddingStatus: ragFileStatusSchema.optional(),
+	embeddingError: ragFileErrorCodeSchema.nullable().optional(),
 })
 
 const listResponseSchema = z.object({
@@ -181,6 +182,10 @@ export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 						},
 					},
 				},
+				409: {
+					description: "File already exists",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 				422: {
 					description: "Invalid path or missing file",
 					content: { "application/json": { schema: errorResponseSchema } },
@@ -209,9 +214,13 @@ export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 			}
 
 			const key = `${dirKey}${file.name}`
-			await service.upload(key, file, { contentType: file.type || undefined })
-
 			const filePath = relativePath(clientId, key)
+			await rag.runFileOperation(clientId, async () => {
+				if (await service.exists(key)) {
+					throw new ConflictError("File already exists")
+				}
+				await service.upload(key, file, { contentType: file.type || undefined })
+			})
 			return c.json({ path: `/${filePath}` }, 201)
 		},
 	)
@@ -247,6 +256,18 @@ export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 					description: "File not found",
 					content: { "application/json": { schema: errorResponseSchema } },
 				},
+				400: {
+					description: "Indexing rejected",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				429: {
+					description: "Too many reindex attempts",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				500: {
+					description: "Indexing failed",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 			},
 		}),
 		async (c) => {
@@ -257,11 +278,7 @@ export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 			if (!(await service.exists(key))) {
 				throw new NotFoundError("File not found")
 			}
-			try {
-				await rag.indexFile(clientId, filePath)
-			} catch (err) {
-				c.get("logger").error("rag reindexFile failed", { err })
-			}
+			await rag.indexFile(clientId, filePath)
 			return c.json({ message: "Indexing finished" }, 200)
 		},
 	)

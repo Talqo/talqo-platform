@@ -166,6 +166,9 @@ describe("RagService", () => {
 			await service.indexFile(CLIENT_ID, FILE_PATH)
 
 			expect(mockEmbedMany).toHaveBeenCalledTimes(1)
+			expect(mockEmbedMany.mock.calls[0]?.[0].abortSignal).toBeInstanceOf(
+				AbortSignal,
+			)
 			const chunks = await repo.search(CLIENT_ID, [0.1, 0.2, 0.3], 10)
 			expect(chunks.length).toBeGreaterThan(0)
 		})
@@ -327,8 +330,18 @@ describe("RagService", () => {
 			})
 		})
 
-		it("persists provider failures and refunds reserved platform usage", async () => {
+		it("persists provider failures without charging or deleting old chunks", async () => {
 			const initialBalance = repo.balances.get(CLIENT_ID)
+			await repo.seedChunks([
+				{
+					clientId: CLIENT_ID,
+					filePath: FILE_PATH,
+					chunkIndex: 0,
+					chunkText: "previously indexed",
+					embedding: [0.1, 0.2, 0.3],
+					embeddingDimensions: 3,
+				},
+			])
 			mockEmbedMany.mockImplementationOnce(async () => {
 				throw new Error("provider unavailable")
 			})
@@ -339,7 +352,7 @@ describe("RagService", () => {
 			)
 
 			await expect(service.indexFile(CLIENT_ID, FILE_PATH)).rejects.toThrow(
-				"provider unavailable",
+				"Embedding provider request failed",
 			)
 
 			expect(
@@ -352,6 +365,9 @@ describe("RagService", () => {
 			})
 			expect(repo.balances.get(CLIENT_ID)).toBe(initialBalance)
 			expect(repo.usageRecords).toHaveLength(0)
+			expect(await repo.search(CLIENT_ID, [0.1, 0.2, 0.3], 10)).toEqual([
+				"previously indexed",
+			])
 		})
 
 		it("serializes file embedding requests", async () => {
@@ -384,6 +400,137 @@ describe("RagService", () => {
 
 			expect(callsBeforeRelease).toBe(1)
 			expect(calls).toBe(2)
+		})
+
+		it("does not serialize embedding requests from different clients", async () => {
+			const otherClientId = "00000000-0000-4000-8000-000000000002"
+			repo.balances.set(otherClientId, 10)
+			let calls = 0
+			let releaseFirst: () => void = () => {}
+			const firstCallBlocked = new Promise<void>((resolve) => {
+				releaseFirst = resolve
+			})
+			mockEmbedMany.mockImplementation(async () => {
+				calls++
+				if (calls === 1) await firstCallBlocked
+				return {
+					embeddings: [[0.1, 0.2, 0.3]],
+					usage: { tokens: 5 },
+				}
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			const first = service.indexFile(CLIENT_ID, "first.txt")
+			await Bun.sleep(0)
+			const second = service.indexFile(otherClientId, "second.txt")
+			await Bun.sleep(0)
+			const callsBeforeRelease = calls
+			releaseFirst()
+			await Promise.all([first, second])
+
+			expect(callsBeforeRelease).toBe(2)
+		})
+
+		it("classifies file read failures as indexing errors", async () => {
+			const failingFilesService = {
+				...filesService,
+				read: () => {
+					throw new Error("storage unavailable")
+				},
+			}
+			const service = new RagService(
+				repo,
+				failingFilesService as never,
+				providerConfigRepo as never,
+			)
+
+			await expect(service.indexFile(CLIENT_ID, FILE_PATH)).rejects.toThrow(
+				"storage unavailable",
+			)
+			expect(
+				(await repo.listFileStatuses(CLIENT_ID)).find(
+					(status) => status.filePath === FILE_PATH,
+				),
+			).toMatchObject({ status: "failed", errorCode: "indexing_error" })
+		})
+
+		it("rate limits repeated attempts for the same file", async () => {
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+
+			await expect(
+				service.indexFile(CLIENT_ID, FILE_PATH),
+			).rejects.toMatchObject({
+				code: "TOO_MANY_REQUESTS",
+			})
+		})
+
+		it("finishes an in-flight index before deleting its data", async () => {
+			let releaseProvider: () => void = () => {}
+			const providerBlocked = new Promise<void>((resolve) => {
+				releaseProvider = resolve
+			})
+			mockEmbedMany.mockImplementationOnce(async () => {
+				await providerBlocked
+				return {
+					embeddings: [[0.1, 0.2, 0.3]],
+					usage: { tokens: 5 },
+				}
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			const indexing = service.indexFile(CLIENT_ID, FILE_PATH)
+			await Bun.sleep(0)
+			const deleting = service.removeFile(CLIENT_ID, FILE_PATH)
+			releaseProvider()
+			await Promise.all([indexing, deleting])
+
+			expect(await repo.search(CLIENT_ID, [0.1, 0.2, 0.3], 10)).toHaveLength(0)
+			expect(await repo.listFileStatuses(CLIENT_ID)).toHaveLength(0)
+		})
+
+		it("finishes an in-flight index before renaming its data", async () => {
+			let releaseProvider: () => void = () => {}
+			const providerBlocked = new Promise<void>((resolve) => {
+				releaseProvider = resolve
+			})
+			mockEmbedMany.mockImplementationOnce(async () => {
+				await providerBlocked
+				return {
+					embeddings: [[0.1, 0.2, 0.3]],
+					usage: { tokens: 5 },
+				}
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			const indexing = service.indexFile(CLIENT_ID, FILE_PATH)
+			await Bun.sleep(0)
+			const renaming = service.renameFile(CLIENT_ID, FILE_PATH, "renamed.txt")
+			releaseProvider()
+			await Promise.all([indexing, renaming])
+
+			expect(await repo.listFileStatuses(CLIENT_ID)).toEqual([
+				{ filePath: "renamed.txt", status: "indexed", errorCode: null },
+			])
 		})
 	})
 
@@ -445,6 +592,11 @@ describe("RagService", () => {
 
 	describe("removeAllFiles", () => {
 		it("delegates to repo.deleteByClientId", async () => {
+			repo.fileStatuses.set(`${CLIENT_ID}::a.txt`, {
+				filePath: "a.txt",
+				status: "indexed",
+				errorCode: null,
+			})
 			await repo.seedChunks([
 				{
 					clientId: CLIENT_ID,
@@ -473,6 +625,7 @@ describe("RagService", () => {
 
 			const chunks = await repo.search(CLIENT_ID, [1, 0, 0], 10)
 			expect(chunks.length).toBe(0)
+			expect(await repo.listFileStatuses(CLIENT_ID)).toHaveLength(0)
 		})
 	})
 

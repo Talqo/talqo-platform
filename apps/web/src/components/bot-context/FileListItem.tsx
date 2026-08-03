@@ -57,6 +57,27 @@ export function FileListItem({
 		isReindexing ||
 		file.uploadStatus === "uploading" ||
 		file.uploadStatus === "embedding"
+	const persistedStatusLabel = (() => {
+		const status = file.embeddingStatus
+		if (status === undefined) return t("botContext.fileListItem.notEmbedded")
+		if (status === "indexed") return t("botContext.fileListItem.embedded")
+		if (status === "failed") {
+			const error = file.embeddingError
+			switch (error) {
+				case "insufficient_balance":
+					return t("botContext.fileListItem.insufficientBalance")
+				case "indexing_error":
+					return t("botContext.fileListItem.indexingFailed")
+				case "provider_error":
+				case null:
+				case undefined:
+					return t("botContext.fileListItem.embeddingFailed")
+			}
+			error satisfies never
+		}
+		status satisfies never
+		return t("botContext.fileListItem.notEmbedded")
+	})()
 	const statusLabel =
 		file.uploadStatus === "uploading"
 			? t("botContext.fileListItem.uploading")
@@ -66,13 +87,7 @@ export function FileListItem({
 					? t("botContext.fileListItem.uploadFailed")
 					: isReindexing
 						? t("botContext.fileListItem.embedding")
-						: file.embeddingStatus === "indexed"
-							? t("botContext.fileListItem.embedded")
-							: file.embeddingError === "insufficient_balance"
-								? t("botContext.fileListItem.insufficientBalance")
-								: file.embeddingStatus === "failed"
-									? t("botContext.fileListItem.embeddingFailed")
-									: t("botContext.fileListItem.notEmbedded")
+						: persistedStatusLabel
 
 	const handleReindex = async () => {
 		setIsReindexing(true)

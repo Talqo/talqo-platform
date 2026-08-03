@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileListEmpty } from "./FileListEmpty"
 import { type DisplayedFile, FileListItem } from "./FileListItem"
 import {
-	type UploadError,
 	UploadErrorAlert,
 	type UploadValidationError,
 } from "./UploadErrorAlert"
@@ -24,7 +23,7 @@ type FileListProps = {
 	onFilesUploaded: (
 		files: File[],
 		onUploaded: (fileName: string) => void,
-	) => Promise<UploadError[]>
+	) => Promise<string[]>
 	onReindex: (name: string) => Promise<void>
 }
 
@@ -74,7 +73,7 @@ export function FileList({
 					return next
 				})
 			})
-			const failedNames = new Set(errors.map((error) => error.fileName))
+			const failedNames = new Set(errors)
 			setTransientUploads((current) => {
 				const next = new Map(current)
 				for (const file of filesToUpload) {

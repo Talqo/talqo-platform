@@ -1,15 +1,16 @@
-import { and, eq, sql } from "drizzle-orm"
-import { BadRequestError } from "@/common/errors"
+import { and, eq, lt, sql } from "drizzle-orm"
+import type { RagFileErrorCode, RagFileStatus } from "shared"
+import { BadRequestError, TooManyRequestsError } from "@/common/errors"
 import type { DB } from "@/db"
 import {
 	clients,
+	embeddingUsageReservations,
 	fileEmbeddings,
+	ragClientOperationLocks,
+	ragFileIndexRateLimits,
 	ragFileStatuses,
 	usageRecords,
 } from "@/db/schema"
-
-export type RagFileStatus = "indexed" | "failed"
-export type RagFileErrorCode = "insufficient_balance" | "provider_error"
 
 export type RagFileStatusRecord = {
 	filePath: string
@@ -43,13 +44,17 @@ export type RagRepository = {
 		topK: number,
 	): Promise<string[]>
 	recordEmbeddingUsage(usage: UsageInsert): Promise<void>
+	consumeFileIndexAttempt(clientId: string, filePath: string): Promise<void>
 	reserveEmbeddingUsage(usage: UsageInsert): Promise<string>
-	refundEmbeddingUsage(clientId: string, usageId: string): Promise<void>
+	refundEmbeddingUsage(clientId: string, reservationId: string): Promise<void>
+	refundExpiredEmbeddingUsage(): Promise<void>
+	withClientLock<T>(clientId: string, operation: () => Promise<T>): Promise<T>
 	listFileStatuses(clientId: string): Promise<RagFileStatusRecord[]>
 	replaceFileChunks(
 		clientId: string,
 		filePath: string,
 		chunks: FileChunk[],
+		reservationId?: string,
 	): Promise<void>
 	markFileFailed(
 		clientId: string,
@@ -63,13 +68,35 @@ function toVectorLiteral(embedding: number[]): string {
 	return `[${embedding.map(String).join(",")}]`
 }
 
+function validateUsage(usage: UsageInsert): void {
+	if (
+		!Number.isFinite(usage.tokensUsed) ||
+		!Number.isFinite(usage.costUsd) ||
+		usage.tokensUsed < 0 ||
+		usage.costUsd < 0
+	) {
+		throw new BadRequestError(
+			"INVALID_USAGE",
+			"tokensUsed and costUsd must be non-negative numbers",
+		)
+	}
+}
+
 export class DrizzleRagRepository implements RagRepository {
 	constructor(private readonly db: DB) {}
 
 	async deleteByClientId(clientId: string): Promise<void> {
-		await this.db
-			.delete(fileEmbeddings)
-			.where(eq(fileEmbeddings.clientId, clientId))
+		await this.db.transaction(async (tx) => {
+			await tx
+				.delete(ragFileIndexRateLimits)
+				.where(eq(ragFileIndexRateLimits.clientId, clientId))
+			await tx
+				.delete(ragFileStatuses)
+				.where(eq(ragFileStatuses.clientId, clientId))
+			await tx
+				.delete(fileEmbeddings)
+				.where(eq(fileEmbeddings.clientId, clientId))
+		})
 	}
 
 	async renameFilePath(
@@ -115,19 +142,7 @@ export class DrizzleRagRepository implements RagRepository {
 	}
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
-		if (
-			typeof usage.tokensUsed !== "number" ||
-			typeof usage.costUsd !== "number" ||
-			!Number.isFinite(usage.tokensUsed) ||
-			!Number.isFinite(usage.costUsd) ||
-			usage.tokensUsed < 0 ||
-			usage.costUsd < 0
-		) {
-			throw new BadRequestError(
-				"INVALID_USAGE",
-				"tokensUsed and costUsd must be non-negative numbers",
-			)
-		}
+		validateUsage(usage)
 		await this.db.transaction(async (tx) => {
 			const [client] = await tx
 				.select({ id: clients.id })
@@ -164,8 +179,61 @@ export class DrizzleRagRepository implements RagRepository {
 		})
 	}
 
+	async consumeFileIndexAttempt(
+		clientId: string,
+		filePath: string,
+	): Promise<void> {
+		const resetBefore = new Date(Date.now() - 60_000)
+		await this.db
+			.delete(ragFileIndexRateLimits)
+			.where(
+				and(
+					eq(ragFileIndexRateLimits.clientId, clientId),
+					lt(ragFileIndexRateLimits.windowStartedAt, resetBefore),
+				),
+			)
+		const [window] = await this.db
+			.insert(ragFileIndexRateLimits)
+			.values({ clientId, filePath })
+			.onConflictDoUpdate({
+				target: [
+					ragFileIndexRateLimits.clientId,
+					ragFileIndexRateLimits.filePath,
+				],
+				set: {
+					attempts: sql`CASE WHEN ${ragFileIndexRateLimits.windowStartedAt} < ${resetBefore} THEN 1 ELSE ${ragFileIndexRateLimits.attempts} + 1 END`,
+					windowStartedAt: sql`CASE WHEN ${ragFileIndexRateLimits.windowStartedAt} < ${resetBefore} THEN now() ELSE ${ragFileIndexRateLimits.windowStartedAt} END`,
+				},
+			})
+			.returning({ attempts: ragFileIndexRateLimits.attempts })
+		if (window && window.attempts > 3) {
+			throw new TooManyRequestsError("Too many reindex attempts")
+		}
+	}
+
 	async reserveEmbeddingUsage(usage: UsageInsert): Promise<string> {
+		validateUsage(usage)
 		return this.db.transaction(async (tx) => {
+			const expired = await tx
+				.delete(embeddingUsageReservations)
+				.where(
+					and(
+						eq(embeddingUsageReservations.clientId, usage.clientId),
+						lt(embeddingUsageReservations.expiresAt, new Date()),
+					),
+				)
+				.returning({ costUsd: embeddingUsageReservations.costUsd })
+			const expiredCost = expired.reduce(
+				(total, reservation) => total + reservation.costUsd,
+				0,
+			)
+			if (expiredCost > 0) {
+				await tx
+					.update(clients)
+					.set({ balanceUsd: sql`${clients.balanceUsd} + ${expiredCost}` })
+					.where(eq(clients.id, usage.clientId))
+			}
+
 			const updated = await tx
 				.update(clients)
 				.set({ balanceUsd: sql`${clients.balanceUsd} - ${usage.costUsd}` })
@@ -177,81 +245,162 @@ export class DrizzleRagRepository implements RagRepository {
 				)
 				.returning({ id: clients.id })
 			if (updated.length === 0) {
+				const [client] = await tx
+					.select({ id: clients.id })
+					.from(clients)
+					.where(eq(clients.id, usage.clientId))
 				throw new BadRequestError(
-					"BALANCE_INSUFFICIENT",
-					"Insufficient balance",
+					client ? "BALANCE_INSUFFICIENT" : "CLIENT_NOT_FOUND",
+					client ? "Insufficient balance" : "Client not found",
 				)
 			}
-			const [record] = await tx
-				.insert(usageRecords)
+			const [reservation] = await tx
+				.insert(embeddingUsageReservations)
 				.values({
-					clientId: usage.clientId,
-					messageId: null,
-					type: "embedding",
-					tokensUsed: usage.tokensUsed,
-					costUsd: usage.costUsd,
+					...usage,
+					expiresAt: new Date(Date.now() + 10 * 60_000),
 				})
-				.returning({ id: usageRecords.id })
-			if (!record) throw new Error("Failed to reserve embedding usage")
-			return record.id
+				.returning({ id: embeddingUsageReservations.id })
+			if (!reservation) throw new Error("Failed to reserve embedding usage")
+			return reservation.id
 		})
 	}
 
-	async refundEmbeddingUsage(clientId: string, usageId: string): Promise<void> {
+	async refundEmbeddingUsage(
+		clientId: string,
+		reservationId: string,
+	): Promise<void> {
 		await this.db.transaction(async (tx) => {
-			const [record] = await tx
-				.delete(usageRecords)
+			const [reservation] = await tx
+				.delete(embeddingUsageReservations)
 				.where(
 					and(
-						eq(usageRecords.id, usageId),
-						eq(usageRecords.clientId, clientId),
-						eq(usageRecords.type, "embedding"),
+						eq(embeddingUsageReservations.id, reservationId),
+						eq(embeddingUsageReservations.clientId, clientId),
 					),
 				)
-				.returning({ costUsd: usageRecords.costUsd })
-			if (record) {
+				.returning({ costUsd: embeddingUsageReservations.costUsd })
+			if (reservation) {
 				await tx
 					.update(clients)
-					.set({ balanceUsd: sql`${clients.balanceUsd} + ${record.costUsd}` })
+					.set({
+						balanceUsd: sql`${clients.balanceUsd} + ${reservation.costUsd}`,
+					})
 					.where(eq(clients.id, clientId))
 			}
 		})
 	}
 
-	async listFileStatuses(clientId: string): Promise<RagFileStatusRecord[]> {
-		const [statuses, embeddedFiles] = await Promise.all([
-			this.db
-				.select({
-					filePath: ragFileStatuses.filePath,
-					status: ragFileStatuses.status,
-					errorCode: ragFileStatuses.errorCode,
+	async refundExpiredEmbeddingUsage(): Promise<void> {
+		await this.db.transaction(async (tx) => {
+			const expired = await tx
+				.delete(embeddingUsageReservations)
+				.where(lt(embeddingUsageReservations.expiresAt, new Date()))
+				.returning({
+					clientId: embeddingUsageReservations.clientId,
+					costUsd: embeddingUsageReservations.costUsd,
 				})
-				.from(ragFileStatuses)
-				.where(eq(ragFileStatuses.clientId, clientId)),
-			this.db
-				.selectDistinct({ filePath: fileEmbeddings.filePath })
-				.from(fileEmbeddings)
-				.where(eq(fileEmbeddings.clientId, clientId)),
-		])
-		const knownPaths = new Set(statuses.map((status) => status.filePath))
-		return [
-			...statuses,
-			...embeddedFiles
-				.filter(({ filePath }) => !knownPaths.has(filePath))
-				.map(({ filePath }) => ({
-					filePath,
-					status: "indexed" as const,
-					errorCode: null,
-				})),
-		]
+			const refunds = new Map<string, number>()
+			for (const reservation of expired) {
+				refunds.set(
+					reservation.clientId,
+					(refunds.get(reservation.clientId) ?? 0) + reservation.costUsd,
+				)
+			}
+			for (const [clientId, costUsd] of refunds) {
+				await tx
+					.update(clients)
+					.set({ balanceUsd: sql`${clients.balanceUsd} + ${costUsd}` })
+					.where(eq(clients.id, clientId))
+			}
+		})
+	}
+
+	async withClientLock<T>(
+		clientId: string,
+		operation: () => Promise<T>,
+	): Promise<T> {
+		const token = crypto.randomUUID()
+		const deadline = Date.now() + 3 * 60_000
+		while (true) {
+			const now = new Date()
+			const [lock] = await this.db
+				.insert(ragClientOperationLocks)
+				.values({
+					clientId,
+					token,
+					expiresAt: new Date(Date.now() + 3 * 60_000),
+				})
+				.onConflictDoUpdate({
+					target: ragClientOperationLocks.clientId,
+					set: {
+						token,
+						expiresAt: new Date(Date.now() + 3 * 60_000),
+					},
+					setWhere: lt(ragClientOperationLocks.expiresAt, now),
+				})
+				.returning({ token: ragClientOperationLocks.token })
+			if (lock?.token === token) break
+			if (Date.now() >= deadline) {
+				throw new TooManyRequestsError("File operation is still in progress")
+			}
+			await Bun.sleep(50)
+		}
+
+		try {
+			return await operation()
+		} finally {
+			await this.db
+				.delete(ragClientOperationLocks)
+				.where(
+					and(
+						eq(ragClientOperationLocks.clientId, clientId),
+						eq(ragClientOperationLocks.token, token),
+					),
+				)
+		}
+	}
+
+	async listFileStatuses(clientId: string): Promise<RagFileStatusRecord[]> {
+		return this.db
+			.select({
+				filePath: ragFileStatuses.filePath,
+				status: ragFileStatuses.status,
+				errorCode: ragFileStatuses.errorCode,
+			})
+			.from(ragFileStatuses)
+			.where(eq(ragFileStatuses.clientId, clientId))
 	}
 
 	async replaceFileChunks(
 		clientId: string,
 		filePath: string,
 		chunks: FileChunk[],
+		reservationId?: string,
 	): Promise<void> {
 		await this.db.transaction(async (tx) => {
+			if (reservationId) {
+				const [reservation] = await tx
+					.delete(embeddingUsageReservations)
+					.where(
+						and(
+							eq(embeddingUsageReservations.id, reservationId),
+							eq(embeddingUsageReservations.clientId, clientId),
+						),
+					)
+					.returning({
+						tokensUsed: embeddingUsageReservations.tokensUsed,
+						costUsd: embeddingUsageReservations.costUsd,
+					})
+				if (!reservation) throw new Error("Embedding reservation not found")
+				await tx.insert(usageRecords).values({
+					clientId,
+					messageId: null,
+					type: "embedding",
+					tokensUsed: reservation.tokensUsed,
+					costUsd: reservation.costUsd,
+				})
+			}
 			await tx
 				.delete(fileEmbeddings)
 				.where(
@@ -280,23 +429,13 @@ export class DrizzleRagRepository implements RagRepository {
 		filePath: string,
 		errorCode: RagFileErrorCode,
 	): Promise<void> {
-		await this.db.transaction(async (tx) => {
-			await tx
-				.delete(fileEmbeddings)
-				.where(
-					and(
-						eq(fileEmbeddings.clientId, clientId),
-						eq(fileEmbeddings.filePath, filePath),
-					),
-				)
-			await tx
-				.insert(ragFileStatuses)
-				.values({ clientId, filePath, status: "failed", errorCode })
-				.onConflictDoUpdate({
-					target: [ragFileStatuses.clientId, ragFileStatuses.filePath],
-					set: { status: "failed", errorCode },
-				})
-		})
+		await this.db
+			.insert(ragFileStatuses)
+			.values({ clientId, filePath, status: "failed", errorCode })
+			.onConflictDoUpdate({
+				target: [ragFileStatuses.clientId, ragFileStatuses.filePath],
+				set: { status: "failed", errorCode },
+			})
 	}
 
 	async deleteFileData(clientId: string, filePath: string): Promise<void> {
@@ -337,6 +476,8 @@ type StoredUsage = {
 	costUsd: number
 }
 
+type StoredReservation = StoredUsage & { expiresAt: number }
+
 function cosineSimilarity(a: number[], b: number[]): number {
 	const dot = a.reduce((sum, ai, i) => sum + ai * (b[i] ?? 0), 0)
 	const magA = Math.sqrt(a.reduce((sum, ai) => sum + ai * ai, 0))
@@ -351,6 +492,11 @@ export class InMemoryRagRepository implements RagRepository {
 	balanceDeductions: { clientId: string; amount: number }[] = []
 	balances: Map<string, number> = new Map()
 	fileStatuses: Map<string, RagFileStatusRecord> = new Map()
+	private reservations = new Map<string, StoredReservation>()
+	private rateLimits = new Map<
+		string,
+		{ attempts: number; startedAt: number }
+	>()
 
 	private chunkKey(
 		clientId: string,
@@ -384,6 +530,12 @@ export class InMemoryRagRepository implements RagRepository {
 			if (chunk.clientId === clientId) {
 				this.chunks.delete(key)
 			}
+		}
+		for (const key of this.fileStatuses.keys()) {
+			if (key.startsWith(`${clientId}::`)) this.fileStatuses.delete(key)
+		}
+		for (const key of this.rateLimits.keys()) {
+			if (key.startsWith(`${clientId}::`)) this.rateLimits.delete(key)
 		}
 	}
 
@@ -430,19 +582,7 @@ export class InMemoryRagRepository implements RagRepository {
 	}
 
 	async recordEmbeddingUsage(usage: UsageInsert): Promise<void> {
-		if (
-			typeof usage.tokensUsed !== "number" ||
-			typeof usage.costUsd !== "number" ||
-			!Number.isFinite(usage.tokensUsed) ||
-			!Number.isFinite(usage.costUsd) ||
-			usage.tokensUsed < 0 ||
-			usage.costUsd < 0
-		) {
-			throw new BadRequestError(
-				"INVALID_USAGE",
-				"tokensUsed and costUsd must be non-negative numbers",
-			)
-		}
+		validateUsage(usage)
 		if (!this.balances.has(usage.clientId)) {
 			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 		}
@@ -458,7 +598,38 @@ export class InMemoryRagRepository implements RagRepository {
 		this.balances.set(usage.clientId, currentBalance - usage.costUsd)
 	}
 
+	async consumeFileIndexAttempt(
+		clientId: string,
+		filePath: string,
+	): Promise<void> {
+		const key = `${clientId}::${filePath}`
+		const now = Date.now()
+		const window = this.rateLimits.get(key)
+		if (!window || now - window.startedAt >= 60_000) {
+			this.rateLimits.set(key, { attempts: 1, startedAt: now })
+			return
+		}
+		window.attempts++
+		if (window.attempts > 3) {
+			throw new TooManyRequestsError("Too many reindex attempts")
+		}
+	}
+
 	async reserveEmbeddingUsage(usage: UsageInsert): Promise<string> {
+		validateUsage(usage)
+		const now = Date.now()
+		for (const [id, reservation] of this.reservations) {
+			if (
+				reservation.clientId === usage.clientId &&
+				reservation.expiresAt < now
+			) {
+				this.reservations.delete(id)
+				this.balances.set(
+					usage.clientId,
+					(this.balances.get(usage.clientId) ?? 0) + reservation.costUsd,
+				)
+			}
+		}
 		if (!this.balances.has(usage.clientId)) {
 			throw new BadRequestError("CLIENT_NOT_FOUND", "Client not found")
 		}
@@ -472,52 +643,72 @@ export class InMemoryRagRepository implements RagRepository {
 			clientId: usage.clientId,
 			amount: usage.costUsd,
 		})
-		this.usageRecords.push({ id, ...usage })
+		this.reservations.set(id, {
+			id,
+			...usage,
+			expiresAt: now + 10 * 60_000,
+		})
 		return id
 	}
 
-	async refundEmbeddingUsage(clientId: string, usageId: string): Promise<void> {
-		const index = this.usageRecords.findIndex(
-			(record) => record.id === usageId && record.clientId === clientId,
+	async refundEmbeddingUsage(
+		clientId: string,
+		reservationId: string,
+	): Promise<void> {
+		const reservation = this.reservations.get(reservationId)
+		if (!reservation || reservation.clientId !== clientId) return
+		this.reservations.delete(reservationId)
+		this.balances.set(
+			clientId,
+			(this.balances.get(clientId) ?? 0) + reservation.costUsd,
 		)
-		if (index === -1) return
-		const [record] = this.usageRecords.splice(index, 1)
-		if (record) {
+	}
+
+	async refundExpiredEmbeddingUsage(): Promise<void> {
+		const now = Date.now()
+		for (const [id, reservation] of this.reservations) {
+			if (reservation.expiresAt >= now) continue
+			this.reservations.delete(id)
 			this.balances.set(
-				clientId,
-				(this.balances.get(clientId) ?? 0) + record.costUsd,
+				reservation.clientId,
+				(this.balances.get(reservation.clientId) ?? 0) + reservation.costUsd,
 			)
 		}
 	}
 
+	async withClientLock<T>(
+		_clientId: string,
+		operation: () => Promise<T>,
+	): Promise<T> {
+		return operation()
+	}
+
 	async listFileStatuses(clientId: string): Promise<RagFileStatusRecord[]> {
-		const statuses = [...this.fileStatuses.entries()]
+		return [...this.fileStatuses.entries()]
 			.filter(([key]) => key.startsWith(`${clientId}::`))
 			.map(([, status]) => status)
-		const knownPaths = new Set(statuses.map((status) => status.filePath))
-		const embeddedPaths = new Set(
-			[...this.chunks.values()]
-				.filter((chunk) => chunk.clientId === clientId)
-				.map((chunk) => chunk.filePath),
-		)
-		return [
-			...statuses,
-			...[...embeddedPaths]
-				.filter((filePath) => !knownPaths.has(filePath))
-				.map((filePath) => ({
-					filePath,
-					status: "indexed" as const,
-					errorCode: null,
-				})),
-		]
 	}
 
 	async replaceFileChunks(
 		clientId: string,
 		filePath: string,
 		chunks: FileChunk[],
+		reservationId?: string,
 	): Promise<void> {
 		const key = `${clientId}::${filePath}`
+		if (reservationId) {
+			const reservation = this.reservations.get(reservationId)
+			if (!reservation || reservation.clientId !== clientId) {
+				throw new Error("Embedding reservation not found")
+			}
+			this.reservations.delete(reservationId)
+			this.usageRecords.push({
+				id: crypto.randomUUID(),
+				clientId,
+				tokensUsed: reservation.tokensUsed,
+				costUsd: reservation.costUsd,
+			})
+		}
 		this.deleteChunks(clientId, filePath)
 		for (const chunk of chunks) {
 			this.chunks.set(this.chunkKey(clientId, filePath, chunk.chunkIndex), {
@@ -539,7 +730,6 @@ export class InMemoryRagRepository implements RagRepository {
 		errorCode: RagFileErrorCode,
 	): Promise<void> {
 		const key = `${clientId}::${filePath}`
-		this.deleteChunks(clientId, filePath)
 		this.fileStatuses.set(key, {
 			filePath,
 			status: "failed",

@@ -104,9 +104,18 @@ class FakeFileIndexer {
 		}
 	>()
 	indexCalls: string[] = []
+	indexError: Error | null = null
+
+	runFileOperation<T>(
+		_clientId: string,
+		operation: () => Promise<T>,
+	): Promise<T> {
+		return operation()
+	}
 
 	async indexFile(_clientId: string, filePath: string): Promise<void> {
 		this.indexCalls.push(filePath)
+		if (this.indexError) throw this.indexError
 	}
 
 	async removeFile(): Promise<void> {}
@@ -345,6 +354,24 @@ describe("POST /client/me/files", () => {
 		expect(rag.indexCalls).toHaveLength(0)
 	})
 
+	it("rejects overwriting a file with stale embeddings", async () => {
+		await service.upload(
+			`${TEST_CLIENT_ID}/existing.txt`,
+			new TextEncoder().encode("old"),
+		)
+		const formData = new FormData()
+		formData.append("file", new File(["new"], "existing.txt"))
+
+		const res = await app.fetch(
+			new Request("http://localhost/client/me/files", {
+				method: "POST",
+				body: formData,
+			}),
+		)
+
+		expect(res.status).toBe(409)
+	})
+
 	it("retries embedding for a stored file", async () => {
 		const rag = new FakeFileIndexer()
 		app = buildApp(service, rag)
@@ -378,6 +405,26 @@ describe("POST /client/me/files", () => {
 
 		expect(res.status).toBe(404)
 		expect(rag.indexCalls).toHaveLength(0)
+	})
+
+	it("returns an error when indexing fails", async () => {
+		const rag = new FakeFileIndexer()
+		rag.indexError = new Error("provider unavailable")
+		app = buildApp(service, rag)
+		await service.upload(
+			`${TEST_CLIENT_ID}/failed.txt`,
+			new TextEncoder().encode("failed"),
+		)
+
+		const res = await app.fetch(
+			new Request("http://localhost/client/me/files/reindex", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ path: "/failed.txt" }),
+			}),
+		)
+
+		expect(res.status).toBe(500)
 	})
 
 	it("uploads into a subdirectory when path query param is given", async () => {

@@ -2,12 +2,8 @@ import { AlertCircle, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-export type UploadError = {
+export type UploadValidationError = {
 	fileName: string
-	reason: "duplicate" | "invalid" | "server"
-}
-
-export type UploadValidationError = Omit<UploadError, "reason"> & {
 	reason: "duplicate" | "invalid"
 }
 

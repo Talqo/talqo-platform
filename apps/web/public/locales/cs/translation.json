@@ -301,6 +301,7 @@
 			"embedded": "Vloženo",
 			"embedding": "Probíhá vkládání souboru...",
 			"embeddingFailed": "Vkládání se nezdařilo, protože poskytovatel není dostupný. Opakujte akci, až bude stabilní.",
+			"indexingFailed": "Indexování se nezdařilo, protože soubor nebo úložiště platformy nebyly dostupné. Zkuste to později.",
 			"insufficientBalance": "Vkládání nebylo zahájeno, protože nemáte dostatečný zůstatek.",
 			"notEmbedded": "Tento soubor zatím není vložen. Opakujte vkládání a indexujte jej.",
 			"renameFailed": "Přejmenování se nezdařilo. Zkuste to znovu.",

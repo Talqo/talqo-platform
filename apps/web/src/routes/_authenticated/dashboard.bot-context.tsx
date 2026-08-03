@@ -9,7 +9,6 @@ import {
 	useUploadFile,
 } from "@/api/hooks/useFiles"
 import { FileList } from "@/components/bot-context"
-import type { UploadError } from "@/components/bot-context/UploadErrorAlert"
 import { PageContainer } from "@/components/layout"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -28,13 +27,13 @@ function BotContextPage() {
 	const handleFileUpload = async (
 		uploadedFiles: File[],
 		onUploaded: (fileName: string) => void,
-	): Promise<UploadError[]> => {
+	): Promise<string[]> => {
 		const results = await Promise.all(
-			uploadedFiles.map(async (file): Promise<UploadError | null> => {
+			uploadedFiles.map(async (file): Promise<string | null> => {
 				try {
 					await uploadFile.mutateAsync(file)
 				} catch {
-					return { fileName: file.name, reason: "server" }
+					return file.name
 				}
 
 				onUploaded(file.name)
@@ -46,7 +45,7 @@ function BotContextPage() {
 				return null
 			}),
 		)
-		return results.filter((result): result is UploadError => result !== null)
+		return results.filter((result): result is string => result !== null)
 	}
 
 	const handleDelete = (name: string): void => {

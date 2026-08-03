@@ -1878,7 +1878,7 @@ export interface paths {
                                 /** @enum {string} */
                                 embeddingStatus?: "indexed" | "failed";
                                 /** @enum {string|null} */
-                                embeddingError?: "insufficient_balance" | "provider_error" | null;
+                                embeddingError?: "insufficient_balance" | "provider_error" | "indexing_error" | null;
                             }[];
                         };
                     };
@@ -1927,6 +1927,20 @@ export interface paths {
                     content: {
                         "application/json": {
                             path: string;
+                        };
+                    };
+                };
+                /** @description File already exists */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
                         };
                     };
                 };
@@ -2026,6 +2040,20 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Indexing rejected */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
                 /** @description File not found */
                 404: {
                     headers: {
@@ -2042,6 +2070,34 @@ export interface paths {
                 };
                 /** @description Invalid path */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Too many reindex attempts */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Indexing failed */
+                500: {
                     headers: {
                         [name: string]: unknown;
                     };

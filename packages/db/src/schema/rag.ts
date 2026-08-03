@@ -2,6 +2,7 @@ import {
 	customType,
 	index,
 	integer,
+	numeric,
 	pgEnum,
 	pgTable,
 	primaryKey,
@@ -10,17 +11,18 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core"
+import { RAG_FILE_ERROR_CODE_VALUES, RAG_FILE_STATUS_VALUES } from "shared"
 import { clients } from "./client"
 
-export const ragFileStatusEnum = pgEnum("rag_file_status", [
-	"indexed",
-	"failed",
-])
+export const ragFileStatusEnum = pgEnum(
+	"rag_file_status",
+	RAG_FILE_STATUS_VALUES,
+)
 
-export const ragFileErrorCodeEnum = pgEnum("rag_file_error_code", [
-	"insufficient_balance",
-	"provider_error",
-])
+export const ragFileErrorCodeEnum = pgEnum(
+	"rag_file_error_code",
+	RAG_FILE_ERROR_CODE_VALUES,
+)
 
 export const ragFileStatuses = pgTable(
 	"rag_file_statuses",
@@ -33,6 +35,47 @@ export const ragFileStatuses = pgTable(
 		errorCode: ragFileErrorCodeEnum("error_code"),
 	},
 	(table) => [primaryKey({ columns: [table.clientId, table.filePath] })],
+)
+
+export const ragFileIndexRateLimits = pgTable(
+	"rag_file_index_rate_limits",
+	{
+		clientId: uuid("client_id")
+			.notNull()
+			.references(() => clients.id, { onDelete: "cascade" }),
+		filePath: text("file_path").notNull(),
+		attempts: integer("attempts").notNull().default(1),
+		windowStartedAt: timestamp("window_started_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+	},
+	(table) => [primaryKey({ columns: [table.clientId, table.filePath] })],
+)
+
+export const ragClientOperationLocks = pgTable("rag_client_operation_locks", {
+	clientId: uuid("client_id")
+		.primaryKey()
+		.references(() => clients.id, { onDelete: "cascade" }),
+	token: uuid("token").notNull(),
+	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+})
+
+export const embeddingUsageReservations = pgTable(
+	"embedding_usage_reservations",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		clientId: uuid("client_id")
+			.notNull()
+			.references(() => clients.id, { onDelete: "cascade" }),
+		tokensUsed: integer("tokens_used").notNull(),
+		costUsd: numeric("cost_usd", {
+			precision: 16,
+			scale: 8,
+			mode: "number",
+		}).notNull(),
+		expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+	},
+	(table) => [index("idx_embedding_reservations_expiry").on(table.expiresAt)],
 )
 
 const vector = customType<{

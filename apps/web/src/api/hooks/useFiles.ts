@@ -1,19 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "@/api/client"
+import type { paths } from "@/api/generated/openapi"
 import { getApiBaseUrl } from "@/lib/api"
 import { AUTH } from "@/lib/constants"
 
 const FILES_KEY = ["files"] as const
 
-// Extracted from the generated response type for /client/me/files GET 200
-export type FileEntry = {
-	name: string
-	type: "file" | "directory"
-	size?: number
-	lastModified?: string
-	embeddingStatus?: "indexed" | "failed"
-	embeddingError?: "insufficient_balance" | "provider_error" | null
-}
+type FileListResponse =
+	paths["/client/me/files"]["get"]["responses"][200]["content"]["application/json"]
+export type FileEntry = FileListResponse["entries"][number]
 
 export function useFiles() {
 	return useQuery({
@@ -23,8 +18,7 @@ export function useFiles() {
 				params: { query: { path: "/" } },
 			})
 			if (error) throw error
-			const entries = data.entries as FileEntry[]
-			return entries.filter(
+			return data.entries.filter(
 				(e): e is FileEntry & { type: "file" } => e.type === "file",
 			)
 		},
@@ -91,6 +85,6 @@ export function useReindexFile() {
 			if (error) throw error
 			return data
 		},
-		onSuccess: () => qc.invalidateQueries({ queryKey: FILES_KEY }),
+		onSettled: () => qc.invalidateQueries({ queryKey: FILES_KEY }),
 	})
 }
