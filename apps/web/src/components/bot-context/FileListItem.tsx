@@ -61,6 +61,7 @@ export function FileListItem({
 		const status = file.embeddingStatus
 		if (status === undefined) return t("botContext.fileListItem.notEmbedded")
 		if (status === "indexed") return t("botContext.fileListItem.embedded")
+		if (status === "stale") return t("botContext.fileListItem.staleEmbedding")
 		if (status === "failed") {
 			const error = file.embeddingError
 			switch (error) {
@@ -101,6 +102,8 @@ export function FileListItem({
 		<LoaderCircle size={16} className="animate-spin text-primary" />
 	) : file.embeddingStatus === "indexed" ? (
 		<CircleCheck size={16} className="text-green-600" />
+	) : file.embeddingStatus === "stale" ? (
+		<AlertTriangle size={16} className="text-amber-600" />
 	) : (
 		<AlertTriangle size={16} className="text-destructive" />
 	)
@@ -181,7 +184,9 @@ export function FileListItem({
 						</Button>
 					)}
 					{!file.uploadStatus &&
-						(file.embeddingStatus === "failed" || !file.embeddingStatus) && (
+						(file.embeddingStatus === "failed" ||
+							file.embeddingStatus === "stale" ||
+							!file.embeddingStatus) && (
 							<Button
 								variant="ghost"
 								size="sm"

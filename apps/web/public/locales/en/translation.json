@@ -306,6 +306,7 @@
 			"renameFile": "Rename file",
 			"retryEmbedding": "Retry embedding",
 			"retryUpload": "Retry upload",
+			"staleEmbedding": "Re-indexing failed. The previous indexed version remains active.",
 			"uploadFailed": "Upload failed",
 			"uploading": "Uploading file..."
 		},

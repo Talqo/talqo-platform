@@ -52,10 +52,8 @@ export const ragFileIndexRateLimits = pgTable(
 	(table) => [primaryKey({ columns: [table.clientId, table.filePath] })],
 )
 
-export const ragClientOperationLocks = pgTable("rag_client_operation_locks", {
-	clientId: uuid("client_id")
-		.primaryKey()
-		.references(() => clients.id, { onDelete: "cascade" }),
+export const ragOperationLocks = pgTable("rag_operation_locks", {
+	key: text("key").primaryKey(),
 	token: uuid("token").notNull(),
 	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 })

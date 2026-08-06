@@ -19,7 +19,8 @@ type ResolvedEmbedding = {
 }
 
 export class RagService {
-	private readonly indexQueues = new Map<string, Promise<void>>()
+	private readonly fileQueues = new Map<string, Promise<void>>()
+	private readonly providerQueues = new Map<string, Promise<void>>()
 
 	constructor(
 		private readonly repo: RagRepository,
@@ -29,34 +30,53 @@ export class RagService {
 
 	async indexFile(clientId: string, filePath: string): Promise<void> {
 		await this.repo.consumeFileIndexAttempt(clientId, filePath)
-		return this.runFileOperation(clientId, () =>
-			this.performIndexFile(clientId, filePath),
+		let resolved: ResolvedEmbedding
+		try {
+			const providerConfig = await this.resolveProviderConfig(clientId)
+			resolved = this.resolveEmbeddingConfig(providerConfig)
+		} catch (error) {
+			await this.repo.markFileFailed(clientId, filePath, "indexing_error")
+			throw error
+		}
+		const providerKey = resolved.usePlatformBilling
+			? "platform"
+			: `client:${clientId}`
+		const fileKey = `${clientId}::${filePath}`
+		return this.enqueue(this.fileQueues, fileKey, () =>
+			this.enqueue(this.providerQueues, providerKey, () =>
+				this.repo.withLock(`file:${fileKey}`, () =>
+					this.performIndexFile(clientId, filePath, resolved, providerKey),
+				),
+			),
 		)
 	}
 
 	runFileOperation<T>(
 		clientId: string,
+		filePath: string,
 		operation: () => Promise<T>,
 	): Promise<T> {
-		return this.enqueue(clientId, () =>
-			this.repo.withClientLock(clientId, operation),
+		const fileKey = `${clientId}::${filePath}`
+		return this.enqueue(this.fileQueues, fileKey, () =>
+			this.repo.withLock(`file:${fileKey}`, operation),
 		)
 	}
 
 	private enqueue<T>(
-		clientId: string,
+		queues: Map<string, Promise<void>>,
+		key: string,
 		operation: () => Promise<T>,
 	): Promise<T> {
-		const previous = this.indexQueues.get(clientId) ?? Promise.resolve()
+		const previous = queues.get(key) ?? Promise.resolve()
 		const run = previous.then(operation)
 		const queued = run.then(
 			() => {},
 			() => {},
 		)
-		this.indexQueues.set(clientId, queued)
+		queues.set(key, queued)
 		void queued.then(() => {
-			if (this.indexQueues.get(clientId) === queued) {
-				this.indexQueues.delete(clientId)
+			if (queues.get(key) === queued) {
+				queues.delete(key)
 			}
 		})
 		return run
@@ -65,6 +85,8 @@ export class RagService {
 	private async performIndexFile(
 		clientId: string,
 		filePath: string,
+		resolved: ResolvedEmbedding,
+		providerKey: string,
 	): Promise<void> {
 		let reservationId: string | undefined
 		let failureCode: RagFileErrorCode = "indexing_error"
@@ -78,8 +100,6 @@ export class RagService {
 				return
 			}
 
-			const providerConfig = await this.resolveProviderConfig(clientId)
-			const resolved = this.resolveEmbeddingConfig(providerConfig)
 			if (resolved.usePlatformBilling) {
 				const tokens = chunks.reduce(
 					(total, chunk) => total + estimateTokens(chunk.text),
@@ -94,11 +114,15 @@ export class RagService {
 			}
 
 			failureCode = "provider_error"
-			const { embeddings } = await embedMany({
-				model: resolved.model,
-				values: chunks.map((chunk) => chunk.text),
-				abortSignal: AbortSignal.timeout(120_000),
-			})
+			const { embeddings, usage: providerUsage } = await this.repo.withLock(
+				`provider:${providerKey}`,
+				() =>
+					embedMany({
+						model: resolved.model,
+						values: chunks.map((chunk) => chunk.text),
+						abortSignal: AbortSignal.timeout(120_000),
+					}),
+			)
 
 			if (embeddings.length !== chunks.length) {
 				throw new Error(
@@ -120,11 +144,24 @@ export class RagService {
 			})
 
 			failureCode = "indexing_error"
+			const finalTokens =
+				providerUsage?.tokens && providerUsage.tokens > 0
+					? providerUsage.tokens
+					: chunks.reduce(
+							(total, chunk) => total + estimateTokens(chunk.text),
+							0,
+						)
 			await this.repo.replaceFileChunks(
 				clientId,
 				filePath,
 				upsertData,
 				reservationId,
+				resolved.usePlatformBilling
+					? {
+							tokensUsed: finalTokens,
+							costUsd: computeEmbeddingCostUsd(finalTokens),
+						}
+					: undefined,
 			)
 		} catch (error) {
 			const publicError =
@@ -153,7 +190,7 @@ export class RagService {
 	}
 
 	async removeFile(clientId: string, filePath: string): Promise<void> {
-		await this.runFileOperation(clientId, () =>
+		await this.runFileOperation(clientId, filePath, () =>
 			this.repo.deleteFileData(clientId, filePath),
 		)
 	}
@@ -167,13 +204,13 @@ export class RagService {
 		oldPath: string,
 		newPath: string,
 	): Promise<void> {
-		await this.runFileOperation(clientId, () =>
+		await this.runFileOperation(clientId, oldPath, () =>
 			this.repo.renameFilePath(clientId, oldPath, newPath),
 		)
 	}
 
 	async removeAllFiles(clientId: string): Promise<void> {
-		await this.runFileOperation(clientId, () =>
+		await this.runFileOperation(clientId, "*", () =>
 			this.repo.deleteByClientId(clientId),
 		)
 	}

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import type { AiProviderConfig } from "shared"
-import { computeEmbeddingCostUsd, estimateTokens } from "@/common/billing"
+import { computeEmbeddingCostUsd } from "@/common/billing"
 import { InMemoryRagRepository } from "./rag.repository"
 
 // ─── Mock ai package BEFORE importing rag.service ─────────────────────────────
@@ -229,9 +229,7 @@ describe("RagService", () => {
 
 			expect(repo.usageRecords.length).toBe(1)
 			expect(repo.usageRecords[0]?.clientId).toBe(CLIENT_ID)
-			expect(repo.usageRecords[0]?.tokensUsed).toBe(
-				estimateTokens("Hello world, this is some content."),
-			)
+			expect(repo.usageRecords[0]?.tokensUsed).toBe(100)
 		})
 
 		it("records platform billing usage when provider type is anthropic", async () => {
@@ -254,9 +252,7 @@ describe("RagService", () => {
 			await service.indexFile(CLIENT_ID, FILE_PATH)
 
 			expect(repo.usageRecords.length).toBe(1)
-			expect(repo.usageRecords[0]?.tokensUsed).toBe(
-				estimateTokens("Hello world, this is some content."),
-			)
+			expect(repo.usageRecords[0]?.tokensUsed).toBe(50)
 		})
 
 		it("does not record billing usage when provider has its own embeddingModel", async () => {
@@ -298,11 +294,28 @@ describe("RagService", () => {
 
 			expect(repo.balanceDeductions.length).toBe(1)
 			expect(repo.balanceDeductions[0]?.clientId).toBe(CLIENT_ID)
-			expect(repo.balanceDeductions[0]?.amount).toBe(
-				computeEmbeddingCostUsd(
-					estimateTokens("Hello world, this is some content."),
-				),
+			expect(repo.balances.get(CLIENT_ID)).toBe(
+				100 - computeEmbeddingCostUsd(100),
 			)
+		})
+
+		it("records actual usage when it exceeds the reserved estimate", async () => {
+			const estimatedCost = computeEmbeddingCostUsd(9)
+			repo.balances.set(CLIENT_ID, estimatedCost)
+			mockEmbedMany.mockImplementation(async () => ({
+				embeddings: [[0.1, 0.2, 0.3]],
+				usage: { tokens: 100 },
+			}))
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+
+			expect(repo.usageRecords[0]?.tokensUsed).toBe(100)
+			expect(repo.balances.get(CLIENT_ID)).toBeLessThan(0)
 		})
 
 		it("does not call the provider when platform balance is insufficient", async () => {
@@ -360,7 +373,7 @@ describe("RagService", () => {
 					(status) => status.filePath === FILE_PATH,
 				),
 			).toMatchObject({
-				status: "failed",
+				status: "stale",
 				errorCode: "provider_error",
 			})
 			expect(repo.balances.get(CLIENT_ID)).toBe(initialBalance)
@@ -402,7 +415,7 @@ describe("RagService", () => {
 			expect(calls).toBe(2)
 		})
 
-		it("does not serialize embedding requests from different clients", async () => {
+		it("serializes platform embedding requests across clients", async () => {
 			const otherClientId = "00000000-0000-4000-8000-000000000002"
 			repo.balances.set(otherClientId, 10)
 			let calls = 0
@@ -432,7 +445,83 @@ describe("RagService", () => {
 			releaseFirst()
 			await Promise.all([first, second])
 
+			expect(callsBeforeRelease).toBe(1)
+		})
+
+		it("does not serialize client-owned providers across clients", async () => {
+			const otherClientId = "00000000-0000-4000-8000-000000000002"
+			repo.balances.set(otherClientId, 10)
+			const ownProvider: AiProviderConfig = {
+				providerType: "openai",
+				apiKey: "own-key",
+				model: "gpt-4",
+				embeddingModel: "text-embedding-3-small",
+			}
+			providerConfigRepo = makeFakeProviderConfigRepo(ownProvider)
+			let calls = 0
+			let releaseFirst: () => void = () => {}
+			const firstCallBlocked = new Promise<void>((resolve) => {
+				releaseFirst = resolve
+			})
+			mockEmbedMany.mockImplementation(async () => {
+				calls++
+				if (calls === 1) await firstCallBlocked
+				return {
+					embeddings: [[0.1, 0.2, 0.3]],
+					usage: { tokens: 5 },
+				}
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+
+			const first = service.indexFile(CLIENT_ID, "first.txt")
+			await Bun.sleep(0)
+			const second = service.indexFile(otherClientId, "second.txt")
+			await Bun.sleep(0)
+			const callsBeforeRelease = calls
+			releaseFirst()
+			await Promise.all([first, second])
+
 			expect(callsBeforeRelease).toBe(2)
+		})
+
+		it("does not block unrelated file operations behind embedding", async () => {
+			let releaseProvider: () => void = () => {}
+			const providerBlocked = new Promise<void>((resolve) => {
+				releaseProvider = resolve
+			})
+			mockEmbedMany.mockImplementationOnce(async () => {
+				await providerBlocked
+				return {
+					embeddings: [[0.1, 0.2, 0.3]],
+					usage: { tokens: 5 },
+				}
+			})
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+			let uploadFinished = false
+
+			const indexing = service.indexFile(CLIENT_ID, "first.txt")
+			await Bun.sleep(0)
+			const upload = service.runFileOperation(
+				CLIENT_ID,
+				"second.txt",
+				async () => {
+					uploadFinished = true
+				},
+			)
+			await Bun.sleep(0)
+			const finishedBeforeEmbedding = uploadFinished
+			releaseProvider()
+			await Promise.all([indexing, upload])
+
+			expect(finishedBeforeEmbedding).toBe(true)
 		})
 
 		it("classifies file read failures as indexing errors", async () => {
@@ -474,6 +563,40 @@ describe("RagService", () => {
 			).rejects.toMatchObject({
 				code: "TOO_MANY_REQUESTS",
 			})
+		})
+
+		it("clears the rate limit when a file is deleted", async () => {
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+
+			await service.removeFile(CLIENT_ID, FILE_PATH)
+
+			await expect(
+				service.indexFile(CLIENT_ID, FILE_PATH),
+			).resolves.toBeUndefined()
+		})
+
+		it("moves the rate limit when a file is renamed", async () => {
+			const service = new RagService(
+				repo,
+				filesService as never,
+				providerConfigRepo as never,
+			)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+			await service.indexFile(CLIENT_ID, FILE_PATH)
+
+			await service.renameFile(CLIENT_ID, FILE_PATH, "renamed.txt")
+
+			await expect(
+				service.indexFile(CLIENT_ID, "renamed.txt"),
+			).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" })
 		})
 
 		it("finishes an in-flight index before deleting its data", async () => {

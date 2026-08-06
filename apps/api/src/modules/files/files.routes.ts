@@ -17,7 +17,11 @@ import type { FilesService } from "./files.service"
 
 // Minimal interface — avoids importing from rag/index and creating a circular dep
 type FileIndexer = {
-	runFileOperation<T>(clientId: string, operation: () => Promise<T>): Promise<T>
+	runFileOperation<T>(
+		clientId: string,
+		filePath: string,
+		operation: () => Promise<T>,
+	): Promise<T>
 	indexFile(clientId: string, filePath: string): Promise<void>
 	removeFile(clientId: string, filePath: string): Promise<void>
 	renameFile(clientId: string, oldPath: string, newPath: string): Promise<void>
@@ -194,7 +198,7 @@ export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 		}),
 		async (c) => {
 			const clientId = c.get("clientId" as never) as string
-			const { path } = c.req.valid("query")
+			const { path, index } = c.req.valid("query")
 
 			const dirKey = buildDirKey(clientId, path)
 
@@ -215,12 +219,15 @@ export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 
 			const key = `${dirKey}${file.name}`
 			const filePath = relativePath(clientId, key)
-			await rag.runFileOperation(clientId, async () => {
+			await rag.runFileOperation(clientId, filePath, async () => {
 				if (await service.exists(key)) {
 					throw new ConflictError("File already exists")
 				}
 				await service.upload(key, file, { contentType: file.type || undefined })
 			})
+			if (index) {
+				await rag.indexFile(clientId, filePath)
+			}
 			return c.json({ path: `/${filePath}` }, 201)
 		},
 	)

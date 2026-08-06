@@ -3,7 +3,7 @@ import { z } from "zod"
 const noTraversal = (path: string) => !path.includes("..")
 const notDirectory = (path: string) => path === "/" || !path.endsWith("/")
 
-export const RAG_FILE_STATUS_VALUES = ["indexed", "failed"] as const
+export const RAG_FILE_STATUS_VALUES = ["indexed", "stale", "failed"] as const
 export type RagFileStatus = (typeof RAG_FILE_STATUS_VALUES)[number]
 export const ragFileStatusSchema = z.enum(RAG_FILE_STATUS_VALUES)
 
@@ -52,6 +52,10 @@ export const fileUploadQuerySchema = z.object({
 		.max(1024)
 		.default("/")
 		.refine(noTraversal, { message: "Path must not contain '..'" }),
+	index: z
+		.enum(["true", "false"])
+		.default("true")
+		.transform((value) => value === "true"),
 })
 
 export const filePresignBodySchema = z.object({

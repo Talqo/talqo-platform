@@ -35,11 +35,14 @@ export function useUploadFile() {
 			const token = localStorage.getItem(AUTH.TOKEN_KEY)
 			const fd = new FormData()
 			fd.append("file", file)
-			const res = await fetch(`${getApiBaseUrl()}/client/me/files?path=/`, {
-				method: "POST",
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
-				body: fd,
-			})
+			const res = await fetch(
+				`${getApiBaseUrl()}/client/me/files?path=/&index=false`,
+				{
+					method: "POST",
+					headers: token ? { Authorization: `Bearer ${token}` } : {},
+					body: fd,
+				},
+			)
 			if (!res.ok) throw await res.json()
 			return res.json()
 		},

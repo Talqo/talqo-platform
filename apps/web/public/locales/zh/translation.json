@@ -305,6 +305,7 @@
 			"renameFile": "重命名文件",
 			"retryEmbedding": "重试嵌入",
 			"retryUpload": "重试上传",
+			"staleEmbedding": "重新索引失败。之前已索引的版本仍然有效。",
 			"uploadFailed": "上传失败",
 			"uploading": "正在上传文件..."
 		},

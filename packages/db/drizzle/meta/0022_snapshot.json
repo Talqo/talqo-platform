@@ -1,5 +1,5 @@
 {
-	"id": "801595e3-0b4d-4e1b-a485-4d2a487dda12",
+	"id": "54bc9a08-7924-4841-be90-00268e4d1ee0",
 	"prevId": "a970218c-9fdc-4d43-95d2-ff0311745ae4",
 	"version": "7",
 	"dialect": "postgresql",
@@ -46,20 +46,20 @@
 				"admin_access_logs_admin_id_admin_users_id_fk": {
 					"name": "admin_access_logs_admin_id_admin_users_id_fk",
 					"tableFrom": "admin_access_logs",
-					"columnsFrom": ["admin_id"],
 					"tableTo": "admin_users",
+					"columnsFrom": ["admin_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "restrict"
+					"onDelete": "restrict",
+					"onUpdate": "no action"
 				},
 				"admin_access_logs_client_id_clients_id_fk": {
 					"name": "admin_access_logs_client_id_clients_id_fk",
 					"tableFrom": "admin_access_logs",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "set null"
+					"onDelete": "set null",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -118,8 +118,8 @@
 			"uniqueConstraints": {
 				"admin_users_email_unique": {
 					"name": "admin_users_email_unique",
-					"columns": ["email"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["email"]
 				}
 			},
 			"policies": {},
@@ -187,19 +187,19 @@
 				"ai_provider_configs_client_id_clients_id_fk": {
 					"name": "ai_provider_configs_client_id_clients_id_fk",
 					"tableFrom": "ai_provider_configs",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
 				"ai_provider_configs_client_id_unique": {
 					"name": "ai_provider_configs_client_id_unique",
-					"columns": ["client_id"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["client_id"]
 				}
 			},
 			"policies": {},
@@ -242,19 +242,19 @@
 				"blacklist_words_client_id_clients_id_fk": {
 					"name": "blacklist_words_client_id_clients_id_fk",
 					"tableFrom": "blacklist_words",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
 				"blacklist_words_client_id_word_unique": {
 					"name": "blacklist_words_client_id_word_unique",
-					"columns": ["client_id", "word"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["client_id", "word"]
 				}
 			},
 			"policies": {},
@@ -309,19 +309,19 @@
 				"bot_configs_client_id_clients_id_fk": {
 					"name": "bot_configs_client_id_clients_id_fk",
 					"tableFrom": "bot_configs",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
 				"bot_configs_client_id_unique": {
 					"name": "bot_configs_client_id_unique",
-					"columns": ["client_id"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["client_id"]
 				}
 			},
 			"policies": {},
@@ -350,20 +350,20 @@
 				"client_pre_made_mcp_client_id_clients_id_fk": {
 					"name": "client_pre_made_mcp_client_id_clients_id_fk",
 					"tableFrom": "client_pre_made_mcp",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				},
 				"client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk": {
 					"name": "client_pre_made_mcp_pre_made_mcp_id_pre_made_mcp_servers_id_fk",
 					"tableFrom": "client_pre_made_mcp",
-					"columnsFrom": ["pre_made_mcp_id"],
 					"tableTo": "pre_made_mcp_servers",
+					"columnsFrom": ["pre_made_mcp_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {
@@ -473,13 +473,13 @@
 			"uniqueConstraints": {
 				"clients_email_unique": {
 					"name": "clients_email_unique",
-					"columns": ["email"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["email"]
 				},
 				"clients_widget_token_unique": {
 					"name": "clients_widget_token_unique",
-					"columns": ["widget_token"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["widget_token"]
 				}
 			},
 			"policies": {},
@@ -535,29 +535,29 @@
 						}
 					],
 					"isUnique": false,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				}
 			},
 			"foreignKeys": {
 				"conversations_session_id_end_user_sessions_id_fk": {
 					"name": "conversations_session_id_end_user_sessions_id_fk",
 					"tableFrom": "conversations",
-					"columnsFrom": ["session_id"],
 					"tableTo": "end_user_sessions",
+					"columnsFrom": ["session_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				},
 				"conversations_client_id_clients_id_fk": {
 					"name": "conversations_client_id_clients_id_fk",
 					"tableFrom": "conversations",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -600,11 +600,11 @@
 				"custom_mcp_servers_client_id_clients_id_fk": {
 					"name": "custom_mcp_servers_client_id_clients_id_fk",
 					"tableFrom": "custom_mcp_servers",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -661,20 +661,20 @@
 						}
 					],
 					"isUnique": false,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				}
 			},
 			"foreignKeys": {
 				"embedding_usage_reservations_client_id_clients_id_fk": {
 					"name": "embedding_usage_reservations_client_id_clients_id_fk",
 					"tableFrom": "embedding_usage_reservations",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -726,19 +726,19 @@
 				"end_user_sessions_client_id_clients_id_fk": {
 					"name": "end_user_sessions_client_id_clients_id_fk",
 					"tableFrom": "end_user_sessions",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
 				"end_user_sessions_client_id_browser_session_id_unique": {
 					"name": "end_user_sessions_client_id_browser_session_id_unique",
-					"columns": ["client_id", "browser_session_id"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["client_id", "browser_session_id"]
 				}
 			},
 			"policies": {},
@@ -824,9 +824,9 @@
 						}
 					],
 					"isUnique": true,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				},
 				"idx_file_embeddings_client_id": {
 					"name": "idx_file_embeddings_client_id",
@@ -839,20 +839,20 @@
 						}
 					],
 					"isUnique": false,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				}
 			},
 			"foreignKeys": {
 				"file_embeddings_client_id_clients_id_fk": {
 					"name": "file_embeddings_client_id_clients_id_fk",
 					"tableFrom": "file_embeddings",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -924,20 +924,20 @@
 						}
 					],
 					"isUnique": false,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				}
 			},
 			"foreignKeys": {
 				"messages_conversation_id_conversations_id_fk": {
 					"name": "messages_conversation_id_conversations_id_fk",
 					"tableFrom": "messages",
-					"columnsFrom": ["conversation_id"],
 					"tableTo": "conversations",
+					"columnsFrom": ["conversation_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -1037,19 +1037,19 @@
 				"pending_registrations_consumed_by_client_id_clients_id_fk": {
 					"name": "pending_registrations_consumed_by_client_id_clients_id_fk",
 					"tableFrom": "pending_registrations",
-					"columnsFrom": ["consumed_by_client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["consumed_by_client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "no action"
+					"onDelete": "no action",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
 				"pending_registrations_email_unique": {
 					"name": "pending_registrations_email_unique",
-					"columns": ["email"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["email"]
 				}
 			},
 			"policies": {},
@@ -1094,47 +1094,6 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
-		"public.rag_client_operation_locks": {
-			"name": "rag_client_operation_locks",
-			"schema": "",
-			"columns": {
-				"client_id": {
-					"name": "client_id",
-					"type": "uuid",
-					"primaryKey": true,
-					"notNull": true
-				},
-				"token": {
-					"name": "token",
-					"type": "uuid",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"expires_at": {
-					"name": "expires_at",
-					"type": "timestamp with time zone",
-					"primaryKey": false,
-					"notNull": true
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {
-				"rag_client_operation_locks_client_id_clients_id_fk": {
-					"name": "rag_client_operation_locks_client_id_clients_id_fk",
-					"tableFrom": "rag_client_operation_locks",
-					"columnsFrom": ["client_id"],
-					"tableTo": "clients",
-					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {},
-			"policies": {},
-			"checkConstraints": {},
-			"isRLSEnabled": false
-		},
 		"public.rag_file_index_rate_limits": {
 			"name": "rag_file_index_rate_limits",
 			"schema": "",
@@ -1171,11 +1130,11 @@
 				"rag_file_index_rate_limits_client_id_clients_id_fk": {
 					"name": "rag_file_index_rate_limits_client_id_clients_id_fk",
 					"tableFrom": "rag_file_index_rate_limits",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {
@@ -1225,11 +1184,11 @@
 				"rag_file_statuses_client_id_clients_id_fk": {
 					"name": "rag_file_statuses_client_id_clients_id_fk",
 					"tableFrom": "rag_file_statuses",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {
@@ -1238,6 +1197,37 @@
 					"columns": ["client_id", "file_path"]
 				}
 			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.rag_operation_locks": {
+			"name": "rag_operation_locks",
+			"schema": "",
+			"columns": {
+				"key": {
+					"name": "key",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"token": {
+					"name": "token",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
 			"policies": {},
 			"checkConstraints": {},
@@ -1312,29 +1302,29 @@
 						}
 					],
 					"isUnique": false,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				}
 			},
 			"foreignKeys": {
 				"usage_records_client_id_clients_id_fk": {
 					"name": "usage_records_client_id_clients_id_fk",
 					"tableFrom": "usage_records",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				},
 				"usage_records_message_id_messages_id_fk": {
 					"name": "usage_records_message_id_messages_id_fk",
 					"tableFrom": "usage_records",
-					"columnsFrom": ["message_id"],
 					"tableTo": "messages",
+					"columnsFrom": ["message_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -1405,19 +1395,19 @@
 				"widget_configs_client_id_clients_id_fk": {
 					"name": "widget_configs_client_id_clients_id_fk",
 					"tableFrom": "widget_configs",
-					"columnsFrom": ["client_id"],
 					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
 					"columnsTo": ["id"],
-					"onUpdate": "no action",
-					"onDelete": "cascade"
+					"onDelete": "cascade",
+					"onUpdate": "no action"
 				}
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
 				"widget_configs_client_id_unique": {
 					"name": "widget_configs_client_id_unique",
-					"columns": ["client_id"],
-					"nullsNotDistinct": false
+					"nullsNotDistinct": false,
+					"columns": ["client_id"]
 				}
 			},
 			"policies": {},
@@ -1460,9 +1450,9 @@
 						}
 					],
 					"isUnique": false,
-					"with": {},
+					"concurrently": false,
 					"method": "btree",
-					"concurrently": false
+					"with": {}
 				}
 			},
 			"foreignKeys": {},
@@ -1497,7 +1487,7 @@
 		"public.rag_file_status": {
 			"name": "rag_file_status",
 			"schema": "public",
-			"values": ["indexed", "failed"]
+			"values": ["indexed", "stale", "failed"]
 		},
 		"public.usage_type": {
 			"name": "usage_type",
@@ -1506,10 +1496,11 @@
 		}
 	},
 	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
 	"views": {
 		"public.active_admin_users": {
-			"name": "active_admin_users",
-			"schema": "public",
 			"columns": {
 				"id": {
 					"name": "id",
@@ -1539,13 +1530,12 @@
 				}
 			},
 			"definition": "select \"id\", \"email\", \"password_hash\", \"created_at\" from \"admin_users\" where \"admin_users\".\"is_deleted\" = false",
-			"materialized": false,
-			"isExisting": false
+			"name": "active_admin_users",
+			"schema": "public",
+			"isExisting": false,
+			"materialized": false
 		}
 	},
-	"sequences": {},
-	"roles": {},
-	"policies": {},
 	"_meta": {
 		"columns": {},
 		"schemas": {},

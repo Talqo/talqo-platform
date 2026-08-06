@@ -308,6 +308,7 @@
 			"renameFile": "Přejmenovat soubor",
 			"retryEmbedding": "Opakovat vkládání",
 			"retryUpload": "Opakovat nahrání",
+			"staleEmbedding": "Opětovné indexování se nezdařilo. Předchozí indexovaná verze zůstává aktivní.",
 			"uploadFailed": "Nahrání se nezdařilo",
 			"uploading": "Probíhá nahrávání souboru..."
 		},

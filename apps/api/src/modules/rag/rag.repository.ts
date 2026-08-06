@@ -6,9 +6,9 @@ import {
 	clients,
 	embeddingUsageReservations,
 	fileEmbeddings,
-	ragClientOperationLocks,
 	ragFileIndexRateLimits,
 	ragFileStatuses,
+	ragOperationLocks,
 	usageRecords,
 } from "@/db/schema"
 
@@ -31,6 +31,8 @@ export type UsageInsert = {
 	costUsd: number
 }
 
+type FinalUsage = Omit<UsageInsert, "clientId">
+
 export type RagRepository = {
 	deleteByClientId(clientId: string): Promise<void>
 	renameFilePath(
@@ -48,13 +50,14 @@ export type RagRepository = {
 	reserveEmbeddingUsage(usage: UsageInsert): Promise<string>
 	refundEmbeddingUsage(clientId: string, reservationId: string): Promise<void>
 	refundExpiredEmbeddingUsage(): Promise<void>
-	withClientLock<T>(clientId: string, operation: () => Promise<T>): Promise<T>
+	withLock<T>(key: string, operation: () => Promise<T>): Promise<T>
 	listFileStatuses(clientId: string): Promise<RagFileStatusRecord[]>
 	replaceFileChunks(
 		clientId: string,
 		filePath: string,
 		chunks: FileChunk[],
 		reservationId?: string,
+		finalUsage?: FinalUsage,
 	): Promise<void>
 	markFileFailed(
 		clientId: string,
@@ -105,6 +108,23 @@ export class DrizzleRagRepository implements RagRepository {
 		newPath: string,
 	): Promise<void> {
 		await this.db.transaction(async (tx) => {
+			await tx
+				.delete(ragFileIndexRateLimits)
+				.where(
+					and(
+						eq(ragFileIndexRateLimits.clientId, clientId),
+						eq(ragFileIndexRateLimits.filePath, newPath),
+					),
+				)
+			await tx
+				.update(ragFileIndexRateLimits)
+				.set({ filePath: newPath })
+				.where(
+					and(
+						eq(ragFileIndexRateLimits.clientId, clientId),
+						eq(ragFileIndexRateLimits.filePath, oldPath),
+					),
+				)
 			await tx
 				.update(fileEmbeddings)
 				.set({ filePath: newPath })
@@ -316,46 +336,45 @@ export class DrizzleRagRepository implements RagRepository {
 		})
 	}
 
-	async withClientLock<T>(
-		clientId: string,
-		operation: () => Promise<T>,
-	): Promise<T> {
+	async withLock<T>(key: string, operation: () => Promise<T>): Promise<T> {
 		const token = crypto.randomUUID()
 		const deadline = Date.now() + 3 * 60_000
+		let delayMs = 50
 		while (true) {
 			const now = new Date()
 			const [lock] = await this.db
-				.insert(ragClientOperationLocks)
+				.insert(ragOperationLocks)
 				.values({
-					clientId,
+					key,
 					token,
 					expiresAt: new Date(Date.now() + 3 * 60_000),
 				})
 				.onConflictDoUpdate({
-					target: ragClientOperationLocks.clientId,
+					target: ragOperationLocks.key,
 					set: {
 						token,
 						expiresAt: new Date(Date.now() + 3 * 60_000),
 					},
-					setWhere: lt(ragClientOperationLocks.expiresAt, now),
+					setWhere: lt(ragOperationLocks.expiresAt, now),
 				})
-				.returning({ token: ragClientOperationLocks.token })
+				.returning({ token: ragOperationLocks.token })
 			if (lock?.token === token) break
 			if (Date.now() >= deadline) {
 				throw new TooManyRequestsError("File operation is still in progress")
 			}
-			await Bun.sleep(50)
+			await Bun.sleep(delayMs)
+			delayMs = Math.min(delayMs * 2, 1_000)
 		}
 
 		try {
 			return await operation()
 		} finally {
 			await this.db
-				.delete(ragClientOperationLocks)
+				.delete(ragOperationLocks)
 				.where(
 					and(
-						eq(ragClientOperationLocks.clientId, clientId),
-						eq(ragClientOperationLocks.token, token),
+						eq(ragOperationLocks.key, key),
+						eq(ragOperationLocks.token, token),
 					),
 				)
 		}
@@ -377,6 +396,7 @@ export class DrizzleRagRepository implements RagRepository {
 		filePath: string,
 		chunks: FileChunk[],
 		reservationId?: string,
+		finalUsage?: FinalUsage,
 	): Promise<void> {
 		await this.db.transaction(async (tx) => {
 			if (reservationId) {
@@ -393,12 +413,30 @@ export class DrizzleRagRepository implements RagRepository {
 						costUsd: embeddingUsageReservations.costUsd,
 					})
 				if (!reservation) throw new Error("Embedding reservation not found")
+				const usage = finalUsage ?? reservation
+				validateUsage({ clientId, ...usage })
+				const costDifference = usage.costUsd - reservation.costUsd
+				if (costDifference > 0) {
+					await tx
+						.update(clients)
+						.set({
+							balanceUsd: sql`${clients.balanceUsd} - ${costDifference}`,
+						})
+						.where(eq(clients.id, clientId))
+				} else if (costDifference < 0) {
+					await tx
+						.update(clients)
+						.set({
+							balanceUsd: sql`${clients.balanceUsd} + ${-costDifference}`,
+						})
+						.where(eq(clients.id, clientId))
+				}
 				await tx.insert(usageRecords).values({
 					clientId,
 					messageId: null,
 					type: "embedding",
-					tokensUsed: reservation.tokensUsed,
-					costUsd: reservation.costUsd,
+					tokensUsed: usage.tokensUsed,
+					costUsd: usage.costUsd,
 				})
 			}
 			await tx
@@ -429,17 +467,36 @@ export class DrizzleRagRepository implements RagRepository {
 		filePath: string,
 		errorCode: RagFileErrorCode,
 	): Promise<void> {
+		const [existingChunk] = await this.db
+			.select({ chunkIndex: fileEmbeddings.chunkIndex })
+			.from(fileEmbeddings)
+			.where(
+				and(
+					eq(fileEmbeddings.clientId, clientId),
+					eq(fileEmbeddings.filePath, filePath),
+				),
+			)
+			.limit(1)
+		const status = existingChunk ? "stale" : "failed"
 		await this.db
 			.insert(ragFileStatuses)
-			.values({ clientId, filePath, status: "failed", errorCode })
+			.values({ clientId, filePath, status, errorCode })
 			.onConflictDoUpdate({
 				target: [ragFileStatuses.clientId, ragFileStatuses.filePath],
-				set: { status: "failed", errorCode },
+				set: { status, errorCode },
 			})
 	}
 
 	async deleteFileData(clientId: string, filePath: string): Promise<void> {
 		await this.db.transaction(async (tx) => {
+			await tx
+				.delete(ragFileIndexRateLimits)
+				.where(
+					and(
+						eq(ragFileIndexRateLimits.clientId, clientId),
+						eq(ragFileIndexRateLimits.filePath, filePath),
+					),
+				)
 			await tx
 				.delete(ragFileStatuses)
 				.where(
@@ -564,6 +621,13 @@ export class InMemoryRagRepository implements RagRepository {
 				filePath: newPath,
 			})
 		}
+		const oldRateKey = `${clientId}::${oldPath}`
+		const rateLimit = this.rateLimits.get(oldRateKey)
+		this.rateLimits.delete(`${clientId}::${newPath}`)
+		if (rateLimit) {
+			this.rateLimits.delete(oldRateKey)
+			this.rateLimits.set(`${clientId}::${newPath}`, rateLimit)
+		}
 	}
 
 	async search(
@@ -676,10 +740,7 @@ export class InMemoryRagRepository implements RagRepository {
 		}
 	}
 
-	async withClientLock<T>(
-		_clientId: string,
-		operation: () => Promise<T>,
-	): Promise<T> {
+	async withLock<T>(_key: string, operation: () => Promise<T>): Promise<T> {
 		return operation()
 	}
 
@@ -694,6 +755,7 @@ export class InMemoryRagRepository implements RagRepository {
 		filePath: string,
 		chunks: FileChunk[],
 		reservationId?: string,
+		finalUsage?: FinalUsage,
 	): Promise<void> {
 		const key = `${clientId}::${filePath}`
 		if (reservationId) {
@@ -701,12 +763,17 @@ export class InMemoryRagRepository implements RagRepository {
 			if (!reservation || reservation.clientId !== clientId) {
 				throw new Error("Embedding reservation not found")
 			}
+			const usage = finalUsage ?? reservation
+			validateUsage({ clientId, ...usage })
+			const costDifference = usage.costUsd - reservation.costUsd
+			const balance = this.balances.get(clientId) ?? 0
 			this.reservations.delete(reservationId)
+			this.balances.set(clientId, balance - costDifference)
 			this.usageRecords.push({
 				id: crypto.randomUUID(),
 				clientId,
-				tokensUsed: reservation.tokensUsed,
-				costUsd: reservation.costUsd,
+				tokensUsed: usage.tokensUsed,
+				costUsd: usage.costUsd,
 			})
 		}
 		this.deleteChunks(clientId, filePath)
@@ -730,9 +797,12 @@ export class InMemoryRagRepository implements RagRepository {
 		errorCode: RagFileErrorCode,
 	): Promise<void> {
 		const key = `${clientId}::${filePath}`
+		const hasChunks = [...this.chunks.values()].some(
+			(chunk) => chunk.clientId === clientId && chunk.filePath === filePath,
+		)
 		this.fileStatuses.set(key, {
 			filePath,
-			status: "failed",
+			status: hasChunks ? "stale" : "failed",
 			errorCode,
 		})
 	}
@@ -740,5 +810,6 @@ export class InMemoryRagRepository implements RagRepository {
 	async deleteFileData(clientId: string, filePath: string): Promise<void> {
 		this.deleteChunks(clientId, filePath)
 		this.fileStatuses.delete(`${clientId}::${filePath}`)
+		this.rateLimits.delete(`${clientId}::${filePath}`)
 	}
 }

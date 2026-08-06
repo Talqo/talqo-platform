@@ -108,6 +108,7 @@ class FakeFileIndexer {
 
 	runFileOperation<T>(
 		_clientId: string,
+		_filePath: string,
 		operation: () => Promise<T>,
 	): Promise<T> {
 		return operation()
@@ -345,13 +346,31 @@ describe("POST /client/me/files", () => {
 		formData.append("file", new File(["hello"], "status.txt"))
 
 		const res = await app.fetch(
-			new Request("http://localhost/client/me/files", {
+			new Request("http://localhost/client/me/files?index=false", {
 				method: "POST",
 				body: formData,
 			}),
 		)
 		expect(res.status).toBe(201)
 		expect(rag.indexCalls).toHaveLength(0)
+	})
+
+	it("starts indexing by default after upload", async () => {
+		const rag = new FakeFileIndexer()
+		app = buildApp(service, rag)
+		const formData = new FormData()
+		formData.append("file", new File(["hello"], "indexed.txt"))
+
+		const res = await app.fetch(
+			new Request("http://localhost/client/me/files", {
+				method: "POST",
+				body: formData,
+			}),
+		)
+		await Bun.sleep(0)
+
+		expect(res.status).toBe(201)
+		expect(rag.indexCalls).toEqual(["indexed.txt"])
 	})
 
 	it("rejects overwriting a file with stale embeddings", async () => {

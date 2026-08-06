@@ -1876,7 +1876,7 @@ export interface paths {
                                 size?: number;
                                 lastModified?: string;
                                 /** @enum {string} */
-                                embeddingStatus?: "indexed" | "failed";
+                                embeddingStatus?: "indexed" | "stale" | "failed";
                                 /** @enum {string|null} */
                                 embeddingError?: "insufficient_balance" | "provider_error" | "indexing_error" | null;
                             }[];
@@ -1905,6 +1905,7 @@ export interface paths {
             parameters: {
                 query?: {
                     path?: string;
+                    index?: "true" | "false";
                 };
                 header?: never;
                 path?: never;
