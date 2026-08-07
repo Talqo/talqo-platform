@@ -221,8 +221,8 @@ export class DrizzleRagRepository implements RagRepository {
 					ragFileIndexRateLimits.filePath,
 				],
 				set: {
-					attempts: sql`CASE WHEN ${ragFileIndexRateLimits.windowStartedAt} < ${resetBefore} THEN 1 ELSE ${ragFileIndexRateLimits.attempts} + 1 END`,
-					windowStartedAt: sql`CASE WHEN ${ragFileIndexRateLimits.windowStartedAt} < ${resetBefore} THEN now() ELSE ${ragFileIndexRateLimits.windowStartedAt} END`,
+					attempts: sql`CASE WHEN ${ragFileIndexRateLimits.windowStartedAt} < ${resetBefore.toISOString()}::timestamptz THEN 1 ELSE ${ragFileIndexRateLimits.attempts} + 1 END`,
+					windowStartedAt: sql`CASE WHEN ${ragFileIndexRateLimits.windowStartedAt} < ${resetBefore.toISOString()}::timestamptz THEN now() ELSE ${ragFileIndexRateLimits.windowStartedAt} END`,
 				},
 			})
 			.returning({ attempts: ragFileIndexRateLimits.attempts })
