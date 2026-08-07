@@ -37,6 +37,22 @@ export type DisplayedFile = FileEntry & {
 	sourceFile?: File
 }
 
+type FileStatus = {
+	label: string
+	working: boolean
+	icon: "indexed" | "stale" | "failed"
+	canRetryEmbedding: boolean
+}
+
+const persistedStatuses: Record<
+	NonNullable<DisplayedFile["embeddingStatus"]>,
+	Pick<FileStatus, "icon" | "canRetryEmbedding">
+> = {
+	indexed: { icon: "indexed", canRetryEmbedding: false },
+	stale: { icon: "stale", canRetryEmbedding: true },
+	failed: { icon: "failed", canRetryEmbedding: true },
+}
+
 export function FileListItem({
 	file,
 	isEditing,
@@ -53,42 +69,57 @@ export function FileListItem({
 }: FileListItemProps) {
 	const { t } = useTranslation()
 	const [isReindexing, setIsReindexing] = useState(false)
-	const isWorking =
-		isReindexing ||
-		file.uploadStatus === "uploading" ||
-		file.uploadStatus === "embedding"
-	const persistedStatusLabel = (() => {
-		const status = file.embeddingStatus
-		if (status === undefined) return t("botContext.fileListItem.notEmbedded")
-		if (status === "indexed") return t("botContext.fileListItem.embedded")
-		if (status === "stale") return t("botContext.fileListItem.staleEmbedding")
-		if (status === "failed") {
-			const error = file.embeddingError
-			switch (error) {
-				case "insufficient_balance":
-					return t("botContext.fileListItem.insufficientBalance")
-				case "indexing_error":
-					return t("botContext.fileListItem.indexingFailed")
-				case "provider_error":
-				case null:
-				case undefined:
-					return t("botContext.fileListItem.embeddingFailed")
+	const transientLabels = {
+		uploading: t("botContext.fileListItem.uploading"),
+		embedding: t("botContext.fileListItem.embedding"),
+		failed: t("botContext.fileListItem.uploadFailed"),
+	}
+	const transientStatus: FileStatus | null = file.uploadStatus
+		? {
+				label: transientLabels[file.uploadStatus],
+				working: file.uploadStatus !== "failed",
+				icon: "failed",
+				canRetryEmbedding: false,
 			}
-			error satisfies never
+		: null
+	const getFileStatus = (): FileStatus => {
+		if (transientStatus) return transientStatus
+		if (isReindexing) {
+			return {
+				label: t("botContext.fileListItem.embedding"),
+				working: true,
+				icon: "failed",
+				canRetryEmbedding: false,
+			}
 		}
-		status satisfies never
-		return t("botContext.fileListItem.notEmbedded")
-	})()
-	const statusLabel =
-		file.uploadStatus === "uploading"
-			? t("botContext.fileListItem.uploading")
-			: file.uploadStatus === "embedding"
-				? t("botContext.fileListItem.embedding")
-				: file.uploadStatus === "failed"
-					? t("botContext.fileListItem.uploadFailed")
-					: isReindexing
-						? t("botContext.fileListItem.embedding")
-						: persistedStatusLabel
+		const status = file.embeddingStatus
+		if (!status) {
+			return {
+				label: t("botContext.fileListItem.notEmbedded"),
+				working: false,
+				icon: "failed",
+				canRetryEmbedding: true,
+			}
+		}
+		const persistedLabels = {
+			indexed: t("botContext.fileListItem.embedded"),
+			stale: t("botContext.fileListItem.staleEmbedding"),
+			failed: {
+				insufficient_balance: t("botContext.fileListItem.insufficientBalance"),
+				indexing_error: t("botContext.fileListItem.indexingFailed"),
+				provider_error: t("botContext.fileListItem.embeddingFailed"),
+			},
+		}
+		return {
+			label:
+				status === "failed"
+					? persistedLabels.failed[file.embeddingError ?? "provider_error"]
+					: persistedLabels[status],
+			working: false,
+			...persistedStatuses[status],
+		}
+	}
+	const status = getFileStatus()
 
 	const handleReindex = async () => {
 		setIsReindexing(true)
@@ -98,11 +129,11 @@ export function FileListItem({
 			setIsReindexing(false)
 		}
 	}
-	const statusIcon = isWorking ? (
+	const statusIcon = status.working ? (
 		<LoaderCircle size={16} className="animate-spin text-primary" />
-	) : file.embeddingStatus === "indexed" ? (
+	) : status.icon === "indexed" ? (
 		<CircleCheck size={16} className="text-green-600" />
-	) : file.embeddingStatus === "stale" ? (
+	) : status.icon === "stale" ? (
 		<AlertTriangle size={16} className="text-amber-600" />
 	) : (
 		<AlertTriangle size={16} className="text-destructive" />
@@ -114,8 +145,8 @@ export function FileListItem({
 				<FileText size={18} className="shrink-0 text-muted-foreground" />
 				<span
 					role="img"
-					title={statusLabel}
-					aria-label={statusLabel}
+					title={status.label}
+					aria-label={status.label}
 					className="cursor-help"
 				>
 					{statusIcon}
@@ -157,8 +188,8 @@ export function FileListItem({
 				) : (
 					<div className="min-w-0 flex-1">
 						<p className="truncate font-medium text-sm">{file.name}</p>
-						{isWorking ? (
-							<p className="font-medium text-primary text-xs">{statusLabel}</p>
+						{status.working ? (
+							<p className="font-medium text-primary text-xs">{status.label}</p>
 						) : (
 							<p className="text-muted-foreground text-xs">
 								{formatBytes(file.size ?? 0)} -
@@ -183,24 +214,21 @@ export function FileListItem({
 							{t("botContext.fileListItem.retryUpload")}
 						</Button>
 					)}
-					{!file.uploadStatus &&
-						(file.embeddingStatus === "failed" ||
-							file.embeddingStatus === "stale" ||
-							!file.embeddingStatus) && (
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleReindex}
-								disabled={isReindexing}
-								className="h-8 gap-1 px-2"
-							>
-								<RefreshCw
-									size={14}
-									className={isReindexing ? "animate-spin" : undefined}
-								/>
-								{t("botContext.fileListItem.retryEmbedding")}
-							</Button>
-						)}
+					{status.canRetryEmbedding && (
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={handleReindex}
+							disabled={isReindexing}
+							className="h-8 gap-1 px-2"
+						>
+							<RefreshCw
+								size={14}
+								className={isReindexing ? "animate-spin" : undefined}
+							/>
+							{t("botContext.fileListItem.retryEmbedding")}
+						</Button>
+					)}
 					{!file.uploadStatus && (
 						<Button
 							variant="ghost"

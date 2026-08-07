@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 import type { AiProviderConfig } from "shared"
 import { computeEmbeddingCostUsd } from "@/common/billing"
-import { InMemoryRagRepository } from "./rag.repository"
+import { InMemoryRagRepository } from "./rag.repository.in-memory"
 
 // ─── Mock ai package BEFORE importing rag.service ─────────────────────────────
 
