@@ -298,8 +298,19 @@
 			"confirmRename": "Potvrdit přejmenování",
 			"deleteFile": "Smazat soubor",
 			"duplicateName": "Soubor s tímto názvem již existuje",
+			"embedded": "Vloženo",
+			"embedding": "Probíhá vkládání souboru...",
+			"embeddingFailed": "Vkládání se nezdařilo, protože poskytovatel není dostupný. Opakujte akci, až bude stabilní.",
+			"indexingFailed": "Indexování se nezdařilo, protože soubor nebo úložiště platformy nebyly dostupné. Zkuste to později.",
+			"insufficientBalance": "Vkládání nebylo zahájeno, protože nemáte dostatečný zůstatek.",
+			"notEmbedded": "Tento soubor zatím není vložen. Opakujte vkládání a indexujte jej.",
 			"renameFailed": "Přejmenování se nezdařilo. Zkuste to znovu.",
-			"renameFile": "Přejmenovat soubor"
+			"renameFile": "Přejmenovat soubor",
+			"retryEmbedding": "Opakovat vkládání",
+			"retryUpload": "Opakovat nahrání",
+			"staleEmbedding": "Opětovné indexování se nezdařilo. Předchozí indexovaná verze zůstává aktivní.",
+			"uploadFailed": "Nahrání se nezdařilo",
+			"uploading": "Probíhá nahrávání souboru..."
 		},
 		"uploadErrorAlert": {
 			"dismissErrors": "Zavřít chyby",
@@ -308,8 +319,7 @@
 			"failedToUpload_many": "Nepodařilo se nahrát {{count}} souboru",
 			"failedToUpload_other": "Nepodařilo se nahrát {{count}} souborů",
 			"fileAlreadyExists": "Soubor s tímto názvem již existuje",
-			"invalidFileType": "Neplatný typ souboru",
-			"serverError": "Chyba serveru při nahrávání"
+			"invalidFileType": "Neplatný typ souboru"
 		}
 	},
 	"charts": {

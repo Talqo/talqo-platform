@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 import {
 	useDeleteFile,
 	useFiles,
+	useReindexFile,
 	useRenameFile,
 	useUploadFile,
 } from "@/api/hooks/useFiles"
 import { FileList } from "@/components/bot-context"
-import type { UploadError } from "@/components/bot-context/UploadErrorAlert"
 import { PageContainer } from "@/components/layout"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -22,27 +22,42 @@ function BotContextPage() {
 	const uploadFile = useUploadFile()
 	const deleteFile = useDeleteFile()
 	const renameFile = useRenameFile()
+	const reindexFile = useReindexFile()
 
 	const handleFileUpload = async (
 		uploadedFiles: File[],
-	): Promise<UploadError[]> => {
-		const results = await Promise.allSettled(
-			uploadedFiles.map((f) => uploadFile.mutateAsync(f)),
+		onUploaded: (fileName: string) => void,
+	): Promise<string[]> => {
+		const results = await Promise.all(
+			uploadedFiles.map(async (file): Promise<string | null> => {
+				try {
+					await uploadFile.mutateAsync(file)
+				} catch {
+					return file.name
+				}
+
+				onUploaded(file.name)
+				try {
+					await reindexFile.mutateAsync(file.name)
+				} catch {
+					// The uploaded file remains available for another embedding attempt.
+				}
+				return null
+			}),
 		)
-		const errors: UploadError[] = []
-		results.forEach((result, index) => {
-			if (result.status === "rejected") {
-				errors.push({
-					fileName: uploadedFiles[index].name,
-					reason: "server",
-				})
-			}
-		})
-		return errors
+		return results.filter((result): result is string => result !== null)
 	}
 
 	const handleDelete = (name: string): void => {
 		deleteFile.mutate(name)
+	}
+
+	const handleReindex = async (name: string): Promise<void> => {
+		try {
+			await reindexFile.mutateAsync(name)
+		} catch {
+			// The existing failed state remains visible and retryable.
+		}
 	}
 
 	const handleRename = async (
@@ -107,6 +122,7 @@ function BotContextPage() {
 				onRename={handleRename}
 				onDelete={handleDelete}
 				onFilesUploaded={handleFileUpload}
+				onReindex={handleReindex}
 			/>
 		</PageContainer>
 	)

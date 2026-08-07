@@ -1,17 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { client } from "@/api/client"
+import type { paths } from "@/api/generated/openapi"
 import { getApiBaseUrl } from "@/lib/api"
 import { AUTH } from "@/lib/constants"
 
 const FILES_KEY = ["files"] as const
 
-// Extracted from the generated response type for /client/me/files GET 200
-export type FileEntry = {
-	name: string
-	type: "file" | "directory"
-	size?: number
-	lastModified?: string
-}
+type FileListResponse =
+	paths["/client/me/files"]["get"]["responses"][200]["content"]["application/json"]
+export type FileEntry = FileListResponse["entries"][number]
 
 export function useFiles() {
 	return useQuery({
@@ -21,8 +18,7 @@ export function useFiles() {
 				params: { query: { path: "/" } },
 			})
 			if (error) throw error
-			const entries = data.entries as FileEntry[]
-			return entries.filter(
+			return data.entries.filter(
 				(e): e is FileEntry & { type: "file" } => e.type === "file",
 			)
 		},
@@ -39,11 +35,14 @@ export function useUploadFile() {
 			const token = localStorage.getItem(AUTH.TOKEN_KEY)
 			const fd = new FormData()
 			fd.append("file", file)
-			const res = await fetch(`${getApiBaseUrl()}/client/me/files?path=/`, {
-				method: "POST",
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
-				body: fd,
-			})
+			const res = await fetch(
+				`${getApiBaseUrl()}/client/me/files?path=/&index=false`,
+				{
+					method: "POST",
+					headers: token ? { Authorization: `Bearer ${token}` } : {},
+					body: fd,
+				},
+			)
 			if (!res.ok) throw await res.json()
 			return res.json()
 		},
@@ -76,5 +75,19 @@ export function useRenameFile() {
 			return data
 		},
 		onSuccess: () => qc.invalidateQueries({ queryKey: FILES_KEY }),
+	})
+}
+
+export function useReindexFile() {
+	const qc = useQueryClient()
+	return useMutation({
+		mutationFn: async (path: string) => {
+			const { data, error } = await client.POST("/client/me/files/reindex", {
+				body: { path },
+			})
+			if (error) throw error
+			return data
+		},
+		onSettled: () => qc.invalidateQueries({ queryKey: FILES_KEY }),
 	})
 }
