@@ -17,6 +17,7 @@ import type { AppVariables } from "@/common/jwt"
 import { widgetRateLimit } from "@/common/middleware/widget-rate-limit"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
+import { classifyAiStreamError } from "@/modules/agent/agent.errors"
 import { widgetConfigService } from "@/modules/widget-config"
 import { widgetService } from "./index"
 
@@ -268,6 +269,7 @@ widgetMessageRoutes.openapi(
 					})
 				})
 			}, 15000)
+			let phase = "starting"
 			try {
 				await sse.writeSSE({
 					event: "user_message",
@@ -276,6 +278,7 @@ widgetMessageRoutes.openapi(
 
 				let fullContent = ""
 				const reader = stream.getReader()
+				phase = "streaming"
 
 				try {
 					while (true) {
@@ -303,19 +306,26 @@ widgetMessageRoutes.openapi(
 							}),
 						})
 					} else {
-						logger.error("Widget stream error", { error: String(err) })
+						const failure = classifyAiStreamError(err, fullContent.length > 0)
+						logger.error("Widget AI stream failed", {
+							code: failure.code,
+							...failure.diagnostics,
+							conversationId,
+						})
 						await sse.writeSSE({
 							event: "error",
 							data: JSON.stringify({
-								code: "LLM_ERROR",
-								message: "Something went wrong. Please try again.",
+								code: failure.code,
+								message: failure.message,
 							}),
 						})
 					}
 					return
 				}
 
+				phase = "usage"
 				const tokensUsed = isExternalProvider ? undefined : await usage
+				phase = "assistant_persistence"
 				const assistantMessage = await widgetService.createAssistantMessage(
 					clientId,
 					conversationId,
@@ -350,6 +360,7 @@ widgetMessageRoutes.openapi(
 						})
 				}
 
+				phase = "done"
 				await sse.writeSSE({
 					event: "done",
 					data: JSON.stringify(assistantMessage),
@@ -358,12 +369,16 @@ widgetMessageRoutes.openapi(
 				logger.error("Widget SSE unexpected error", {
 					error: err instanceof Error ? err.message : String(err),
 					conversationId,
+					phase,
 				})
+				const responseNotSaved = phase === "assistant_persistence"
 				await sse.writeSSE({
 					event: "error",
 					data: JSON.stringify({
-						code: "INTERNAL_ERROR",
-						message: "Something went wrong. Please try again.",
+						code: responseNotSaved ? "RESPONSE_NOT_SAVED" : "INTERNAL_ERROR",
+						message: responseNotSaved
+							? "The response could not be saved. Please try again."
+							: "The chat service is temporarily unavailable. Please try again shortly.",
 					}),
 				})
 			} finally {

@@ -92,6 +92,8 @@ describe("POST /auth/register", () => {
 		expect((mockSend.mock.calls[0] as unknown as [{ to: string }])[0].to).toBe(
 			validRegistration.email,
 		)
+		const pending = await repo.findPendingByEmail(validRegistration.email)
+		expect(pending?.name).toBe(validRegistration.name)
 	})
 
 	it("returns 409 when a verified account already exists for the email", async () => {
@@ -214,6 +216,9 @@ describe("POST /auth/verify-email", () => {
 		expect(body.token).toBeDefined()
 		expect(body.message).toBe("Email verified successfully")
 		expect(body).not.toHaveProperty("success")
+
+		const client = await repo.findClientByEmail(validRegistration.email)
+		expect(client?.balanceUsd).toBe(10)
 	})
 
 	it("returns 400 for an unknown token", async () => {

@@ -25,9 +25,11 @@ export function useWidgetRating(options: UseWidgetRatingOptions) {
 	>(null)
 
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const submissionRef = useRef(0)
 
 	useEffect(() => {
 		if (isTyping) {
+			submissionRef.current += 1
 			if (showRatingPrompt) setShowRatingPrompt(false)
 		} else if (shouldShowRatingPrompt(messages, ratingSubmitted)) {
 			setShowRatingPrompt(true)
@@ -50,9 +52,12 @@ export function useWidgetRating(options: UseWidgetRatingOptions) {
 				setError("Chat is starting up. Please try again in a moment.")
 				return
 			}
+			const submission = ++submissionRef.current
 			api
 				.submitRating(session.id, conversation.id, rating)
 				.then(() => {
+					if (submissionRef.current !== submission) return
+					setError(null)
 					setRatingSubmitted(true)
 					setSubmittedRatingValue(rating)
 					timeoutRef.current = setTimeout(() => {
@@ -60,17 +65,16 @@ export function useWidgetRating(options: UseWidgetRatingOptions) {
 					}, 2500)
 				})
 				.catch((err: unknown) => {
-					setError(
-						toUserFriendlyError(
-							err instanceof Error ? err.message : String(err),
-						),
-					)
+					if (submissionRef.current === submission) {
+						setError(toUserFriendlyError(err))
+					}
 				})
 		},
 		[apiRef, sessionRef, conversationRef, setError],
 	)
 
 	const clearRating = useCallback(() => {
+		submissionRef.current += 1
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current)
 			timeoutRef.current = null

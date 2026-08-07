@@ -139,7 +139,7 @@ describe("Auth integration tests with real app", () => {
 		})
 		expect(meRes.status).toBe(200)
 		const body = (await meRes.json()) as { name: string; email: string }
-		expect(body.name).toBe(name.toLowerCase())
+		expect(body.name).toBe(name)
 		expect(body.email).toBe(email.toLowerCase())
 	})
 })

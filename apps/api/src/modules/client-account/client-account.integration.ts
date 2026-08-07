@@ -49,7 +49,7 @@ describe("Client Account integration tests", () => {
 		})
 		expect(res.status).toBe(200)
 		const body = (await res.json()) as { name: string; email: string }
-		expect(body.name).toBe(name.toLowerCase())
+		expect(body.name).toBe(name)
 		expect(body.email).toBe(email.toLowerCase())
 	})
 

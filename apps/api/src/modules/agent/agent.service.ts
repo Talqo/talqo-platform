@@ -44,6 +44,9 @@ export async function streamResponse(
 	// Track output text in case the provider doesn't report token usage —
 	// we'll estimate from the raw text as a fallback.
 	let outputText = ""
+	let blacklistBuffer = ""
+	const blacklistTailLength =
+		Math.max(0, ...input.wordBlacklist.map((word) => word.length)) + 1
 	let resolveStreamDone: (() => void) | undefined
 	const streamDonePromise = new Promise<void>((resolve) => {
 		resolveStreamDone = resolve
@@ -65,14 +68,30 @@ export async function streamResponse(
 						return
 					}
 					if (part.type === "text-delta") {
-						if (checkBlacklist(part.text, input.wordBlacklist)) {
+						outputText += part.text
+						if (input.wordBlacklist.length === 0) {
+							controller.enqueue(part.text)
+							continue
+						}
+
+						blacklistBuffer += part.text
+						if (checkBlacklist(`${blacklistBuffer}a`, input.wordBlacklist)) {
 							controller.error(new BlacklistError())
 							return
 						}
-						outputText += part.text
-						controller.enqueue(part.text)
+
+						const emitLength = blacklistBuffer.length - blacklistTailLength
+						if (emitLength > 0) {
+							controller.enqueue(blacklistBuffer.slice(0, emitLength))
+							blacklistBuffer = blacklistBuffer.slice(emitLength)
+						}
 					}
 				}
+				if (checkBlacklist(blacklistBuffer, input.wordBlacklist)) {
+					controller.error(new BlacklistError())
+					return
+				}
+				if (blacklistBuffer) controller.enqueue(blacklistBuffer)
 				controller.close()
 			} catch (error) {
 				controller.error(error)

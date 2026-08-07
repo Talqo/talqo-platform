@@ -16,7 +16,7 @@
 		"check": "biome check .",
 		"fix": "biome check --write .",
 		"type-check": "tsgo --noEmit",
-		"test": "bun -e \"console.log('No tests in widget')\""
+		"test": "bun test"
 	},
 	"dependencies": {
 		"isomorphic-dompurify": "^2.24.0",

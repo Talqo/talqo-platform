@@ -53,7 +53,7 @@
 
 | ID | Requirement | Priority | Status | Completion |
 |----|-------------|----------|--------|------------|
-| FR-2.8 | Client can add funds to their account | Medium | Approved | Done |
+| FR-2.8 | Client receives $10 in initial beta credit and can add free credit to their account without payment details | Medium | Approved | Done |
 | FR-2.9 | Client can set a monthly limit (in USD) for API usage | Low | Approved | Done |
 | FR-2.10 | Client can configure email notifications when a usage threshold is reached | Low | Approved | Done |
 
@@ -128,7 +128,7 @@
 |----|-------------|-------|----------|------------|
 | NFR-2.1 | The bot must refuse requests that could cause real-world harm (e.g. harmful advice, PII extraction) | Enforced via system prompt guardrails | Low | Done |
 | NFR-2.2 | The bot must not recommend or promote competing products or services | Enforced via system prompt + blacklist | High | Done |
-| NFR-2.3 | Client-defined word blacklist violations must be filtered before the response is sent to the end user | | High | Not started |
+| NFR-2.3 | Client-defined word blacklist violations must be filtered before the response is sent to the end user | | High | Done |
 | NFR-2.4 | The bot must stay on-topic for the client's domain and refuse to help with unrelated tasks (e.g. homework, general trivia) | Enforced via system prompt guardrails | High | Done |
 
 ### NFR-3: Security

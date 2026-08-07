@@ -15,7 +15,9 @@ test.describe("Client billing", () => {
 		// exercise the addFundsBodySchema boundaries, which have no
 		// unit/integration test coverage today.
 		async function fillAddFundsForm(page: Page, amount: string) {
-			await page.getByRole("link", { name: "Add Funds" }).click({ force: true })
+			await page
+				.getByRole("link", { name: "Add Free Credit" })
+				.click({ force: true })
 			await expect(page).toHaveURL(/\/dashboard\/add-funds/)
 
 			// The amount input's shadcn FormLabel isn't programmatically
@@ -23,11 +25,9 @@ test.describe("Client billing", () => {
 			// getByLabel never resolves — match dashboard-features.spec.ts's
 			// existing workaround of targeting the placeholder instead.
 			await page.getByPlaceholder("0.00").fill(amount)
-			await page.getByLabel("Card Number").fill("4242 4242 4242 4242")
-			await page.getByLabel("Expiry").fill("12/30")
-			await page.getByLabel("CVV").fill("123")
-			await page.getByLabel("Name on Card").fill("Test User")
-			await page.getByRole("button", { name: /Pay \$/ }).click({ force: true })
+			await page
+				.getByRole("button", { name: /Add \$.* free credit/ })
+				.click({ force: true })
 		}
 
 		test("rejects an amount over the $10,000 cap", async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe("Client billing", () => {
 			// field-specific message — this is the actual rejection state shown.
 			await expect(page.getByText("Invalid input")).toBeVisible()
 			await expect(
-				page.getByText("Funds added successfully!", { exact: false }),
+				page.getByText("Free credit added!", { exact: false }),
 			).not.toBeVisible()
 		})
 
@@ -49,7 +49,7 @@ test.describe("Client billing", () => {
 			await expect(page).toHaveURL(/\/dashboard\/add-funds/)
 			await expect(page.getByText("Invalid input")).toBeVisible()
 			await expect(
-				page.getByText("Funds added successfully!", { exact: false }),
+				page.getByText("Free credit added!", { exact: false }),
 			).not.toBeVisible()
 		})
 	})

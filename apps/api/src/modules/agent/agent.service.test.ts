@@ -151,6 +151,36 @@ describe("streamResponse", () => {
 		expect(mockClose).toHaveBeenCalledTimes(1)
 	})
 
+	it("blocks a blacklisted word split across provider chunks", async () => {
+		mockStreamChunks = ["for", "bidden"]
+		const { stream } = await streamResponse({
+			...baseInput,
+			wordBlacklist: ["forbidden"],
+		})
+		const reader = stream.getReader()
+
+		await expect(reader.read()).rejects.toMatchObject({
+			code: "BLACKLIST_TRIGGERED",
+		})
+	})
+
+	it("does not block a safe word split after a blacklisted prefix", async () => {
+		mockStreamChunks = ["ass", "ignment"]
+		const { stream } = await streamResponse({
+			...baseInput,
+			wordBlacklist: ["ass"],
+		})
+		const reader = stream.getReader()
+		let content = ""
+		while (true) {
+			const { value, done } = await reader.read()
+			if (done) break
+			content += value
+		}
+
+		expect(content).toBe("assignment")
+	})
+
 	describe("token usage fallback", () => {
 		async function drainStream(stream: ReadableStream<string>): Promise<void> {
 			const reader = stream.getReader()
