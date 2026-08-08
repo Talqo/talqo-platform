@@ -2,13 +2,13 @@ import { AlertCircle, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-export type UploadError = {
+export type UploadValidationError = {
 	fileName: string
-	reason: "duplicate" | "invalid" | "server"
+	reason: "duplicate" | "invalid"
 }
 
 type UploadErrorAlertProps = {
-	errors: UploadError[]
+	errors: UploadValidationError[]
 	onDismiss: () => void
 }
 
@@ -35,9 +35,7 @@ export function UploadErrorAlert({ errors, onDismiss }: UploadErrorAlertProps) {
 								{error.fileName}:{" "}
 								{error.reason === "duplicate"
 									? t("botContext.uploadErrorAlert.fileAlreadyExists")
-									: error.reason === "invalid"
-										? t("botContext.uploadErrorAlert.invalidFileType")
-										: t("botContext.uploadErrorAlert.serverError")}
+									: t("botContext.uploadErrorAlert.invalidFileType")}
 							</li>
 						))}
 					</ul>

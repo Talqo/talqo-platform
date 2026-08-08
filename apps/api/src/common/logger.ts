@@ -7,6 +7,26 @@ export type Logger = {
 	withContext: (context: Record<string, unknown>) => Logger
 }
 
+function sanitize(context: Record<string, unknown>): Record<string, unknown> {
+	return Object.fromEntries(
+		Object.entries(context).map(([key, value]) => {
+			if (!(value instanceof Error)) return [key, value]
+			const error = value as Error & { code?: unknown; statusCode?: unknown }
+			return [
+				key,
+				{
+					name: error.name,
+					message: error.message,
+					...(typeof error.code === "string" ? { code: error.code } : {}),
+					...(typeof error.statusCode === "number"
+						? { statusCode: error.statusCode }
+						: {}),
+				},
+			]
+		}),
+	)
+}
+
 function makeLogger(boundContext: Record<string, unknown> = {}): Logger {
 	function log(
 		level: LogLevel,
@@ -17,8 +37,8 @@ function makeLogger(boundContext: Record<string, unknown> = {}): Logger {
 			timestamp: new Date().toISOString(),
 			level,
 			message,
-			...boundContext,
-			...meta,
+			...sanitize(boundContext),
+			...sanitize(meta ?? {}),
 		}
 
 		const line = `${JSON.stringify(entry)}\n`

@@ -98,5 +98,22 @@ describe("logger", () => {
 			expect(entry.stack).toBe("Error: boom")
 			expect(entry.path).toBe("/auth/login")
 		})
+
+		it("does not serialize request payloads attached to errors", () => {
+			const error = Object.assign(new Error("rate limited"), {
+				statusCode: 429,
+				requestBodyValues: { input: ["private document text"] },
+			})
+
+			logger.error("embedding failed", { err: error })
+
+			const raw = (stderrSpy.mock.calls[0] as [string])[0]
+			expect(raw).not.toContain("private document text")
+			expect(parseStderr().err).toEqual({
+				name: "Error",
+				message: "rate limited",
+				statusCode: 429,
+			})
+		})
 	})
 })

@@ -36,6 +36,10 @@ export class FilesService {
 		return this.s3.file(key)
 	}
 
+	exists(key: string): Promise<boolean> {
+		return this.s3.file(key).exists()
+	}
+
 	delete(key: string): Promise<void> {
 		return this.s3.delete(key)
 	}

@@ -155,6 +155,13 @@
 			"when": 1785658921955,
 			"tag": "0021_open_vulture",
 			"breakpoints": true
+		},
+		{
+			"idx": 22,
+			"version": "7",
+			"when": 1785669906172,
+			"tag": "0022_hot_roughhouse",
+			"breakpoints": true
 		}
 	]
 }

@@ -1,12 +1,15 @@
 import { createRoute, z } from "@hono/zod-openapi"
+import type { RagFileErrorCode, RagFileStatus } from "shared"
 import {
 	fileMoveBodySchema,
 	filePathBodySchema,
 	filePathQuerySchema,
 	filePresignBodySchema,
 	fileUploadQuerySchema,
+	ragFileErrorCodeSchema,
+	ragFileStatusSchema,
 } from "shared"
-import { ValidationError } from "@/common/errors"
+import { ConflictError, NotFoundError, ValidationError } from "@/common/errors"
 import type { AppVariables } from "@/common/jwt"
 import { createRouter } from "@/common/router"
 import { errorResponseSchema, successResponseSchema } from "@/common/schemas"
@@ -14,9 +17,21 @@ import type { FilesService } from "./files.service"
 
 // Minimal interface — avoids importing from rag/index and creating a circular dep
 type FileIndexer = {
+	runFileOperation<T>(
+		clientId: string,
+		filePath: string,
+		operation: () => Promise<T>,
+	): Promise<T>
 	indexFile(clientId: string, filePath: string): Promise<void>
 	removeFile(clientId: string, filePath: string): Promise<void>
 	renameFile(clientId: string, oldPath: string, newPath: string): Promise<void>
+	listFileStatuses(clientId: string): Promise<
+		Array<{
+			filePath: string
+			status: RagFileStatus
+			errorCode: RagFileErrorCode | null
+		}>
+	>
 }
 
 // ─── Response schemas ─────────────────────────────────────────────────────────
@@ -26,6 +41,8 @@ const fileEntrySchema = z.object({
 	type: z.enum(["file", "directory"]),
 	size: z.number().optional(),
 	lastModified: z.string().optional(),
+	embeddingStatus: ragFileStatusSchema.optional(),
+	embeddingError: ragFileErrorCodeSchema.nullable().optional(),
 })
 
 const listResponseSchema = z.object({
@@ -72,7 +89,7 @@ function relativePath(clientId: string, key: string): string {
 
 // ─── Router factory ───────────────────────────────────────────────────────────
 
-export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
+export function createFilesRouter(service: FilesService, rag: FileIndexer) {
 	const router = createRouter<{ Variables: AppVariables }>()
 
 	// ─── GET / — list directory ───────────────────────────────────────────────
@@ -108,15 +125,27 @@ export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 
 			const prefix = buildDirKey(clientId, path)
 
-			const { files, directories } = await service.list(prefix)
+			const [{ files, directories }, statuses] = await Promise.all([
+				service.list(prefix),
+				rag.listFileStatuses(clientId),
+			])
+			const statusByPath = new Map(
+				statuses.map((status) => [status.filePath, status]),
+			)
 
 			const entries = [
-				...files.map((f) => ({
-					name: relativePath(clientId, f.key),
-					type: "file" as const,
-					size: f.size,
-					lastModified: f.lastModified.toISOString(),
-				})),
+				...files.map((f) => {
+					const name = relativePath(clientId, f.key)
+					const embedding = statusByPath.get(name)
+					return {
+						name,
+						type: "file" as const,
+						size: f.size,
+						lastModified: f.lastModified.toISOString(),
+						embeddingStatus: embedding?.status,
+						embeddingError: embedding?.errorCode,
+					}
+				}),
 				...directories.map((d) => ({
 					name: relativePath(clientId, d),
 					type: "directory" as const,
@@ -157,6 +186,10 @@ export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 						},
 					},
 				},
+				409: {
+					description: "File already exists",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
 				422: {
 					description: "Invalid path or missing file",
 					content: { "application/json": { schema: errorResponseSchema } },
@@ -165,7 +198,7 @@ export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 		}),
 		async (c) => {
 			const clientId = c.get("clientId" as never) as string
-			const { path } = c.req.valid("query")
+			const { path, index } = c.req.valid("query")
 
 			const dirKey = buildDirKey(clientId, path)
 
@@ -185,18 +218,75 @@ export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 			}
 
 			const key = `${dirKey}${file.name}`
-			await service.upload(key, file, { contentType: file.type || undefined })
-
 			const filePath = relativePath(clientId, key)
-			void (async () => {
-				try {
-					await rag?.indexFile(clientId, filePath)
-				} catch (err) {
-					c.get("logger").error("rag indexFile failed", { err })
+			await rag.runFileOperation(clientId, filePath, async () => {
+				if (await service.exists(key)) {
+					throw new ConflictError("File already exists")
 				}
-			})()
-
+				await service.upload(key, file, { contentType: file.type || undefined })
+			})
+			if (index) {
+				await rag.indexFile(clientId, filePath)
+			}
 			return c.json({ path: `/${filePath}` }, 201)
+		},
+	)
+
+	// ─── POST /reindex — retry RAG indexing ───────────────────────────────────
+
+	router.openapi(
+		createRoute({
+			method: "post",
+			path: "/reindex",
+			tags: ["Files"],
+			summary: "Retry file embedding",
+			security: [{ bearerAuth: [] }],
+			request: {
+				body: {
+					content: { "application/json": { schema: filePathBodySchema } },
+				},
+			},
+			responses: {
+				200: {
+					description: "Indexing finished",
+					content: {
+						"application/json": {
+							schema: successResponseSchema(messageResponseSchema),
+						},
+					},
+				},
+				422: {
+					description: "Invalid path",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				404: {
+					description: "File not found",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				400: {
+					description: "Indexing rejected",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				429: {
+					description: "Too many reindex attempts",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+				500: {
+					description: "Indexing failed",
+					content: { "application/json": { schema: errorResponseSchema } },
+				},
+			},
+		}),
+		async (c) => {
+			const clientId = c.get("clientId" as never) as string
+			const { path } = c.req.valid("json")
+			const key = buildKey(clientId, path)
+			const filePath = relativePath(clientId, key)
+			if (!(await service.exists(key))) {
+				throw new NotFoundError("File not found")
+			}
+			await rag.indexFile(clientId, filePath)
+			return c.json({ message: "Indexing finished" }, 200)
 		},
 	)
 
@@ -280,16 +370,9 @@ export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 			if (key === `${clientId}/`)
 				throw new ValidationError("Invalid path — cannot delete root")
 
-			await service.delete(key)
-
 			const filePath = relativePath(clientId, key)
-			void (async () => {
-				try {
-					await rag?.removeFile(clientId, filePath)
-				} catch (err) {
-					c.get("logger").error("rag removeFile failed", { err })
-				}
-			})()
+			await service.delete(key)
+			await rag.removeFile(clientId, filePath)
 
 			return c.json({ message: "Deleted" }, 200)
 		},
@@ -387,17 +470,15 @@ export function createFilesRouter(service: FilesService, rag?: FileIndexer) {
 				throw new ValidationError("Invalid path — cannot move from or to root")
 			}
 
-			await service.move(fromKey, toKey)
-
 			const oldPath = relativePath(clientId, fromKey)
 			const newPath = relativePath(clientId, toKey)
-			void (async () => {
-				try {
-					await rag?.renameFile(clientId, oldPath, newPath)
-				} catch (err) {
-					c.get("logger").error("rag renameFile failed", { err })
-				}
-			})()
+			await service.move(fromKey, toKey)
+			try {
+				await rag.renameFile(clientId, oldPath, newPath)
+			} catch (error) {
+				await service.move(toKey, fromKey)
+				throw error
+			}
 
 			return c.json({ message: "Moved" }, 200)
 		},

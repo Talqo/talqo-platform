@@ -1,11 +1,11 @@
 import type { EmbeddingModel } from "ai"
 import { embed, embedMany } from "ai"
-import type { AiProviderConfig } from "shared"
+import type { AiProviderConfig, RagFileErrorCode } from "shared"
 import { upsertProviderConfigBodySchema } from "shared"
 import { computeEmbeddingCostUsd, estimateTokens } from "@/common/billing"
 import { config, getDefaultProviderConfig } from "@/common/config"
 import { decrypt } from "@/common/crypto"
-import { BadRequestError } from "@/common/errors"
+import { AppError, BadRequestError } from "@/common/errors"
 import type { FilesService } from "@/modules/files/files.service"
 import type { ProviderConfigRepository } from "@/modules/provider-config/provider-config.repository"
 import { chunkText } from "./rag.chunking"
@@ -19,6 +19,9 @@ type ResolvedEmbedding = {
 }
 
 export class RagService {
+	private readonly fileQueues = new Map<string, Promise<void>>()
+	private readonly providerQueues = new Map<string, Promise<void>>()
+
 	constructor(
 		private readonly repo: RagRepository,
 		private readonly filesService: FilesService,
@@ -26,66 +29,174 @@ export class RagService {
 	) {}
 
 	async indexFile(clientId: string, filePath: string): Promise<void> {
-		const key = `${clientId}/${filePath}`
-		const text = await this.filesService.read(key).text()
-
-		const chunks = chunkText(text)
-
-		if (chunks.length === 0) {
-			await this.repo.deleteByFilePath(clientId, filePath)
-			return
+		await this.repo.consumeFileIndexAttempt(clientId, filePath)
+		let resolved: ResolvedEmbedding
+		try {
+			const providerConfig = await this.resolveProviderConfig(clientId)
+			resolved = this.resolveEmbeddingConfig(providerConfig)
+		} catch (error) {
+			await this.repo.markFileFailed(clientId, filePath, "indexing_error")
+			throw error
 		}
+		const providerKey = resolved.usePlatformBilling
+			? "platform"
+			: `client:${clientId}`
+		const fileKey = `${clientId}::${filePath}`
+		return this.enqueue(this.fileQueues, fileKey, () =>
+			this.enqueue(this.providerQueues, providerKey, () =>
+				this.repo.withLock(`file:${fileKey}`, () =>
+					this.performIndexFile(clientId, filePath, resolved, providerKey),
+				),
+			),
+		)
+	}
 
-		const providerConfig = await this.resolveProviderConfig(clientId)
-		const resolved = this.resolveEmbeddingConfig(providerConfig)
+	runFileOperation<T>(
+		clientId: string,
+		filePath: string,
+		operation: () => Promise<T>,
+	): Promise<T> {
+		const fileKey = `${clientId}::${filePath}`
+		return this.enqueue(this.fileQueues, fileKey, () =>
+			this.repo.withLock(`file:${fileKey}`, operation),
+		)
+	}
 
-		const { embeddings, usage } = await embedMany({
-			model: resolved.model,
-			values: chunks.map((c) => c.text),
-		})
-
-		if (embeddings.length !== chunks.length) {
-			throw new Error(
-				`Embedding count mismatch: expected ${chunks.length}, got ${embeddings.length} (model=${resolved.modelId}, clientId=${clientId}, filePath=${filePath})`,
-			)
-		}
-
-		const upsertData = chunks.map((chunk, i) => {
-			const embedding = embeddings[i]
-			if (!embedding) {
-				throw new Error(`Embedding missing at index ${i} for ${filePath}`)
+	private enqueue<T>(
+		queues: Map<string, Promise<void>>,
+		key: string,
+		operation: () => Promise<T>,
+	): Promise<T> {
+		const previous = queues.get(key) ?? Promise.resolve()
+		const run = previous.then(operation)
+		const queued = run.then(
+			() => {},
+			() => {},
+		)
+		queues.set(key, queued)
+		void queued.then(() => {
+			if (queues.get(key) === queued) {
+				queues.delete(key)
 			}
-			return {
-				clientId,
-				filePath,
-				chunkIndex: chunk.index,
-				chunkText: chunk.text,
-				embedding,
-				embeddingDimensions: embedding.length,
-			}
 		})
+		return run
+	}
 
-		await this.repo.upsertChunks(upsertData)
+	private async performIndexFile(
+		clientId: string,
+		filePath: string,
+		resolved: ResolvedEmbedding,
+		providerKey: string,
+	): Promise<void> {
+		let reservationId: string | undefined
+		let failureCode: RagFileErrorCode = "indexing_error"
+		try {
+			const key = `${clientId}/${filePath}`
+			const text = await this.filesService.read(key).text()
+			const chunks = chunkText(text)
 
-		if (resolved.usePlatformBilling) {
-			// Fall back to estimating tokens from the raw chunk text when the
-			// provider doesn't report usage.
-			const tokens =
-				usage?.tokens && usage.tokens > 0
-					? usage.tokens
-					: chunks.reduce((acc, c) => acc + estimateTokens(c.text), 0)
-			if (tokens > 0) {
-				await this.repo.recordEmbeddingUsage({
+			if (chunks.length === 0) {
+				await this.repo.replaceFileChunks(clientId, filePath, [])
+				return
+			}
+
+			if (resolved.usePlatformBilling) {
+				const tokens = chunks.reduce(
+					(total, chunk) => total + estimateTokens(chunk.text),
+					0,
+				)
+				const usage = {
 					clientId,
 					tokensUsed: tokens,
 					costUsd: computeEmbeddingCostUsd(tokens),
-				})
+				}
+				reservationId = await this.repo.reserveEmbeddingUsage(usage)
 			}
+
+			failureCode = "provider_error"
+			const { embeddings, usage: providerUsage } = await this.repo.withLock(
+				`provider:${providerKey}`,
+				() =>
+					embedMany({
+						model: resolved.model,
+						values: chunks.map((chunk) => chunk.text),
+						abortSignal: AbortSignal.timeout(120_000),
+					}),
+			)
+
+			if (embeddings.length !== chunks.length) {
+				throw new Error(
+					`Embedding count mismatch: expected ${chunks.length}, got ${embeddings.length} (model=${resolved.modelId}, clientId=${clientId}, filePath=${filePath})`,
+				)
+			}
+
+			const upsertData = chunks.map((chunk, index) => {
+				const embedding = embeddings[index]
+				if (!embedding) {
+					throw new Error(`Embedding missing at index ${index} for ${filePath}`)
+				}
+				return {
+					chunkIndex: chunk.index,
+					chunkText: chunk.text,
+					embedding,
+					embeddingDimensions: embedding.length,
+				}
+			})
+
+			failureCode = "indexing_error"
+			const finalTokens =
+				providerUsage?.tokens && providerUsage.tokens > 0
+					? providerUsage.tokens
+					: chunks.reduce(
+							(total, chunk) => total + estimateTokens(chunk.text),
+							0,
+						)
+			await this.repo.replaceFileChunks(
+				clientId,
+				filePath,
+				upsertData,
+				reservationId,
+				resolved.usePlatformBilling
+					? {
+							tokensUsed: finalTokens,
+							costUsd: computeEmbeddingCostUsd(finalTokens),
+						}
+					: undefined,
+			)
+		} catch (error) {
+			const publicError =
+				failureCode === "provider_error" && !(error instanceof AppError)
+					? new Error("Embedding provider request failed")
+					: error
+			if (reservationId) {
+				try {
+					await this.repo.refundEmbeddingUsage(clientId, reservationId)
+				} catch {
+					// The reservation lease is refunded on the next indexing attempt.
+				}
+			}
+			const errorCode =
+				error instanceof BadRequestError &&
+				error.code === "BALANCE_INSUFFICIENT"
+					? "insufficient_balance"
+					: failureCode
+			try {
+				await this.repo.markFileFailed(clientId, filePath, errorCode)
+			} catch {
+				// Preserve the original indexing error for the API caller.
+			}
+			throw publicError
 		}
 	}
 
 	async removeFile(clientId: string, filePath: string): Promise<void> {
-		await this.repo.deleteByFilePath(clientId, filePath)
+		await this.runFileOperation(clientId, filePath, () =>
+			this.repo.deleteFileData(clientId, filePath),
+		)
+	}
+
+	listFileStatuses(clientId: string) {
+		return this.repo.listFileStatuses(clientId)
 	}
 
 	async renameFile(
@@ -93,11 +204,15 @@ export class RagService {
 		oldPath: string,
 		newPath: string,
 	): Promise<void> {
-		await this.repo.renameFilePath(clientId, oldPath, newPath)
+		await this.runFileOperation(clientId, oldPath, () =>
+			this.repo.renameFilePath(clientId, oldPath, newPath),
+		)
 	}
 
 	async removeAllFiles(clientId: string): Promise<void> {
-		await this.repo.deleteByClientId(clientId)
+		await this.runFileOperation(clientId, "*", () =>
+			this.repo.deleteByClientId(clientId),
+		)
 	}
 
 	async retrieve(

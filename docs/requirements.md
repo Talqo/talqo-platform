@@ -73,6 +73,7 @@
 | FR-2.15 | Client can upload files (documents) to build a knowledge base that the bot references when responding | High | Approved | Done |
 | FR-2.15a | Client can delete files from the knowledge base | Medium | Approved | Done |
 | FR-2.15b | Client can configure the embedding model used to index knowledge base files (with provider-specific defaults) | Medium | Approved | Done |
+| FR-2.15c | Client can see file upload and embedding status, understand categorized embedding failures, and retry failed uploads or embedding attempts | High | Approved | Done |
 | FR-2.16 | Client can connect their own MCP server to give the bot access to structured data | High | Approved | Done |
 | FR-2.16a | Client can verify MCP server connectivity and view available tools before or after enabling | Medium | Approved | Done |
 | FR-2.17 | Client can register a custom MCP endpoint URL to connect proprietary data sources | Low | Approved | Done |
